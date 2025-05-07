@@ -20,11 +20,16 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct MyiAppApp: App {
     // register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
     
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                ContentView()
+                if !hasSeenOnboarding {
+                    OnboardingView()
+                } else {
+                    ContentView()
+                }
             }
         }
     }
