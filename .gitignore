@@ -65,7 +65,7 @@ fastlane/test_output
 MyiApp/GoogleService-Info.plist
 
 # macOS
-.DS_Store
+**/.DS_Store
 .AppleDouble
 .LSOverride
 Icon
