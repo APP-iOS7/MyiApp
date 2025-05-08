@@ -8,24 +8,25 @@
 import SwiftUI
 
 struct HomeView: View {
-    //    @StateObject private var viewModel = HomeViewModel()
+//    @StateObject private var viewModel = HomeViewModel()
     
     var body: some View {
-        ScrollView {
-            babyInfoCard
-            calenderView
-            girdItemView
-            recordView
-        }
-        .padding()
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button("bell", systemImage: "bell", action: {})
-                    .tint(.black)
+        NavigationStack {
+            ScrollView {
+                babyInfoCard
+                calenderView
+                girdItemView
+                recordView
+            }
+            .padding()
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("bell", systemImage: "bell", action: {})
+                        .tint(.color1)
+                }
             }
         }
     }
-    
     
     private var babyInfoCard: some View {
         HStack {
@@ -47,13 +48,6 @@ struct HomeView: View {
                     .font(.caption)
             }
         }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-        )
     }
     private var calenderView: some View {
         EmptyView()
@@ -67,7 +61,5 @@ struct HomeView: View {
 }
 
 #Preview {
-    NavigationStack {
-        HomeView()
-    }
+    HomeView()
 }
