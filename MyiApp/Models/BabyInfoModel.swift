@@ -6,9 +6,13 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
-struct BabyInfoModel: Codable {
-    let id: UUID
+struct BabyInfoModel: Codable, Identifiable {
+    var id: UUID
+    var nickname: String
     var name: String
+    var birthDate: Date
     
 }
+
