@@ -9,13 +9,22 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        TabView {
+            NavigationStack { HomeView() }
+            .tabItem { Label("홈", systemImage: "house.fill") }
+            
+            NavigationStack { NoteView() }
+            .tabItem { Label("육아 수첩", systemImage: "book.fill") }
+            
+            NavigationStack { RecordView() }
+            .tabItem { Label("울음 분석", systemImage: "waveform") }
+            
+            NavigationStack { StatisticView() }
+            .tabItem { Label("통계", systemImage: "chart.bar.fill") }
+            
+            NavigationStack { SettingView() }
+            .tabItem { Label("더 보기", systemImage: "") }
         }
-        .padding()
     }
 }
 

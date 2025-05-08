@@ -9,10 +9,12 @@ import SwiftUI
 
 struct SettingView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Text("설정 화면")
     }
 }
 
 #Preview {
-    SettingView()
+    NavigationStack {
+        SettingView()
+    }
 }
