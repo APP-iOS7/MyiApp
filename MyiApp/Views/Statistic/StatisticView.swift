@@ -9,10 +9,12 @@ import SwiftUI
 
 struct StatisticView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Text("통계 화면")
     }
 }
 
 #Preview {
-    StatisticView()
+    NavigationStack {
+        StatisticView()
+    }
 }

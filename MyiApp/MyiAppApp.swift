@@ -10,7 +10,7 @@ import FirebaseCore
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
-                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
         return true
     }
@@ -25,11 +25,7 @@ struct MyiAppApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                if !hasSeenOnboarding {
-                    OnboardingView()
-                } else {
-                    ContentView()
-                }
+                ContentView()
             }
         }
     }
