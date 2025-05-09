@@ -28,6 +28,16 @@ class TestLogInViewModel: ObservableObject {
         }
     }
     
+    func signInWithGoogle() {
+        Task {
+            do {
+                try await authService.googleSignIn()
+            } catch {
+                self.error = error.localizedDescription
+            }
+        }
+    }
+    
     func signUp() {
         Task {
             do {
