@@ -26,7 +26,7 @@ struct ContentView: View {
             .tabItem { Label("통계", systemImage: "chart.bar.fill") }
             
             NavigationStack { SettingView() }
-            .tabItem { Label("더 보기", systemImage: "") }
+            .tabItem { Label("더 보기", systemImage: "line.3.horizontal") }
         }
     }
 }
