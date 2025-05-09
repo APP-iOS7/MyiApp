@@ -10,13 +10,16 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         TabView {
+            
+            // Refector to Tab
+            
             NavigationStack { HomeView() }
             .tabItem { Label("홈", systemImage: "house.fill") }
             
             NavigationStack { NoteView() }
             .tabItem { Label("육아 수첩", systemImage: "book.fill") }
             
-            NavigationStack { RecordView() }
+            NavigationStack { VoiceRecordView() }
             .tabItem { Label("울음 분석", systemImage: "waveform") }
             
             NavigationStack { StatisticView() }

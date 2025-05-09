@@ -17,6 +17,7 @@ struct Baby: Codable, Identifiable {
     var height: Double
     var weight: Double
     var bloodType: BloodType
+    var photoURL: String?
     
     var careGivers: [CareGiver]
     var records: [Record]

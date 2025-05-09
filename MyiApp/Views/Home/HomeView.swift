@@ -22,7 +22,6 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("bell", systemImage: "bell", action: {})
-                        .tint(.color1)
                 }
             }
         }
