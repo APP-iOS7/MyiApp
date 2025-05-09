@@ -7,6 +7,6 @@
 
 import Foundation
 
-class AuthService {
+class AuthService: ObservableObject {
     
 }
