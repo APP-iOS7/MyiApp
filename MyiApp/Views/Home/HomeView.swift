@@ -21,7 +21,9 @@ struct HomeView: View {
             .padding()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("bell", systemImage: "bell", action: {})
+                    Button("bell", systemImage: "bell", action: {
+                        AuthService.shared.signOut()
+                    })
                 }
             }
         }
