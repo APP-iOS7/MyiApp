@@ -8,9 +8,7 @@
 import SwiftUI
 
 struct TestLogInView: View {
-    @State private var email: String = ""
-    @State private var password: String = ""
-    @State private var isShowingAlert = false
+    @StateObject var viewModel: TestLogInViewModel = .init()
     
     var body: some View {
         VStack(spacing: 20) {
@@ -21,20 +19,17 @@ struct TestLogInView: View {
                 .padding(.bottom, 30)
             
             // 이메일 입력 필드
-            TextField("이메일", text: $email)
+            TextField("이메일", text: $viewModel.email)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
             
             // 비밀번호 입력 필드
-            SecureField("비밀번호", text: $password)
+            SecureField("비밀번호", text: $viewModel.password)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
             
             // 로그인 버튼
-            Button(action: {
-                // 로그인 로직 구현
-                isShowingAlert = true
-            }) {
+            Button { viewModel.signIn() } label: {
                 Text("로그인")
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
@@ -44,12 +39,9 @@ struct TestLogInView: View {
             }
             .padding(.horizontal)
             
-            // 회원가입 링크
-            Button(action: {
-                // 로그인 로직 구현
-                isShowingAlert = true
-            }) {
-                Text("로그인")
+            // 회원가입
+            Button { viewModel.signUp() } label: {
+                Text("회원가입")
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -57,15 +49,16 @@ struct TestLogInView: View {
                     .cornerRadius(10)
             }
             .padding(.horizontal)
+            
+            if let errorMessage = viewModel.error {
+                Text(errorMessage)
+            }
+                
         }
-        .padding()
-        .alert("로그인", isPresented: $isShowingAlert) {
-            Button("확인", role: .cancel) { }
-        } message: {
-            Text("로그인 기능이 구현되었습니다.")
-        }
+        .padding(.horizontal)
     }
 }
+
 
 #Preview {
     TestLogInView()
