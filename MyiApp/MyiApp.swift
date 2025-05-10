@@ -1,5 +1,5 @@
 //
-//  MyiAppApp.swift
+//  MyiApp.swift
 //  MyiApp
 //
 //  Created by 최범수 on 2025-05-07.
@@ -23,7 +23,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 }
 
 @main
-struct MyiAppApp: App {
+struct MyiApp: App {
     // register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var authService = AuthService.shared
