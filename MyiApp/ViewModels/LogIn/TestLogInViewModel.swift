@@ -17,31 +17,11 @@ class TestLogInViewModel: ObservableObject {
     init() {
         self.authService = AuthService.shared
     }
-    
-    func signIn() {
-        Task {
-            do {
-                try await authService.signIn(email: email, password: password)
-            } catch {
-                self.error = error.localizedDescription
-            }
-        }
-    }
-    
+
     func signInWithGoogle() {
         Task {
             do {
                 try await authService.googleSignIn()
-            } catch {
-                self.error = error.localizedDescription
-            }
-        }
-    }
-    
-    func signUp() {
-        Task {
-            do {
-                try await authService.signUp(email: email, password: password)
             } catch {
                 self.error = error.localizedDescription
             }
