@@ -8,6 +8,8 @@
 import SwiftUI
 
 class TestRegisterBabyViewModel: ObservableObject {
+    private let databaseService = DatabaseService.shared
+    
     @Published var name: String = ""
     @Published var birthDate: Date = Date()
     @Published var gender: Gender? = nil
@@ -24,21 +26,14 @@ class TestRegisterBabyViewModel: ObservableObject {
             errorMessage = "모든 정보를 올바르게 입력해주세요."
             return
         }
-        let baby = Baby(
-            id: UUID(),
-            name: name,
-            birthDate: birthDate,
-            gender: gender,
-            height: heightValue,
-            weight: weightValue,
-            bloodType: bloodType,
-            photoURL: nil,
-            careGivers: [],
-            records: [],
-            voiceRecords: [],
-            note: []
-        )
-        // TODO: 파이어베이스 등 저장 로직 추가
+        let baby = Baby(name: name, birthDate: birthDate, gender: gender, height: heightValue, weight: weightValue, bloodType: bloodType)
+        Task {
+            do {
+                try await databaseService.saveBabyInfo(baby: baby)
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        }
     }
 }
 
@@ -94,9 +89,7 @@ struct TestRegisterBabyView: View {
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
-            Button(action: {
-                viewModel.registerBaby()
-            }) {
+            Button(action: viewModel.registerBaby) {
                 Text("등록하기")
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)

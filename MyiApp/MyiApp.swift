@@ -25,12 +25,15 @@ struct MyiApp: App {
     // register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var authService = AuthService.shared
+    @StateObject var databaseService = DatabaseService.shared
     
     var body: some Scene {
         WindowGroup {
             NavigationView {
                 if authService.user == nil {
                     TestLogInView()
+                } else if !DatabaseService.shared.hasBabyInfo {
+                    TestRegisterBabyView()
                 } else {
                     ContentView()
                 }

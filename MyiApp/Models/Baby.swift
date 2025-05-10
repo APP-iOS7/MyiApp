@@ -7,7 +7,6 @@
 
 import Foundation
 import FirebaseFirestore
-import FirebaseAuth
 
 struct Baby: Codable, Identifiable {
     var id: UUID
@@ -19,10 +18,25 @@ struct Baby: Codable, Identifiable {
     var bloodType: BloodType
     var photoURL: String?
     
-    var careGivers: [CareGiver]
+    var caregivers: [DocumentReference]
     var records: [Record]
     var voiceRecords: [VoiceRecord]
     var note: [Note]
+    
+    init(name: String, birthDate: Date, gender: Gender, height: Double, weight: Double, bloodType: BloodType) {
+        self.id = UUID()
+        self.name = name
+        self.birthDate = birthDate
+        self.gender = gender
+        self.height = height
+        self.weight = weight
+        self.bloodType = bloodType
+        self.photoURL = nil
+        self.caregivers = []
+        self.records = []
+        self.voiceRecords = []
+        self.note = []
+    }
 }
 
 enum BloodType: String, Codable {
