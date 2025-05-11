@@ -152,7 +152,7 @@ struct TimelineRow: View {
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             // 1. 시간
-            Text(time)
+            Text(record.createdAt.formattedKoreanDateString())
                 .font(.caption)
                 .frame(width: 50, alignment: .leading)
             
@@ -171,16 +171,16 @@ struct TimelineRow: View {
             
             // 3. 아이콘 + 텍스트 그룹
             HStack(spacing: 8) {
-                Image(systemName: systemImage)
+                Image(.colorBabyFood)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 40, height: 40)
                     .foregroundColor(.pink)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
+                    Text(record.title.rawValue)
                         .font(.subheadline)
                         .fontWeight(.medium)
-                    Text(subtitle)
+                    Text("subtitle")
                         .font(.caption2)
                         .foregroundColor(.gray)
                 }
@@ -197,5 +197,5 @@ struct TimelineRow: View {
     HomeView()
 }
 #Preview {
-    TimelineRow()
+    TimelineRow(record: Record.mockRecords[0])
 }
