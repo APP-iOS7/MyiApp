@@ -140,8 +140,10 @@ struct HomeView: View {
     }
     
     private var timeline: some View {
-        ForEach(Record.mockRecords) { record in
-            TimelineRow(record: record)
+        VStack(spacing: 0) {
+            ForEach(Record.mockRecords) { record in
+                TimelineRow(record: record)
+            }
         }
     }
 }
