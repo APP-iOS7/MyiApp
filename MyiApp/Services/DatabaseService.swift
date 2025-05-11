@@ -10,7 +10,6 @@ import FirebaseFirestore
 
 class DatabaseService: ObservableObject {
     @Published var hasBabyInfo: Bool = false
-    private var cancellables = Set<AnyCancellable>()
     let auth = AuthService.shared
     let db = Firestore.firestore()
     static let shared = DatabaseService()
@@ -44,26 +43,6 @@ class DatabaseService: ObservableObject {
             }
         }
     }
-    
-    //    @MainActor
-    //    func checkBabyInfo() async {
-    //        guard let uid = auth.user?.uid else {
-    //            self.hasBabyInfo = false
-    //            return
-    //        }
-    //        do {
-    //            let docRef = db.collection("users").document(uid)
-    //            let document = try await docRef.getDocument()
-    //            if let babies = document.get("babies") as? [DocumentReference] {
-    //                self.hasBabyInfo = !babies.isEmpty
-    //            } else {
-    //                self.hasBabyInfo = false
-    //            }
-    //        } catch {
-    //            self.hasBabyInfo = false
-    //            print("Error fetching baby info: \(error.localizedDescription)")
-    //        }
-    //    }
     
     func saveBabyInfo(baby: Baby) async throws {
         // 아기의 정보를 babies collection에 uuid필드에 저장.
