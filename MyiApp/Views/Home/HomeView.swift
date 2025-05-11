@@ -140,8 +140,8 @@ struct HomeView: View {
     }
     
     private var timeline: some View {
-        VStack {
-            
+        ForEach(Record.mockRecords) { record in
+            TimelineRow(record: record)
         }
     }
 }
@@ -152,7 +152,7 @@ struct TimelineRow: View {
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             // 1. 시간
-            Text(record.createdAt.formattedKoreanDateString())
+            Text(record.createdAt.to24HourTimeString())
                 .font(.caption)
                 .frame(width: 50, alignment: .leading)
             
