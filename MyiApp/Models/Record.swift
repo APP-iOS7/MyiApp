@@ -55,3 +55,108 @@ enum PoopType: String, Codable {
     case all
 }
 
+extension Record {
+    static let mockRecords: [Record] = [
+        // 분유
+        Record(
+            id: UUID(),
+            createdAt: Date(),
+            title: .formula,
+            mlAmount: 120
+        ),
+
+        // 이유식
+        Record(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-3600),
+            title: .babyFood,
+            mlAmount: 80
+        ),
+
+        // 유축수유
+        Record(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-7200),
+            title: .pumpedMilk,
+            mlAmount: 100
+        ),
+
+        // 모유수유
+        Record(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-10800),
+            title: .breastfeeding,
+            breastfeedingLeftMinutes: 10,
+            breastfeedingRightMinutes: 15
+        ),
+
+        // 기저귀
+        Record(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-14400),
+            title: .diaper,
+            isFixedEvent: true
+        ),
+
+        // 배변 - poop
+        Record(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-18000),
+            title: .potty,
+            pottyType: .poop
+        ),
+
+        // 배변 - pee
+        Record(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-21600),
+            title: .potty,
+            pottyType: .pee
+        ),
+
+        // 수면
+        Record(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-25200),
+            title: .sleep,
+            sleepStart: Date().addingTimeInterval(-25200),
+            sleepEnd: Date().addingTimeInterval(-21600)
+        ),
+
+        // 키/몸무게
+        Record(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-86400),
+            title: .heightWeight,
+            height: 65.3,
+            weight: 7.8
+        ),
+
+        // 목욕
+        Record(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-30000),
+            title: .bath,
+            isFixedEvent: true
+        ),
+
+        // 간식
+        Record(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-40000),
+            title: .snack,
+            snackContent: "바나나 퓨레 1/2개"
+        ),
+
+        // 건강관리
+        Record(
+            id: UUID(),
+            createdAt: Date().addingTimeInterval(-50000),
+            title: .health,
+            bodyTemperature: 37.4,
+            medicineMemo: "해열제 2ml 복용",
+            clinicMemo: "소아과 정기 검진",
+            healthEtcMemo: "귀 점검 완료"
+        )
+    ]
+}
