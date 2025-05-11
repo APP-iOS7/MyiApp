@@ -16,8 +16,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-            return GIDSignIn.sharedInstance.handle(url)
-        }
+        return GIDSignIn.sharedInstance.handle(url)
+    }
 }
 
 @main
@@ -30,12 +30,14 @@ struct MyiApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                if authService.user == nil {
-                    TestLogInView()
-                } else if !DatabaseService.shared.hasBabyInfo {
-                    TestRegisterBabyView()
-                } else {
-                    ContentView()
+                ZStack {
+                    if authService.user == nil {
+                        TestLogInView()
+                    } else if !databaseService.hasBabyInfo {
+                        TestRegisterBabyView()
+                    } else {
+                        ContentView()
+                    }
                 }
             }
         }

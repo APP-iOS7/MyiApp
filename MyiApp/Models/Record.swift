@@ -12,6 +12,13 @@ struct Record: Codable, Identifiable {
     var createdAt: Date
     var title: TitleCategory
     var detail: RecordDetail
+    
+    init(title: TitleCategory, detail: RecordDetail) {
+        self.id = UUID()
+        self.createdAt = Date()
+        self.title = title
+        self.detail = detail
+    }
 }
 
 enum TitleCategory: String, Codable, CaseIterable {
