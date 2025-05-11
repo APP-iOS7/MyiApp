@@ -11,14 +11,28 @@ struct Record: Codable, Identifiable {
     var id: UUID
     var createdAt: Date
     var title: TitleCategory
-    var detail: RecordDetail
-    
-    init(title: TitleCategory, detail: RecordDetail) {
-        self.id = UUID()
-        self.createdAt = Date()
-        self.title = title
-        self.detail = detail
-    }
+    // 분유, 이유식, 유축수유 양 (ml)
+    var mlAmount: Int?
+    // 모유수유: 좌/우 분유 수유 시간 (분)
+    var breastfeedingLeftMinutes: Int?
+    var breastfeedingRightMinutes: Int?
+    // 배변 종류
+    var pottyType: PoopType?
+    // 수면: 시작 및 종료 시간
+    var sleepStart: Date?
+    var sleepEnd: Date?
+    // 키/몸무게
+    var height: Double?
+    var weight: Double?
+    // 간식 내용
+    var snackContent: String?
+    // 건강관리 세부 정보
+    var bodyTemperature: Double?       // 체온 측정 값
+    var medicineMemo: String?          // 약 투여 메모
+    var clinicMemo: String?            // 병원 방문 메모
+    var healthEtcMemo: String?         // 기타 건강관리 메모
+    // 고정 이벤트 (기저귀, 목욕 등)
+    var isFixedEvent: Bool?
 }
 
 enum TitleCategory: String, Codable, CaseIterable {
@@ -41,20 +55,3 @@ enum PoopType: String, Codable {
     case all
 }
 
-enum HealthCareType: Codable {
-    case bodyTemperature(temperature: Double)
-    case medicine(memo: String)
-    case clinic(memo: String)
-    case etc(memo: String)
-}
-
-enum RecordDetail: Codable {
-    case mlAmount(Int)  // 분유, 이유식, 유축수유
-    case breastfeeding(leftMinutes: Int, rightMinutes: Int)  // 모유수유
-    case potty(type: PoopType) // 배변
-    case sleep(start: Date, end: Date)  // 수면
-    case heightWeight(height: Double, weight: Double) // 키/몸무게
-    case snack(content: String) // 간식
-    case healthCare(note: HealthCareType) // 건강관리
-    case fixedEvent  // 기저귀, 목욕 (1회 고정)
-}
