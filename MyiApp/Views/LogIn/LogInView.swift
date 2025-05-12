@@ -18,7 +18,9 @@ struct LogInView: View {
             Color("launchScreen")
                 .ignoresSafeArea()
             
-            VStack(spacing: 10) {
+            VStack(spacing: 20) {
+                Spacer()
+                
                 Text("My i")
                     .font(.system(size: 60))
                     .fontWeight(.bold)
@@ -30,7 +32,8 @@ struct LogInView: View {
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
-                    .padding(.bottom, 30)
+                    
+                Spacer()
                 
                 Image("launchIcon")
                     .resizable()
@@ -38,6 +41,7 @@ struct LogInView: View {
                     .frame(width: 256, height: 256)
                     .padding(.bottom, 75)
                 
+                Spacer()
                 
                 // Google 로그인 버튼
                 Button(action: {
@@ -49,32 +53,28 @@ struct LogInView: View {
                         }
                     }
                 }) {
-                    HStack(alignment: .center) {
+                    HStack {
                         // Google 로고 (Asset에서 추가한 이미지 사용)
                         Image("google-logo-icon") // Assets.xcassets에 google_logo 추가
                             .resizable()
-                            .frame(width: 24, height: 24)
-                            .padding(.leading, 60)
+                            .scaledToFit()
+                            .frame(width: 18, height: 18)
+                            .padding(.leading)
                         
                         Text("Sign in with Google")
                             .font(.system(size: 20, weight: .medium))
-                            .frame(maxWidth: .infinity)
-                            .padding(.trailing , 50)
                     }
-                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.horizontal)
+                        .padding(.vertical, 13)
                 }
                 .background(Color(UIColor { trait in
                     trait.userInterfaceStyle == .dark ? .systemGray5 : .white
                 }))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                )
-                
+                .clipShape(RoundedRectangle(cornerRadius: 8))                
                 .frame(height: 50)
                 .frame(maxWidth: .infinity)
-                .padding()
+                .padding(.horizontal, 50)
                 
                 // 애플 로그인 버튼
                 SignInWithAppleButton(.signIn) { request in
@@ -94,8 +94,9 @@ struct LogInView: View {
                     }
                 }
                 .frame(height: 50)
-                .padding(.horizontal)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.horizontal, 50)
+                
+                Spacer()
             }
             
             // 로그인 로딩 화면
