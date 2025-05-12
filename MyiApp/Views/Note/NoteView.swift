@@ -16,201 +16,31 @@ struct NoteView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            VStack(spacing: 0) {
-                HStack {
-                    Text(viewModel.currentMonth)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        viewModel.selectedMonth = Date()
-                        viewModel.fetchCalendarDays()
-                        
-                        let today = Calendar.current.startOfDay(for: Date())
-                        if let todayDay = viewModel.days.first(where: { $0.isToday }) {
-                            selectedDate = today
-                            viewModel.selectedDay = todayDay
-                        }
-                    }) {
-                        Text("오늘")
-                            .font(.subheadline)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .foregroundColor(.white)
-                            .background(Capsule().fill(Color("sharkPrimaryColor")))
-                    }
-                    
-                    Button(action: {
-                        viewModel.changeMonth(by: -1)
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .font(.title3)
-                            .foregroundColor(.primary)
-                    }
-                    .padding(.horizontal, 6)
-                    
-                    Button(action: {
-                        viewModel.changeMonth(by: 1)
-                    }) {
-                        Image(systemName: "chevron.right")
-                            .font(.title3)
-                            .foregroundColor(.primary)
-                    }
-                }
+            // 아기 정보 표시 섹션을 함수로 추출
+            babyInfoSection()
+            
+            // 캘린더 헤더
+            calendarHeaderSection()
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color("sharkCardBackground"))
+                )
                 .padding(.horizontal)
-                .padding(.top, 12)
-                .padding(.bottom, 8)
-                
-                // 요일 헤더 - 일요일은 빨간색, 토요일은 파란색으로 표시
-                HStack(spacing: 0) {
-                    ForEach(viewModel.weekdays, id: \.self) { day in
-                        Text(day)
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(day == "일" ? .red : day == "토" ? .blue : .primary)
-                            .frame(maxWidth: .infinity)
-                    }
-                }
+            
+            // 캘린더 그리드
+            calendarGridSection()
+                .padding(.horizontal)
                 .padding(.vertical, 8)
-            }
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color("sharkCardBackground"))
-            )
-            .padding(.horizontal)
             
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 8) {
-                ForEach(viewModel.days) { day in
-                    CalendarDayView(
-                        day: day,
-                        selectedDate: $selectedDate,
-                        events: viewModel.getEventsForDay(day)
-                    )
-                    .onTapGesture {
-                        if day.date != nil {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                selectedDate = day.date
-                                viewModel.selectedDay = day
-                            }
-                        }
-                    }
-                }
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            
-            HStack {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        Button(action: {
-                            selectedFilterCategory = nil
-                        }) {
-                            Text("전체")
-                                .font(.caption)
-                                .fontWeight(.medium)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(
-                                    Capsule()
-                                        .fill(selectedFilterCategory == nil ? Color("sharkPrimaryColor") : Color.gray.opacity(0.1))
-                                )
-                                .foregroundColor(selectedFilterCategory == nil ? .white : .primary)
-                        }
-                        
-                        ForEach(NoteCategory.allCases, id: \.self) { category in
-                            Button(action: {
-                                selectedFilterCategory = category
-                            }) {
-                                Text(category.rawValue)
-                                    .font(.caption)
-                                    .fontWeight(.medium)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
-                                    .background(
-                                        Capsule()
-                                            .fill(selectedFilterCategory == category ? Color("sharkPrimaryColor") : Color.gray.opacity(0.1))
-                                    )
-                                    .foregroundColor(selectedFilterCategory == category ? .white : .primary)
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-            }
-            .padding(.vertical, 8)
+            // 카테고리 필터
+            categoryFilterSection()
+                .padding(.vertical, 8)
             
             Divider()
                 .padding(.horizontal)
             
-            VStack(alignment: .leading) {
-                if let selectedDay = viewModel.selectedDay, let date = selectedDay.date {
-                    HStack {
-                        Text("\(date.formattedFullKoreanDateString())")
-                            .font(.headline)
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            showingNoteEditor = true
-                        }) {
-                            Label("추가", systemImage: "plus.circle.fill")
-                                .font(.caption)
-                                .foregroundColor(Color("sharkPrimaryDark"))
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 12)
-                    
-                    ScrollView {
-                        LazyVStack(spacing: 12) {
-                            if let events = viewModel.events[Calendar.current.startOfDay(for: date)] {
-                                let filteredEvents = selectedFilterCategory == nil ? events : events.filter { $0.category == selectedFilterCategory }
-                                
-                                if filteredEvents.isEmpty {
-                                    VStack {
-                                        Spacer()
-                                        Text("해당 카테고리의 기록이 없습니다.")
-                                            .foregroundColor(.gray)
-                                            .padding(.top, 60)
-                                        Spacer()
-                                    }
-                                    .frame(height: 200)
-                                } else {
-                                    ForEach(filteredEvents) { event in
-                                        Button {
-                                            selectedEvent = event
-                                        } label: {
-                                            NoteEventRow(event: event)
-                                        }
-                                        .buttonStyle(PlainButtonStyle())
-                                    }
-                                    .padding(.bottom, 16)
-                                }
-                            } else {
-                                VStack {
-                                    Spacer()
-                                    Text("기록된 일지가 없습니다.")
-                                        .foregroundColor(.gray)
-                                        .padding(.top, 60)
-                                    Spacer()
-                                }
-                                .frame(height: 200)
-                            }
-                        }
-                    }
-                } else {
-                    VStack {
-                        Spacer()
-                        Text("날짜를 선택해주세요.")
-                            .foregroundColor(.gray)
-                            .padding(.top, 60)
-                        Spacer()
-                    }
-                    .frame(height: 200)
-                }
-            }
+            // 선택된 날짜의 이벤트 목록
+            selectedDateEventsSection()
             
             Spacer()
         }
@@ -241,106 +71,229 @@ struct NoteView: View {
         .navigationDestination(item: $selectedEvent) { event in
             NoteDetailView(event: event)
         }
-    }
-}
-
-struct CalendarDayView: View {
-    var day: CalendarDay
-    @Binding var selectedDate: Date?
-    var events: [Note]
-    
-    var body: some View {
-        VStack(spacing: 3) {
-            if let date = day.date {
-                let isSelected = selectedDate.map { Calendar.current.isDate($0, inSameDayAs: date) } ?? false
-                let weekday = Calendar.current.component(.weekday, from: date)
-                let isSunday = weekday == 1
-                let isSaturday = weekday == 7
-                
-                ZStack {
-                    if isSelected {
-                        Circle()
-                            .fill(Color("sharkPrimaryColor"))
-                            .frame(width: 35, height: 35)
-                    } else if day.isToday {
-                        Circle()
-                            .stroke(Color("sharkPrimaryDark"), lineWidth: 1.5)
-                            .frame(width: 35, height: 35)
-                    }
-                    
-                    Text(day.dayNumber)
-                        .font(.custom("Cafe24-Ohsquareair", size: isSelected ? 18 : 16))
-                        .fontWeight(isSelected ? .bold : .regular)
-                        .foregroundColor(
-                            isSelected ? .white :
-                                isSunday && day.isCurrentMonth ? .red :
-                                isSaturday && day.isCurrentMonth ? .blue :
-                                    day.isToday ? Color("sharkPrimaryDark") :
-                                        day.isCurrentMonth ? .primary : .gray
-                        )
+        .onAppear {
+            // 앱이 시작될 때 현재 날짜를 선택
+            if selectedDate == nil {
+                selectedDate = Date()
+                if let todayDay = viewModel.days.first(where: { $0.isToday }) {
+                    viewModel.selectedDay = todayDay
                 }
-                .frame(width: 35, height: 35)
+            }
+        }
+    }
+    
+    // MARK: - 아기 정보 섹션
+    @ViewBuilder
+    private func babyInfoSection() -> some View {
+        // 로컬 변수로 babyInfo 가져오기
+        let babyInfoValue = viewModel.babyInfo
+        
+        if let info = babyInfoValue {
+            BabyBirthdayInfoView(babyName: info.name, birthDate: info.birthDate)
+                .padding(.top, 8)
+                .padding(.bottom, 12)
+        }
+    }
+    
+    // MARK: - 캘린더 헤더 섹션
+    @ViewBuilder
+    private func calendarHeaderSection() -> some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text(viewModel.currentMonth)
+                    .font(.title2)
+                    .fontWeight(.bold)
                 
-                HStack(spacing: 4) {
-                    if !events.isEmpty {
-                        ForEach(0..<min(events.count, 3), id: \.self) { _ in
-                            Circle()
-                                .fill(Color("sharkPrimaryLight"))
-                                .frame(width: 6, height: 6)
+                Spacer()
+                
+                Button(action: {
+                    viewModel.selectedMonth = Date()
+                    viewModel.fetchCalendarDays()
+                    
+                    let today = Calendar.current.startOfDay(for: Date())
+                    if let todayDay = viewModel.days.first(where: { $0.isToday }) {
+                        selectedDate = today
+                        viewModel.selectedDay = todayDay
+                    }
+                }) {
+                    Text("오늘")
+                        .font(.subheadline)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .foregroundColor(.white)
+                        .background(Capsule().fill(Color("sharkPrimaryColor")))
+                }
+                
+                Button(action: {
+                    viewModel.changeMonth(by: -1)
+                }) {
+                    Image(systemName: "chevron.left")
+                        .font(.title3)
+                        .foregroundColor(.primary)
+                }
+                .padding(.horizontal, 6)
+                
+                Button(action: {
+                    viewModel.changeMonth(by: 1)
+                }) {
+                    Image(systemName: "chevron.right")
+                        .font(.title3)
+                        .foregroundColor(.primary)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
+            
+            // 요일 헤더 - 일요일은 빨간색, 토요일은 파란색으로 표시
+            HStack(spacing: 0) {
+                ForEach(viewModel.weekdays, id: \.self) { day in
+                    Text(day)
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(day == "일" ? .red : day == "토" ? .blue : .primary)
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .padding(.vertical, 8)
+        }
+    }
+    
+    // MARK: - 캘린더 그리드 섹션
+    @ViewBuilder
+    private func calendarGridSection() -> some View {
+        let days = viewModel.days
+        
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 8) {
+            ForEach(days) { day in
+                CalendarDayView(
+                    day: day,
+                    selectedDate: $selectedDate,
+                    events: viewModel.getEventsForDay(day),
+                    isBirthday: viewModel.isBirthday(day.date)
+                )
+                .onTapGesture {
+                    if day.date != nil {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            selectedDate = day.date
+                            viewModel.selectedDay = day
                         }
                     }
                 }
-                .frame(height: 10)
-                .padding(.top, 2)
-            } else {
-                Text("")
-                    .frame(width: 35, height: 35)
-                
-                Rectangle()
-                    .fill(Color.clear)
-                    .frame(height: 10)
-                    .padding(.top, 2)
             }
         }
-        .frame(height: 50)
     }
-}
-
-struct NoteEventRow: View {
-    var event: Note
     
-    var body: some View {
-        HStack(spacing: 12) {
-            Circle()
-                .fill(Color("sharkPrimaryLight"))
-                .frame(width: 10, height: 10)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(event.title)
-                    .font(.headline)
-                    .fontWeight(.medium)
-                
-                Text(event.description)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
+    // MARK: - 카테고리 필터 섹션
+    @ViewBuilder
+    private func categoryFilterSection() -> some View {
+        HStack {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    Button(action: {
+                        selectedFilterCategory = nil
+                    }) {
+                        Text("전체")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(
+                                Capsule()
+                                    .fill(selectedFilterCategory == nil ? Color("sharkPrimaryColor") : Color.gray.opacity(0.1))
+                            )
+                            .foregroundColor(selectedFilterCategory == nil ? .white : .primary)
+                    }
+                    
+                    ForEach(NoteCategory.allCases, id: \.self) { category in
+                        Button(action: {
+                            selectedFilterCategory = category
+                        }) {
+                            Text(category.rawValue)
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(
+                                    Capsule()
+                                        .fill(selectedFilterCategory == category ? Color("sharkPrimaryColor") : Color.gray.opacity(0.1))
+                                )
+                                .foregroundColor(selectedFilterCategory == category ? .white : .primary)
+                        }
+                    }
+                }
+                .padding(.horizontal)
             }
-            
-            Spacer()
-            
-            Text(event.timeString)
-                .font(.caption)
-                .foregroundColor(.secondary)
         }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color("sharkCardBackground"))
-        )
-        .padding(.horizontal)
+    }
+    
+    // MARK: - 선택된 날짜의 이벤트 섹션
+    @ViewBuilder
+    private func selectedDateEventsSection() -> some View {
+        VStack(alignment: .leading) {
+            if let selectedDay = viewModel.selectedDay, let date = selectedDay.date {
+                HStack {
+                    Text("\(date.formattedFullKoreanDateString())")
+                        .font(.headline)
+                    
+                    // 생일 표시 추가
+                    if viewModel.isBirthday(date) {
+                        Text("🎂 생일")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.pink)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(
+                                Capsule()
+                                    .fill(Color.pink.opacity(0.1))
+                            )
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        showingNoteEditor = true
+                    }) {
+                        Label("추가", systemImage: "plus.circle.fill")
+                            .font(.caption)
+                            .foregroundColor(Color("sharkPrimaryDark"))
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 12)
+                
+                if let events = viewModel.events[Calendar.current.startOfDay(for: date)] {
+                    NoteEventList(
+                        events: events,
+                        filteredCategory: selectedFilterCategory
+                    ) { event in
+                        selectedEvent = event
+                    }
+                } else {
+                    VStack {
+                        Spacer()
+                        Text("기록된 일지가 없습니다.")
+                            .foregroundColor(.gray)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        Spacer()
+                    }
+                }
+            } else {
+                VStack {
+                    Spacer()
+                    Text("날짜를 선택해주세요.")
+                        .foregroundColor(.gray)
+                        .padding(.top, 60)
+                    Spacer()
+                }
+                .frame(height: 200)
+            }
+        }
     }
 }
 
+// MARK: - NoteEditorView
 struct NoteEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var title: String = ""
@@ -400,6 +353,7 @@ struct NoteEditorView: View {
     }
 }
 
+// MARK: - NoteDetailView
 struct NoteDetailView: View {
     let event: Note
     

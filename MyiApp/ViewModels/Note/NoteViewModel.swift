@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import FirebaseFirestore
 
 class NoteViewModel: ObservableObject {
     @Published var days: [CalendarDay] = []
@@ -14,13 +15,17 @@ class NoteViewModel: ObservableObject {
     @Published var selectedMonth: Date = Date()
     @Published var selectedDay: CalendarDay?
     @Published var events: [Date: [Note]] = [:]
+    @Published var babyInfo: BabyInfo?
     
     let weekdays = ["일", "월", "화", "수", "목", "금", "토"]
     
     init() {
         fetchCalendarDays()
         loadMockEvents()
+        fetchBabyInfo() // 아기 정보 가져오기
     }
+    
+    // MARK: - 캘린더 관련 메서드
     
     func fetchCalendarDays() {
         days = getCalendarDays()
@@ -102,10 +107,26 @@ class NoteViewModel: ObservableObject {
         return days
     }
     
+    // MARK: - 이벤트 관련 메서드
+    
     func getEventsForDay(_ day: CalendarDay) -> [Note] {
         guard let date = day.date else { return [] }
         let startOfDay = Calendar.current.startOfDay(for: date)
         return events[startOfDay] ?? []
+    }
+    
+    func addEvent(_ event: Note) {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: event.date)
+        
+        if var dayEvents = events[startOfDay] {
+            dayEvents.append(event)
+            events[startOfDay] = dayEvents
+        } else {
+            events[startOfDay] = [event]
+        }
+        
+        objectWillChange.send()
     }
     
     private func loadMockEvents() {
@@ -212,17 +233,107 @@ class NoteViewModel: ObservableObject {
         }
     }
     
-    func addEvent(_ event: Note) {
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: event.date)
+    // MARK: - 아기 정보 관련 메서드
+    
+    func fetchBabyInfo() {
+        // 임시 데이터 설정 - 실제로는 Firebase에서 가져와야 함
+        // 현재는 하드코딩된 값을 사용
+        self.babyInfo = BabyInfo(
+            name: "김죠스",
+            birthDate: Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 19)) ?? Date(),
+            gender: .female
+        )
         
-        if var dayEvents = events[startOfDay] {
-            dayEvents.append(event)
-            events[startOfDay] = dayEvents
-        } else {
-            events[startOfDay] = [event]
+        // Firebase 연동 후 사용할 코드
+        // fetchBabyInfoFromFirebase()
+    }
+    
+    func fetchBabyInfoFromFirebase() {
+        // Firebase에서 아기 정보를 가져오는 코드 (예시)
+        guard let uid = AuthService.shared.user?.uid else {
+            return
         }
         
-        objectWillChange.send()
+        Task {
+            do {
+                // 사용자의 문서 가져오기
+                let userDocRef = DatabaseService.shared.db.collection("users").document(uid)
+                let userDoc = try await userDocRef.getDocument()
+                
+                // 사용자에게 연결된 첫 번째 아기 참조 가져오기
+                guard let babyRefs = userDoc.get("babies") as? [DocumentReference], !babyRefs.isEmpty else {
+                    return
+                }
+                
+                // 첫 번째 아기 정보 가져오기
+                let babyRef = babyRefs[0]
+                let babyDoc = try await babyRef.getDocument()
+                
+                // Baby 객체로 변환
+                if let babyData = babyDoc.data(),
+                   let name = babyData["name"] as? String,
+                   let birthDateTimestamp = babyData["birthDate"] as? Timestamp,
+                   let genderValue = babyData["gender"] as? Int,
+                   let gender = Gender(rawValue: genderValue) {
+                    
+                    let birthDate = birthDateTimestamp.dateValue()
+                    
+                    // UI 업데이트는 메인 스레드에서 수행
+                    await MainActor.run {
+                        self.babyInfo = BabyInfo(
+                            name: name,
+                            birthDate: birthDate,
+                            gender: gender
+                        )
+                    }
+                }
+            } catch {
+                print("아기 정보 가져오기 실패: \(error.localizedDescription)")
+            }
+        }
     }
+    
+    // MARK: - 생일 관련 메서드
+    
+    // 특정 날짜가 아기의 생일인지 확인하는 함수
+    func isBirthday(_ date: Date?) -> Bool {
+        guard let date = date, let babyInfo = babyInfo else { return false }
+        
+        let calendar = Calendar.current
+        
+        // 생일 날짜 컴포넌트 (월과 일만 비교)
+        let birthComponents = calendar.dateComponents([.month, .day], from: babyInfo.birthDate)
+        let dateComponents = calendar.dateComponents([.month, .day], from: date)
+        
+        return birthComponents.month == dateComponents.month && birthComponents.day == dateComponents.day
+    }
+    
+    // 매달 아기의 월령 기념일인지 확인하는 함수
+    func isMonthlyAnniversary(_ date: Date?) -> Bool {
+        guard let date = date, let babyInfo = babyInfo else { return false }
+        
+        let calendar = Calendar.current
+        
+        // 생일 날짜 컴포넌트 (일만 비교)
+        let birthComponents = calendar.dateComponents([.day], from: babyInfo.birthDate)
+        let dateComponents = calendar.dateComponents([.day], from: date)
+        
+        return birthComponents.day == dateComponents.day
+    }
+    
+    // 특정 날짜의 월령 계산 (해당 날짜 기준 아기가 몇 개월인지)
+    func babyAgeInMonths(at date: Date) -> Int {
+        guard let babyInfo = babyInfo else { return 0 }
+        
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.month], from: babyInfo.birthDate, to: date)
+        return components.month ?? 0
+    }
+}
+
+// 노트뷰에서 사용할 간소화된 아기 정보 모델
+struct BabyInfo {
+    let name: String
+    let birthDate: Date
+    let gender: Gender
 }
