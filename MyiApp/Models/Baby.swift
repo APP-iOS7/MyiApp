@@ -37,6 +37,21 @@ struct Baby: Codable, Identifiable {
         self.voiceRecords = []
         self.note = []
     }
+    
+    enum CodingKeys: String, CodingKey {
+            case id
+            case name
+            case birthDate = "birth_date"
+            case gender
+            case height
+            case weight
+            case bloodType = "blood_type"
+            case photoURL = "photo_url"
+            case caregivers
+            case records
+            case voiceRecords = "voice_records"
+            case note
+        }
 }
 
 enum BloodType: String, Codable {
