@@ -63,6 +63,7 @@ struct NoteView: View {
                 .padding(.top, 12)
                 .padding(.bottom, 8)
                 
+                // 요일 헤더 - 일요일은 빨간색, 토요일은 파란색으로 표시
                 HStack(spacing: 0) {
                     ForEach(viewModel.weekdays, id: \.self) { day in
                         Text(day)
@@ -252,6 +253,9 @@ struct CalendarDayView: View {
         VStack(spacing: 3) {
             if let date = day.date {
                 let isSelected = selectedDate.map { Calendar.current.isDate($0, inSameDayAs: date) } ?? false
+                let weekday = Calendar.current.component(.weekday, from: date)
+                let isSunday = weekday == 1
+                let isSaturday = weekday == 7
                 
                 ZStack {
                     if isSelected {
@@ -264,9 +268,16 @@ struct CalendarDayView: View {
                             .frame(width: 35, height: 35)
                     }
                     
-                    Text(day.dayNumber).font(.custom("Cafe24-Ohsquareair", size: isSelected ? 18 : 16))
+                    Text(day.dayNumber)
+                        .font(.custom("Cafe24-Ohsquareair", size: isSelected ? 18 : 16))
                         .fontWeight(isSelected ? .bold : .regular)
-                        .foregroundColor(isSelected ? .white : day.isToday ? Color("sharkPrimaryDark") : day.isCurrentMonth ? .primary : .gray)
+                        .foregroundColor(
+                            isSelected ? .white :
+                                isSunday && day.isCurrentMonth ? .red :
+                                isSaturday && day.isCurrentMonth ? .blue :
+                                    day.isToday ? Color("sharkPrimaryDark") :
+                                        day.isCurrentMonth ? .primary : .gray
+                        )
                 }
                 .frame(width: 35, height: 35)
                 
