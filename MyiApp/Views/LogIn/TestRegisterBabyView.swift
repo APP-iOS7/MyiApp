@@ -17,6 +17,7 @@ class TestRegisterBabyViewModel: ObservableObject {
     @Published var height: String = ""
     @Published var weight: String = ""
     @Published var bloodType: BloodType? = nil
+    @Published var isRegistered: Bool = false
     
     // 등록 결과 메시지 등 필요시
     @Published var errorMessage: String? = nil
@@ -31,6 +32,7 @@ class TestRegisterBabyViewModel: ObservableObject {
         Task {
             do {
                 try await databaseService.saveBabyInfo(baby: baby)
+                isRegistered = true
             } catch {
                 errorMessage = error.localizedDescription
             }
@@ -104,6 +106,9 @@ struct TestRegisterBabyView: View {
                 Text(error)
                     .foregroundColor(.red)
             }
+        }
+        .navigationDestination(isPresented: $viewModel.isRegistered) {
+            ContentView()
         }
     }
 }

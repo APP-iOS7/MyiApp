@@ -27,6 +27,7 @@ class AuthService: ObservableObject {
     func signOut() {
         try? auth.signOut()
         self.user = nil
+        DatabaseService.shared.hasBabyInfo = false
     }
     
     // 구글 로그인
@@ -55,28 +56,28 @@ class AuthService: ObservableObject {
     // 애플 로그인
     func appleSignIn(_ authorization: ASAuthorization) async throws {
         if authorization.credential is ASAuthorizationAppleIDCredential {
-                guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-                        throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid Apple ID credential"])
-                    }
-                    guard let nonce = currentNonce else {
-                        throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Nonce is missing"])
-                    }
-                    guard let appleIDToken = appleIDCredential.identityToken else {
-                        throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to get Apple ID token"])
-                    }
-                    guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
-                        throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to decode ID token"])
-                    }
-              // Initialize a Firebase credential, including the user's full name.
-              let credential = OAuthProvider.appleCredential(withIDToken: idTokenString,
-                                                                rawNonce: nonce,
-                                                                fullName: appleIDCredential.fullName)
-              // Sign in with Firebase.
-                let authResult = try await auth.signIn(with: credential)
-                self.user = authResult.user
-                self.currentNonce = nil
-                print("Firebase user: \(authResult.user.uid)")
+            guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential else {
+                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid Apple ID credential"])
             }
+            guard let nonce = currentNonce else {
+                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Nonce is missing"])
+            }
+            guard let appleIDToken = appleIDCredential.identityToken else {
+                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to get Apple ID token"])
+            }
+            guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
+                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to decode ID token"])
+            }
+            // Initialize a Firebase credential, including the user's full name.
+            let credential = OAuthProvider.appleCredential(withIDToken: idTokenString,
+                                                           rawNonce: nonce,
+                                                           fullName: appleIDCredential.fullName)
+            // Sign in with Firebase.
+            let authResult = try await auth.signIn(with: credential)
+            self.user = authResult.user
+            self.currentNonce = nil
+            print("Firebase user: \(authResult.user.uid)")
+        }
     }
     
     // Apple 로그인 요청 설정
@@ -114,7 +115,6 @@ class AuthService: ObservableObject {
       let hashString = hashedData.compactMap {
         String(format: "%02x", $0)
       }.joined()
-
       return hashString
     }
 }
