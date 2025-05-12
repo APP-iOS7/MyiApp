@@ -1,0 +1,174 @@
+//
+//  DailyStatisticCardListView.swift
+//  MyiApp
+//
+//  Created by 이민서 on 5/12/25.
+//
+
+import SwiftUI
+
+struct DailyStatisticCardListView: View {
+    
+    let records: [Record]
+    let selectedDate: Date
+    var yesterday: Date {
+        Calendar.current.date(byAdding: .day, value: -1, to: selectedDate)!
+    }
+    
+    
+    var body: some View {
+        let pottyCount = countPottyTypes(in: records, on: selectedDate)
+        let yesterdaypottyCount = countPottyTypes(in: records, on: yesterday)
+        
+        Group {
+            StatisticCardView(
+                title: "분유/수유/이유식 통계",
+                image: .colorMeal,
+                color: Color(hex: "F9C2C4"),
+                count: combinedFeedCount(in: records, on: selectedDate),
+                yesterdaycount: combinedFeedCount(in: records, on: yesterday),
+                amount: totalMlAmount(in: records, on: selectedDate),
+                yesterdayamount: totalMlAmount(in: records, on: yesterday),
+                time: totalBreastfeedingMinutes(in: records, on: selectedDate),
+                yesterdaytime: totalBreastfeedingMinutes(in: records, on: yesterday)
+            )
+            
+            StatisticCardView(
+                title: "기저귀 통계",
+                image: .colorDiaper,
+                color: Color(hex: "AD91EB"),
+                count: recordsCount(for: .diaper, in: records, on: selectedDate),
+                yesterdaycount: recordsCount(for: .diaper, in: records, on: yesterday),
+                amount: nil,
+                yesterdayamount: nil,
+                time: nil,
+                yesterdaytime: nil
+            )
+            PottyStatisticCardView(
+                small: pottyCount.small,
+                yesterdaysmall: yesterdaypottyCount.small,
+                big: pottyCount.big,
+                yesterdaybig: yesterdaypottyCount.big
+            )
+            
+            StatisticCardView(
+                title: "수면 통계",
+                image: .colorSleep,
+                color: Color(hex: "B7B7B7"),
+                count: recordsCount(for: .sleep, in: records, on: selectedDate),
+                yesterdaycount: recordsCount(for: .sleep, in: records, on: yesterday),
+                amount: nil,
+                yesterdayamount: nil,
+                time: totalSleepMinutes(in: records, on: selectedDate),
+                yesterdaytime: totalSleepMinutes(in: records, on: yesterday)
+            )
+            
+            StatisticCardView(
+                title: "목욕 통계",
+                image: .colorBath,
+                color: Color(hex: "C9DEF3"),
+                count: recordsCount(for: .bath, in: records, on: selectedDate),
+                yesterdaycount: recordsCount(for: .bath, in: records, on: yesterday),
+                amount: nil,
+                yesterdayamount: nil,
+                time: nil,
+                yesterdaytime: nil
+            )
+            
+            StatisticCardView(
+                title: "간식 통계",
+                image: .colorSnack,
+                color: Color(hex: "FFD6AA"),
+                count: recordsCount(for: .snack, in: records, on: selectedDate),
+                yesterdaycount: recordsCount(for: .snack, in: records, on: yesterday),
+                amount: nil,
+                yesterdayamount: nil,
+                time: nil,
+                yesterdaytime: nil
+            )
+        }
+        .padding(.horizontal)
+    }
+    func recordsCount(for title: TitleCategory, in records: [Record], on date: Date) -> Int {
+        let calendar = Calendar.current
+        return records.filter {
+            $0.title == title && calendar.isDate($0.createdAt, inSameDayAs: date)
+        }.count
+    }
+    func totalMlAmount(in records: [Record], on date: Date) -> Int {
+        let calendar = Calendar.current
+        return records
+            .filter {
+                [.formula, .babyFood, .pumpedMilk].contains($0.title) &&
+                calendar.isDate($0.createdAt, inSameDayAs: date)
+            }
+            .compactMap { $0.mlAmount }
+            .reduce(0, +)
+    }
+    func totalBreastfeedingMinutes(in records: [Record], on date: Date) -> Int {
+        let calendar = Calendar.current
+        return records
+            .filter {
+                $0.title == .breastfeeding &&
+                calendar.isDate($0.createdAt, inSameDayAs: date)
+            }
+            .reduce(0) { total, record in
+                let left = record.breastfeedingLeftMinutes ?? 0
+                let right = record.breastfeedingRightMinutes ?? 0
+                return total + left + right
+            }
+    }
+    
+    func combinedFeedCount(in records: [Record], on date: Date) -> Int {
+        let calendar = Calendar.current
+        return records.filter {
+            [.formula, .pumpedMilk, .breastfeeding, .babyFood].contains($0.title) &&
+            calendar.isDate($0.createdAt, inSameDayAs: date)
+        }.count
+    }
+    func countPottyTypes(in records: [Record], on date: Date) -> (small: Int, big: Int) {
+        let calendar = Calendar.current
+        
+        var small = 0
+        var big = 0
+        
+        for record in records {
+            guard record.title == .potty,
+                  calendar.isDate(record.createdAt, inSameDayAs: date),
+                  let type = record.pottyType else { continue }
+            
+            switch type {
+            case .pee:
+                small += 1
+            case .poop:
+                big += 1
+            case .all:
+                small += 1
+                big += 1
+            }
+        }
+        
+        return (small, big)
+    }
+    func totalSleepMinutes(in records: [Record], on date: Date) -> Int? {
+        let calendar = Calendar.current
+        
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        
+        let totalMinutes = records
+            .filter { $0.title == .sleep }
+            .compactMap { record -> Int? in
+                guard let start = record.sleepStart, let end = record.sleepEnd else { return nil }
+                
+                let clippedStart = max(start, startOfDay)
+                let clippedEnd = min(end, endOfDay)
+                
+                let interval = clippedEnd.timeIntervalSince(clippedStart)
+                return interval > 0 ? Int(interval / 60) : nil
+            }
+            .reduce(0, +)
+        
+        return totalMinutes > 0 ? totalMinutes : nil
+    }
+}

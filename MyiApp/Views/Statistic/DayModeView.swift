@@ -9,10 +9,10 @@ import SwiftUI
 
 struct StatisticView: View {
     
-    let testrecords = Record.mockTestRecords
+    let records = Record.mockTestRecords
     
-    @State private var selectedMode = "일"
     @State private var selectedDate = Date()
+    @State private var selectedMode = "일"
     @State private var showCalendar = false
     let modes = ["일", "주"]
     
@@ -43,6 +43,34 @@ struct StatisticView: View {
     }
     
     var body: some View {
+        ZStack {
+            mainScrollView
+        }
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    let horizontalAmount = value.translation.width
+                    if horizontalAmount < -50 && selectedMode == "일" {
+                        selectedMode = "주"
+                    } else if horizontalAmount > 50 && selectedMode == "주" {
+                        selectedMode = "일"
+                    }
+                }
+        )
+    }
+
+    
+    var iconGrid: some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 20) {
+            IconItem(title: "밥", image: .colorMeal)
+            IconItem(title: "기저귀", image: .colorDiaper)
+            IconItem(title: "배변", image: .colorPotty)
+            IconItem(title: "수면", image: .colorSleep)
+            IconItem(title: "목욕", image: .colorBath)
+            IconItem(title: "간식", image: .colorSnack)
+        }
+    }
+    var mainScrollView: some View {
         ScrollView {
             VStack(spacing: 20) {
                 VStack(spacing: 10) {
@@ -123,6 +151,9 @@ struct StatisticView: View {
                     }
                 }
                 .padding(.horizontal)
+                .padding(.vertical, 10)
+                .background(Color.white)
+                .zIndex(1)
                 
                 iconGrid
                     .padding(.horizontal)
@@ -143,7 +174,7 @@ struct StatisticView: View {
                     .padding(.horizontal)
                     
                 } else if selectedMode == "일" {
-                    DailyChartView(records: testrecords,  selectedDate: selectedDate)
+                    DailyChartView(records: records,  selectedDate: selectedDate)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding(.horizontal)
                         .padding(.vertical, 20)
@@ -157,22 +188,25 @@ struct StatisticView: View {
                     .foregroundColor(.gray)
                     .padding(.horizontal)
                 
+                Divider()
+                
+                if selectedMode == "주" {
+                    
+                    
+                } else if selectedMode == "일" {
+                    DailyStatisticCardListView(records: records,  selectedDate: selectedDate)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+                
+                
+
+                
             }
             .padding()
         }
-        
     }
-    
-    var iconGrid: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 20) {
-            IconItem(title: "수유/이유식", image: .colorMeal)
-            IconItem(title: "기저귀", image: .colorDiaper)
-            IconItem(title: "배변", image: .colorPotty)
-            IconItem(title: "수면", image: .colorSleep)
-            IconItem(title: "목욕", image: .colorBath)
-            IconItem(title: "간식", image: .colorSnack)
-        }
-    }
+
+
 }
 
 struct IconItem: View {
@@ -182,14 +216,14 @@ struct IconItem: View {
     var body: some View {
         VStack(spacing: 8) {
             ZStack {
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 18)
                     .fill(Color.blue.opacity(0.1))
-                    .frame(width: 60, height: 60)
+                    .frame(width: 40, height: 40)
                 
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 32, height: 32)
+                    .frame(width: 25, height: 25)
             }
             
             Text(title)
@@ -238,3 +272,4 @@ private var gridItems: some View {
     }
     .padding(.horizontal)
 }
+
