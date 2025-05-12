@@ -51,15 +51,29 @@ class NoteViewModel: ObservableObject {
         // 첫날의 요일 (일요일 = 1, 토요일 = 7)
         let firstDayOfWeek = calendar.component(.weekday, from: startOfMonth)
         
-        // 이전 월의 날짜 추가
+        // 이전 월의 날짜 추가 (수정된 부분)
         if firstDayOfWeek > 1 {
             let previousMonth = calendar.date(byAdding: .month, value: -1, to: startOfMonth)!
             let daysInPreviousMonth = calendar.range(of: .day, in: .month, for: previousMonth)!.count
+            
+            // 표시할 이전 달의 시작일을 계산
             let startDay = daysInPreviousMonth - (firstDayOfWeek - 2)
             
             for i in startDay...daysInPreviousMonth {
-                if let date = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: calendar.date(byAdding: .day, value: i - daysInPreviousMonth, to: startOfMonth)!) {
-                    days.append(CalendarDay(id: UUID(), date: date, dayNumber: "\(i)", isToday: false, isCurrentMonth: false))
+                // 이전 달의 해당 날짜를 직접 계산
+                if let date = calendar.date(
+                    from: calendar.dateComponents([.year, .month], from: previousMonth)
+                ) {
+                    // 이전 달의 1일부터 i일 만큼 더해줌
+                    if let exactDate = calendar.date(byAdding: .day, value: i - 1, to: date) {
+                        days.append(CalendarDay(
+                            id: UUID(),
+                            date: exactDate,
+                            dayNumber: "\(i)",
+                            isToday: calendar.isDateInToday(exactDate),
+                            isCurrentMonth: false
+                        ))
+                    }
                 }
             }
         }
@@ -77,9 +91,11 @@ class NoteViewModel: ObservableObject {
         
         // 다음 월의 날짜 추가
         let remainingDays = 42 - days.count // 6주 표시를 위해
-        for i in 1...remainingDays {
-            if let date = calendar.date(byAdding: .day, value: i - 1, to: calendar.date(byAdding: .day, value: 1, to: endOfMonth)!) {
-                days.append(CalendarDay(id: UUID(), date: date, dayNumber: "\(i)", isToday: false, isCurrentMonth: false))
+        if remainingDays > 0 {
+            for i in 1...remainingDays {
+                if let date = calendar.date(byAdding: .day, value: i, to: endOfMonth) {
+                    days.append(CalendarDay(id: UUID(), date: date, dayNumber: "\(i)", isToday: false, isCurrentMonth: false))
+                }
             }
         }
         
