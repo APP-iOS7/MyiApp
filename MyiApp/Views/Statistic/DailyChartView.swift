@@ -1,0 +1,208 @@
+//
+//  DailyChartView.swift
+//  MyiApp
+//
+//  Created by 이민서 on 5/12/25.
+//
+
+import SwiftUI
+
+struct DailyChartView: View {
+    let records: [Record]
+    let selectedDate: Date
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.gray.opacity(0.2), lineWidth: 80)
+                .frame(width: 200, height: 200)
+            
+            GeometryReader { geometry in
+                let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
+                let radius = geometry.size.width / 2 + 5
+                
+                ZStack {
+                    ForEach(0..<24) { hour in
+                        let angle = Angle(degrees: Double(hour) / 24 * 360 - 90)
+                        let x = center.x + cos(angle.radians) * radius
+                        let y = center.y + sin(angle.radians) * radius
+                        
+                        if (hour % 2 == 0) {
+                            Text("\(hour)")
+                                .font(.caption2)
+                                .foregroundColor(.gray)
+                                .position(x: x, y: y)
+                        } else {
+                            Text("·")
+                                .font(.caption2)
+                                .foregroundColor(.gray)
+                                .position(x: x, y: y)
+                        }
+                        
+                    }
+                }
+            }
+            
+            
+            
+            ForEach(recordsWithTimeSpan, id: \.id) { record in
+                CircleSegmentShape(startHour: record.startHour, endHour: record.endHour)
+                    .stroke(record.color, lineWidth: 80)
+                    .frame(width: 200, height: 200)
+                
+            }
+            
+            Text("13개월 18일")
+                .font(.headline)
+                .foregroundColor(.gray)
+        }
+        .padding()
+    }
+    
+    private var recordsWithTimeSpan: [TimedRecord] {
+        let calendar = Calendar.current
+        let filteredRecords = records.filter { record in
+            // heightWeight와 health는 제외
+            guard record.title != .heightWeight && record.title != .health else { return false }
+
+            if record.title == .sleep, let start = record.sleepStart, let end = record.sleepEnd {
+                // 수면 시작일 또는 종료일 중 하나라도 선택된 날짜와 같으면 포함
+                return calendar.isDate(start, inSameDayAs: selectedDate)
+                    || calendar.isDate(end, inSameDayAs: selectedDate)
+            } else {
+                return calendar.isDate(record.createdAt, inSameDayAs: selectedDate)
+            }
+        }
+
+        
+        return filteredRecords.flatMap { record in
+            guard record.title != .heightWeight && record.title != .health else {
+                return [] as [TimedRecord]
+            }
+            
+            // 수면일 경우: 분할 필요
+            if record.title == .sleep,
+               let start = record.sleepStart,
+               let end = record.sleepEnd {
+                
+                let isStartSameDay = calendar.isDate(start, inSameDayAs: selectedDate)
+                let isEndSameDay = calendar.isDate(end, inSameDayAs: selectedDate)
+                var spans: [TimedRecord] = []
+                
+                if isStartSameDay {
+                    let endOfDay = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: start))!
+                    spans.append(TimedRecord(
+                        id: UUID(),
+                        startHour: hourDecimal(from: start),
+                        endHour: hourDecimal(from: min(end, endOfDay)),
+                        color: color(for: record.title)
+                    ))
+                }
+
+                
+                if isEndSameDay {
+                    let startOfDay = calendar.startOfDay(for: end)
+                    spans.append(TimedRecord(
+                        id: UUID(),
+                        startHour: hourDecimal(from: startOfDay),
+                        endHour: hourDecimal(from: end),
+                        color: color(for: record.title)
+                    ))
+                }
+                
+                return spans
+            }
+
+            // 일반 이벤트 (createdAt 기준)
+            guard calendar.isDate(record.createdAt, inSameDayAs: selectedDate) else {
+                return []
+            }
+            
+            let start = record.createdAt
+            let end = calendar.date(byAdding: .minute, value: 30, to: start) ?? start.addingTimeInterval(1800)
+            
+            return [TimedRecord(
+                id: record.id,
+                startHour: hourDecimal(from: start),
+                endHour: hourDecimal(from: end),
+                color: color(for: record.title)
+            )]
+        }
+
+    }
+}
+
+// 시간 → 소수시간 (예: 13:30 → 13.5)
+private func hourDecimal(from date: Date) -> Double {
+    let components = Calendar.current.dateComponents([.hour, .minute], from: date)
+    let hour = Double(components.hour ?? 0)
+    let minute = Double(components.minute ?? 0)
+    return hour + (minute / 60)
+}
+
+private func color(for title: TitleCategory) -> Color {
+    switch title {
+    case .formula: return Color(hex: "F9C2C4")
+    case .babyFood: return Color(hex: "F9C2C4")
+    case .pumpedMilk: return Color(hex: "F9C2C4")
+    case .breastfeeding: return Color(hex: "F9C2C4")
+    case .diaper: return Color(hex: "AD91EB")
+    case .potty: return Color(hex: "C7A868")
+    case .sleep: return Color(hex: "B7B7B7")
+    case .heightWeight: return .black
+    case .bath: return Color(hex: "C9DEF3")
+    case .snack: return Color(hex: "FFD6AA")
+    case .health: return .black
+    }
+}
+
+struct TimedRecord: Identifiable {
+    let id: UUID
+    let startHour: Double
+    let endHour: Double
+    let color: Color
+}
+
+struct CircleSegmentShape: Shape {
+    let startHour: Double
+    let endHour: Double
+    
+    func path(in rect: CGRect) -> Path {
+        let correctedEndHour = endHour >= startHour ? endHour : endHour + 24
+        
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let radius = min(rect.width, rect.height) / 2
+        
+        let startAngle = Angle(degrees: (startHour / 24) * 360 - 90)
+        let endAngle = Angle(degrees: (correctedEndHour / 24) * 360 - 90)
+        
+        var path = Path()
+        path.addArc(center: center,
+                    radius: radius,
+                    startAngle: startAngle,
+                    endAngle: endAngle,
+                    clockwise: false)
+        return path
+    }
+}
+
+
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        let scanner = Scanner(string: hex)
+        
+        if hex.hasPrefix("#") {
+            scanner.currentIndex = hex.index(after: hex.startIndex)
+        }
+        
+        var rgbValue: UInt64 = 0
+        scanner.scanHexInt64(&rgbValue)
+        
+        let r = Double((rgbValue & 0xFF0000) >> 16) / 255
+        let g = Double((rgbValue & 0x00FF00) >> 8) / 255
+        let b = Double(rgbValue & 0x0000FF) / 255
+        
+        self.init(red: r, green: g, blue: b)
+    }
+}
