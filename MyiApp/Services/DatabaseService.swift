@@ -8,6 +8,7 @@
 import Foundation
 import FirebaseFirestore
 
+@MainActor
 class DatabaseService: ObservableObject {
     @Published var hasBabyInfo: Bool = false
     let auth = AuthService.shared
