@@ -62,11 +62,10 @@ struct DailyChartView: View {
     private var recordsWithTimeSpan: [TimedRecord] {
         let calendar = Calendar.current
         let filteredRecords = records.filter { record in
-            // heightWeight와 health는 제외
+            // 몸무게/키와 건강관리는 제외
             guard record.title != .heightWeight && record.title != .health else { return false }
 
             if record.title == .sleep, let start = record.sleepStart, let end = record.sleepEnd {
-                // 수면 시작일 또는 종료일 중 하나라도 선택된 날짜와 같으면 포함
                 return calendar.isDate(start, inSameDayAs: selectedDate)
                     || calendar.isDate(end, inSameDayAs: selectedDate)
             } else {
@@ -113,7 +112,6 @@ struct DailyChartView: View {
                 return spans
             }
 
-            // 일반 이벤트 (createdAt 기준)
             guard calendar.isDate(record.createdAt, inSameDayAs: selectedDate) else {
                 return []
             }
@@ -132,7 +130,7 @@ struct DailyChartView: View {
     }
 }
 
-// 시간 → 소수시간 (예: 13:30 → 13.5)
+// 예: 13:30 → 13.5
 private func hourDecimal(from date: Date) -> Double {
     let components = Calendar.current.dateComponents([.hour, .minute], from: date)
     let hour = Double(components.hour ?? 0)
