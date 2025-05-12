@@ -9,11 +9,15 @@ import FirebaseAuth
 import FirebaseCore
 import GoogleSignIn
 
+<<<<<<< HEAD
 @MainActor
 class AuthService: ObservableObject {
     @Published private(set) var user: User?
     private let auth: Auth = Auth.auth()
     static let shared = AuthService()
+=======
+class AuthService: ObservableObject {
+>>>>>>> refs/remotes/origin/feature/login
     
     private init() {
         self.user = auth.currentUser
