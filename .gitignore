@@ -62,7 +62,7 @@ fastlane/screenshots/**/*.png
 fastlane/test_output
 
 # GoogleService
-MyiApp/GoogleService-Info.plist
+**/GoogleService-Info.plist
 
 # macOS
 **/.DS_Store

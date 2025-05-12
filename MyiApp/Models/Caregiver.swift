@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct CareGiver: Codable, Identifiable {
+struct Caregiver: Codable, Identifiable {
     var id: UUID
     var babies: [Baby]
 }
