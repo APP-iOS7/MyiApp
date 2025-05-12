@@ -10,8 +10,7 @@ import SwiftUI
 struct HomeView: View {
     
     @State var selectedDate = Date()
-    @State private var selectedCategory: String = ""
-    @State private var isModalPresented = false
+    @State private var selectedCategory: CareCategory?
     
     var body: some View {
         ScrollView {
@@ -24,8 +23,8 @@ struct HomeView: View {
             }
             .padding()
         }
-        .sheet(isPresented: $isModalPresented) {
-            AddRecordView(category: selectedCategory)
+        .sheet(item: $selectedCategory) { category in
+            AddRecordView(category: category.name)
                 .presentationDetents([.medium])
         }
     }
@@ -107,10 +106,7 @@ struct HomeView: View {
     }
     
     private var gridItems: some View {
-        struct CareCategory {
-            let name: String
-            let image: UIImage
-        }
+        
         let careItems: [CareCategory] = [
             .init(name: "수유/이유식", image: .colorBabyFood),
             .init(name: "기저귀", image: .colorDiaper),
@@ -125,8 +121,7 @@ struct HomeView: View {
         return LazyVGrid(columns: columns) {
             ForEach(careItems, id: \.name) { item in
                 Button(action: {
-                    selectedCategory = item.name
-                    isModalPresented = true
+                    selectedCategory = item
                 }) {
                     VStack(spacing: 0) {
                         Image(uiImage: item.image)
@@ -205,6 +200,10 @@ struct TimelineRow: View {
 }
 
 struct AddRecordView: View {
+    @Environment(\.dismiss) var dismiss
+    @State var date: Date = Date()
+    @State var showActionSheet = false
+    
     let category: String
     
     var body: some View {
@@ -225,7 +224,7 @@ struct AddRecordView: View {
                 .frame(width: 48)
                 .background(Color.red.clipShape(Circle()))
             
-            Text("수유 기록")
+            Text("\(category) 기록")
                 .font(.system(size: 25, weight: .medium))
             Spacer()
             Button(action: {}) {
@@ -238,13 +237,24 @@ struct AddRecordView: View {
     
     private var datePicker: some View {
         HStack {
-            
+            Button(action: {showActionSheet = true}) {
+                HStack {
+                    Image(systemName: "calendar")
+                    Text(date.formattedKoreanDateString() + date.to24HourTimeString())
+                    Image(systemName: "chevron.down")
+                }
+                .foregroundStyle(.foreground)
+            }
+            Spacer()
         }
+        .background(
+            UIDatePickerActionSheet(isPresented: $showActionSheet, selectedDate: $date)
+        )
     }
     
     private var buttonView: some View {
         HStack(spacing: 16) {
-            Button(action: { print("취소됨") }) {
+            Button(action: { dismiss() }) {
                 Text("취소")
                     .frame(maxWidth: .infinity)
                     .fontWeight(.bold)
@@ -270,6 +280,12 @@ struct AddRecordView: View {
             }
         }
     }
+}
+
+struct CareCategory: Identifiable {
+    let id: UUID = UUID()
+    let name: String
+    let image: UIImage
 }
 
 #Preview {
