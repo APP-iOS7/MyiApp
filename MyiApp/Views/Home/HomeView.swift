@@ -10,6 +10,8 @@ import SwiftUI
 struct HomeView: View {
     
     @State var selectedDate = Date()
+    @State private var selectedCategory: String = ""
+    @State private var isModalPresented = false
     
     var body: some View {
         ScrollView {
@@ -21,6 +23,10 @@ struct HomeView: View {
                 timeline
             }
             .padding()
+        }
+        .sheet(isPresented: $isModalPresented) {
+            AddRecordView(category: selectedCategory)
+                .presentationDetents([.medium])
         }
     }
     
@@ -101,24 +107,27 @@ struct HomeView: View {
     }
     
     private var gridItems: some View {
-        struct CareCategory: Equatable {
+        struct CareCategory {
             let name: String
             let image: UIImage
         }
         let careItems: [CareCategory] = [
             .init(name: "수유/이유식", image: .colorBabyFood),
-            .init(name: "기저귀", image: .colorBabyFood),
-            .init(name: "배변", image: .colorBabyFood),
-            .init(name: "수면", image: .colorBabyFood),
-            .init(name: "키/몸무게", image: .colorBabyFood),
-            .init(name: "목욕", image: .colorBabyFood),
-            .init(name: "간식", image: .colorBabyFood),
-            .init(name: "건강 관리", image: .colorBabyFood)
+            .init(name: "기저귀", image: .colorDiaper),
+            .init(name: "배변", image: .colorPotty),
+            .init(name: "수면", image: .colorSleep),
+            .init(name: "키/몸무게", image: .colorHeightWeight),
+            .init(name: "목욕", image: .colorBath),
+            .init(name: "간식", image: .colorSnack),
+            .init(name: "건강 관리", image: .colorCheckList)
         ]
         let columns = Array(repeating: GridItem(.flexible()), count: 4)
         return LazyVGrid(columns: columns) {
             ForEach(careItems, id: \.name) { item in
-                Button(action: {print(item)}) {
+                Button(action: {
+                    selectedCategory = item.name
+                    isModalPresented = true
+                }) {
                     VStack(spacing: 0) {
                         Image(uiImage: item.image)
                             .resizable()
@@ -131,9 +140,9 @@ struct HomeView: View {
                             )
                         Text(item.name)
                             .font(.system(size: 12))
+                            .foregroundStyle(.black)
                     }
                 }
-                
             }
         }
         .padding(.horizontal)
@@ -195,9 +204,80 @@ struct TimelineRow: View {
     }
 }
 
+struct AddRecordView: View {
+    let category: String
+    
+    var body: some View {
+        VStack {
+            headerView
+            datePicker
+            Text("contentvide")
+            buttonView
+        }
+        .padding(30)
+    }
+    
+    private var headerView: some View {
+        HStack {
+            Image(.colorBabyFood)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 48)
+                .background(Color.red.clipShape(Circle()))
+            
+            Text("수유 기록")
+                .font(.system(size: 25, weight: .medium))
+            Spacer()
+            Button(action: {}) {
+                Image(systemName: "trash")
+                    .foregroundStyle(.foreground)
+                    .font(.system(size: 20))
+            }
+        }
+    }
+    
+    private var datePicker: some View {
+        HStack {
+            
+        }
+    }
+    
+    private var buttonView: some View {
+        HStack(spacing: 16) {
+            Button(action: { print("취소됨") }) {
+                Text("취소")
+                    .frame(maxWidth: .infinity)
+                    .fontWeight(.bold)
+                    .foregroundColor(.black)
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 32)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                    )
+            }
+            Button(action: { print("저장됨") }) {
+                Text("저장")
+                    .frame(maxWidth: .infinity)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 32)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(red: 0.75, green: 0.85, blue: 1.0))
+                    )
+            }
+        }
+    }
+}
+
 #Preview {
     HomeView()
 }
 #Preview {
     TimelineRow(record: Record.mockRecords[0])
+}
+#Preview {
+    AddRecordView(category: "1")
 }
