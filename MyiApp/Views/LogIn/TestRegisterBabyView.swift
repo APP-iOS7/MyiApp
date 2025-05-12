@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@MainActor
 class TestRegisterBabyViewModel: ObservableObject {
     private let databaseService = DatabaseService.shared
     
