@@ -32,7 +32,7 @@ struct MyiApp: App {
             NavigationView {
                 ZStack {
                     if authService.user == nil {
-                        TestLogInView()
+                        LogInView()
                     } else if !databaseService.hasBabyInfo {
                         TestRegisterBabyView()
                     } else {
