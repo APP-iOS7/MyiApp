@@ -19,6 +19,8 @@ class LogInViewModel: ObservableObject {
     }
     
     func signInWithGoogle() async throws {
+        isLoading = true
+        defer { isLoading = false }
         try await authService.googleSignIn()
     }
     
