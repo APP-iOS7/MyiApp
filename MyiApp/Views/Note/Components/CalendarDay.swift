@@ -65,8 +65,7 @@ struct CalendarDayView: View {
                         }
                         
                         Text(day.dayNumber)
-                            .font(.custom("Cafe24-Ohsquareair", size: isSelected ? 18 : 16))
-                            .fontWeight(isSelected ? .bold : .regular)
+                            .font(.system(size: isSelected ? 18 : 16, weight: isSelected ? .bold : .regular))
                             .foregroundColor(
                                 isSelected ? .white :
                                     isBirthday ? .pink :
@@ -79,28 +78,28 @@ struct CalendarDayView: View {
                 }
                 .frame(width: 35, height: 35)
                 
+                // 이벤트 도트 개선 - 날짜 아래에 일관된 위치로 표시
                 HStack(spacing: 4) {
-                    if !events.isEmpty {
-                        ForEach(0..<min(events.count, 3), id: \.self) { _ in
-                            Circle()
-                                .fill(Color("sharkPrimaryLight"))
-                                .frame(width: 6, height: 6)
-                        }
+                    ForEach(0..<min(events.count, 3), id: \.self) { _ in
+                        Circle()
+                            .fill(Color("sharkPrimaryLight"))
+                            .frame(width: 6, height: 6)
                     }
                 }
                 .frame(height: 10)
-                .padding(.top, 2)
+                .opacity(day.isCurrentMonth ? 1 : 0.5) // 현재 달이 아닌 날짜는 투명도 낮게
             } else {
+                // 빈 날짜칸
                 Text("")
                     .frame(width: 35, height: 35)
                 
                 Rectangle()
                     .fill(Color.clear)
                     .frame(height: 10)
-                    .padding(.top, 2)
             }
         }
         .frame(height: 50)
+        .contentShape(Rectangle()) // 전체 영역을 탭 가능하게
     }
 }
 

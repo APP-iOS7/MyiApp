@@ -507,3 +507,27 @@ class NoteViewModel: ObservableObject {
         return birthDay == day && birthMonth == month
     }
 }
+
+extension NoteViewModel {
+    func selectToday() {
+        // 오늘 날짜로 설정
+        selectedMonth = Date()
+        
+        fetchCalendarDays()
+        
+        // 오늘 날짜에 해당하는 CalendarDay 찾기
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            guard let self = self else { return }
+            
+            if let todayDay = self.days.first(where: { $0.isToday }) {
+                self.selectedDay = todayDay
+            }
+        }
+    }
+    
+    // 리프레시
+    func refreshData() {
+        fetchBabyInfo()
+        selectToday()
+    }
+}
