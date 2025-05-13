@@ -57,7 +57,6 @@ struct NoteEventList: View {
     }
 }
 
-// 개선된 EmptyStateView
 struct EmptyStateView: View {
     var title: String
     var subtitle: String

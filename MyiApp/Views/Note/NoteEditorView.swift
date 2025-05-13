@@ -40,11 +40,8 @@ struct NoteEditorView: View {
     var body: some View {
         NavigationView {
             Form {
-                // 카테고리 선택 섹션
                 Section(header: Text("카테고리")) {
-                    // 라디오 버튼 스타일의 카테고리 선택
                     VStack(spacing: 8) {
-                        // 일지 카테고리 옵션
                         RadioButtonRow(
                             title: "일지",
                             icon: "note.text",
@@ -81,7 +78,6 @@ struct NoteEditorView: View {
                         .frame(minHeight: 150)
                 }
                 
-                // 카테고리별 추가 필드
                 if selectedCategory == .일정 {
                     Section(header: Text("알림")) {
                         Toggle("일정 알림", isOn: .constant(false))
@@ -125,7 +121,7 @@ struct NoteEditorView: View {
         }
         
         if isEditing, let id = noteId {
-            // 수정 모드
+            // 수정
             let updatedNote = Note(
                 id: id,
                 title: title,
@@ -137,7 +133,7 @@ struct NoteEditorView: View {
             viewModel.updateNote(note: updatedNote)
             alertMessage = "\(selectedCategory.rawValue)가 수정되었습니다."
         } else {
-            // 새 노트 추가 모드
+            // 새 노트
             viewModel.addNote(
                 title: title,
                 description: description,
@@ -154,7 +150,6 @@ struct NoteEditorView: View {
     }
 }
 
-// 라디오 버튼 스타일 로우 컴포넌트
 struct RadioButtonRow: View {
     let title: String
     let icon: String
@@ -165,7 +160,6 @@ struct RadioButtonRow: View {
     var body: some View {
         Button(action: action) {
             HStack {
-                // 라디오 버튼 원형 UI
                 ZStack {
                     Circle()
                         .stroke(color, lineWidth: 2)
@@ -178,13 +172,11 @@ struct RadioButtonRow: View {
                     }
                 }
                 
-                // 아이콘
                 Image(systemName: icon)
                     .foregroundColor(color)
                     .font(.system(size: 18))
                     .frame(width: 24, height: 24)
                 
-                // 제목
                 Text(title)
                     .font(.headline)
                     .foregroundColor(.primary)

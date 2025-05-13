@@ -2,7 +2,7 @@
 //  Note.swift
 //  MyiApp
 //
-//  Created by 장새벽 on 2025-05-13.
+//  Created by Saebyeok Jang on 2025-05-13.
 //
 
 import Foundation
@@ -22,7 +22,6 @@ struct Note: Identifiable, Hashable, Codable {
     var date: Date
     var category: NoteCategory
     
-    // 계산 속성 - Codable에서는 인코딩/디코딩되지 않음
     var timeString: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "a h:mm"
@@ -32,12 +31,10 @@ struct Note: Identifiable, Hashable, Codable {
         return formatter.string(from: date)
     }
     
-    // Hashable 프로토콜 준수를 위한 구현
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
     
-    // Equatable 프로토콜 준수 (Hashable이 Equatable을 상속함)
     static func == (lhs: Note, rhs: Note) -> Bool {
         lhs.id == rhs.id
     }

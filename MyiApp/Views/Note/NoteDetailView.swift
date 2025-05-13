@@ -17,18 +17,16 @@ struct NoteDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                // 헤더 섹션
-                headerSection
                 
-                // 내용 섹션
+                // 헤더
+                headerSection
+                // 내용
                 contentSection
                 
-                // 카테고리별 추가 정보
                 if event.category == .일정 {
                     reminderSection
                 }
                 
-                // 관련 기록 섹션
                 relatedEventsSection
             }
             .padding(.bottom, 20)
@@ -169,10 +167,8 @@ struct NoteDetailView: View {
             Text("같은 카테고리의 기록")
                 .font(.headline)
             
-            // 같은 카테고리의 다른 기록 몇 개만 표시
             ForEach(getRelatedEvents(), id: \.id) { relatedEvent in
                 Button {
-                    // 상세 화면으로 이동하는 기능은 추후 개발
                 } label: {
                     HStack {
                         Circle()
@@ -213,18 +209,13 @@ struct NoteDetailView: View {
         .padding(.horizontal)
     }
     
-    // 관련 이벤트 가져오기 (같은 카테고리의 최근 이벤트 최대 3개)
     private func getRelatedEvents() -> [Note] {
-        // 모든 이벤트를 배열로 변환
+
         let allEvents = viewModel.events.values.flatMap { $0 }
-        
-        // 같은 카테고리의 다른 이벤트 필터링 (현재 이벤트 제외)
+
         let sameCategory = allEvents.filter { $0.category == event.category && $0.id != event.id }
-        
-        // 날짜 기준 최신순 정렬
+
         let sorted = sameCategory.sorted { $0.date > $1.date }
-        
-        // 최대 3개까지만 반환
         return Array(sorted.prefix(3))
     }
     

@@ -99,5 +99,4 @@ struct BabyBirthdayInfoView: View {
             birthDate: Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 19)) ?? Date()
         )
     }
-    //.background(Color.gray.opacity(0.1))
 }

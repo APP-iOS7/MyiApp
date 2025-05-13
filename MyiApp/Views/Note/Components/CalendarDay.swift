@@ -12,7 +12,6 @@ extension View {
         self.overlay(
             HStack(spacing: 4) {
                 if !events.isEmpty {
-                    // 카테고리별 다른 색상의 점 표시
                     let categories = Set(events.map { $0.category })
                     ForEach(Array(categories.prefix(maxDots)), id: \.self) { category in
                         Circle()
@@ -61,7 +60,6 @@ struct CalendarDayView: View {
                             .stroke(Color("sharkPrimaryDark"), lineWidth: 1.5)
                             .frame(width: 35, height: 35)
                     } else if isBirthday {
-                        // 생일인 경우 특별한 스타일 적용
                         Circle()
                             .stroke(Color.pink, lineWidth: 1.5)
                             .frame(width: 35, height: 35)
@@ -69,7 +67,6 @@ struct CalendarDayView: View {
                     
                     VStack(spacing: 0) {
                         if isBirthday && !isSelected {
-                            // 생일 케이크 이모지 (선택되지 않은 경우에만)
                             Text("🎂")
                                 .font(.system(size: 8))
                                 .padding(.bottom, 1)
@@ -89,16 +86,16 @@ struct CalendarDayView: View {
                 }
                 .frame(width: 35, height: 35)
                 
-                // 이벤트 도트 표시
+                // 이벤트 도트
                 HStack(spacing: 4) {
-                    // 일지 도트 (파란색)
+                    // 일지 도트
                     if events.contains(where: { $0.category == .일지 }) {
                         Circle()
                             .fill(Color("sharkPrimaryColor"))
                             .frame(width: 6, height: 6)
                     }
                     
-                    // 일정 도트 (주황색)
+                    // 일정 도트
                     if events.contains(where: { $0.category == .일정 }) {
                         Circle()
                             .fill(Color.orange)
@@ -106,9 +103,8 @@ struct CalendarDayView: View {
                     }
                 }
                 .frame(height: 10)
-                .opacity(day.isCurrentMonth ? 1 : 0.5) // 현재 달이 아닌 날짜는 투명도 낮게
+                .opacity(day.isCurrentMonth ? 1 : 0.5)
             } else {
-                // 빈 날짜칸
                 Text("")
                     .frame(width: 35, height: 35)
                 
@@ -118,7 +114,7 @@ struct CalendarDayView: View {
             }
         }
         .frame(height: 50)
-        .contentShape(Rectangle()) // 전체 영역을 탭 가능하게
+        .contentShape(Rectangle())
     }
 }
 
