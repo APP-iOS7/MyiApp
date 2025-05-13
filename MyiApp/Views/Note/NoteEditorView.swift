@@ -15,8 +15,7 @@ struct NoteEditorView: View {
     @State private var description: String = ""
     @State private var date: Date
     @State private var selectedCategory: NoteCategory = .일지
-    @State private var showAlert = false
-    @State private var alertMessage = ""
+    @State private var showToast: ToastMessage? = nil
     
     let isEditing: Bool
     let noteId: UUID?
@@ -103,20 +102,13 @@ struct NoteEditorView: View {
                     .disabled(title.isEmpty)
                 }
             }
-            .alert(isPresented: $showAlert) {
-                Alert(
-                    title: Text("알림"),
-                    message: Text(alertMessage),
-                    dismissButton: .default(Text("확인"))
-                )
-            }
+            .toast(message: $showToast)
         }
     }
     
     private func saveNote() {
         if title.isEmpty {
-            alertMessage = "제목을 입력해주세요."
-            showAlert = true
+            showToast = ToastMessage(message: "제목을 입력해주세요.", type: .error)
             return
         }
         
@@ -131,7 +123,7 @@ struct NoteEditorView: View {
             )
             
             viewModel.updateNote(note: updatedNote)
-            alertMessage = "\(selectedCategory.rawValue)가 수정되었습니다."
+            showToast = ToastMessage(message: "\(selectedCategory.rawValue)가 수정되었습니다.", type: .success)
         } else {
             // 새 노트
             viewModel.addNote(
@@ -140,11 +132,10 @@ struct NoteEditorView: View {
                 date: date,
                 category: selectedCategory
             )
-            alertMessage = "새 \(selectedCategory.rawValue)가 저장되었습니다."
+            showToast = ToastMessage(message: "새 \(selectedCategory.rawValue)가 저장되었습니다.", type: .success)
         }
         
-        showAlert = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             dismiss()
         }
     }
