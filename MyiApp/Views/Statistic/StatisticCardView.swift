@@ -21,18 +21,16 @@ struct StatisticCardView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 32, height: 32)
-                Text(title)
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                Spacer()
-                Button(action: {
-                    
-                }) {
+            NavigationLink(destination: destinationView(for: title)) {
+                HStack {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 32, height: 32)
+                    Text(title)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Spacer()
                     Image(systemName: "chevron.right")
                         .foregroundColor(.gray)
                 }
@@ -94,18 +92,16 @@ struct PottyStatisticCardView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Image(uiImage: .colorPotty)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 32, height: 32)
-                Text("배변 통계")
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                Spacer()
-                Button(action: {
-                    
-                }) {
+            NavigationLink(destination: destinationView(for: "배변 통계")) {
+                HStack {
+                    Image(uiImage: .colorPotty)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 32, height: 32)
+                    Text("배변 통계")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Spacer()
                     Image(systemName: "chevron.right")
                         .foregroundColor(.gray)
                 }
@@ -129,5 +125,25 @@ struct PottyStatisticCardView: View {
                 .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
         )
         .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
+    }
+}
+
+@ViewBuilder
+func destinationView(for title: String) -> some View {
+    switch title {
+    case "분유/수유/이유식 통계":
+        FoodDetailView()
+    case "기저귀 통계":
+        DiaperDetailView()
+    case "수면 통계":
+        SleepDetailView()
+    case "목욕 통계":
+        BathDetailView()
+    case "간식 통계":
+        SnackDetailView()
+    case "배변 통계":
+        PottyDetailView()
+    default:
+        EmptyView()
     }
 }
