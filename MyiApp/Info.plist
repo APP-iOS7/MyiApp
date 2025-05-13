@@ -15,5 +15,9 @@
 			</array>
 		</dict>
 	</array>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Cafe24OhsquareAir-v2.0.ttf</string>
+	</array>
 </dict>
 </plist>

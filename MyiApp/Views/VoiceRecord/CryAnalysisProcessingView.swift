@@ -34,7 +34,7 @@ struct CryAnalysisProcessingView: View {
             Text("아기의 상태를 분석하고 있어요" + String(repeating: ".", count: dotCount))
                 .font(.system(size: 20))
                 .bold()
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
                 .padding(.top, 8)
 
             Spacer()
