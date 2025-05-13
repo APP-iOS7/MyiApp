@@ -20,26 +20,57 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 }
 
+enum AppState {
+    case loading
+    case login
+    case content
+    case register
+}
+
 @main
 struct MyiApp: App {
-    // register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var authService = AuthService.shared
     @StateObject var databaseService = DatabaseService.shared
+    @State private var appState: AppState = .loading
     
     var body: some Scene {
         WindowGroup {
-            NavigationView {
-                ZStack {
-                    if authService.user == nil {
-                        TestLogInView()
-                    } else if !databaseService.hasBabyInfo {
-                        TestRegisterBabyView()
-                    } else {
-                        ContentView()
+            NavigationStack {
+                currentView
+                    .task { await updateAppState() }
+                    .onChange(of: authService.user) { _, _ in
+                        Task { await updateAppState() }
                     }
-                }
+                    .onChange(of: databaseService.hasBabyInfo) { _, newValue in
+                        if newValue == true {
+                            appState = .content
+                        }
+                    }
             }
         }
+    }
+    
+    @ViewBuilder
+    private var currentView: some View {
+        switch appState {
+        case .loading:
+            ProgressView()
+                .progressViewStyle(.circular)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.white.ignoresSafeArea())
+        case .login:
+            LogInView()
+        case .content:
+            ContentView()
+        case .register:
+            RegisterBabyView()
+        }
+    }
+    
+    @MainActor
+    private func updateAppState() async {
+        appState = authService.user == nil ? .login : await databaseService.checkBabyInfo() ? .content : .register
+        databaseService.hasBabyInfo = appState != .login ? databaseService.hasBabyInfo : false
     }
 }
