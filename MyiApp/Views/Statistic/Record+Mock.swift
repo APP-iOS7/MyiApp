@@ -107,18 +107,36 @@ extension Record {
                 createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 12, hour: 14, minute: 20, second: 0))!,
                 title: .bath
             ),
+            Record(
+                id: UUID(uuidString: "11111111-aaaa-bbbb-cccc-000000000008")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 13, hour: 14, minute: 00, second: 0))!,
+                title: .bath
+            ),
             
             
             
             
             Record(
-                id: UUID(uuidString: "c62c24a9-2c96-4b4f-bcb3-372946604b2a")!,
+                id: UUID(uuidString: "11111111-aaaa-bbbb-cccc-000000000007")!,
                 createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 11, hour: 9, minute: 8, second: 0))!,
                 title: .sleep,
                 sleepStart: calendar.date(from: DateComponents(year: 2025, month: 5, day: 11, hour: 23, minute: 30, second: 0))!,
                 sleepEnd: calendar.date(from: DateComponents(year: 2025, month: 5, day: 12, hour: 2, minute: 12, second: 3))!
             ),
-            
+            Record(
+                id: UUID(uuidString: "11111111-aaaa-bbbb-cccc-000000000006")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 11, hour: 9, minute: 8, second: 0))!,
+                title: .sleep,
+                sleepStart: calendar.date(from: DateComponents(year: 2025, month: 5, day: 12, hour: 21, minute: 30, second: 0))!,
+                sleepEnd: calendar.date(from: DateComponents(year: 2025, month: 5, day: 13, hour: 3, minute: 12, second: 3))!
+            ),
+            Record(
+                id: UUID(uuidString: "11111111-aaaa-bbbb-cccc-000000000005")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 11, hour: 9, minute: 8, second: 0))!,
+                title: .sleep,
+                sleepStart: calendar.date(from: DateComponents(year: 2025, month: 5, day: 13, hour: 22, minute: 00, second: 0))!,
+                sleepEnd: calendar.date(from: DateComponents(year: 2025, month: 5, day: 14, hour: 2, minute: 00, second: 3))!
+            ),
             
             
             
@@ -130,7 +148,7 @@ extension Record {
                 pottyType: .poop
             ),
             Record(
-                id: UUID(uuidString: "11111111-aaaa-bbbb-cccc-000000000001")!,
+                id: UUID(uuidString: "11111111-aaaa-bbbb-cccc-000000000004")!,
                 createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 11, hour: 7, minute: 30))!,
                 title: .potty,
                 pottyType: .poop

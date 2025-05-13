@@ -58,7 +58,7 @@ struct StatisticView: View {
                 }
         )
     }
-
+    
     
     var iconGrid: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 20) {
@@ -74,139 +74,144 @@ struct StatisticView: View {
         ScrollView {
             VStack(spacing: 20) {
                 VStack(spacing: 10) {
-                    HStack(spacing: 4) {
-                        ForEach(modes, id: \.self) { mode in
-                            Button(action: {
-                                selectedMode = mode
-                            }) {
-                                Text(mode)
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : Color.gray)
-                                    .frame(maxWidth: 90, minHeight: 32)
-                                    .background(
-                                        ZStack {
-                                            if selectedMode == mode {
-                                                RoundedRectangle(cornerRadius: 12)
-                                                    .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
-                                                    .background(
-                                                        RoundedRectangle(cornerRadius: 12)
-                                                            .fill(Color.white)
-                                                    )
-                                            } else {
-                                                Color.clear
-                                            }
-                                        }
-                                    )
-                            }
-                        }
-                    }
-                    .padding(4)
-                    .background(Color.gray.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .frame(width: 200, height: 50)
-                    
+                    toggleMode
                     Spacer()
-                    
-                    HStack {
-                        Button(action: {
-                            selectedDate = Calendar.current.date(byAdding: .day, value: selectedMode == "일" ? -1 : -7, to: selectedDate) ?? selectedDate
-                        }) {
-                            Image(systemName: "chevron.left")
-                                .foregroundColor(.black)
-                        }
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            withAnimation {
-                                showCalendar.toggle()
-                            }
-                        }) {
-                            Image(systemName: "calendar")
-                                .foregroundColor(.black)
-                        }
-                        
-                        Text(formattedDateString)
-                            .font(.headline)
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            selectedDate = Calendar.current.date(byAdding: .day, value: selectedMode == "일" ? 1 : 7, to: selectedDate) ?? selectedDate
-                        }) {
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.black)
-                        }
-                    }
-                    if showCalendar {
-                        DatePicker(
-                            "",
-                            selection: $selectedDate,
-                            displayedComponents: [.date]
-                        )
-                        .datePickerStyle(.graphical)
-                        .environment(\.locale, Locale(identifier: "ko_KR"))
-                        .transition(.opacity)
-                        .tint(Color("sharkPrimaryColor"))
-                    }
+                    dateMove
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 10)
                 .background(Color.white)
-                .zIndex(1)
                 
                 iconGrid
                     .padding(.horizontal)
                     .padding(.bottom, 20)
                 
                 Spacer()
-                
-                if selectedMode == "주" {
-                    ZStack {
-                        Circle()
-                            .stroke(Color.gray.opacity(0.2), lineWidth: 30)
-                            .frame(width: 240, height: 240)
-                        
-                        Text("13개월 18일")
-                            .font(.title2)
-                            .fontWeight(.medium)
-                    }
-                    .padding(.horizontal)
-                    
-                } else if selectedMode == "일" {
-                    DailyChartView(records: records,  selectedDate: selectedDate)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .padding(.horizontal)
-                        .padding(.vertical, 20)
-                    
+                chartView
+                Spacer()
+                babyInfo
+                Divider()
+                statisticList
+            }
+            .padding()
+        }
+        
+    }
+    private var toggleMode: some View {
+        HStack(spacing: 4) {
+            ForEach(modes, id: \.self) { mode in
+                Button(action: {
+                    selectedMode = mode
+                }) {
+                    Text(mode)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : Color.gray)
+                        .frame(maxWidth: 90, minHeight: 32)
+                        .background(
+                            ZStack {
+                                if selectedMode == mode {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill(Color.white)
+                                        )
+                                } else {
+                                    Color.clear
+                                }
+                            }
+                        )
+                }
+            }
+        }
+        .padding(4)
+        .background(Color.gray.opacity(0.1))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .frame(width: 200, height: 50)
+    }
+    private var dateMove: some View {
+        Group {
+            HStack {
+                Button(action: {
+                    selectedDate = Calendar.current.date(byAdding: .day, value: selectedMode == "일" ? -1 : -7, to: selectedDate) ?? selectedDate
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.black)
                 }
                 
                 Spacer()
                 
-                Text("여 · 13개월 18일, 2살(만1세)")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                    .padding(.horizontal)
-                
-                Divider()
-                
-                if selectedMode == "주" {
-                    
-                    
-                } else if selectedMode == "일" {
-                    DailyStatisticCardListView(records: records,  selectedDate: selectedDate)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                Button(action: {
+                    withAnimation {
+                        showCalendar.toggle()
+                    }
+                }) {
+                    Image(systemName: "calendar")
+                        .foregroundColor(.black)
                 }
                 
+                Text(formattedDateString)
+                    .font(.headline)
                 
-
+                Spacer()
+                
+                Button(action: {
+                    selectedDate = Calendar.current.date(byAdding: .day, value: selectedMode == "일" ? 1 : 7, to: selectedDate) ?? selectedDate
+                }) {
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.black)
+                }
+            }
+            if showCalendar {
+                DatePicker(
+                    "",
+                    selection: $selectedDate,
+                    displayedComponents: [.date]
+                )
+                .datePickerStyle(.graphical)
+                .environment(\.locale, Locale(identifier: "ko_KR"))
+                .transition(.opacity)
+                .tint(Color("sharkPrimaryColor"))
+            }
+        }
+        
+    }
+    private var chartView: some View {
+        Group {
+            if selectedMode == "주" {
+                WeeklyChartView(records: records,  selectedDate: selectedDate)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.horizontal)
+                    .padding(.vertical, 20)
+                
+            } else if selectedMode == "일" {
+                DailyChartView(records: records,  selectedDate: selectedDate)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.horizontal)
+                    .padding(.vertical, 20)
                 
             }
-            .padding()
         }
+        
     }
-
-
+    private var babyInfo: some View {
+        Text("여 · 13개월 18일, 2살(만1세)")
+            .font(.subheadline)
+            .foregroundColor(.gray)
+            .padding(.horizontal)
+    }
+    private var statisticList: some View {
+        Group {
+            if selectedMode == "주" {
+                
+                
+            } else if selectedMode == "일" {
+                DailyStatisticCardListView(records: records,  selectedDate: selectedDate)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        
+    }
 }
 
 struct IconItem: View {
