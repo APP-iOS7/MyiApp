@@ -8,10 +8,8 @@
 import SwiftUI
 
 struct HomeView: View {
-    
-    @State var selectedDate = Date()
-    @State private var selectedCategory: CareCategory?
-    
+    @StateObject var viewModel: HomeViewModel = .init()
+
     var body: some View {
         ScrollView {
             VStack(spacing: 5) {
@@ -23,7 +21,7 @@ struct HomeView: View {
             }
             .padding()
         }
-        .sheet(item: $selectedCategory) { category in
+        .sheet(item: $viewModel.selectedCategory) { category in
             AddRecordView(category: category)
                 .presentationDetents([.medium])
         }
@@ -31,7 +29,7 @@ struct HomeView: View {
     
     private var babyInfoCard: some View {
         HStack(alignment: .center, spacing: 16) {
-            Image(.colorBabyFood)
+            Image(.sharkChild)
                 .resizable()
                 .frame(width: 90, height: 90)
                 .padding(8)
@@ -66,23 +64,13 @@ struct HomeView: View {
             }
         }
         .padding(8)
-        .background(
-            RoundedRectangle(cornerRadius: 24).fill(
-                Color(
-                    red: 246/255,
-                    green: 244/255,
-                    blue: 253/255,
-                    opacity: 1
-                )
-            )
-        )
+        .background(RoundedRectangle(cornerRadius: 24).fill(Color.sharkCardBackground))
     }
-    
     private var dateSection: some View {
         ZStack {
             HStack(spacing: 6) {
                 Button(action: {
-                    selectedDate = Calendar.current.date(byAdding: .day, value: -1, to: selectedDate) ?? selectedDate
+                    viewModel.selectedDate = Calendar.current.date(byAdding: .day, value: -1, to: viewModel.selectedDate) ?? viewModel.selectedDate
                 }) {
                     Image(systemName: "chevron.left")
                         .font(.body)
@@ -90,12 +78,12 @@ struct HomeView: View {
                 .foregroundStyle(.primary)
                 Spacer()
                 Image(systemName: "calendar")
-                Text(selectedDate.formattedKoreanDateString())
+                Text(viewModel.selectedDate.formattedKoreanDateString())
                     .fontWeight(.medium)
                     .font(.body)
                 Spacer()
                 Button(action: {
-                    selectedDate = Calendar.current.date(byAdding: .day, value: +1, to: selectedDate) ?? selectedDate
+                    viewModel.selectedDate = Calendar.current.date(byAdding: .day, value: +1, to: viewModel.selectedDate) ?? viewModel.selectedDate
                 }) {
                     Image(systemName: "chevron.right")
                         .font(.body)
@@ -104,7 +92,7 @@ struct HomeView: View {
             }
             DatePicker(
                 "",
-                selection: $selectedDate,
+                selection: $viewModel.selectedDate,
                 displayedComponents: [.date]
             )
             .datePickerStyle(.compact)
@@ -114,7 +102,6 @@ struct HomeView: View {
         }
         .padding()
     }
-    
     private var gridItems: some View {
         let careItems: [CareCategory] = [
             .init(name: "수유/이유식", image: .colorBabyFood),
@@ -130,7 +117,7 @@ struct HomeView: View {
         return LazyVGrid(columns: columns) {
             ForEach(careItems, id: \.name) { item in
                 Button(action: {
-                    selectedCategory = item
+                    viewModel.selectedCategory = item
                 }) {
                     VStack(spacing: 0) {
                         Image(uiImage: item.image)
@@ -139,7 +126,7 @@ struct HomeView: View {
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color.blue.opacity(0.1))
+                                    .fill(Color.sharkCardBackground)
                                     .frame(width: 70, height: 70)
                             )
                         Text(item.name)
@@ -150,12 +137,11 @@ struct HomeView: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal)
+        .padding([.horizontal, .bottom])
     }
-    
     private var timeline: some View {
         VStack(spacing: 0) {
-            ForEach(Record.mockRecords) { record in
+            ForEach(viewModel.records) { record in
                 TimelineRow(record: record)
             }
         }
@@ -170,10 +156,4 @@ struct CareCategory: Identifiable {
 
 #Preview {
     HomeView()
-}
-#Preview {
-    TimelineRow(record: Record.mockRecords[0])
-}
-#Preview {
-    AddRecordView(category: .init(name: "수유/이유식", image: .colorBabyFood))
 }
