@@ -17,15 +17,15 @@ struct CryAnalysisResultView: View {
     private var resultImageName: String {
         switch emotionLabel {
         case "배고파요":
-            return "sharkToddler"
+            return "sharkChild"
         case "무서워요":
-            return "sharkToddler"
+            return "sharkChild"
         case "졸려요":
-            return "sharkToddler"
+            return "sharkChild"
         case "놀아주세요":
-            return "sharkToddler"
+            return "sharkChild"
         default:
-            return "sharkToddler"
+            return "sharkChild"
         }
     }
 

@@ -17,8 +17,6 @@ enum CryAnalysisStep {
 }
 
 class VoiceRecordViewModel: ObservableObject {
-    private var audioRecorder: AVAudioRecorder?
-    private var timer: Timer?
     private var engine: AVAudioEngine?
     private var inputNode: AVAudioInputNode?
 
@@ -34,7 +32,7 @@ class VoiceRecordViewModel: ObservableObject {
         let format = inputNode!.outputFormat(forBus: 0)
         inputNode!.installTap(onBus: 0, bufferSize: 1024, format: format) { (buffer, time) in
             let magnitudes = self.fftFromBuffer(buffer)
-            print("🎙️ magnitudes:", magnitudes) // 로그 추가
+            print("magnitudes (avg):", magnitudes.map { String(format: "%.2f", $0) }.joined(separator: ", "))
             DispatchQueue.main.async {
                 self.audioLevels = magnitudes
             }
@@ -42,7 +40,7 @@ class VoiceRecordViewModel: ObservableObject {
 
         do {
             try engine.start()
-            print("🎧 AVAudioEngine 시작됨") // 로그 추가
+            print("AVAudioEngine 시작됨")
         } catch {
             print("AVAudioEngine start 실패: \(error.localizedDescription)")
         }
@@ -55,9 +53,9 @@ class VoiceRecordViewModel: ObservableObject {
         guard let fftSetup = vDSP_create_fftsetup(log2n, FFTRadix(kFFTRadix2)) else {
             return []
         }
+        defer { vDSP_destroy_fftsetup(fftSetup) }
 
-        let channels = buffer.floatChannelData!
-        let channelData = channels[0]
+        guard let channelData = buffer.floatChannelData?[0] else { return [] }
         var window = [Float](repeating: 0, count: frameCount)
         vDSP_hann_window(&window, vDSP_Length(frameCount), Int32(vDSP_HANN_NORM))
         var windowedSignal = [Float](repeating: 0, count: frameCount)
@@ -82,6 +80,7 @@ class VoiceRecordViewModel: ObservableObject {
                 vDSP_fft_zrip(fftSetup, &splitComplex, 1, log2n, FFTDirection(FFT_FORWARD))
                 vDSP_zvmags(&splitComplex, 1, &magnitudes, 1, vDSP_Length(frameCount / 2))
 
+                guard audioLevels.count > 0 else { return }
                 let step = magnitudes.count / audioLevels.count
                 for i in 0..<audioLevels.count {
                     let start = i * step
@@ -93,7 +92,6 @@ class VoiceRecordViewModel: ObservableObject {
             }
         }
 
-        vDSP_destroy_fftsetup(fftSetup)
         return normalizedMagnitudes
     }
 
