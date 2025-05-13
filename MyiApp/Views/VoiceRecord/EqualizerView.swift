@@ -24,12 +24,11 @@ struct EqualizerView: View {
             startAnimation()
         }
     }
-
+    
     func startAnimation() {
         Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { _ in
             withAnimation(.easeInOut(duration: 0.2)) {
                 heights = (0..<numberOfBars).map { index in
-                    
                     let center = CGFloat(numberOfBars - 1) / 2
                     let distance = abs(CGFloat(index) - center)
                     let falloff = cos(distance * .pi / CGFloat(numberOfBars))
@@ -40,6 +39,8 @@ struct EqualizerView: View {
         }
     }
 }
+
+
 
 #Preview {
     CryAnalysisProcessingView()
