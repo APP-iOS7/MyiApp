@@ -44,6 +44,7 @@ struct StatisticCardView: View {
                 Text("횟수 \(count)회")
                 ProgressComparisonBar(today: count, yesterday: yesterdaycount, color: color, unit: "회")
                 
+                // 수유/이유식일경우
                 if (image == .colorMeal) {
                     if let amount = amount, let yesterdayamount = yesterdayamount {
                         
@@ -56,6 +57,7 @@ struct StatisticCardView: View {
                     }
                 }
                 
+                // 수면일경우
                 if (image == .colorSleep) {
                     Text("시간 \(formattedTime(from: time))")
                     ProgressComparisonBar(today: time, yesterday: yesterdaytime, color: color, unit: "분")
@@ -81,6 +83,7 @@ struct StatisticCardView: View {
     }
     
 }
+//배변은 카드를 따로 만듦
 struct PottyStatisticCardView: View {
     let small: Int
     let yesterdaysmall: Int

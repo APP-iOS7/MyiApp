@@ -89,12 +89,14 @@ struct DailyStatisticCardListView: View {
         }
         .padding(.horizontal)
     }
+    // 카테고리 받아서 횟수 셀리기
     func recordsCount(for title: TitleCategory, in records: [Record], on date: Date) -> Int {
         let calendar = Calendar.current
         return records.filter {
             $0.title == title && calendar.isDate($0.createdAt, inSameDayAs: date)
         }.count
     }
+    // ml 총계
     func totalMlAmount(in records: [Record], on date: Date) -> Int {
         let calendar = Calendar.current
         return records
@@ -105,6 +107,7 @@ struct DailyStatisticCardListView: View {
             .compactMap { $0.mlAmount }
             .reduce(0, +)
     }
+    // 모유 수유 시간 총계
     func totalBreastfeedingMinutes(in records: [Record], on date: Date) -> Int {
         let calendar = Calendar.current
         return records
@@ -118,7 +121,7 @@ struct DailyStatisticCardListView: View {
                 return total + left + right
             }
     }
-    
+    // 밥먹은 횟수 따로 셀리기
     func combinedFeedCount(in records: [Record], on date: Date) -> Int {
         let calendar = Calendar.current
         return records.filter {
@@ -126,6 +129,7 @@ struct DailyStatisticCardListView: View {
             calendar.isDate($0.createdAt, inSameDayAs: date)
         }.count
     }
+    // 소변,배변 횟수 따로 셀리기
     func countPottyTypes(in records: [Record], on date: Date) -> (small: Int, big: Int) {
         let calendar = Calendar.current
         
@@ -150,6 +154,7 @@ struct DailyStatisticCardListView: View {
         
         return (small, big)
     }
+    // 수면 시간 총계
     func totalSleepMinutes(in records: [Record], on date: Date) -> Int? {
         let calendar = Calendar.current
         

@@ -13,10 +13,12 @@ struct DailyChartView: View {
     
     var body: some View {
         ZStack {
+            // 그래프 바탕
             Circle()
                 .stroke(Color.gray.opacity(0.2), lineWidth: 80)
                 .frame(width: 200, height: 200)
             
+            // 숫자 표기
             GeometryReader { geometry in
                 let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
                 let radius = geometry.size.width / 2 + 5
@@ -43,8 +45,7 @@ struct DailyChartView: View {
                 }
             }
             
-            
-            
+            // 그래프 표기
             ForEach(recordsWithTimeSpan, id: \.id) { record in
                 CircleSegmentShape(startHour: record.startHour, endHour: record.endHour)
                     .stroke(record.color, lineWidth: 80)
@@ -52,6 +53,7 @@ struct DailyChartView: View {
                 
             }
             
+            //가운데 정보
             Text("13개월 18일")
                 .font(.headline)
                 .foregroundColor(.gray)
@@ -59,6 +61,7 @@ struct DailyChartView: View {
         .padding()
     }
     
+    // 그래프 그릴 거 크기 조정
     private var recordsWithTimeSpan: [TimedRecord] {
         let calendar = Calendar.current
         let filteredRecords = records.filter { record in
