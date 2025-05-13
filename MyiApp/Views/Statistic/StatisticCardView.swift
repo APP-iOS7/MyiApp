@@ -111,10 +111,10 @@ struct PottyStatisticCardView: View {
             VStack(alignment: .leading, spacing: 6) {
                 
                 Text("소변 \(small)회")
-                ProgressComparisonBar(today: small, yesterday: yesterdaysmall, color: Color(hex: "C7A868"), unit: "회")
+                ProgressComparisonBar(today: small, yesterday: yesterdaysmall, color: Color("potty"), unit: "회")
                 
                 Text("대변 \(big)회")
-                ProgressComparisonBar(today: big, yesterday: yesterdaybig, color: Color(hex: "C7A868"), unit: "회")
+                ProgressComparisonBar(today: big, yesterday: yesterdaybig, color: Color("potty"), unit: "회")
                 
             }
             .font(.subheadline)
@@ -123,7 +123,7 @@ struct PottyStatisticCardView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color(hex: "C7A868"), lineWidth: 1)
+                .stroke(Color("potty"), lineWidth: 1)
                 .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
         )
         .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)

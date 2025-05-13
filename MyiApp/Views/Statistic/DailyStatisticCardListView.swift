@@ -24,7 +24,7 @@ struct DailyStatisticCardListView: View {
             StatisticCardView(
                 title: "분유/수유/이유식 통계",
                 image: .colorMeal,
-                color: Color(hex: "F9C2C4"),
+                color: Color("food"),
                 count: combinedFeedCount(in: records, on: selectedDate),
                 yesterdaycount: combinedFeedCount(in: records, on: yesterday),
                 amount: totalMlAmount(in: records, on: selectedDate),
@@ -36,7 +36,7 @@ struct DailyStatisticCardListView: View {
             StatisticCardView(
                 title: "기저귀 통계",
                 image: .colorDiaper,
-                color: Color(hex: "AD91EB"),
+                color: Color("diaper"),
                 count: recordsCount(for: .diaper, in: records, on: selectedDate),
                 yesterdaycount: recordsCount(for: .diaper, in: records, on: yesterday),
                 amount: nil,
@@ -54,7 +54,7 @@ struct DailyStatisticCardListView: View {
             StatisticCardView(
                 title: "수면 통계",
                 image: .colorSleep,
-                color: Color(hex: "B7B7B7"),
+                color: Color("sleep"),
                 count: recordsCount(for: .sleep, in: records, on: selectedDate),
                 yesterdaycount: recordsCount(for: .sleep, in: records, on: yesterday),
                 amount: nil,
@@ -66,7 +66,7 @@ struct DailyStatisticCardListView: View {
             StatisticCardView(
                 title: "목욕 통계",
                 image: .colorBath,
-                color: Color(hex: "C9DEF3"),
+                color: Color("bath"),
                 count: recordsCount(for: .bath, in: records, on: selectedDate),
                 yesterdaycount: recordsCount(for: .bath, in: records, on: yesterday),
                 amount: nil,
@@ -78,7 +78,7 @@ struct DailyStatisticCardListView: View {
             StatisticCardView(
                 title: "간식 통계",
                 image: .colorSnack,
-                color: Color(hex: "FFD6AA"),
+                color: Color("snack"),
                 count: recordsCount(for: .snack, in: records, on: selectedDate),
                 yesterdaycount: recordsCount(for: .snack, in: records, on: yesterday),
                 amount: nil,
