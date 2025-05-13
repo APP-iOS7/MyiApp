@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct VoiceRecordView: View {
+    @State private var isAnalyzing = false
+    
     var body: some View {
         VStack(spacing: 24) {
-    
+            
             Text("울음 분석")
                 .font(.largeTitle)
                 .fontWeight(.bold)
@@ -27,14 +29,15 @@ struct VoiceRecordView: View {
             Spacer()
             
             Text("시작 버튼을 누른 후 아이의 울음소리를 들려주세요")
-                .font(.subheadline)
+                .font(.system(size: 20))
+                .bold()
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
             
             Spacer()
             
             Button(action: {
-                print("분석 시작")
+                isAnalyzing = true
             }) {
                 Text("분석 시작")
                     .font(.title2)
@@ -46,8 +49,12 @@ struct VoiceRecordView: View {
                     .padding(.horizontal, 32)
             }
         }
+        .navigationDestination(isPresented: $isAnalyzing) {
+            CryAnalysisProcessingView()
+        }
     }
 }
+
 
 #Preview {
     NavigationStack {
