@@ -31,9 +31,16 @@ struct DetailStatisticCardView: View {
                     .font(.headline)
                     .foregroundColor(.primary)
                 Spacer()
-                Text("\(formattedDate(selectedDate))")
-                    .font(.subheadline)
-                    .foregroundColor(.primary)
+                if (mode == "daily") {
+                    Text("\(formattedDate(selectedDate))")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                } else if (mode == "weekly") {
+                    Text("\(formattedDate(weekStartDate(from: selectedDate))) ~ \(formattedDate(weekEndDate(from: selectedDate)))")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                }
+                
                 
                 
             }
@@ -90,6 +97,15 @@ struct DetailStatisticCardView: View {
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "M월 d일"
         return formatter.string(from: date)
+    }
+    func weekStartDate(from date: Date) -> Date {
+        var calendar = Calendar.current
+        calendar.firstWeekday = 2
+        return calendar.dateInterval(of: .weekOfYear, for: date)?.start ?? date
+    }
+    func weekEndDate(from date: Date) -> Date {
+        let startOfWeek = weekStartDate(from: date)
+        return Calendar.current.date(byAdding: .day, value: 6, to: startOfWeek) ?? date
     }
     func comparisonMessage(for image: UIImage, count: Int, lastCount: Int) -> Text {
         switch image {
