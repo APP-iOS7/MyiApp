@@ -44,9 +44,6 @@ struct Note: Identifiable, Hashable, Codable {
 }
 
 enum NoteCategory: String, CaseIterable, Hashable, Codable {
-    case 일상 = "일상"
-    case 건강 = "건강"
-    case 발달 = "발달"
-    case 식사 = "식사"
-    case 기타 = "기타"
+    case 일지 = "일지"
+    case 일정 = "일정"
 }

@@ -56,47 +56,6 @@ struct NoteView: View {
         }
         .navigationTitle("육아 수첩")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Menu {
-                    Button(action: {
-                        // 검색 기능 구현
-                    }) {
-                        Label("검색", systemImage: "magnifyingglass")
-                    }
-                    
-                    Menu {
-                        ForEach(NoteCategory.allCases, id: \.self) { category in
-                            Button(action: {
-                                selectedFilterCategory = category
-                            }) {
-                                HStack {
-                                    Text(category.rawValue)
-                                    if selectedFilterCategory == category {
-                                        Image(systemName: "checkmark")
-                                    }
-                                }
-                            }
-                        }
-                        
-                        Button(action: {
-                            selectedFilterCategory = nil
-                        }) {
-                            HStack {
-                                Text("전체")
-                                if selectedFilterCategory == nil {
-                                    Image(systemName: "checkmark")
-                                }
-                            }
-                        }
-                    } label: {
-                        Label("카테고리 필터", systemImage: "line.3.horizontal.decrease.circle")
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                }
-            }
-        }
         .sheet(isPresented: $showingNoteEditor) {
             NoteEditorView(selectedDate: viewModel.selectedDay?.date ?? Date())
                 .environmentObject(viewModel)
@@ -283,10 +242,10 @@ struct NoteView: View {
                         selectedFilterCategory = nil
                     }) {
                         Text("전체")
-                            .font(.caption)
+                            .font(.subheadline)
                             .fontWeight(.medium)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
                             .background(
                                 Capsule()
                                     .fill(selectedFilterCategory == nil ? Color("sharkPrimaryColor") : Color.gray.opacity(0.1))
@@ -299,10 +258,10 @@ struct NoteView: View {
                             selectedFilterCategory = category
                         }) {
                             Text(category.rawValue)
-                                .font(.caption)
+                                .font(.subheadline)
                                 .fontWeight(.medium)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 10)
                                 .background(
                                     Capsule()
                                         .fill(selectedFilterCategory == category ? Color("sharkPrimaryColor") : Color.gray.opacity(0.1))
@@ -380,13 +339,13 @@ struct NoteView: View {
                         .padding(.vertical, 20)
                     } else {
                         // 이벤트 목록 표시
-                        VStack(spacing: 12) {
+                        VStack(spacing: 6) {
                             ForEach(filteredEvents) { event in
                                 NoteEventRow(event: event) {
                                     selectedEvent = event
                                 }
                             }
-                            .padding(.bottom, 16)
+                            .padding(.bottom, 8)
                         }
                     }
                 }
@@ -413,7 +372,7 @@ struct NoteView: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 80)
-        .padding(.vertical, 20)
+        //.padding(.vertical, 20)
     }
 }
 
@@ -427,9 +386,15 @@ struct NoteEventRow: View {
             onTap?()
         } label: {
             HStack(spacing: 12) {
-                Circle()
-                    .fill(categoryColor(for: event.category))
-                    .frame(width: 10, height: 10)
+                // 카테고리별 아이콘 표시
+                Image(systemName: categoryIcon(for: event.category))
+                    .foregroundColor(categoryColor(for: event.category))
+                    .font(.system(size: 24))
+                    .frame(width: 40, height: 40)
+                    .background(
+                        Circle()
+                            .fill(categoryColor(for: event.category).opacity(0.2))
+                    )
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(event.title)
@@ -460,16 +425,19 @@ struct NoteEventRow: View {
 
     private func categoryColor(for category: NoteCategory) -> Color {
         switch category {
-        case .건강:
-            return Color.green.opacity(0.8)
-        case .발달:
-            return Color.orange.opacity(0.8)
-        case .식사:
-            return Color.purple.opacity(0.8)
-        case .일상:
-            return Color("sharkPrimaryLight")
-        case .기타:
-            return Color.gray.opacity(0.6)
+        case .일지:
+            return Color("sharkPrimaryColor")
+        case .일정:
+            return Color.orange
+        }
+    }
+    
+    private func categoryIcon(for category: NoteCategory) -> String {
+        switch category {
+        case .일지:
+            return "note.text"
+        case .일정:
+            return "calendar"
         }
     }
 }

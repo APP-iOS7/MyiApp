@@ -24,8 +24,8 @@ struct NoteDetailView: View {
                 contentSection
                 
                 // 카테고리별 추가 정보
-                if event.category == .건강 || event.category == .발달 {
-                    growthChartSection
+                if event.category == .일정 {
+                    reminderSection
                 }
                 
                 // 관련 기록 섹션
@@ -33,7 +33,7 @@ struct NoteDetailView: View {
             }
             .padding(.bottom, 20)
         }
-        .navigationTitle("일지 상세")
+        .navigationTitle(event.category == .일지 ? "일지 상세" : "일정 상세")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -60,8 +60,8 @@ struct NoteDetailView: View {
         }
         .alert(isPresented: $showingDeleteAlert) {
             Alert(
-                title: Text("일지 삭제"),
-                message: Text("이 일지를 삭제하시겠습니까? 삭제한 일지는 복구할 수 없습니다."),
+                title: Text(event.category == .일지 ? "일지 삭제" : "일정 삭제"),
+                message: Text("이 \(event.category.rawValue)을(를) 삭제하시겠습니까? 삭제한 후에는 복구할 수 없습니다."),
                 primaryButton: .destructive(Text("삭제")) {
                     deleteNote()
                 },
@@ -73,16 +73,21 @@ struct NoteDetailView: View {
     private var headerSection: some View {
         HStack {
             VStack(alignment: .leading, spacing: 5) {
-                Text(event.category.rawValue)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(Color("sharkPrimaryDark"))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
-                    .background(
-                        Capsule()
-                            .fill(Color("sharkPrimaryLight").opacity(0.3))
-                    )
+                HStack {
+                    Image(systemName: categoryIcon(for: event.category))
+                        .foregroundColor(categoryColor(for: event.category))
+                    
+                    Text(event.category.rawValue)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(categoryColor(for: event.category))
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(categoryColor(for: event.category).opacity(0.2))
+                )
                 
                 Text(event.title)
                     .font(.title)
@@ -107,6 +112,7 @@ struct NoteDetailView: View {
             Text(event.description)
                 .lineLimit(nil)
                 .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding()
         .background(
@@ -117,20 +123,38 @@ struct NoteDetailView: View {
         .padding(.horizontal)
     }
     
-    private var growthChartSection: some View {
+    // 일정 알림 섹션 (일정 카테고리인 경우만 표시)
+    private var reminderSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("성장 차트")
+            Text("알림 정보")
                 .font(.headline)
             
             HStack {
-                Rectangle()
-                    .fill(Color("sharkPrimaryLight").opacity(0.5))
-                    .frame(height: 150)
-                    .overlay(
-                        Text("성장 차트 영역")
-                            .foregroundColor(.gray)
-                    )
+                Image(systemName: "bell.fill")
+                    .foregroundColor(.orange)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("알림 예정")
+                        .font(.subheadline)
+                    
+                    Text("일정 30분 전")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    // 알림 설정 변경
+                }) {
+                    Text("변경")
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                }
             }
+            .padding()
+            .background(Color("sharkCardBackground"))
+            .cornerRadius(8)
         }
         .padding()
         .background(
@@ -143,34 +167,39 @@ struct NoteDetailView: View {
     
     private var relatedEventsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("관련 기록")
+            Text("같은 카테고리의 기록")
                 .font(.headline)
             
-            // 여기서는 같은 카테고리의 다른 기록 몇 개만 표시
+            // 같은 카테고리의 다른 기록 몇 개만 표시
             ForEach(getRelatedEvents(), id: \.id) { relatedEvent in
-                HStack {
-                    Circle()
-                        .fill(Color("sharkPrimaryLight"))
-                        .frame(width: 8, height: 8)
-                    
-                    Text(relatedEvent.title)
-                        .font(.subheadline)
-                    
-                    Spacer()
-                    
-                    Text(relatedEvent.date.formattedKoreanDateString())
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                Button {
+                    // 상세 화면으로 이동하는 기능은 추후 개발
+                } label: {
+                    HStack {
+                        Circle()
+                            .fill(categoryColor(for: relatedEvent.category))
+                            .frame(width: 8, height: 8)
+                        
+                        Text(relatedEvent.title)
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                        
+                        Spacer()
+                        
+                        Text(relatedEvent.date.formattedKoreanDateString())
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color("sharkCardBackground"))
+                    )
                 }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color("sharkCardBackground"))
-                )
             }
             
             if getRelatedEvents().isEmpty {
-                Text("관련 기록이 없습니다.")
+                Text("같은 카테고리의 다른 기록이 없습니다.")
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     .padding()
@@ -203,5 +232,23 @@ struct NoteDetailView: View {
     private func deleteNote() {
         viewModel.deleteNote(note: event)
         presentationMode.wrappedValue.dismiss()
+    }
+    
+    private func categoryColor(for category: NoteCategory) -> Color {
+        switch category {
+        case .일지:
+            return Color("sharkPrimaryColor")
+        case .일정:
+            return Color.orange
+        }
+    }
+    
+    private func categoryIcon(for category: NoteCategory) -> String {
+        switch category {
+        case .일지:
+            return "note.text"
+        case .일정:
+            return "calendar"
+        }
     }
 }
