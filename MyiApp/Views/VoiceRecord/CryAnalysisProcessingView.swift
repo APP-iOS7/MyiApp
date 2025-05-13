@@ -16,10 +16,8 @@ struct CryAnalysisProcessingView: View {
     
     var body: some View {
         VStack(spacing: 24) {
-            Spacer().frame(height: 24)
-
             Text("분석 중")
-                .font(.system(size: 24, weight: .bold))
+                .font(.system(size: 32, weight: .heavy))
                 .padding(.top)
 
             EqualizerView()
@@ -53,6 +51,7 @@ struct CryAnalysisProcessingView: View {
                     .cornerRadius(12)
                     .padding(.horizontal, 24)
             }
+            .padding(.horizontal)
 
             Spacer().frame(height: 16)
         }
@@ -63,12 +62,9 @@ struct CryAnalysisProcessingView: View {
                     dismiss()
                 }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.blue) // Or your custom color
+                        .foregroundColor(.blue)
                 }
             }
-        }
-        .onAppear {
-            // No-op, but required for .onReceive to start
         }
         .onReceive(dotTimer) { _ in
             dotCount = (dotCount + 1) % 4
