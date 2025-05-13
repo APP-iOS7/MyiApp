@@ -9,6 +9,7 @@ import SwiftUI
 import FirebaseFirestore
 import Combine
 
+@MainActor
 class NoteViewModel: ObservableObject {
     private let db = Firestore.firestore()
     private let authService = AuthService.shared
@@ -356,8 +357,8 @@ class NoteViewModel: ObservableObject {
     // MARK: - 캘린더 관련 메서드
     func setupListeners() {
         databaseService.$hasBabyInfo
-            .sink { [weak self] hasBabyInfo in
-                if hasBabyInfo {
+            .sink { [weak self] hasBabyInfoOptional in
+                if let hasBabyInfo = hasBabyInfoOptional, hasBabyInfo {
                     self?.fetchBabyInfo()
                 }
             }
