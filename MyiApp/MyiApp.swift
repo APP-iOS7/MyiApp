@@ -64,7 +64,7 @@ struct MyiApp: App {
         case .content:
             ContentView()
         case .register:
-            TestRegisterBabyView()
+            RegisterBabyView()
         }
     }
     
