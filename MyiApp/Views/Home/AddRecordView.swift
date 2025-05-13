@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct AddRecordView: View {
+    
     @Environment(\.dismiss) var dismiss
     @State var date: Date = Date()
     @State var showActionSheet = false
@@ -90,7 +91,7 @@ struct AddRecordView: View {
                 Text("취소")
                     .frame(maxWidth: .infinity)
                     .fontWeight(.bold)
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                     .padding(.vertical, 20)
                     .padding(.horizontal, 32)
                     .background(
