@@ -30,7 +30,7 @@ struct DiaperRecordView: View {
             Button(action: {}) {
                 Text("1회")
                     .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                     .frame(maxWidth: .infinity)
                     .background(
                         RoundedRectangle(cornerRadius: 12)

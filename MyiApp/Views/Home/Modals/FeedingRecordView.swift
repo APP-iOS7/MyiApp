@@ -11,6 +11,10 @@ struct FeedingRecordView: View {
     @State private var selectedType: Int = 0
     @State private var amount: Int = 0
     @State private var showMLPicker = false
+    @State private var showRightBreastPicker = false
+    @State private var showLeftBreastPicker = false
+    @State private var rightBreastFeedingAmount: Int = 0
+    @State private var leftBreastFeedingAmount: Int = 0
     
     var body: some View {
         VStack(spacing: 24) {
@@ -76,21 +80,56 @@ struct FeedingRecordView: View {
                     }
                 }
             }
-            Button(action: { showMLPicker = true }) {
-                Text("\(amount) ml")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity)
+            if selectedType == 0 {
+                HStack(spacing: 16) {
+                    Button(action: { showLeftBreastPicker = true }) {
+                        Text("왼쪽 \(leftBreastFeedingAmount) 분")
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
+                                    .frame(height: 60)
+                            )
+                    }
+                    .padding(.vertical)
                     .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
-                            .frame(height: 60)
+                        MinutesPickerActionSheet(isPresented: $showLeftBreastPicker,selectedAmount: $leftBreastFeedingAmount)
                     )
+                    Button(action: { showRightBreastPicker = true }) {
+                        Text("오른쪽 \(rightBreastFeedingAmount) 분")
+                            .font(.system(size: 24, weight: .bold))
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
+                                    .frame(height: 60)
+                            )
+                    }
+                    .padding(.vertical)
+                    .background(
+                        MinutesPickerActionSheet(isPresented: $showRightBreastPicker,selectedAmount: $rightBreastFeedingAmount)
+                    )
+                }
+            } else {
+                Button(action: { showMLPicker = true }) {
+                    Text("\(amount) ml")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
+                                .frame(height: 60)
+                        )
+                }
+                .padding(.vertical)
+                .background(
+                    MLPickerActionSheet(isPresented: $showMLPicker,selectedAmount: $amount)
+                )
             }
-            .padding(.vertical)
-            .background(
-                MLPickerActionSheet(isPresented: $showMLPicker,selectedAmount: $amount)
-            )
         }
         .padding(.vertical)
     }
