@@ -12,11 +12,12 @@ struct StatisticCardView: View {
     let image: UIImage
     let color: Color
     let count: Int
-    let yesterdaycount : Int
+    let lastcount : Int
     let amount: Int?
-    let yesterdayamount : Int?
+    let lastamount : Int?
     let time: Int?
-    let yesterdaytime: Int?
+    let lasttime: Int?
+    let mode : String
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -42,25 +43,25 @@ struct StatisticCardView: View {
             //시간 수유 수면
             VStack(alignment: .leading, spacing: 15) {
                 Text("횟수 \(count)회")
-                ProgressComparisonBar(today: count, yesterday: yesterdaycount, color: color, unit: "회")
+                ProgressComparisonBar(today: count, yesterday: lastcount, color: color, unit: "회", mode: mode)
                 
                 // 수유/이유식일경우
                 if (image == .colorMeal) {
-                    if let amount = amount, let yesterdayamount = yesterdayamount {
+                    if let amount = amount, let yesterdayamount = lastamount {
                         
                         Text("용량 \(amount)ml")
-                        ProgressComparisonBar(today: amount, yesterday: yesterdayamount, color: color, unit: "ml")
+                        ProgressComparisonBar(today: amount, yesterday: yesterdayamount, color: color, unit: "ml", mode: mode)
                         
                         Text("시간 \(formattedTime(from: time))")
                         
-                        ProgressComparisonBar(today: time, yesterday: yesterdaytime, color: color, unit: "분")
+                        ProgressComparisonBar(today: time, yesterday: lasttime, color: color, unit: "분", mode: mode)
                     }
                 }
                 
                 // 수면일경우
                 if (image == .colorSleep) {
                     Text("시간 \(formattedTime(from: time))")
-                    ProgressComparisonBar(today: time, yesterday: yesterdaytime, color: color, unit: "분")
+                    ProgressComparisonBar(today: time, yesterday: lasttime, color: color, unit: "분", mode: mode)
                 }
                 
             }
@@ -89,6 +90,7 @@ struct PottyStatisticCardView: View {
     let yesterdaysmall: Int
     let big: Int
     let yesterdaybig: Int
+    let mode: String
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -111,10 +113,10 @@ struct PottyStatisticCardView: View {
             VStack(alignment: .leading, spacing: 6) {
                 
                 Text("소변 \(small)회")
-                ProgressComparisonBar(today: small, yesterday: yesterdaysmall, color: Color("potty"), unit: "회")
+                ProgressComparisonBar(today: small, yesterday: yesterdaysmall, color: Color("potty"), unit: "회", mode: mode)
                 
                 Text("대변 \(big)회")
-                ProgressComparisonBar(today: big, yesterday: yesterdaybig, color: Color("potty"), unit: "회")
+                ProgressComparisonBar(today: big, yesterday: yesterdaybig, color: Color("potty"), unit: "회", mode: mode)
                 
             }
             .font(.subheadline)

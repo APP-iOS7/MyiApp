@@ -12,6 +12,7 @@ struct ProgressComparisonBar: View {
     let yesterday: Int?
     let color: Color
     let unit: String
+    let mode: String
 
     var body: some View {
         GeometryReader { geometry in
@@ -38,10 +39,18 @@ struct ProgressComparisonBar: View {
                     .offset(x: yesterdayX)
                 
                 if let y = yesterday {
-                    Text("어제 \(y)\(unit)")
-                        .font(.caption2)
-                        .foregroundColor(.gray)
-                        .offset(x: min(yesterdayX + 4, maxWidth - 50), y: 10)
+                    if (mode == "daily") {
+                        Text("어제 \(y)\(unit)")
+                            .font(.caption2)
+                            .foregroundColor(.gray)
+                            .offset(x: min(yesterdayX + 4, maxWidth - 50), y: 10)
+                    } else {
+                        Text("지난주 \(y)\(unit)")
+                            .font(.caption2)
+                            .foregroundColor(.gray)
+                            .offset(x: min(yesterdayX + 4, maxWidth - 50), y: 10)
+                    }
+                    
                 }
             }
         }
