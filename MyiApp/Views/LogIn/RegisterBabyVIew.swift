@@ -179,9 +179,6 @@ struct RegisterBabyView: View {
             
             Spacer()
         }
-        //        .navigationDestination(isPresented: $viewModel.isRegistered) {
-        //            ContentView()
-        //        }
     }
     
     // 키보드 내리는 함수
