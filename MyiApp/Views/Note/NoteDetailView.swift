@@ -123,7 +123,7 @@ struct NoteDetailView: View {
         .padding(.horizontal)
     }
     
-    // 일정 알림 섹션 (일정 카테고리인 경우만 표시)
+    // 일정 알림 섹션
     private var reminderSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("알림 정보")
@@ -134,7 +134,7 @@ struct NoteDetailView: View {
                     .foregroundColor(.orange)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("알림 예정")
+                    Text("알림 예정(미구현입니다)")
                         .font(.subheadline)
                     
                     Text("일정 30분 전")
@@ -145,7 +145,6 @@ struct NoteDetailView: View {
                 Spacer()
                 
                 Button(action: {
-                    // 알림 설정 변경
                 }) {
                     Text("변경")
                         .font(.caption)

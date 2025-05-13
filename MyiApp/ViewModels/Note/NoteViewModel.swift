@@ -131,7 +131,7 @@ class NoteViewModel: ObservableObject {
                                     // 해당 날짜에 이벤트가 있으면 추가, 없으면 새로운 배열 생성
                                     if var dayNotes = newEvents[startOfDay] {
                                         dayNotes.append(note)
-                                        // 시간순으로 정렬
+                                        // 시간순으로 정렬 (시간 빠른 순)
                                         dayNotes.sort { $0.date < $1.date }
                                         newEvents[startOfDay] = dayNotes
                                     } else {
@@ -245,6 +245,7 @@ class NoteViewModel: ObservableObject {
                 
                 if var dayNotes = self.events[startOfDay] {
                     dayNotes.append(newNote)
+                    // 시간순으로 정렬 (시간 빠른 순)
                     dayNotes.sort { $0.date < $1.date }
                     self.events[startOfDay] = dayNotes
                 } else {
@@ -321,6 +322,7 @@ class NoteViewModel: ObservableObject {
                 let startOfDay = calendar.startOfDay(for: note.date)
                 if var dayNotes = self.events[startOfDay] {
                     dayNotes.append(note)
+                    // 시간순으로 정렬 (시간 빠른 순)
                     dayNotes.sort { $0.date < $1.date }
                     self.events[startOfDay] = dayNotes
                 } else {
@@ -381,11 +383,21 @@ class NoteViewModel: ObservableObject {
                     if dayNotes.isEmpty {
                         self.events.removeValue(forKey: startOfDay)
                     } else {
+                        // 시간순으로 다시 정렬
+                        dayNotes.sort { $0.date < $1.date }
                         self.events[startOfDay] = dayNotes
                     }
                 }
             }
         }
+    }
+    
+    // MARK: - 특정 날짜의 이벤트 가져오기
+    func getEventsForDay(_ day: CalendarDay) -> [Note] {
+        guard let date = day.date else { return [] }
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        // 항상 시간순으로 정렬하여 반환
+        return (events[startOfDay] ?? []).sorted { $0.date < $1.date }
     }
     
     // MARK: - 캘린더 관련 메서드
@@ -486,12 +498,6 @@ class NoteViewModel: ObservableObject {
                 selectedDay = firstDay
             }
         }
-    }
-    
-    func getEventsForDay(_ day: CalendarDay) -> [Note] {
-        guard let date = day.date else { return [] }
-        let startOfDay = Calendar.current.startOfDay(for: date)
-        return events[startOfDay] ?? []
     }
     
     func isBirthday(_ date: Date?) -> Bool {
