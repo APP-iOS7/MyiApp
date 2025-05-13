@@ -8,4 +8,18 @@
 import Foundation
 import SwiftUI
 
-
+class HomeViewModel: ObservableObject {
+    @Published var selectedBaby: Baby?
+    @Published var records: [Record] = Record.mockRecords
+    @Published var selectedDate: Date = Date()
+    @Published var selectedCategory: CareCategory?
+    private let db = DatabaseService.shared
+    
+    func loadBabyInfo() { }
+    
+    func loadRecords(for date: Date) { }
+    
+    func addRecord(_ record: Record) { }
+    
+    func deleteRecord(_ record: Record) { }
+}
