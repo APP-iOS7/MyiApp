@@ -7,8 +7,6 @@
 
 import Foundation
 
-import Foundation
-
 extension Record {
     static let mockTestRecords: [Record] = {
         let korea = TimeZone(identifier: "Asia/Seoul")!
@@ -18,7 +16,25 @@ extension Record {
         return [
             Record(
                 id: UUID(uuidString: "5ab9a456-5602-4a33-a98b-0906ea0f9b76")!,
-                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 11, hour: 23, minute: 19, second: 47))!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 13, hour: 23, minute: 19, second: 47))!,
+                title: .babyFood,
+                mlAmount: 120
+            ),
+            Record(
+                id: UUID(uuidString: "5ab9a456-5602-4a33-a98b-0906ea0f9b76")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 18, hour: 23, minute: 19, second: 47))!,
+                title: .babyFood,
+                mlAmount: 120
+            ),
+            Record(
+                id: UUID(uuidString: "5ab9a456-5602-4a33-a98b-0906ea0f9b76")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 14, hour: 23, minute: 19, second: 47))!,
+                title: .babyFood,
+                mlAmount: 60
+            ),
+            Record(
+                id: UUID(uuidString: "5ab9a456-5602-4a33-a98b-0906ea0f9b76")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 14, hour: 23, minute: 19, second: 47))!,
                 title: .babyFood,
                 mlAmount: 120
             ),
@@ -38,14 +54,14 @@ extension Record {
             ),
             Record(
                 id: UUID(uuidString: "4ed71035-6eae-491b-8ddd-d3e504d48cc2")!,
-                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 12, hour: 4, minute: 20, second: 0))!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 13, hour: 4, minute: 20, second: 0))!,
                 title: .breastfeeding,
                 breastfeedingLeftMinutes: 5,
-                breastfeedingRightMinutes: 60
+                breastfeedingRightMinutes: 5
             ),
             Record(
                 id: UUID(uuidString: "b48a3aef-d714-4c85-b41d-62fef762e146")!,
-                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 11, hour: 14, minute: 50, second: 0))!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 13, hour: 14, minute: 50, second: 0))!,
                 title: .breastfeeding,
                 breastfeedingLeftMinutes: 6,
                 breastfeedingRightMinutes: 9
@@ -60,6 +76,43 @@ extension Record {
                 id: UUID(uuidString: "856b31d5-a9f4-4bca-b5ef-a5c00eec7401")!,
                 createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 12, hour: 19, minute: 54, second: 25))!,
                 title: .formula,
+                mlAmount: 150
+            ),
+            Record(
+                id: UUID(uuidString: "856b31d5-a9f4-4bca-b5ef-a5c00eec7401")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 13, hour: 19, minute: 54, second: 25))!,
+                title: .formula,
+                mlAmount: 150
+            ),
+            Record(
+                id: UUID(uuidString: "856b31d5-a9f4-4bca-b5ef-a5c00eec7401")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 12, hour: 19, minute: 54, second: 25))!,
+                title: .formula,
+                mlAmount: 20
+            ),
+
+            Record(
+                id: UUID(uuidString: "11111111-aaaa-bbbb-cccc-000000000009")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 11, hour: 14, minute: 00, second: 0))!,
+                title: .pumpedMilk,
+                mlAmount: 150
+            ),
+            Record(
+                id: UUID(uuidString: "11111111-aaaa-bbbb-cccc-000000000009")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 13, hour: 14, minute: 00, second: 0))!,
+                title: .pumpedMilk,
+                mlAmount: 150
+            ),
+            Record(
+                id: UUID(uuidString: "11111111-aaaa-bbbb-cccc-000000000010")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 12, hour: 14, minute: 00, second: 0))!,
+                title: .pumpedMilk,
+                mlAmount: 150
+            ),
+            Record(
+                id: UUID(uuidString: "11111111-aaaa-bbbb-cccc-000000000011")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 13, hour: 14, minute: 00, second: 0))!,
+                title: .pumpedMilk,
                 mlAmount: 150
             ),
             
