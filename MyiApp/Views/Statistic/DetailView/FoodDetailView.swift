@@ -87,6 +87,14 @@ struct FoodDetailView: View {
                     Divider()
                     DailyFeedListView(records: records,  selectedDate: selectedDate)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if (selectedMode == "주") {
+                    WeeklyFeedChartView(
+                        selectedDate: selectedDate,
+                        records: records
+                    )
+                    Divider()
+                    WeeklyFeedListView(records: records,  selectedDate: selectedDate)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 
                 
@@ -234,7 +242,7 @@ struct DailyFeedChartView: View {
                                     Text("평균 \(Int(avgAmount))\(type == .breastfeeding ? "분" : "ml")")
                                         .font(.caption2)
                                         .foregroundColor(.red)
-                                        .offset(y: -10),
+                                        .offset(x: -20, y: -20),
                                     alignment: .topTrailing
                                 )
                             HStack(alignment: .bottom, spacing: 10) {
@@ -261,7 +269,7 @@ struct DailyFeedChartView: View {
                         
                     }
                     .frame(height: 120)
-
+                    
                 }
             }
         }
@@ -304,7 +312,7 @@ struct DailyFeedChartView: View {
                 .reduce(0, +)
         }
     }
-
+    
     
     func shortDateString(for date: Date) -> String {
         let formatter = DateFormatter()
@@ -369,6 +377,212 @@ struct DailyFeedListView: View {
         return records.filter {
             [.formula, .pumpedMilk, .breastfeeding, .babyFood].contains($0.title) &&
             calendar.isDate($0.createdAt, inSameDayAs: date)
+        }.count
+    }
+    
+}
+struct WeeklyFeedChartView: View {
+    let selectedDate: Date
+    let records: [Record]
+    
+    enum FeedingType: String, CaseIterable {
+        case formula = "분유"
+        case pumpedMilk = "유축 수유"
+        case breastfeeding = "모유 수유"
+        case babyFood = "이유식"
+    }
+    
+    var sixWeekStartDates: [Date] {
+        var calendar = Calendar.current
+        calendar.firstWeekday = 2
+        
+        let weekday = calendar.component(.weekday, from: selectedDate)
+        let daysToSubtract = (weekday + 5) % 7 // selectedDate의 주 시작 월요일 구하기
+        let thisWeekStart = calendar.date(byAdding: .day, value: -daysToSubtract, to: selectedDate)!
+        
+        return (0..<6).map {
+            calendar.date(byAdding: .day, value: -7 * (5 - $0), to: thisWeekStart)!
+        }
+    }
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            ForEach(FeedingType.allCases, id: \.self) { type in
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 6) {
+                        Image(uiImage: iconImage(for: type))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 25, height: 25)
+                        Text(type.rawValue)
+                            .font(.headline)
+                    }
+                    GeometryReader { geometry in
+                        let totalWidth = geometry.size.width - 50 //막대 사이 너비가 10인것을 고려
+                        let barWidth = totalWidth / 6
+                        
+                        let values = sixWeekStartDates.map { startDate in
+                            let endDate = Calendar.current.date(byAdding: .day, value: 7, to: startDate)!
+                            return amountFor(type, from: startDate, to: endDate)
+                        }
+                        
+                        let maxAmount = values.max() ?? 1
+                        let avgAmount = Double(values.reduce(0, +)) / Double(values.count)
+                        let avgY = CGFloat(avgAmount) / CGFloat(maxAmount) * 100
+                        
+                        
+                        ZStack(alignment: .topLeading) {
+                            
+                            Rectangle()
+                                .fill(Color.red.opacity(0.4))
+                                .frame(width: totalWidth + 60, height: 1)
+                                .offset(y: 100 - avgY)
+                                .overlay(
+                                    Text("평균 \(Int(avgAmount))\(type == .breastfeeding ? "분" : "ml")")
+                                        .font(.caption2)
+                                        .foregroundColor(.red)
+                                        .offset(x: -20, y: -20),
+                                    alignment: .topTrailing
+                                )
+                            HStack(alignment: .bottom, spacing: 10) {
+                                ForEach(Array(zip(sixWeekStartDates, values)), id: \.0) { startDate, value in
+                                    VStack {
+                                        Text("\(value)\(type == .breastfeeding ? "분" : "ml")")
+                                            .font(.caption2)
+                                            .foregroundColor(.black)
+                                            .frame(height: 12)
+                                        Rectangle()
+                                            .fill(Color.gray.opacity(0.3))
+                                            .frame(
+                                                width: barWidth,
+                                                height: CGFloat(value) / CGFloat(maxAmount) * 100
+                                            )
+                                            .cornerRadius(4)
+                                        Text(shortWeekLabel(for: startDate))
+                                            .font(.caption2)
+                                            .foregroundColor(.gray)
+                                    }
+                                }
+                            }
+                        }
+                        
+                    }
+                    .frame(height: 120)
+                    
+                }
+            }
+        }
+        .padding()
+    }
+    
+    func iconImage(for type: FeedingType) -> UIImage {
+        switch type {
+        case .formula: return UIImage(named: "nornalFomual") ?? UIImage()
+        case .pumpedMilk: return UIImage(named: "normalPumpedMilk") ?? UIImage()
+        case .breastfeeding: return UIImage(named: "normalBreastFeeding") ?? UIImage()
+        case .babyFood: return UIImage(named: "normalBabyMeal") ?? UIImage()
+        }
+    }
+    
+    func titleCategory(of record: Record) -> FeedingType? {
+        switch record.title {
+        case .formula: return .formula
+        case .pumpedMilk: return .pumpedMilk
+        case .breastfeeding: return .breastfeeding
+        case .babyFood: return .babyFood
+        default: return nil
+        }
+    }
+    
+    func amountFor(_ type: FeedingType, from start: Date, to end: Date) -> Int {
+        let recordsInRange = records.filter {
+            $0.createdAt >= start && $0.createdAt < end &&
+            titleCategory(of: $0) == type
+        }
+        
+        if type == .breastfeeding {
+            return recordsInRange.reduce(0) { total, record in
+                total + (record.breastfeedingLeftMinutes ?? 0) + (record.breastfeedingRightMinutes ?? 0)
+            }
+        } else {
+            return recordsInRange.compactMap { $0.mlAmount }.reduce(0, +)
+        }
+    }
+    
+    
+    func shortWeekLabel(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "M/d ~"
+        return formatter.string(from: date)
+    }
+}
+struct WeeklyFeedListView: View {
+    
+    let records: [Record]
+    let selectedDate: Date
+    var thisWeekRange: DateInterval {
+        var calendar = Calendar.current
+        calendar.firstWeekday = 2
+        let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: selectedDate)?.start ?? selectedDate
+        let endOfWeek = calendar.date(byAdding: .day, value: 6, to: startOfWeek)!
+        return DateInterval(start: startOfWeek, end: calendar.date(byAdding: .day, value: 1, to: endOfWeek)!)
+    }
+
+    var lastWeekRange: DateInterval {
+        var calendar = Calendar.current
+        calendar.firstWeekday = 2
+        let thisWeekStart = thisWeekRange.start
+        let lastWeekStart = calendar.date(byAdding: .day, value: -7, to: thisWeekStart)!
+        let lastWeekEnd = calendar.date(byAdding: .day, value: 6, to: lastWeekStart)!
+        return DateInterval(start: lastWeekStart, end: calendar.date(byAdding: .day, value: 1, to: lastWeekEnd)!)
+    }
+    
+    
+    var body: some View {
+        
+        DetailStatisticCardView(
+            title: "주별 통계",
+            image: .colorMeal,
+            color: Color("food"),
+            count: combinedFeedCount(in: records, within: thisWeekRange),
+            lastcount: combinedFeedCount(in: records, within: lastWeekRange),
+            amount: totalMlAmount(in: records, within: thisWeekRange),
+            lastamount: totalMlAmount(in: records, within: lastWeekRange),
+            time: totalBreastfeedingMinutes(in: records, within: thisWeekRange),
+            lasttime: totalBreastfeedingMinutes(in: records, within: lastWeekRange),
+            mode : "weekly",
+            selectedDate : selectedDate
+        )
+        .padding(.horizontal)
+    }
+    // ml 총계
+    func totalMlAmount(in records: [Record], within range: DateInterval) -> Int {
+        return records
+            .filter {
+                [.formula, .babyFood, .pumpedMilk].contains($0.title) &&
+                range.contains($0.createdAt)
+            }
+            .compactMap { $0.mlAmount }
+            .reduce(0, +)
+    }
+    // 모유 수유 시간 총계
+    func totalBreastfeedingMinutes(in records: [Record], within range: DateInterval) -> Int {
+        return records
+            .filter {
+                $0.title == .breastfeeding && range.contains($0.createdAt)
+            }
+            .reduce(0) { total, record in
+                let left = record.breastfeedingLeftMinutes ?? 0
+                let right = record.breastfeedingRightMinutes ?? 0
+                return total + left + right
+            }
+    }
+    // 밥먹은 횟수 따로 셀리기
+    func combinedFeedCount(in records: [Record], within range: DateInterval) -> Int {
+        return records.filter {
+            [.formula, .pumpedMilk, .breastfeeding, .babyFood].contains($0.title) &&
+            range.contains($0.createdAt)
         }.count
     }
     
