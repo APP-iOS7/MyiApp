@@ -109,7 +109,6 @@ struct RegisterBabyView: View {
                     DatePicker(
                         "출생일",
                         selection: Binding(get: { viewModel.birthDate ?? Date() }, set: { viewModel.birthDate = $0 }),
-                        in: ...Date(),
                         displayedComponents: .date
                     )
                     .datePickerStyle(.graphical)
