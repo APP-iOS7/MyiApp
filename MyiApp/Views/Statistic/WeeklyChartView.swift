@@ -171,16 +171,16 @@ private func hourDecimal(from date: Date) -> Double {
 }
 private func color(for title: TitleCategory) -> Color {
     switch title {
-    case .formula: return Color(hex: "F9C2C4")
-    case .babyFood: return Color(hex: "F9C2C4")
-    case .pumpedMilk: return Color(hex: "F9C2C4")
-    case .breastfeeding: return Color(hex: "F9C2C4")
-    case .diaper: return Color(hex: "AD91EB")
-    case .potty: return Color(hex: "C7A868")
-    case .sleep: return Color(hex: "B7B7B7")
-    case .heightWeight: return .black
-    case .bath: return Color(hex: "C9DEF3")
-    case .snack: return Color(hex: "FFD6AA")
-    case .health: return .black
+    case .formula: return Color("food")
+    case .babyFood: return Color("food")
+    case .pumpedMilk: return Color("food")
+    case .breastfeeding: return Color("food")
+    case .diaper: return Color("diaper")
+    case .potty: return Color("potty")
+    case .sleep: return Color("sleep")
+    case .heightWeight: return Color("heightWeight")
+    case .bath: return Color("bath")
+    case .snack: return Color("snack")
+    case .health: return Color("health")
     }
 }
