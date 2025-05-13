@@ -5,109 +5,488 @@
 //  Created by 최범수 on 2025-05-08.
 //
 
-import Foundation
 import SwiftUI
 import FirebaseFirestore
+import Combine
 
 class NoteViewModel: ObservableObject {
-    @Published var days: [CalendarDay] = []
-    @Published var currentMonth = ""
-    @Published var selectedMonth: Date = Date()
-    @Published var selectedDay: CalendarDay?
-    @Published var events: [Date: [Note]] = [:]
-    @Published var babyInfo: BabyInfo?
+    // Firebase 관련 변수
+    private let db = Firestore.firestore()
+    private let authService = AuthService.shared
+    private let databaseService = DatabaseService.shared
+    private var cancellables = Set<AnyCancellable>()
     
-    let weekdays = ["일", "월", "화", "수", "목", "금", "토"]
+    // 아기 정보 관련 변수
+    @Published var babyInfo: Baby?
+    
+    // 캘린더 관련 변수
+    @Published var selectedMonth: Date = Date()
+    @Published var days: [CalendarDay] = []
+    @Published var weekdays: [String] = ["일", "월", "화", "수", "목", "금", "토"]
+    @Published var selectedDay: CalendarDay?
+    
+    // 노트 관련 변수
+    @Published var events: [Date: [Note]] = [:]
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
+    
+    var currentMonth: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy년 MM월"
+        formatter.locale = Locale(identifier: "ko_KR")
+        return formatter.string(from: selectedMonth)
+    }
     
     init() {
+        fetchBabyInfo()
         fetchCalendarDays()
-        loadMockEvents()
-        fetchBabyInfo() // 아기 정보 가져오기
+        setupListeners()
     }
     
-    // MARK: - 캘린더 관련 메서드
-    
-    func fetchCalendarDays() {
-        days = getCalendarDays()
-        updateMonthTitle()
+    // MARK: - 아기 정보 가져오기
+    private func fetchBabyInfo() {
+        // 현재 로그인한 유저의 아기 정보 가져오기
+        guard let uid = authService.user?.uid else { return }
+        
+        db.collection("users").document(uid)
+            .addSnapshotListener { [weak self] snapshot, error in
+                guard let self = self else { return }
+                
+                if let error = error {
+                    self.errorMessage = "아기 정보를 가져오는데 실패했습니다: \(error.localizedDescription)"
+                    return
+                }
+                
+                guard let document = snapshot, document.exists,
+                      let babyRefs = document.get("babies") as? [DocumentReference],
+                      let firstBabyRef = babyRefs.first else {
+                    return
+                }
+                
+                // 첫 번째 아기의 정보를 가져옴
+                firstBabyRef.getDocument { document, error in
+                    if let error = error {
+                        DispatchQueue.main.async {
+                            self.errorMessage = "아기 상세 정보를 가져오는데 실패했습니다: \(error.localizedDescription)"
+                        }
+                        return
+                    }
+                    
+                    guard let document = document, document.exists else { return }
+                    
+                    do {
+                        // Firestore 문서를 Baby 모델로 변환
+                        let baby = try document.data(as: Baby.self)
+                        
+                        DispatchQueue.main.async {
+                            self.babyInfo = baby
+                            // 아기 정보를 가져온 후 노트 데이터를 불러옴
+                            self.fetchNotes()
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            self.errorMessage = "아기 정보 변환에 실패했습니다: \(error.localizedDescription)"
+                            print("아기 정보 변환 오류: \(error)")
+                        }
+                    }
+                }
+            }
     }
     
-    func changeMonth(by value: Int) {
-        if let newDate = Calendar.current.date(byAdding: .month, value: value, to: selectedMonth) {
-            selectedMonth = newDate
-            fetchCalendarDays()
+    // MARK: - 노트 데이터 가져오기
+    func fetchNotes() {
+        guard let baby = babyInfo else { return }
+        
+        isLoading = true
+        
+        // 아기 문서에서 직접 노트 데이터 가져오기
+        db.collection("babies").document(baby.id.uuidString)
+            .getDocument { [weak self] snapshot, error in
+                guard let self = self else { return }
+                
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    
+                    if let error = error {
+                        self.errorMessage = "노트를 가져오는데 실패했습니다: \(error.localizedDescription)"
+                        return
+                    }
+                    
+                    guard let document = snapshot, document.exists else { return }
+                    
+                    // 'note' 필드에서 노트 배열 가져오기
+                    if let notesData = document.data()?["note"] as? [[String: Any]] {
+                        // 이벤트 딕셔너리 초기화
+                        var newEvents: [Date: [Note]] = [:]
+                        
+                        let calendar = Calendar.current
+                        
+                        // 각 노트 데이터를 Note 객체로 변환
+                        for noteData in notesData {
+                            do {
+                                if let note = try self.noteFromDictionary(noteData) {
+                                    // 날짜의 시작시간(00:00)을 키로 사용
+                                    let startOfDay = calendar.startOfDay(for: note.date)
+                                    
+                                    // 해당 날짜에 이벤트가 있으면 추가, 없으면 새로운 배열 생성
+                                    if var dayNotes = newEvents[startOfDay] {
+                                        dayNotes.append(note)
+                                        // 시간순으로 정렬
+                                        dayNotes.sort { $0.date < $1.date }
+                                        newEvents[startOfDay] = dayNotes
+                                    } else {
+                                        newEvents[startOfDay] = [note]
+                                    }
+                                }
+                            } catch {
+                                print("노트 파싱 오류: \(error.localizedDescription)")
+                            }
+                        }
+                        
+                        self.events = newEvents
+                    } else {
+                        // 노트 필드가 없거나 비어 있는 경우 빈 이벤트 딕셔너리 설정
+                        self.events = [:]
+                    }
+                }
+            }
+    }
+    
+    // Firestore 딕셔너리에서 Note 객체 생성
+    private func noteFromDictionary(_ dict: [String: Any]) throws -> Note? {
+        guard let idString = dict["id"] as? String,
+              let id = UUID(uuidString: idString),
+              let title = dict["title"] as? String,
+              let description = dict["description"] as? String,
+              let categoryString = dict["category"] as? String,
+              let category = NoteCategory(rawValue: categoryString) else {
+            return nil
+        }
+        
+        var date: Date
+        
+        if let timestamp = dict["date"] as? Timestamp {
+            date = timestamp.dateValue()
+        } else if let dateDouble = dict["date"] as? Double {
+            date = Date(timeIntervalSince1970: dateDouble)
+        } else {
+            return nil
+        }
+        
+        return Note(
+            id: id,
+            title: title,
+            description: description,
+            date: date,
+            category: category
+        )
+    }
+    
+    // Note 객체를 Firestore 딕셔너리로 변환
+    private func noteToDictionary(_ note: Note) -> [String: Any] {
+        return [
+            "id": note.id.uuidString,
+            "title": note.title,
+            "description": note.description,
+            "date": Timestamp(date: note.date),
+            "category": note.category.rawValue
+        ]
+    }
+    
+    // MARK: - 노트 추가
+    func addNote(title: String, description: String, date: Date, category: NoteCategory) {
+        guard let baby = babyInfo else { return }
+        
+        // 새 노트 생성
+        let newNote = Note(id: UUID(), title: title, description: description, date: date, category: category)
+        
+        // Firestore 문서 참조
+        let babyRef = db.collection("babies").document(baby.id.uuidString)
+        
+        // 트랜잭션으로 노트 배열 업데이트
+        db.runTransaction({ (transaction, errorPointer) -> Any? in
+            // 아기 문서 가져오기
+            let babyDocument: DocumentSnapshot
+            do {
+                try babyDocument = transaction.getDocument(babyRef)
+            } catch let fetchError as NSError {
+                errorPointer?.pointee = fetchError
+                return nil
+            }
+            
+            // 기존 노트 배열 가져오기
+            var notes: [[String: Any]] = []
+            if let existingNotes = babyDocument.data()?["note"] as? [[String: Any]] {
+                notes = existingNotes
+            }
+            
+            // 새 노트를 딕셔너리로 변환
+            let noteData = self.noteToDictionary(newNote)
+            notes.append(noteData)
+            
+            // 업데이트된 노트 배열로 문서 업데이트
+            transaction.updateData(["note": notes], forDocument: babyRef)
+            
+            return notes
+        }) { [weak self] (_, error) in
+            guard let self = self else { return }
+            
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.errorMessage = "노트 추가에 실패했습니다: \(error.localizedDescription)"
+                }
+                return
+            }
+            
+            // 로컬 상태 업데이트
+            DispatchQueue.main.async {
+                let calendar = Calendar.current
+                let startOfDay = calendar.startOfDay(for: date)
+                
+                if var dayNotes = self.events[startOfDay] {
+                    dayNotes.append(newNote)
+                    dayNotes.sort { $0.date < $1.date }
+                    self.events[startOfDay] = dayNotes
+                } else {
+                    self.events[startOfDay] = [newNote]
+                }
+            }
         }
     }
     
-    func updateMonthTitle() {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy년 M월"
-        currentMonth = formatter.string(from: selectedMonth)
+    // MARK: - 노트 업데이트
+    func updateNote(note: Note) {
+        guard let baby = babyInfo else { return }
+        
+        // Firestore 문서 참조
+        let babyRef = db.collection("babies").document(baby.id.uuidString)
+        
+        // 트랜잭션으로 노트 배열 업데이트
+        db.runTransaction({ (transaction, errorPointer) -> Any? in
+            // 아기 문서 가져오기
+            let babyDocument: DocumentSnapshot
+            do {
+                try babyDocument = transaction.getDocument(babyRef)
+            } catch let fetchError as NSError {
+                errorPointer?.pointee = fetchError
+                return nil
+            }
+            
+            // 기존 노트 배열 가져오기
+            guard var notes = babyDocument.data()?["note"] as? [[String: Any]] else {
+                return nil
+            }
+            
+            // 업데이트할 노트 찾기
+            if let index = notes.firstIndex(where: { ($0["id"] as? String) == note.id.uuidString }) {
+                // 업데이트된 노트로 교체
+                let noteData = self.noteToDictionary(note)
+                notes[index] = noteData
+                
+                // 업데이트된 노트 배열로 문서 업데이트
+                transaction.updateData(["note": notes], forDocument: babyRef)
+            }
+            
+            return notes
+        }) { [weak self] (_, error) in
+            guard let self = self else { return }
+            
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.errorMessage = "노트 업데이트에 실패했습니다: \(error.localizedDescription)"
+                }
+                return
+            }
+            
+            // 로컬 상태 업데이트
+            DispatchQueue.main.async {
+                let calendar = Calendar.current
+                
+                // 기존 이벤트가 있는 날짜에서 제거
+                for (day, notes) in self.events {
+                    if let index = notes.firstIndex(where: { $0.id == note.id }) {
+                        var updatedNotes = notes
+                        updatedNotes.remove(at: index)
+                        
+                        if updatedNotes.isEmpty {
+                            self.events.removeValue(forKey: day)
+                        } else {
+                            self.events[day] = updatedNotes
+                        }
+                        break
+                    }
+                }
+                
+                // 업데이트된 날짜에 추가
+                let startOfDay = calendar.startOfDay(for: note.date)
+                if var dayNotes = self.events[startOfDay] {
+                    dayNotes.append(note)
+                    dayNotes.sort { $0.date < $1.date }
+                    self.events[startOfDay] = dayNotes
+                } else {
+                    self.events[startOfDay] = [note]
+                }
+            }
+        }
     }
     
-    func getCalendarDays() -> [CalendarDay] {
-        var days: [CalendarDay] = []
-        let calendar = Calendar.current
+    // MARK: - 노트 삭제
+    func deleteNote(note: Note) {
+        guard let baby = babyInfo else { return }
         
-        // 현재 선택된 월의 첫날과 마지막 날
-        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: selectedMonth))!
-        let endOfMonth = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: startOfMonth)!
+        // Firestore 문서 참조
+        let babyRef = db.collection("babies").document(baby.id.uuidString)
         
-        // 첫날의 요일 (일요일 = 1, 토요일 = 7)
-        let firstDayOfWeek = calendar.component(.weekday, from: startOfMonth)
-        
-        // 이전 월의 날짜 추가 (수정된 부분)
-        if firstDayOfWeek > 1 {
-            let previousMonth = calendar.date(byAdding: .month, value: -1, to: startOfMonth)!
-            let daysInPreviousMonth = calendar.range(of: .day, in: .month, for: previousMonth)!.count
+        // 트랜잭션으로 노트 배열 업데이트
+        db.runTransaction({ (transaction, errorPointer) -> Any? in
+            // 아기 문서 가져오기
+            let babyDocument: DocumentSnapshot
+            do {
+                try babyDocument = transaction.getDocument(babyRef)
+            } catch let fetchError as NSError {
+                errorPointer?.pointee = fetchError
+                return nil
+            }
             
-            // 표시할 이전 달의 시작일을 계산
-            let startDay = daysInPreviousMonth - (firstDayOfWeek - 2)
+            // 기존 노트 배열 가져오기
+            guard var notes = babyDocument.data()?["note"] as? [[String: Any]] else {
+                return nil
+            }
             
-            for i in startDay...daysInPreviousMonth {
-                // 이전 달의 해당 날짜를 직접 계산
-                if let date = calendar.date(
-                    from: calendar.dateComponents([.year, .month], from: previousMonth)
-                ) {
-                    // 이전 달의 1일부터 i일 만큼 더해줌
-                    if let exactDate = calendar.date(byAdding: .day, value: i - 1, to: date) {
-                        days.append(CalendarDay(
-                            id: UUID(),
-                            date: exactDate,
-                            dayNumber: "\(i)",
-                            isToday: calendar.isDateInToday(exactDate),
-                            isCurrentMonth: false
-                        ))
+            // 삭제할 노트 찾기
+            notes.removeAll { ($0["id"] as? String) == note.id.uuidString }
+            
+            // 업데이트된 노트 배열로 문서 업데이트
+            transaction.updateData(["note": notes], forDocument: babyRef)
+            
+            return notes
+        }) { [weak self] (_, error) in
+            guard let self = self else { return }
+            
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.errorMessage = "노트 삭제에 실패했습니다: \(error.localizedDescription)"
+                }
+                return
+            }
+            
+            // 로컬 상태 업데이트
+            DispatchQueue.main.async {
+                let calendar = Calendar.current
+                let startOfDay = calendar.startOfDay(for: note.date)
+                
+                if var dayNotes = self.events[startOfDay] {
+                    dayNotes.removeAll { $0.id == note.id }
+                    
+                    if dayNotes.isEmpty {
+                        self.events.removeValue(forKey: startOfDay)
+                    } else {
+                        self.events[startOfDay] = dayNotes
                     }
                 }
             }
         }
-        
-        // 현재 월의 날짜 추가
-        let daysInMonth = calendar.range(of: .day, in: .month, for: startOfMonth)!.count
+    }
+    
+    // MARK: - 캘린더 관련 메서드
+    func setupListeners() {
+        // 아기 정보 변경 감지
+        databaseService.$hasBabyInfo
+            .sink { [weak self] hasBabyInfo in
+                if hasBabyInfo {
+                    self?.fetchBabyInfo()
+                }
+            }
+            .store(in: &cancellables)
+    }
+    
+    func fetchCalendarDays() {
+        let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         
-        for i in 1...daysInMonth {
-            if let date = calendar.date(byAdding: .day, value: i - 1, to: startOfMonth) {
-                let isToday = calendar.isDate(date, inSameDayAs: today)
-                days.append(CalendarDay(id: UUID(), date: date, dayNumber: "\(i)", isToday: isToday, isCurrentMonth: true))
-            }
-        }
+        // 선택된 달의 시작 날짜와 마지막 날짜 계산
+        let startComponents = calendar.dateComponents([.year, .month], from: selectedMonth)
+        guard let startDate = calendar.date(from: startComponents) else { return }
+        guard let endDate = calendar.date(byAdding: DateComponents(month: 1, day: -1), to: startDate) else { return }
         
-        // 다음 월의 날짜 추가
-        let remainingDays = 42 - days.count // 6주 표시를 위해
-        if remainingDays > 0 {
-            for i in 1...remainingDays {
-                if let date = calendar.date(byAdding: .day, value: i, to: endOfMonth) {
-                    days.append(CalendarDay(id: UUID(), date: date, dayNumber: "\(i)", isToday: false, isCurrentMonth: false))
+        // 해당 월의 첫 번째 요일 계산 (일요일 = 1, 토요일 = 7)
+        let firstWeekday = firstWeekdayOfMonth(for: startDate)
+        
+        // 캘린더에 표시할 날짜 배열 초기화
+        var calendarDays: [CalendarDay] = []
+        
+        // 이전 달의 날짜 추가
+        if firstWeekday > 1 {
+            for day in (1..<firstWeekday).reversed() {
+                if let prevDate = calendar.date(byAdding: .day, value: -day + 1, to: startDate) {
+                    let dayNumber = String(calendar.component(.day, from: prevDate))
+                    calendarDays.append(CalendarDay(
+                        id: UUID(),
+                        date: prevDate,
+                        dayNumber: dayNumber,
+                        isToday: calendar.isDate(prevDate, inSameDayAs: today),
+                        isCurrentMonth: false
+                    ))
                 }
             }
         }
         
-        return days
+        // 현재 달의 날짜 추가
+        let daysInMonth = calendar.range(of: .day, in: .month, for: startDate)?.count ?? 0
+        for day in 1...daysInMonth {
+            if let date = calendar.date(byAdding: .day, value: day - 1, to: startDate) {
+                let dayNumber = String(day)
+                calendarDays.append(CalendarDay(
+                    id: UUID(),
+                    date: date,
+                    dayNumber: dayNumber,
+                    isToday: calendar.isDate(date, inSameDayAs: today),
+                    isCurrentMonth: true
+                ))
+            }
+        }
+        
+        // 다음 달의 날짜 추가 (42일 - 6주 채우기)
+        let remainingDays = 42 - calendarDays.count
+        for day in 1...remainingDays {
+            if let nextDate = calendar.date(byAdding: .day, value: day, to: endDate) {
+                let dayNumber = String(calendar.component(.day, from: nextDate))
+                calendarDays.append(CalendarDay(
+                    id: UUID(),
+                    date: nextDate,
+                    dayNumber: dayNumber,
+                    isToday: calendar.isDate(nextDate, inSameDayAs: today),
+                    isCurrentMonth: false
+                ))
+            }
+        }
+        
+        self.days = calendarDays
+        
+        // 데이터 불러오기
+        fetchNotes()
     }
     
-    // MARK: - 이벤트 관련 메서드
+    func firstWeekdayOfMonth(for date: Date) -> Int {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month], from: date)
+        guard let firstDay = calendar.date(from: components) else { return 1 }
+        return calendar.component(.weekday, from: firstDay)
+    }
+    
+    func changeMonth(by amount: Int) {
+        if let newMonth = Calendar.current.date(byAdding: .month, value: amount, to: selectedMonth) {
+            selectedMonth = newMonth
+            fetchCalendarDays()
+            
+            // 새로운 달의 1일을 기본으로 선택
+            let components = Calendar.current.dateComponents([.year, .month], from: newMonth)
+            if let firstDayOfMonth = Calendar.current.date(from: components),
+               let firstDay = days.first(where: { $0.isCurrentMonth && Calendar.current.component(.day, from: $0.date!) == 1 }) {
+                selectedDay = firstDay
+            }
+        }
+    }
     
     func getEventsForDay(_ day: CalendarDay) -> [Note] {
         guard let date = day.date else { return [] }
@@ -115,225 +494,16 @@ class NoteViewModel: ObservableObject {
         return events[startOfDay] ?? []
     }
     
-    func addEvent(_ event: Note) {
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: event.date)
-        
-        if var dayEvents = events[startOfDay] {
-            dayEvents.append(event)
-            events[startOfDay] = dayEvents
-        } else {
-            events[startOfDay] = [event]
-        }
-        
-        objectWillChange.send()
-    }
-    
-    private func loadMockEvents() {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
-        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
-        
-        events = [
-            today: [
-                Note(
-                    id: UUID(),
-                    title: "체중 측정",
-                    description: "오늘 몸무게: 8.2kg, 전주 대비 +200g 증가",
-                    date: calendar.date(bySettingHour: 9, minute: 30, second: 0, of: today)!,
-                    category: .건강
-                ),
-                Note(
-                    id: UUID(),
-                    title: "첫 이유식",
-                    description: "쌀미음을 처음으로 먹였더니 잘 먹음. 약 20ml 정도 섭취함.",
-                    date: calendar.date(bySettingHour: 12, minute: 0, second: 0, of: today)!,
-                    category: .식사
-                )
-            ],
-            yesterday: [
-                Note(
-                    id: UUID(),
-                    title: "예방접종",
-                    description: "BCG 접종 완료. 특별한 이상반응 없음.",
-                    date: calendar.date(bySettingHour: 14, minute: 0, second: 0, of: yesterday)!,
-                    category: .건강
-                )
-            ],
-            tomorrow: [
-                Note(
-                    id: UUID(),
-                    title: "소아과 방문 예정",
-                    description: "정기 검진 및 성장 발달 확인",
-                    date: calendar.date(bySettingHour: 13, minute: 30, second: 0, of: tomorrow)!,
-                    category: .건강
-                )
-            ]
-        ]
-        
-        // 특별 이벤트 추가 (테스트용)
-        let specialDay = calendar.date(byAdding: .day, value: 5, to: today)!
-        events[calendar.startOfDay(for: specialDay)] = [
-            Note(
-                id: UUID(),
-                title: "첫 걸음마",
-                description: "오늘 아기가 처음으로 3걸음을 혼자 걸었어요!",
-                date: calendar.date(bySettingHour: 15, minute: 20, second: 0, of: specialDay)!,
-                category: .발달
-            ),
-            Note(
-                id: UUID(),
-                title: "이유식 시작",
-                description: "오늘부터 계란노른자를 추가한 이유식을 시작했어요.",
-                date: calendar.date(bySettingHour: 12, minute: 0, second: 0, of: specialDay)!,
-                category: .식사
-            ),
-            Note(
-                id: UUID(),
-                title: "공원 나들이",
-                description: "오후에 동네 공원에 가서 30분 정도 산책했어요. 날씨가 좋아서 기분이 좋았어요.",
-                date: calendar.date(bySettingHour: 16, minute: 30, second: 0, of: specialDay)!,
-                category: .일상
-            )
-        ]
-        
-        // 일정이 많은 날 테스트
-        let busyDay = calendar.date(byAdding: .day, value: 3, to: today)!
-        var busyDayEvents: [Note] = []
-        
-        for i in 0..<5 {
-            busyDayEvents.append(Note(
-                id: UUID(),
-                title: "일정 #\(i+1)",
-                description: "테스트용 일정입니다.",
-                date: calendar.date(bySettingHour: 8 + i, minute: 0, second: 0, of: busyDay)!,
-                category: NoteCategory.allCases[i % NoteCategory.allCases.count]
-            ))
-        }
-        
-        events[calendar.startOfDay(for: busyDay)] = busyDayEvents
-        
-        // 추가 더미 이벤트 생성
-        for i in 2...15 {
-            if let date = calendar.date(byAdding: .day, value: i, to: today) {
-                let startOfDay = calendar.startOfDay(for: date)
-                if i % 3 == 0 && events[startOfDay] == nil {
-                    events[startOfDay] = [
-                        Note(
-                            id: UUID(),
-                            title: "성장 기록",
-                            description: "키: 62cm, 몸무게: 8.4kg",
-                            date: calendar.date(bySettingHour: 10, minute: 0, second: 0, of: date)!,
-                            category: .발달
-                        )
-                    ]
-                }
-            }
-        }
-    }
-    
-    // MARK: - 아기 정보 관련 메서드
-    
-    func fetchBabyInfo() {
-        // 임시 데이터 설정 - 실제로는 Firebase에서 가져와야 함
-        // 현재는 하드코딩된 값을 사용
-        self.babyInfo = BabyInfo(
-            name: "김죠스",
-            birthDate: Calendar.current.date(from: DateComponents(year: 2025, month: 4, day: 19)) ?? Date(),
-            gender: .female
-        )
-        
-        // Firebase 연동 후 사용할 코드
-        // fetchBabyInfoFromFirebase()
-    }
-    
-    func fetchBabyInfoFromFirebase() {
-        // Firebase에서 아기 정보를 가져오는 코드 (예시)
-        guard let uid = AuthService.shared.user?.uid else {
-            return
-        }
-        
-        Task {
-            do {
-                // 사용자의 문서 가져오기
-                let userDocRef = DatabaseService.shared.db.collection("users").document(uid)
-                let userDoc = try await userDocRef.getDocument()
-                
-                // 사용자에게 연결된 첫 번째 아기 참조 가져오기
-                guard let babyRefs = userDoc.get("babies") as? [DocumentReference], !babyRefs.isEmpty else {
-                    return
-                }
-                
-                // 첫 번째 아기 정보 가져오기
-                let babyRef = babyRefs[0]
-                let babyDoc = try await babyRef.getDocument()
-                
-                // Baby 객체로 변환
-                if let babyData = babyDoc.data(),
-                   let name = babyData["name"] as? String,
-                   let birthDateTimestamp = babyData["birthDate"] as? Timestamp,
-                   let genderValue = babyData["gender"] as? Int,
-                   let gender = Gender(rawValue: genderValue) {
-                    
-                    let birthDate = birthDateTimestamp.dateValue()
-                    
-                    // UI 업데이트는 메인 스레드에서 수행
-                    await MainActor.run {
-                        self.babyInfo = BabyInfo(
-                            name: name,
-                            birthDate: birthDate,
-                            gender: gender
-                        )
-                    }
-                }
-            } catch {
-                print("아기 정보 가져오기 실패: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    // MARK: - 생일 관련 메서드
-    
-    // 특정 날짜가 아기의 생일인지 확인하는 함수
     func isBirthday(_ date: Date?) -> Bool {
-        guard let date = date, let babyInfo = babyInfo else { return false }
+        guard let date = date, let birthDate = babyInfo?.birthDate else { return false }
         
         let calendar = Calendar.current
+        let birthDay = calendar.component(.day, from: birthDate)
+        let birthMonth = calendar.component(.month, from: birthDate)
         
-        // 생일 날짜 컴포넌트 (월과 일만 비교)
-        let birthComponents = calendar.dateComponents([.month, .day], from: babyInfo.birthDate)
-        let dateComponents = calendar.dateComponents([.month, .day], from: date)
+        let day = calendar.component(.day, from: date)
+        let month = calendar.component(.month, from: date)
         
-        return birthComponents.month == dateComponents.month && birthComponents.day == dateComponents.day
+        return birthDay == day && birthMonth == month
     }
-    
-    // 매달 아기의 월령 기념일인지 확인하는 함수
-    func isMonthlyAnniversary(_ date: Date?) -> Bool {
-        guard let date = date, let babyInfo = babyInfo else { return false }
-        
-        let calendar = Calendar.current
-        
-        // 생일 날짜 컴포넌트 (일만 비교)
-        let birthComponents = calendar.dateComponents([.day], from: babyInfo.birthDate)
-        let dateComponents = calendar.dateComponents([.day], from: date)
-        
-        return birthComponents.day == dateComponents.day
-    }
-    
-    // 특정 날짜의 월령 계산 (해당 날짜 기준 아기가 몇 개월인지)
-    func babyAgeInMonths(at date: Date) -> Int {
-        guard let babyInfo = babyInfo else { return 0 }
-        
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.month], from: babyInfo.birthDate, to: date)
-        return components.month ?? 0
-    }
-}
-
-// 노트뷰에서 사용할 간소화된 아기 정보 모델
-struct BabyInfo {
-    let name: String
-    let birthDate: Date
-    let gender: Gender
 }
