@@ -26,11 +26,12 @@ struct DailyStatisticCardListView: View {
                 image: .colorMeal,
                 color: Color("food"),
                 count: combinedFeedCount(in: records, on: selectedDate),
-                yesterdaycount: combinedFeedCount(in: records, on: yesterday),
+                lastcount: combinedFeedCount(in: records, on: yesterday),
                 amount: totalMlAmount(in: records, on: selectedDate),
-                yesterdayamount: totalMlAmount(in: records, on: yesterday),
+                lastamount: totalMlAmount(in: records, on: yesterday),
                 time: totalBreastfeedingMinutes(in: records, on: selectedDate),
-                yesterdaytime: totalBreastfeedingMinutes(in: records, on: yesterday)
+                lasttime: totalBreastfeedingMinutes(in: records, on: yesterday),
+                mode : "daily"
             )
             
             StatisticCardView(
@@ -38,17 +39,19 @@ struct DailyStatisticCardListView: View {
                 image: .colorDiaper,
                 color: Color("diaper"),
                 count: recordsCount(for: .diaper, in: records, on: selectedDate),
-                yesterdaycount: recordsCount(for: .diaper, in: records, on: yesterday),
+                lastcount: recordsCount(for: .diaper, in: records, on: yesterday),
                 amount: nil,
-                yesterdayamount: nil,
+                lastamount: nil,
                 time: nil,
-                yesterdaytime: nil
+                lasttime: nil,
+                mode : "daily"
             )
             PottyStatisticCardView(
                 small: pottyCount.small,
                 yesterdaysmall: yesterdaypottyCount.small,
                 big: pottyCount.big,
-                yesterdaybig: yesterdaypottyCount.big
+                yesterdaybig: yesterdaypottyCount.big,
+                mode : "daily"
             )
             
             StatisticCardView(
@@ -56,11 +59,12 @@ struct DailyStatisticCardListView: View {
                 image: .colorSleep,
                 color: Color("sleep"),
                 count: recordsCount(for: .sleep, in: records, on: selectedDate),
-                yesterdaycount: recordsCount(for: .sleep, in: records, on: yesterday),
+                lastcount: recordsCount(for: .sleep, in: records, on: yesterday),
                 amount: nil,
-                yesterdayamount: nil,
+                lastamount: nil,
                 time: totalSleepMinutes(in: records, on: selectedDate),
-                yesterdaytime: totalSleepMinutes(in: records, on: yesterday)
+                lasttime: totalSleepMinutes(in: records, on: yesterday),
+                mode : "daily"
             )
             
             StatisticCardView(
@@ -68,11 +72,12 @@ struct DailyStatisticCardListView: View {
                 image: .colorBath,
                 color: Color("bath"),
                 count: recordsCount(for: .bath, in: records, on: selectedDate),
-                yesterdaycount: recordsCount(for: .bath, in: records, on: yesterday),
+                lastcount: recordsCount(for: .bath, in: records, on: yesterday),
                 amount: nil,
-                yesterdayamount: nil,
+                lastamount: nil,
                 time: nil,
-                yesterdaytime: nil
+                lasttime: nil,
+                mode : "daily"
             )
             
             StatisticCardView(
@@ -80,11 +85,12 @@ struct DailyStatisticCardListView: View {
                 image: .colorSnack,
                 color: Color("snack"),
                 count: recordsCount(for: .snack, in: records, on: selectedDate),
-                yesterdaycount: recordsCount(for: .snack, in: records, on: yesterday),
+                lastcount: recordsCount(for: .snack, in: records, on: yesterday),
                 amount: nil,
-                yesterdayamount: nil,
+                lastamount: nil,
                 time: nil,
-                yesterdaytime: nil
+                lasttime: nil,
+                mode : "daily"
             )
         }
         .padding(.horizontal)

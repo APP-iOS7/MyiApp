@@ -86,9 +86,7 @@ struct StatisticView: View {
                     .padding(.horizontal)
                     .padding(.bottom, 20)
                 
-                Spacer()
                 chartView
-                Spacer()
                 babyInfo
                 Divider()
                 statisticList
@@ -185,10 +183,12 @@ struct StatisticView: View {
                     .padding(.vertical, 20)
                 
             } else if selectedMode == "일" {
+                Spacer()
                 DailyChartView(records: records,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(.horizontal)
                     .padding(.vertical, 20)
+                Spacer()
                 
             }
         }
@@ -203,7 +203,8 @@ struct StatisticView: View {
     private var statisticList: some View {
         Group {
             if selectedMode == "주" {
-                
+                WeeklyStatisticCardListView(records: records,  selectedDate: selectedDate)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
             } else if selectedMode == "일" {
                 DailyStatisticCardListView(records: records,  selectedDate: selectedDate)
