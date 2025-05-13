@@ -47,7 +47,7 @@ struct FeedingRecordView: View {
                 }
                 Button(action: { selectedType = 2 }) {
                     VStack {
-                        Image(.normalBreastFeeding)
+                        Image(.normalPowderedMilk)
                             .resizable()
                             .frame(width: 50, height: 50)
                             .padding(7)
@@ -62,7 +62,7 @@ struct FeedingRecordView: View {
                 }
                 Button(action: { selectedType = 3 }) {
                     VStack {
-                        Image(.normalBreastFeeding)
+                        Image(.normalBabyMeal)
                             .resizable()
                             .frame(width: 50, height: 50)
                             .padding(7)
@@ -89,10 +89,7 @@ struct FeedingRecordView: View {
             }
             .padding(.vertical)
             .background(
-                MLPickerActionSheet(
-                    isPresented: $showMLPicker,
-                    selectedAmount: $amount
-                )
+                MLPickerActionSheet(isPresented: $showMLPicker,selectedAmount: $amount)
             )
         }
         .padding(.vertical)

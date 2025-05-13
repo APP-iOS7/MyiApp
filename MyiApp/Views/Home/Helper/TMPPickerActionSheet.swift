@@ -1,16 +1,15 @@
 //
-//  MLPickerActionSheet.swift
+//  TMPPickerActionSheet.swift
 //  MyiApp
 //
-//  Created by 최범수 on 2025-05-12.
+//  Created by 최범수 on 2025-05-13.
 //
 
-import Foundation
 import SwiftUI
 
-struct MLPickerActionSheet: UIViewControllerRepresentable {
+struct TMPPickerActionSheet: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
-    @Binding var selectedAmount: Int
+    @Binding var selectedTemperature: Double
     
     func makeUIViewController(context: Context) -> UIViewController {
         UIViewController()
@@ -32,14 +31,14 @@ struct MLPickerActionSheet: UIViewControllerRepresentable {
         pickerView.delegate = context.coordinator
         pickerView.dataSource = context.coordinator
         
-        let currentRow = selectedAmount / 5
+        let currentRow = Int((selectedTemperature - 35.0) * 10)
         pickerView.selectRow(currentRow, inComponent: 0, animated: false)
         
         alert.view.addSubview(pickerView)
         
         alert.addAction(UIAlertAction(title: "완료", style: .default, handler: { _ in
             let selectedRow = pickerView.selectedRow(inComponent: 0)
-            selectedAmount = selectedRow * 5
+            selectedTemperature = 35.0 + Double(selectedRow) * 0.1
             isPresented = false
         }))
         
@@ -57,9 +56,9 @@ struct MLPickerActionSheet: UIViewControllerRepresentable {
     }
     
     class Coordinator: NSObject, UIPickerViewDelegate, UIPickerViewDataSource {
-        private let parent: MLPickerActionSheet
+        private let parent: TMPPickerActionSheet
         
-        init(_ parent: MLPickerActionSheet) {
+        init(_ parent: TMPPickerActionSheet) {
             self.parent = parent
         }
         
@@ -68,11 +67,12 @@ struct MLPickerActionSheet: UIViewControllerRepresentable {
         }
         
         func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-            return 401
+            return 41 // 35.0 ~ 39.0
         }
         
         func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
-            let text = "\(row * 5) ml"
+            let temperature = 35.0 + Double(row) * 0.1
+            let text = String(format: "%.1f", temperature)
             let attributes: [NSAttributedString.Key: Any] = [
                 .paragraphStyle: {
                     let style = NSMutableParagraphStyle()
@@ -83,4 +83,8 @@ struct MLPickerActionSheet: UIViewControllerRepresentable {
             return NSAttributedString(string: text, attributes: attributes)
         }
     }
+}
+
+#Preview {
+    TMPPickerActionSheet(isPresented: .constant(false), selectedTemperature: .constant(36.5))
 }

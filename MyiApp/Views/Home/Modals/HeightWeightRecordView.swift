@@ -15,7 +15,7 @@ struct HeightWeightRecordView: View {
         VStack(spacing: 10) {
             Button(action: {}) {
                 VStack {
-                    Image(.colorHeightWeight)
+                    Image(.normalHeightWeight)
                         .resizable()
                         .frame(width: 50, height: 50)
                         .padding(7)
