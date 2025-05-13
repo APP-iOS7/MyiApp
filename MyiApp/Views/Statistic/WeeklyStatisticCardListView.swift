@@ -149,18 +149,18 @@ struct WeeklyStatisticCardListView: View {
         var big = 0
 
         for record in records {
-            guard record.title == .potty,
-                  range.contains(record.createdAt),
-                  let type = record.pottyType else { continue }
+            guard range.contains(record.createdAt) else { continue }
 
-            switch type {
+            switch record.title {
             case .pee:
                 small += 1
             case .poop:
                 big += 1
-            case .all:
+            case .pottyAll:
                 small += 1
                 big += 1
+            default:
+                continue
             }
         }
 

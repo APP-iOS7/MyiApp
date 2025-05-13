@@ -138,28 +138,29 @@ struct DailyStatisticCardListView: View {
     // 소변,배변 횟수 따로 셀리기
     func countPottyTypes(in records: [Record], on date: Date) -> (small: Int, big: Int) {
         let calendar = Calendar.current
-        
+
         var small = 0
         var big = 0
-        
+
         for record in records {
-            guard record.title == .potty,
-                  calendar.isDate(record.createdAt, inSameDayAs: date),
-                  let type = record.pottyType else { continue }
-            
-            switch type {
+            guard calendar.isDate(record.createdAt, inSameDayAs: date) else { continue }
+
+            switch record.title {
             case .pee:
                 small += 1
             case .poop:
                 big += 1
-            case .all:
+            case .pottyAll:
                 small += 1
                 big += 1
+            default:
+                continue
             }
         }
-        
+
         return (small, big)
     }
+
     // 수면 시간 총계
     func totalSleepMinutes(in records: [Record], on date: Date) -> Int? {
         let calendar = Calendar.current
