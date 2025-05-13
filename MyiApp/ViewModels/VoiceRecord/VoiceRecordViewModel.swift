@@ -65,26 +65,32 @@ class VoiceRecordViewModel: ObservableObject {
 
         var real = [Float](repeating: 0, count: frameCount/2)
         var imag = [Float](repeating: 0, count: frameCount/2)
-        var splitComplex = DSPSplitComplex(realp: &real, imagp: &imag)
 
-        windowedSignal.withUnsafeBufferPointer {
-            $0.baseAddress!.withMemoryRebound(to: DSPComplex.self, capacity: frameCount) {
-                vDSP_ctoz($0, 2, &splitComplex, 1, vDSP_Length(frameCount / 2))
-            }
-        }
-
-        vDSP_fft_zrip(fftSetup, &splitComplex, 1, log2n, FFTDirection(FFT_FORWARD))
         var magnitudes = [Float](repeating: 0.0, count: frameCount / 2)
-        vDSP_zvmags(&splitComplex, 1, &magnitudes, 1, vDSP_Length(frameCount / 2))
-
         var normalizedMagnitudes = [Float](repeating: 0.0, count: audioLevels.count)
-        let step = magnitudes.count / audioLevels.count
-        for i in 0..<audioLevels.count {
-            let start = i * step
-            let end = start + step
-            let avg = magnitudes[start..<min(end, magnitudes.count)].reduce(0, +) / Float(step)
-            let scaled = pow(avg, 0.5) / 5000.0
-            normalizedMagnitudes[i] = min(1.0, scaled)
+
+        real.withUnsafeMutableBufferPointer { realPtr in
+            imag.withUnsafeMutableBufferPointer { imagPtr in
+                var splitComplex = DSPSplitComplex(realp: realPtr.baseAddress!, imagp: imagPtr.baseAddress!)
+
+                windowedSignal.withUnsafeBufferPointer {
+                    $0.baseAddress!.withMemoryRebound(to: DSPComplex.self, capacity: frameCount) {
+                        vDSP_ctoz($0, 2, &splitComplex, 1, vDSP_Length(frameCount / 2))
+                    }
+                }
+
+                vDSP_fft_zrip(fftSetup, &splitComplex, 1, log2n, FFTDirection(FFT_FORWARD))
+                vDSP_zvmags(&splitComplex, 1, &magnitudes, 1, vDSP_Length(frameCount / 2))
+
+                let step = magnitudes.count / audioLevels.count
+                for i in 0..<audioLevels.count {
+                    let start = i * step
+                    let end = start + step
+                    let avg = magnitudes[start..<min(end, magnitudes.count)].reduce(0, +) / Float(step)
+                    let scaled = pow(avg, 0.5) / 5000.0
+                    normalizedMagnitudes[i] = min(1.0, scaled)
+                }
+            }
         }
 
         vDSP_destroy_fftsetup(fftSetup)
