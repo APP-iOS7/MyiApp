@@ -34,9 +34,10 @@ struct SnackRecordView: View {
                 .disableAutocorrection(true)
                 .frame(maxWidth: .infinity)
                 .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.blue.opacity(0.5), lineWidth: 1)
-                    )
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
+                        .frame(height: 60)
+                )
         }
         .padding(.vertical)
     }

@@ -67,7 +67,7 @@ struct HealthRecordView: View {
                     Button(action: { isTMPPickerPresented = true }) {
                         Text(String(format: "%.1f °C", temperature))
                             .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                             .frame(maxWidth: .infinity)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
