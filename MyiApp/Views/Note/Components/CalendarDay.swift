@@ -12,9 +12,11 @@ extension View {
         self.overlay(
             HStack(spacing: 4) {
                 if !events.isEmpty {
-                    ForEach(0..<min(events.count, maxDots), id: \.self) { _ in
+                    // 카테고리별 다른 색상의 점 표시
+                    let categories = Set(events.map { $0.category })
+                    ForEach(Array(categories.prefix(maxDots)), id: \.self) { category in
                         Circle()
-                            .fill(Color("sharkPrimaryLight"))
+                            .fill(categoryColor(for: category))
                             .frame(width: 6, height: 6)
                     }
                 }
@@ -23,6 +25,15 @@ extension View {
             .padding(.top, 2),
             alignment: .bottom
         )
+    }
+    
+    private func categoryColor(for category: NoteCategory) -> Color {
+        switch category {
+        case .일지:
+            return Color("sharkPrimaryColor")
+        case .일정:
+            return Color.orange
+        }
     }
 }
 
@@ -78,11 +89,19 @@ struct CalendarDayView: View {
                 }
                 .frame(width: 35, height: 35)
                 
-                // 이벤트 도트 개선 - 날짜 아래에 일관된 위치로 표시
+                // 이벤트 도트 표시
                 HStack(spacing: 4) {
-                    ForEach(0..<min(events.count, 3), id: \.self) { _ in
+                    // 일지 도트 (파란색)
+                    if events.contains(where: { $0.category == .일지 }) {
                         Circle()
-                            .fill(Color("sharkPrimaryLight"))
+                            .fill(Color("sharkPrimaryColor"))
+                            .frame(width: 6, height: 6)
+                    }
+                    
+                    // 일정 도트 (주황색)
+                    if events.contains(where: { $0.category == .일정 }) {
+                        Circle()
+                            .fill(Color.orange)
                             .frame(width: 6, height: 6)
                     }
                 }
@@ -134,8 +153,8 @@ struct CalendarDayView: View {
             day: CalendarDay(id: UUID(), date: Date().addingTimeInterval(86400), dayNumber: "16", isToday: false, isCurrentMonth: true),
             selectedDate: .constant(nil),
             events: [
-                Note(id: UUID(), title: "테스트", description: "설명", date: Date(), category: .일상),
-                Note(id: UUID(), title: "테스트2", description: "설명2", date: Date(), category: .건강)
+                Note(id: UUID(), title: "테스트", description: "설명", date: Date(), category: .일지),
+                Note(id: UUID(), title: "테스트2", description: "설명2", date: Date(), category: .일정)
             ],
             isBirthday: false
         )

@@ -14,11 +14,10 @@ struct NoteEditorView: View {
     @State private var title: String = ""
     @State private var description: String = ""
     @State private var date: Date
-    @State private var selectedCategory: NoteCategory = .일상
+    @State private var selectedCategory: NoteCategory = .일지
     @State private var showAlert = false
     @State private var alertMessage = ""
     
-    let categories: [NoteCategory] = NoteCategory.allCases
     let isEditing: Bool
     let noteId: UUID?
     
@@ -41,13 +40,31 @@ struct NoteEditorView: View {
     var body: some View {
         NavigationView {
             Form {
+                // 카테고리 선택 섹션
                 Section(header: Text("카테고리")) {
-                    Picker("카테고리", selection: $selectedCategory) {
-                        ForEach(categories, id: \.self) { category in
-                            Text(category.rawValue).tag(category)
+                    // 라디오 버튼 스타일의 카테고리 선택
+                    VStack(spacing: 8) {
+                        // 일지 카테고리 옵션
+                        RadioButtonRow(
+                            title: "일지",
+                            icon: "note.text",
+                            color: Color("sharkPrimaryColor"),
+                            isSelected: selectedCategory == .일지
+                        ) {
+                            selectedCategory = .일지
+                        }
+                        
+                        // 일정 카테고리 옵션
+                        RadioButtonRow(
+                            title: "일정",
+                            icon: "calendar",
+                            color: Color.orange,
+                            isSelected: selectedCategory == .일정
+                        ) {
+                            selectedCategory = .일정
                         }
                     }
-                    .pickerStyle(.segmented)
+                    .padding(.vertical, 4)
                 }
                 
                 Section(header: Text("제목")) {
@@ -63,8 +80,18 @@ struct NoteEditorView: View {
                     TextEditor(text: $description)
                         .frame(minHeight: 150)
                 }
+                
+                // 카테고리별 추가 필드
+                if selectedCategory == .일정 {
+                    Section(header: Text("알림")) {
+                        Toggle("일정 알림", isOn: .constant(false))
+                        DatePicker("알림 시간", selection: .constant(date - 3600))
+                            .datePickerStyle(.compact)
+                            .disabled(true)
+                    }
+                }
             }
-            .navigationTitle(isEditing ? "일지 수정" : "일지 작성")
+            .navigationTitle(isEditing ? "내용 수정" : "새 \(selectedCategory.rawValue) 작성")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -108,7 +135,7 @@ struct NoteEditorView: View {
             )
             
             viewModel.updateNote(note: updatedNote)
-            alertMessage = "일지가 수정되었습니다."
+            alertMessage = "\(selectedCategory.rawValue)가 수정되었습니다."
         } else {
             // 새 노트 추가 모드
             viewModel.addNote(
@@ -117,13 +144,58 @@ struct NoteEditorView: View {
                 date: date,
                 category: selectedCategory
             )
-            alertMessage = "새 일지가 저장되었습니다."
+            alertMessage = "새 \(selectedCategory.rawValue)가 저장되었습니다."
         }
         
         showAlert = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             dismiss()
         }
+    }
+}
+
+// 라디오 버튼 스타일 로우 컴포넌트
+struct RadioButtonRow: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                // 라디오 버튼 원형 UI
+                ZStack {
+                    Circle()
+                        .stroke(color, lineWidth: 2)
+                        .frame(width: 22, height: 22)
+                    
+                    if isSelected {
+                        Circle()
+                            .fill(color)
+                            .frame(width: 14, height: 14)
+                    }
+                }
+                
+                // 아이콘
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                    .font(.system(size: 18))
+                    .frame(width: 24, height: 24)
+                
+                // 제목
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+            }
+            .contentShape(Rectangle())
+            .padding(.vertical, 8)
+            .padding(.horizontal, 12)
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
