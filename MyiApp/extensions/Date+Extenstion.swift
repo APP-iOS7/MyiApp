@@ -17,15 +17,22 @@ extension Date {
     }
     
     func formattedKoreanDateString() -> String {
-            let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "ko_KR")
-            
-            if Calendar.current.isDateInToday(self) {
-                formatter.dateFormat = "MM월 dd일 '(오늘)'"
-            } else {
-                formatter.dateFormat = "MM월 dd일 (E)"
-            }
-            
-            return formatter.string(from: self)
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        
+        if Calendar.current.isDateInToday(self) {
+            formatter.dateFormat = "MM월 dd일 '(오늘)'"
+        } else {
+            formatter.dateFormat = "MM월 dd일 (E)"
         }
+        
+        return formatter.string(from: self)
+    }
+    
+    func formattedFullKoreanDateString() -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "yyyy년 MM월 dd일 (E)"
+        return formatter.string(from: self)
+    }
 }
