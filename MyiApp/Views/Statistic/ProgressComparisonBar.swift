@@ -44,8 +44,13 @@ struct ProgressComparisonBar: View {
                             .font(.caption2)
                             .foregroundColor(.gray)
                             .offset(x: min(yesterdayX + 4, maxWidth - 50), y: 10)
-                    } else {
+                    } else if (mode == "weekly") {
                         Text("지난주 \(y)\(unit)")
+                            .font(.caption2)
+                            .foregroundColor(.gray)
+                            .offset(x: min(yesterdayX + 4, maxWidth - 50), y: 10)
+                    } else {
+                        Text("지난달 \(y)\(unit)")
                             .font(.caption2)
                             .foregroundColor(.gray)
                             .offset(x: min(yesterdayX + 4, maxWidth - 50), y: 10)

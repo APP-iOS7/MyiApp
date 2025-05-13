@@ -22,6 +22,12 @@ extension Record {
             ),
             Record(
                 id: UUID(uuidString: "5ab9a456-5602-4a33-a98b-0906ea0f9b76")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 4, day: 13, hour: 23, minute: 19, second: 47))!,
+                title: .babyFood,
+                mlAmount: 120
+            ),
+            Record(
+                id: UUID(uuidString: "5ab9a456-5602-4a33-a98b-0906ea0f9b76")!,
                 createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 18, hour: 23, minute: 19, second: 47))!,
                 title: .babyFood,
                 mlAmount: 120
@@ -41,6 +47,13 @@ extension Record {
             Record(
                 id: UUID(uuidString: "45a5d3cd-8ce7-4466-b927-0f02762244e2")!,
                 createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 12, hour: 5, minute: 48, second: 11))!,
+                title: .breastfeeding,
+                breastfeedingLeftMinutes: 9,
+                breastfeedingRightMinutes: 10
+            ),
+            Record(
+                id: UUID(uuidString: "45a5d3cd-8ce7-4466-b927-0f02762244e2")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 4, day: 12, hour: 5, minute: 48, second: 11))!,
                 title: .breastfeeding,
                 breastfeedingLeftMinutes: 9,
                 breastfeedingRightMinutes: 10
@@ -74,6 +87,12 @@ extension Record {
             ),
             Record(
                 id: UUID(uuidString: "856b31d5-a9f4-4bca-b5ef-a5c00eec7401")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 4, day: 11, hour: 19, minute: 54, second: 25))!,
+                title: .formula,
+                mlAmount: 150
+            ),
+            Record(
+                id: UUID(uuidString: "856b31d5-a9f4-4bca-b5ef-a5c00eec7401")!,
                 createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 12, hour: 19, minute: 54, second: 25))!,
                 title: .formula,
                 mlAmount: 150
@@ -94,6 +113,12 @@ extension Record {
             Record(
                 id: UUID(uuidString: "11111111-aaaa-bbbb-cccc-000000000009")!,
                 createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 11, hour: 14, minute: 00, second: 0))!,
+                title: .pumpedMilk,
+                mlAmount: 150
+            ),
+            Record(
+                id: UUID(uuidString: "11111111-aaaa-bbbb-cccc-000000000009")!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 4, day: 11, hour: 14, minute: 00, second: 0))!,
                 title: .pumpedMilk,
                 mlAmount: 150
             ),
