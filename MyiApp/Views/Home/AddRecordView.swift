@@ -75,11 +75,9 @@ struct AddRecordView: View {
                 case "목욕":
                     BathRecordView()
                 case "간식":
-                    EmptyView()
-                    //                SnackRecordView()
+                    SnackRecordView()
                 case "건강 관리":
-                    EmptyView()
-                    //                HealthRecordView()
+                    HealthRecordView()
                 default:
                     Text("지원하지 않는 카테고리입니다.")
             }
@@ -117,11 +115,10 @@ struct AddRecordView: View {
 }
 
 
-
 #Preview {
     AddRecordView(category: .init(name: "수면", image: .colorBabyFood))
 }
 
 #Preview {
-    FeedingRecordView()
+    SnackRecordView()
 }
