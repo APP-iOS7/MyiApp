@@ -14,20 +14,16 @@ struct NoteView: View {
     @State private var selectedEvent: Note? = nil
     @State private var isLoading = false
     @State private var showMonthYearPicker = false
-    
-    // 선택된 날짜 초기값을 nil로 설정하고 onAppear에서 오늘 날짜로 설정
     @State private var selectedDate: Date? = nil
     
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                // 아기 정보 표시 섹션
                 if let babyInfo = viewModel.babyInfo {
                     BabyBirthdayInfoView(babyName: babyInfo.name, birthDate: babyInfo.birthDate)
                         .padding(.top, 8)
                         .padding(.bottom, 12)
                 } else {
-                    // 아기 정보가 없을 때 로딩 인디케이터 또는 안내 메시지
                     Text("아기 정보를 불러오는 중...")
                         .font(.subheadline)
                         .foregroundColor(.gray)
@@ -36,11 +32,9 @@ struct NoteView: View {
                 
                 // 캘린더 헤더
                 calendarHeaderSection
-                
                 // 캘린더 그리드
                 calendarGridSection
                     .padding(.bottom, 10)
-                
                 // 카테고리 필터
                 categoryFilterSection
                 
@@ -49,8 +43,7 @@ struct NoteView: View {
                 
                 // 선택된 날짜의 이벤트 목록
                 selectedDateEventsSection
-                
-                // 하단 여백 추가
+
                 Spacer(minLength: 60)
             }
         }
@@ -90,7 +83,7 @@ struct NoteView: View {
                 DatePicker("", selection: $viewModel.selectedMonth, displayedComponents: [.date])
                     .datePickerStyle(WheelDatePickerStyle())
                     .labelsHidden()
-                    .onChange(of: viewModel.selectedMonth) { _ in
+                    .onChange(of: viewModel.selectedMonth) {
                         viewModel.fetchCalendarDays()
                     }
                     .padding()
@@ -102,19 +95,17 @@ struct NoteView: View {
             // 화면이 나타날 때마다 오늘 날짜 선택
             selectToday()
             
-            // 초기 데이터 로드 완료 후 로딩 인디케이터 숨기기
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 isLoading = false
             }
         }
     }
     
-    // 오늘 날짜 선택 함수
+    // 오늘 날짜 선택
     private func selectToday() {
         let today = Date()
         selectedDate = today
         
-        // 선택된 월이 오늘이 속한 월이 아니면 오늘이 속한 월로 변경
         let calendar = Calendar.current
         let currentMonth = calendar.component(.month, from: viewModel.selectedMonth)
         let todayMonth = calendar.component(.month, from: today)
@@ -126,7 +117,6 @@ struct NoteView: View {
             viewModel.fetchCalendarDays()
         }
         
-        // 캘린더 데이터가 로드된 후 오늘 날짜 선택
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             if let todayDay = viewModel.days.first(where: { $0.isToday }) {
                 viewModel.selectedDay = todayDay
@@ -145,6 +135,7 @@ struct NoteView: View {
                         Text(viewModel.currentMonth)
                             .font(.title2)
                             .fontWeight(.bold)
+                            .foregroundStyle(.secondary)
                         
                         Image(systemName: "chevron.down")
                             .font(.caption)
@@ -164,7 +155,6 @@ struct NoteView: View {
                         .background(Capsule().fill(Color("sharkPrimaryColor")))
                 }
                 
-                // 이전/다음 달 버튼 그룹화
                 HStack(spacing: 16) {
                     Button(action: {
                         viewModel.changeMonth(by: -1)
@@ -182,13 +172,12 @@ struct NoteView: View {
                             .foregroundColor(.primary)
                     }
                 }
-                .padding(.leading, 8) // 좌측 여백 추가
+                .padding(.leading, 8)
             }
             .padding(.horizontal)
             .padding(.top, 12)
             .padding(.bottom, 8)
             
-            // 요일 헤더 - 일요일은 빨간색, 토요일은 파란색으로 표시
             HStack(spacing: 0) {
                 ForEach(viewModel.weekdays, id: \.self) { day in
                     Text(day)
@@ -207,7 +196,7 @@ struct NoteView: View {
         .padding(.horizontal)
     }
     
-    // MARK: - 캘린더 그리드 섹션
+    // MARK: - 캘린더 그리드
     private var calendarGridSection: some View {
         let days = viewModel.days
         
@@ -233,7 +222,7 @@ struct NoteView: View {
         .padding(.vertical, 8)
     }
     
-    // MARK: - 카테고리 필터 섹션
+    // MARK: - 카테고리 필터
     private var categoryFilterSection: some View {
         HStack {
             ScrollView(.horizontal, showsIndicators: false) {
@@ -276,7 +265,7 @@ struct NoteView: View {
         .padding(.vertical, 8)
     }
     
-    // MARK: - 선택된 날짜의 이벤트 섹션
+    // MARK: - 선택된 날짜의 이벤트
     private var selectedDateEventsSection: some View {
         VStack(alignment: .leading) {
             if let selectedDay = viewModel.selectedDay, let date = selectedDay.date {
@@ -284,7 +273,6 @@ struct NoteView: View {
                     Text("\(date.formattedFullKoreanDateString())")
                         .font(.headline)
                     
-                    // 생일 표시 추가
                     if viewModel.isBirthday(date) {
                         Text("🎂 생일")
                             .font(.subheadline)
@@ -338,7 +326,6 @@ struct NoteView: View {
                         .frame(height: 150)
                         .padding(.vertical, 20)
                     } else {
-                        // 이벤트 목록 표시
                         VStack(spacing: 6) {
                             ForEach(filteredEvents) { event in
                                 NoteEventRow(event: event) {
@@ -355,7 +342,6 @@ struct NoteView: View {
         }
     }
     
-    // 이벤트가 없거나 날짜가 선택되지 않았을 때 표시할 뷰
     private var emptyEventsView: some View {
         VStack {
             Image(systemName: "note.text")
@@ -372,11 +358,9 @@ struct NoteView: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: 80)
-        //.padding(.vertical, 20)
     }
 }
 
-// 일지 이벤트 행 컴포넌트 수정
 struct NoteEventRow: View {
     var event: Note
     var onTap: (() -> Void)? = nil
@@ -386,7 +370,7 @@ struct NoteEventRow: View {
             onTap?()
         } label: {
             HStack(spacing: 12) {
-                // 카테고리별 아이콘 표시
+                // 카테고리별 아이콘
                 Image(systemName: categoryIcon(for: event.category))
                     .foregroundColor(categoryColor(for: event.category))
                     .font(.system(size: 24))
