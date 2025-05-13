@@ -39,6 +39,10 @@ struct DetailStatisticCardView: View {
                     Text("\(formattedDate(weekStartDate(from: selectedDate))) ~ \(formattedDate(weekEndDate(from: selectedDate)))")
                         .font(.subheadline)
                         .foregroundColor(.primary)
+                } else {
+                    Text("\(formattedMonth(selectedDate))")
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
                 }
                 
                 
@@ -107,6 +111,13 @@ struct DetailStatisticCardView: View {
         let startOfWeek = weekStartDate(from: date)
         return Calendar.current.date(byAdding: .day, value: 6, to: startOfWeek) ?? date
     }
+    func formattedMonth(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "yyyy년 M월"
+        return formatter.string(from: date)
+    }
+
     func comparisonMessage(for image: UIImage, count: Int, lastCount: Int) -> Text {
         switch image {
         case UIImage.colorMeal:

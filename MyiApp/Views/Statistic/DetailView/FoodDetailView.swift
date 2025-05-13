@@ -95,6 +95,14 @@ struct FoodDetailView: View {
                     Divider()
                     WeeklyFeedListView(records: records,  selectedDate: selectedDate)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    MonthlyFeedChartView(
+                        selectedDate: selectedDate,
+                        records: records
+                    )
+                    Divider()
+                    MonthlyFeedListView(records: records,  selectedDate: selectedDate)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 
                 
@@ -140,7 +148,17 @@ struct FoodDetailView: View {
         Group {
             HStack {
                 Button(action: {
-                    selectedDate = Calendar.current.date(byAdding: .day, value: selectedMode == "일" ? -1 : -7, to: selectedDate) ?? selectedDate
+                    let calendar = Calendar.current
+                    switch selectedMode {
+                    case "일":
+                        selectedDate = calendar.date(byAdding: .day, value: -1, to: selectedDate) ?? selectedDate
+                    case "주":
+                        selectedDate = calendar.date(byAdding: .day, value: -7, to: selectedDate) ?? selectedDate
+                    case "월":
+                        selectedDate = calendar.date(byAdding: .month, value: -1, to: selectedDate) ?? selectedDate
+                    default:
+                        break
+                    }
                 }) {
                     Image(systemName: "chevron.left")
                         .foregroundColor(.black)
@@ -163,7 +181,17 @@ struct FoodDetailView: View {
                 Spacer()
                 
                 Button(action: {
-                    selectedDate = Calendar.current.date(byAdding: .day, value: selectedMode == "일" ? 1 : 7, to: selectedDate) ?? selectedDate
+                    let calendar = Calendar.current
+                    switch selectedMode {
+                    case "일":
+                        selectedDate = calendar.date(byAdding: .day, value: 1, to: selectedDate) ?? selectedDate
+                    case "주":
+                        selectedDate = calendar.date(byAdding: .day, value: 7, to: selectedDate) ?? selectedDate
+                    case "월":
+                        selectedDate = calendar.date(byAdding: .month, value: 1, to: selectedDate) ?? selectedDate
+                    default:
+                        break
+                    }
                 }) {
                     Image(systemName: "chevron.right")
                         .foregroundColor(.black)
@@ -207,7 +235,7 @@ struct DailyFeedChartView: View {
     }
     
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 35) {
             ForEach(FeedingType.allCases, id: \.self) { type in
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 6) {
@@ -256,7 +284,7 @@ struct DailyFeedChartView: View {
                                             .fill(Color.gray.opacity(0.3))
                                             .frame(
                                                 width: barWidth,
-                                                height: CGFloat(value) / CGFloat(maxAmount) * 100
+                                                height: maxAmount > 0 ? CGFloat(value) / CGFloat(maxAmount) * 100 : 0
                                             )
                                             .cornerRadius(4)
                                         Text(shortDateString(for: date))
@@ -400,13 +428,13 @@ struct WeeklyFeedChartView: View {
         let daysToSubtract = (weekday + 5) % 7 // selectedDate의 주 시작 월요일 구하기
         let thisWeekStart = calendar.date(byAdding: .day, value: -daysToSubtract, to: selectedDate)!
         
-        return (0..<6).map {
+        return (0..<7).map {
             calendar.date(byAdding: .day, value: -7 * (5 - $0), to: thisWeekStart)!
         }
     }
     
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 35) {
             ForEach(FeedingType.allCases, id: \.self) { type in
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 6) {
@@ -418,8 +446,8 @@ struct WeeklyFeedChartView: View {
                             .font(.headline)
                     }
                     GeometryReader { geometry in
-                        let totalWidth = geometry.size.width - 50 //막대 사이 너비가 10인것을 고려
-                        let barWidth = totalWidth / 6
+                        let totalWidth = geometry.size.width - 60 //막대 사이 너비가 10인것을 고려
+                        let barWidth = totalWidth / 7
                         
                         let values = sixWeekStartDates.map { startDate in
                             let endDate = Calendar.current.date(byAdding: .day, value: 7, to: startDate)!
@@ -528,7 +556,7 @@ struct WeeklyFeedListView: View {
         let endOfWeek = calendar.date(byAdding: .day, value: 6, to: startOfWeek)!
         return DateInterval(start: startOfWeek, end: calendar.date(byAdding: .day, value: 1, to: endOfWeek)!)
     }
-
+    
     var lastWeekRange: DateInterval {
         var calendar = Calendar.current
         calendar.firstWeekday = 2
@@ -552,6 +580,209 @@ struct WeeklyFeedListView: View {
             time: totalBreastfeedingMinutes(in: records, within: thisWeekRange),
             lasttime: totalBreastfeedingMinutes(in: records, within: lastWeekRange),
             mode : "weekly",
+            selectedDate : selectedDate
+        )
+        .padding(.horizontal)
+    }
+    // ml 총계
+    func totalMlAmount(in records: [Record], within range: DateInterval) -> Int {
+        return records
+            .filter {
+                [.formula, .babyFood, .pumpedMilk].contains($0.title) &&
+                range.contains($0.createdAt)
+            }
+            .compactMap { $0.mlAmount }
+            .reduce(0, +)
+    }
+    // 모유 수유 시간 총계
+    func totalBreastfeedingMinutes(in records: [Record], within range: DateInterval) -> Int {
+        return records
+            .filter {
+                $0.title == .breastfeeding && range.contains($0.createdAt)
+            }
+            .reduce(0) { total, record in
+                let left = record.breastfeedingLeftMinutes ?? 0
+                let right = record.breastfeedingRightMinutes ?? 0
+                return total + left + right
+            }
+    }
+    // 밥먹은 횟수 따로 셀리기
+    func combinedFeedCount(in records: [Record], within range: DateInterval) -> Int {
+        return records.filter {
+            [.formula, .pumpedMilk, .breastfeeding, .babyFood].contains($0.title) &&
+            range.contains($0.createdAt)
+        }.count
+    }
+    
+}
+struct MonthlyFeedChartView: View {
+    let selectedDate: Date
+    let records: [Record]
+    
+    enum FeedingType: String, CaseIterable {
+        case formula = "분유"
+        case pumpedMilk = "유축 수유"
+        case breastfeeding = "모유 수유"
+        case babyFood = "이유식"
+    }
+    
+    var sixMonthStartDates: [Date] {
+        var calendar = Calendar.current
+        calendar.timeZone = TimeZone(identifier: "Asia/Seoul")!
+        
+        return (0..<7).map {
+            let date = calendar.date(byAdding: .month, value: -5 + $0, to: selectedDate)!
+            return calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
+        }
+    }
+
+    
+    var body: some View {
+        VStack(spacing: 35) {
+            ForEach(FeedingType.allCases, id: \.self) { type in
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(spacing: 6) {
+                        Image(uiImage: iconImage(for: type))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 25, height: 25)
+                        Text(type.rawValue)
+                            .font(.headline)
+                    }
+                    GeometryReader { geometry in
+                        let totalWidth = geometry.size.width - 60 //막대 사이 너비가 10인것을 고려
+                        let barWidth = totalWidth / 7
+                        
+                        let values = sixMonthStartDates.map { startDate in
+                            let endDate = Calendar.current.date(byAdding: .month, value: 1, to: startDate)!
+                            return amountFor(type, from: startDate, to: endDate)
+                        }
+                        
+                        let maxAmount = values.max() ?? 1
+                        let avgAmount = Double(values.reduce(0, +)) / Double(values.count)
+                        let avgY = CGFloat(avgAmount) / CGFloat(maxAmount) * 100
+                        
+                        
+                        ZStack(alignment: .topLeading) {
+                            
+                            Rectangle()
+                                .fill(Color.red.opacity(0.4))
+                                .frame(width: totalWidth + 60, height: 1)
+                                .offset(y: 100 - avgY)
+                                .overlay(
+                                    Text("평균 \(Int(avgAmount))\(type == .breastfeeding ? "분" : "ml")")
+                                        .font(.caption2)
+                                        .foregroundColor(.red)
+                                        .offset(x: -20, y: -20),
+                                    alignment: .topTrailing
+                                )
+                            HStack(alignment: .bottom, spacing: 10) {
+                                ForEach(Array(zip(sixMonthStartDates, values)), id: \.0) { startDate, value in
+                                    VStack {
+                                        Text("\(value)\(type == .breastfeeding ? "분" : "ml")")
+                                            .font(.caption2)
+                                            .foregroundColor(.black)
+                                            .frame(height: 12)
+                                        Rectangle()
+                                            .fill(Color.gray.opacity(0.3))
+                                            .frame(
+                                                width: barWidth,
+                                                height: CGFloat(value) / CGFloat(maxAmount) * 100
+                                            )
+                                            .cornerRadius(4)
+                                        Text(shortMonthLabel(for: startDate))
+                                            .font(.caption2)
+                                            .foregroundColor(.gray)
+                                    }
+                                }
+                            }
+                        }
+                        
+                    }
+                    .frame(height: 120)
+                    
+                }
+            }
+        }
+        .padding()
+    }
+    
+    func iconImage(for type: FeedingType) -> UIImage {
+        switch type {
+        case .formula: return UIImage(named: "nornalFomual") ?? UIImage()
+        case .pumpedMilk: return UIImage(named: "normalPumpedMilk") ?? UIImage()
+        case .breastfeeding: return UIImage(named: "normalBreastFeeding") ?? UIImage()
+        case .babyFood: return UIImage(named: "normalBabyMeal") ?? UIImage()
+        }
+    }
+    
+    func titleCategory(of record: Record) -> FeedingType? {
+        switch record.title {
+        case .formula: return .formula
+        case .pumpedMilk: return .pumpedMilk
+        case .breastfeeding: return .breastfeeding
+        case .babyFood: return .babyFood
+        default: return nil
+        }
+    }
+    
+    func amountFor(_ type: FeedingType, from start: Date, to end: Date) -> Int {
+        let recordsInRange = records.filter {
+            $0.createdAt >= start && $0.createdAt < end &&
+            titleCategory(of: $0) == type
+        }
+        
+        if type == .breastfeeding {
+            return recordsInRange.reduce(0) { total, record in
+                total + (record.breastfeedingLeftMinutes ?? 0) + (record.breastfeedingRightMinutes ?? 0)
+            }
+        } else {
+            return recordsInRange.compactMap { $0.mlAmount }.reduce(0, +)
+        }
+    }
+    
+    
+    func shortMonthLabel(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "M월"
+        return formatter.string(from: date)
+    }
+
+}
+struct MonthlyFeedListView: View {
+    
+    let records: [Record]
+    let selectedDate: Date
+    var thisMonthRange: DateInterval {
+        let calendar = Calendar.current
+        let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: selectedDate))!
+        let endOfMonth = calendar.date(byAdding: .month, value: 1, to: startOfMonth)!
+        return DateInterval(start: startOfMonth, end: endOfMonth)
+    }
+    
+    var lastMonthRange: DateInterval {
+        let calendar = Calendar.current
+        let startOfThisMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: selectedDate))!
+        let startOfLastMonth = calendar.date(byAdding: .month, value: -1, to: startOfThisMonth)!
+        let endOfLastMonth = calendar.date(byAdding: .month, value: 1, to: startOfLastMonth)!
+        return DateInterval(start: startOfLastMonth, end: endOfLastMonth)
+    }
+    
+    
+    var body: some View {
+        
+        DetailStatisticCardView(
+            title: "월별 통계",
+            image: .colorMeal,
+            color: Color("food"),
+            count: combinedFeedCount(in: records, within: thisMonthRange),
+            lastcount: combinedFeedCount(in: records, within: lastMonthRange),
+            amount: totalMlAmount(in: records, within: thisMonthRange),
+            lastamount: totalMlAmount(in: records, within: lastMonthRange),
+            time: totalBreastfeedingMinutes(in: records, within: thisMonthRange),
+            lasttime: totalBreastfeedingMinutes(in: records, within: lastMonthRange),
+            mode : "monthly",
             selectedDate : selectedDate
         )
         .padding(.horizontal)
