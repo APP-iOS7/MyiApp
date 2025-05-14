@@ -10,7 +10,7 @@ import SwiftUI
 
 struct MinutesPickerActionSheet: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
-    @Binding var selectedAmount: Int
+    @Binding var selectedAmount: Int?
     
     func makeUIViewController(context: Context) -> UIViewController {
         UIViewController()
@@ -33,7 +33,7 @@ struct MinutesPickerActionSheet: UIViewControllerRepresentable {
         pickerView.dataSource = context.coordinator
         
         let currentRow = selectedAmount
-        pickerView.selectRow(currentRow, inComponent: 0, animated: false)
+        pickerView.selectRow(currentRow ?? 0, inComponent: 0, animated: false)
         
         alert.view.addSubview(pickerView)
         

@@ -10,7 +10,7 @@ import SwiftUI
 
 struct MLPickerActionSheet: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
-    @Binding var selectedAmount: Int
+    @Binding var selectedAmount: Int?
     
     func makeUIViewController(context: Context) -> UIViewController {
         UIViewController()
@@ -32,7 +32,7 @@ struct MLPickerActionSheet: UIViewControllerRepresentable {
         pickerView.delegate = context.coordinator
         pickerView.dataSource = context.coordinator
         
-        let currentRow = selectedAmount / 5
+        let currentRow = (selectedAmount ?? 0) / 5
         pickerView.selectRow(currentRow, inComponent: 0, animated: false)
         
         alert.view.addSubview(pickerView)
