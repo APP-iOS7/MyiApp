@@ -140,7 +140,8 @@ struct NoteView: View {
                 }) {
                     HStack {
                         Text(viewModel.currentMonth)
-                            .font(.title2)
+                            //.font(.title2)
+                            .font(.custom("Cafe24-Ohsquareair", size: 24))
                             .fontWeight(.bold)
                             .foregroundStyle(.secondary)
                         
@@ -298,8 +299,8 @@ struct NoteView: View {
                     Button(action: {
                         showingNoteEditor = true
                     }) {
-                        Label("추가", systemImage: "plus.circle.fill")
-                            .font(.caption)
+                        Label("일지/일정 추가", systemImage: "plus.circle.fill")
+                            .font(.subheadline)
                             .foregroundColor(Color("sharkPrimaryDark"))
                     }
                 }
