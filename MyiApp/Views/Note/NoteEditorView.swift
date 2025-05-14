@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct NoteEditorView: View {
     @Environment(\.dismiss) private var dismiss
@@ -15,6 +16,9 @@ struct NoteEditorView: View {
     @State private var description: String = ""
     @State private var date: Date
     @State private var selectedCategory: NoteCategory = .일지
+    @State private var selectedImages: [UIImage] = []
+    @State private var showingPhotoPicker = false
+    @State private var existingImageURLs: [String] = []
     
     let isEditing: Bool
     let noteId: UUID?
@@ -27,6 +31,7 @@ struct NoteEditorView: View {
             _description = State(initialValue: note.description)
             _date = State(initialValue: note.date)
             _selectedCategory = State(initialValue: note.category)
+            _existingImageURLs = State(initialValue: note.imageURLs)
             self.isEditing = true
             self.noteId = note.id
         } else {
@@ -76,6 +81,49 @@ struct NoteEditorView: View {
                         .frame(minHeight: 150)
                 }
                 
+                if selectedCategory == .일지 {
+                    Section(header: Text("이미지")) {
+                        if !existingImageURLs.isEmpty {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("기존 이미지")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                
+                                URLImagePreviewGrid(imageURLs: existingImageURLs) { index in
+                                    if let id = noteId, let note = viewModel.events.values.flatMap({ $0 }).first(where: { $0.id == id }) {
+                                        viewModel.deleteImage(fromNote: note, at: index)
+                                        existingImageURLs.remove(at: index)
+                                    }
+                                }
+                            }
+                        }
+                        
+                        if !selectedImages.isEmpty {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("추가할 이미지")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                
+                                ImagePreviewGrid(images: $selectedImages) { index in
+                                    selectedImages.remove(at: index)
+                                }
+                            }
+                        }
+                        
+                        Button(action: {
+                            showingPhotoPicker = true
+                        }) {
+                            HStack {
+                                Image(systemName: "photo.on.rectangle.angled")
+                                Text("이미지 추가")
+                            }
+                        }
+                        .sheet(isPresented: $showingPhotoPicker) {
+                            PhotoPicker(selectedImages: $selectedImages, selectionLimit: 10)
+                        }
+                    }
+                }
+                
                 if selectedCategory == .일정 {
                     Section(header: Text("알림")) {
                         Toggle("일정 알림", isOn: .constant(false))
@@ -110,35 +158,57 @@ struct NoteEditorView: View {
         }
         
         if isEditing, let id = noteId {
-            // 수정
-            let updatedNote = Note(
-                id: id,
-                title: title,
-                description: description,
-                date: date,
-                category: selectedCategory
-            )
-            
-            viewModel.updateNote(note: updatedNote)
-            
-            if selectedCategory == .일지 {
-                viewModel.toastMessage = ToastMessage(message: "일지가 수정되었습니다.", type: .success)
+            if !selectedImages.isEmpty && selectedCategory == .일지 {
+                let updatedNote = Note(
+                    id: id,
+                    title: title,
+                    description: description,
+                    date: date,
+                    category: selectedCategory,
+                    imageURLs: existingImageURLs
+                )
+                
+                viewModel.updateNoteWithImages(note: updatedNote, newImages: selectedImages)
             } else {
-                viewModel.toastMessage = ToastMessage(message: "일정이 수정되었습니다.", type: .success)
+                let updatedNote = Note(
+                    id: id,
+                    title: title,
+                    description: description,
+                    date: date,
+                    category: selectedCategory,
+                    imageURLs: existingImageURLs
+                )
+                
+                viewModel.updateNote(note: updatedNote)
+                
+                if selectedCategory == .일지 {
+                    viewModel.toastMessage = ToastMessage(message: "일지가 수정되었습니다.", type: .success)
+                } else {
+                    viewModel.toastMessage = ToastMessage(message: "일정이 수정되었습니다.", type: .success)
+                }
             }
         } else {
-            // 새 노트
-            viewModel.addNote(
-                title: title,
-                description: description,
-                date: date,
-                category: selectedCategory
-            )
-            
-            if selectedCategory == .일지 {
-                viewModel.toastMessage = ToastMessage(message: "새 일지가 저장되었습니다.", type: .success)
+            if !selectedImages.isEmpty && selectedCategory == .일지 {
+                viewModel.addNoteWithImages(
+                    title: title,
+                    description: description,
+                    date: date,
+                    category: selectedCategory,
+                    images: selectedImages
+                )
             } else {
-                viewModel.toastMessage = ToastMessage(message: "새 일정이 저장되었습니다.", type: .success)
+                viewModel.addNote(
+                    title: title,
+                    description: description,
+                    date: date,
+                    category: selectedCategory
+                )
+                
+                if selectedCategory == .일지 {
+                    viewModel.toastMessage = ToastMessage(message: "새 일지가 저장되었습니다.", type: .success)
+                } else {
+                    viewModel.toastMessage = ToastMessage(message: "새 일정이 저장되었습니다.", type: .success)
+                }
             }
         }
         

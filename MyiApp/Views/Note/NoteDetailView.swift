@@ -13,6 +13,8 @@ struct NoteDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var showingEditSheet = false
     @State private var showingDeleteAlert = false
+    @State private var selectedImageURL: String? = nil
+    @State private var showingImageViewer = false
     
     var body: some View {
         ScrollView {
@@ -20,8 +22,14 @@ struct NoteDetailView: View {
                 
                 // 헤더
                 headerSection
+                
                 // 내용
                 contentSection
+                
+                // 이미지 섹션
+                if event.category == .일지 && !event.imageURLs.isEmpty {
+                    imagesSection
+                }
                 
                 if event.category == .일정 {
                     reminderSection
@@ -70,6 +78,13 @@ struct NoteDetailView: View {
                 "이 일지는 영구적으로 삭제되며,\n복구할 수 없습니다." :
                 "이 일정은 영구적으로 삭제되며,\n복구할 수 없습니다.")
         }
+        .fullScreenCover(isPresented: $showingImageViewer) {
+            if let selectedURL = selectedImageURL {
+                ImageViewerView(imageURL: selectedURL, onDismiss: {
+                    showingImageViewer = false
+                })
+            }
+        }
     }
     
     private var headerSection: some View {
@@ -115,6 +130,38 @@ struct NoteDetailView: View {
                 .lineLimit(nil)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        )
+        .padding(.horizontal)
+    }
+    
+    // 이미지 갤러리 섹션
+    private var imagesSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("이미지")
+                .font(.headline)
+            
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: 10) {
+                ForEach(event.imageURLs, id: \.self) { url in
+                    Button(action: {
+                        selectedImageURL = url
+                        showingImageViewer = true
+                    }) {
+                        AsyncImageView(url: url)
+                            .frame(height: 150)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                            )
+                    }
+                }
+            }
         }
         .padding()
         .background(
@@ -245,6 +292,92 @@ struct NoteDetailView: View {
             return "note.text"
         case .일정:
             return "calendar"
+        }
+    }
+}
+
+// 전체 화면 이미지 뷰어
+struct ImageViewerView: View {
+    let imageURL: String
+    var onDismiss: () -> Void
+    
+    @State private var scale: CGFloat = 1.0
+    @State private var lastScale: CGFloat = 1.0
+    @State private var offset: CGSize = .zero
+    @State private var lastOffset: CGSize = .zero
+    @State private var isLoading = true
+    
+    var body: some View {
+        ZStack {
+            Color.black
+                .ignoresSafeArea()
+            
+            VStack {
+                ZStack {
+                    if isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .scaleEffect(1.5)
+                    }
+                    
+                    AsyncImageView(url: imageURL)
+                        .aspectRatio(contentMode: .fit)
+                        .scaleEffect(scale)
+                        .offset(offset)
+                        .gesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    let delta = value / lastScale
+                                    lastScale = value
+                                    scale = min(max(scale * delta, 1), 5)
+                                }
+                                .onEnded { _ in
+                                    lastScale = 1.0
+                                }
+                        )
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    offset = CGSize(
+                                        width: lastOffset.width + value.translation.width,
+                                        height: lastOffset.height + value.translation.height
+                                    )
+                                }
+                                .onEnded { _ in
+                                    lastOffset = offset
+                                }
+                        )
+                        .onTapGesture(count: 2) {
+                            withAnimation {
+                                scale = scale > 1 ? 1 : 2
+                                offset = .zero
+                                lastOffset = .zero
+                            }
+                        }
+                        .onAppear {
+                            isLoading = false
+                        }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            
+            VStack {
+                HStack {
+                    Spacer()
+                    Button(action: onDismiss) {
+                        Image(systemName: "xmark")
+                            .font(.title)
+                            .foregroundColor(.white)
+                            .padding()
+                            .background(Circle().fill(Color.black.opacity(0.5)))
+                    }
+                    .padding()
+                }
+                Spacer()
+            }
+        }
+        .onTapGesture {
+            onDismiss()
         }
     }
 }

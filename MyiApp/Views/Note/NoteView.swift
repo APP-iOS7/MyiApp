@@ -140,7 +140,6 @@ struct NoteView: View {
                 }) {
                     HStack {
                         Text(viewModel.currentMonth)
-                            //.font(.title2)
                             .font(.custom("Cafe24-Ohsquareair", size: 24))
                             .fontWeight(.bold)
                             .foregroundStyle(.secondary)
@@ -378,15 +377,24 @@ struct NoteEventRow: View {
             onTap?()
         } label: {
             HStack(spacing: 12) {
-                // 카테고리별 아이콘
-                Image(systemName: categoryIcon(for: event.category))
-                    .foregroundColor(categoryColor(for: event.category))
-                    .font(.system(size: 24))
-                    .frame(width: 40, height: 40)
-                    .background(
-                        Circle()
-                            .fill(categoryColor(for: event.category).opacity(0.2))
-                    )
+                if event.category == .일지 && !event.imageURLs.isEmpty {
+                    AsyncImageView(url: event.imageURLs[0])
+                        .frame(width: 40, height: 40)
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(categoryColor(for: event.category).opacity(0.3), lineWidth: 2)
+                        )
+                } else {
+                    Image(systemName: categoryIcon(for: event.category))
+                        .foregroundColor(categoryColor(for: event.category))
+                        .font(.system(size: 24))
+                        .frame(width: 40, height: 40)
+                        .background(
+                            Circle()
+                                .fill(categoryColor(for: event.category).opacity(0.2))
+                        )
+                }
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(event.title)
@@ -401,9 +409,27 @@ struct NoteEventRow: View {
                 
                 Spacer()
                 
-                Text(event.timeString)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text(event.timeString)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    if event.category == .일지 && event.imageURLs.count > 0 {
+                        HStack(spacing: 4) {
+                            Image(systemName: "photo")
+                                .font(.system(size: 10))
+                            Text("\(event.imageURLs.count)")
+                                .font(.system(size: 10))
+                        }
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(
+                            Capsule()
+                                .fill(Color.gray.opacity(0.1))
+                        )
+                    }
+                }
             }
             .padding()
             .background(
