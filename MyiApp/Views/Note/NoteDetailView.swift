@@ -13,7 +13,6 @@ struct NoteDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var showingEditSheet = false
     @State private var showingDeleteAlert = false
-    @State private var showToast: ToastMessage? = nil
     
     var body: some View {
         ScrollView {
@@ -44,7 +43,7 @@ struct NoteDetailView: View {
                     }
                     
                     Button(action: {
-                        deleteNote()
+                        showingDeleteAlert = true
                     }) {
                         Label("삭제", systemImage: "trash")
                     }
@@ -53,11 +52,24 @@ struct NoteDetailView: View {
                 }
             }
         }
-        .sheet(isPresented: $showingEditSheet) {
+        .sheet(isPresented: $showingEditSheet, onDismiss: {
+            if viewModel.toastMessage != nil {
+                DispatchQueue.main.asyncAfter(deadline: .now()) {
+                    presentationMode.wrappedValue.dismiss()
+                }
+            }
+        }) {
             NoteEditorView(selectedDate: event.date, note: event)
                 .environmentObject(viewModel)
         }
-        .toast(message: $showToast)
+        .alert("삭제하시겠습니까?", isPresented: $showingDeleteAlert) {
+            Button("취소", role: .cancel) { }
+            Button("삭제", role: .destructive) {
+                deleteNote()
+            }
+        } message: {
+            Text("이 \(event.category.rawValue)를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")
+        }
     }
     
     private var headerSection: some View {
@@ -209,14 +221,9 @@ struct NoteDetailView: View {
     }
     
     private func deleteNote() {
-        // 토스트 메시지 표시 후 삭제 진행
-        showToast = ToastMessage(message: "\(event.category.rawValue)가 삭제되었습니다.", type: .info)
-        
-        // 토스트 메시지가 표시된 후 적절한 시간 후에 삭제 및 화면 닫기
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            viewModel.deleteNote(note: event)
-            presentationMode.wrappedValue.dismiss()
-        }
+        viewModel.toastMessage = ToastMessage(message: "\(event.category.rawValue)가 삭제되었습니다.", type: .info)
+        viewModel.deleteNote(note: event)
+        presentationMode.wrappedValue.dismiss()
     }
     
     private func categoryColor(for category: NoteCategory) -> Color {
@@ -235,20 +242,5 @@ struct NoteDetailView: View {
         case .일정:
             return "calendar"
         }
-    }
-}
-
-#Preview {
-    let sampleNote = Note(
-        id: UUID(),
-        title: "테스트 노트",
-        description: "이것은 테스트 설명입니다.",
-        date: Date(),
-        category: .일지
-    )
-    
-    return NavigationView {
-        NoteDetailView(event: sampleNote)
-            .environmentObject(NoteViewModel())
     }
 }

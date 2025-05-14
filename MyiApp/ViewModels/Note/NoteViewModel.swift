@@ -26,6 +26,7 @@ class NoteViewModel: ObservableObject {
     @Published var events: [Date: [Note]] = [:]
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var toastMessage: ToastMessage?
     
     var currentMonth: String {
         let formatter = DateFormatter()
@@ -437,7 +438,7 @@ class NoteViewModel: ObservableObject {
             selectedMonth = newMonth
             fetchCalendarDays()
             
-            let components = Calendar.current.dateComponents([.year, .month], from: newMonth)
+            _ = Calendar.current.dateComponents([.year, .month], from: newMonth)
             if let firstDay = days.first(where: { $0.isCurrentMonth && Calendar.current.component(.day, from: $0.date!) == 1 }) {
                 selectedDay = firstDay
             }

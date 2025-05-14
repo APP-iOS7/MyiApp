@@ -15,7 +15,6 @@ struct NoteView: View {
     @State private var isLoading = false
     @State private var showMonthYearPicker = false
     @State private var selectedDate: Date? = nil
-    @State private var showToast: ToastMessage? = nil
     
     var body: some View {
         ScrollView {
@@ -50,7 +49,12 @@ struct NoteView: View {
         }
         .navigationTitle("육아 수첩")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showingNoteEditor) {
+        .sheet(isPresented: $showingNoteEditor, onDismiss: {
+            // 노트 추가 후 토스트 메시지가 있는지 확인
+            if viewModel.toastMessage != nil {
+                // 토스트 메시지가 자동으로 표시됨
+            }
+        }) {
             NoteEditorView(selectedDate: viewModel.selectedDay?.date ?? Date())
                 .environmentObject(viewModel)
         }
@@ -77,7 +81,6 @@ struct NoteView: View {
                     Spacer()
                     Button("확인") {
                         showMonthYearPicker = false
-                        showToast = ToastMessage(message: "\(viewModel.currentMonth)로 이동했습니다", type: .info)
                     }
                 }
                 .padding()
@@ -99,12 +102,9 @@ struct NoteView: View {
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 isLoading = false
-                if viewModel.babyInfo != nil {
-                    showToast = ToastMessage(message: "육아수첩이 업데이트 되었습니다", type: .info)
-                }
             }
         }
-        .toast(message: $showToast)
+        .toast(message: $viewModel.toastMessage)
     }
     
     // 오늘 날짜 선택
@@ -152,7 +152,6 @@ struct NoteView: View {
                 
                 Button(action: {
                     selectToday()
-                    showToast = ToastMessage(message: "오늘 날짜로 이동했습니다", type: .info)
                 }) {
                     Text("오늘")
                         .font(.subheadline)
@@ -165,7 +164,6 @@ struct NoteView: View {
                 HStack(spacing: 16) {
                     Button(action: {
                         viewModel.changeMonth(by: -1)
-                        showToast = ToastMessage(message: "이전 달로 이동했습니다", type: .info)
                     }) {
                         Image(systemName: "chevron.left")
                             .font(.title3)
@@ -174,7 +172,6 @@ struct NoteView: View {
                     
                     Button(action: {
                         viewModel.changeMonth(by: 1)
-                        showToast = ToastMessage(message: "다음 달로 이동했습니다", type: .info)
                     }) {
                         Image(systemName: "chevron.right")
                             .font(.title3)
@@ -238,7 +235,6 @@ struct NoteView: View {
                 HStack(spacing: 8) {
                     Button(action: {
                         selectedFilterCategory = nil
-                        showToast = ToastMessage(message: "모든 항목을 표시합니다", type: .info)
                     }) {
                         Text("전체")
                             .font(.subheadline)
@@ -255,7 +251,6 @@ struct NoteView: View {
                     ForEach(NoteCategory.allCases, id: \.self) { category in
                         Button(action: {
                             selectedFilterCategory = category
-                            showToast = ToastMessage(message: "\(category.rawValue) 항목만 표시합니다", type: .info)
                         }) {
                             Text(category.rawValue)
                                 .font(.subheadline)
@@ -434,11 +429,5 @@ struct NoteEventRow: View {
         case .일정:
             return "calendar"
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        NoteView()
     }
 }
