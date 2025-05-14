@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct HeightWeightRecordView: View {
-    @State var height: String = ""
-    @State var weight: String = ""
+    @Binding var record: Record
     
     var body: some View {
         VStack(spacing: 10) {
@@ -35,16 +34,22 @@ struct HeightWeightRecordView: View {
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.primary)
                         .frame(width: 60, alignment: .leading)
-                    TextField("키를 입력하세요", text: $height)
-                        .keyboardType(.decimalPad)
-                        .font(.system(size: 20, weight: .medium))
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
+                    TextField(
+                        "키를 입력하세요",
+                        text: Binding(
+                            get: { record.height.map { String(format: "%.1f", $0) } ?? "" },
+                            set: { record.height = Double($0) }
                         )
+                    )
+                    .keyboardType(.decimalPad)
+                    .font(.system(size: 20, weight: .medium))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
+                    )
                     Text("cm")
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.gray)
@@ -56,16 +61,22 @@ struct HeightWeightRecordView: View {
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.primary)
                         .frame(width: 60, alignment: .leading)
-                    TextField("몸무게를 입력하세요", text: $weight)
-                        .keyboardType(.decimalPad)
-                        .font(.system(size: 20, weight: .medium))
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
+                    TextField(
+                        "몸무게를 입력하세요",
+                        text: Binding(
+                            get: { record.weight.map { String(format: "%.1f", $0) } ?? "" },
+                            set: { record.weight = Double($0) }
                         )
+                    )
+                    .keyboardType(.decimalPad)
+                    .font(.system(size: 20, weight: .medium))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
+                    )
                     Text("kg")
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.gray)
@@ -76,6 +87,6 @@ struct HeightWeightRecordView: View {
     }
 }
 
-#Preview {
-    HeightWeightRecordView()
-} 
+//#Preview {
+//    HeightWeightRecordView()
+//}

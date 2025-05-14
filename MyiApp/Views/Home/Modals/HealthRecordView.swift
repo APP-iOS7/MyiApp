@@ -8,15 +8,17 @@
 import SwiftUI
 
 struct HealthRecordView: View {
-    @State private var selectedType: Int = 0
-    @State private var text: String = ""
-    @State private var temperature: Double = 36.5
+    @Binding var record: Record
     @State private var isTMPPickerPresented: Bool = false
     
     var body: some View {
         VStack(spacing: 24) {
             HStack(spacing: 15) {
-                Button(action: { selectedType = 0 }) {
+                Button(
+                    action: {
+                        record.title = .temperature
+                        record.content = nil
+                    }) {
                     VStack {
                         Image(.normalTemperature)
                             .resizable()
@@ -24,14 +26,18 @@ struct HealthRecordView: View {
                             .padding(7)
                             .background(
                                 Circle()
-                                    .fill(selectedType == 0 ? .sharkPrimary : Color.gray)
+                                    .fill(record.title == .temperature ? .sharkPrimary : Color.gray)
                             )
                         Text("체온")
                             .font(.system(size: 14))
-                            .tint(selectedType == 0 ? .primary : .secondary)
+                            .tint(record.title == .temperature ? .primary : .secondary)
                     }
                 }
-                Button(action: { selectedType = 1 }) {
+                Button(
+                    action: {
+                        record.title = .medicine
+                        record.content = nil
+                    }) {
                     VStack {
                         Image(.normalMedicine)
                             .resizable()
@@ -39,14 +45,18 @@ struct HealthRecordView: View {
                             .padding(7)
                             .background(
                                 Circle()
-                                    .fill(selectedType == 1 ? .sharkPrimary : Color.gray)
+                                    .fill(record.title == .medicine ? .sharkPrimary : Color.gray)
                             )
                         Text("투약")
                             .font(.system(size: 14))
-                            .tint(selectedType == 1 ? .primary : .secondary)
+                            .tint(record.title == .medicine ? .primary : .secondary)
                     }
                 }
-                Button(action: { selectedType = 2 }) {
+                Button(
+                    action: {
+                        record.title = .clinic
+                        record.content = nil
+                    }) {
                     VStack {
                         Image(.normalClinic)
                             .resizable()
@@ -54,18 +64,18 @@ struct HealthRecordView: View {
                             .padding(7)
                             .background(
                                 Circle()
-                                    .fill(selectedType == 2 ? .sharkPrimary : Color.gray)
+                                    .fill(record.title == .clinic ? .sharkPrimary : Color.gray)
                             )
                         Text("병원")
                             .font(.system(size: 14))
-                            .tint(selectedType == 2 ? .primary : .secondary)
+                            .tint(record.title == .clinic ? .primary : .secondary)
                     }
                 }
             }
             Group {
-                if selectedType == 0 {
+                if record.title == .temperature {
                     Button(action: { isTMPPickerPresented = true }) {
-                        Text(String(format: "%.1f °C", temperature))
+                        Text(String(format: "%.1f °C", record.temperature ?? 36.5))
                             .font(.system(size: 24, weight: .bold))
                             .foregroundColor(.primary)
                             .frame(maxWidth: .infinity)
@@ -77,27 +87,40 @@ struct HealthRecordView: View {
                     }
                     .padding(.vertical)
                 } else {
-                    TextField("간단한 메모를 남겨 기록하세요", text: $text, axis: .vertical)
-                        .autocorrectionDisabled()
-                        .textInputAutocapitalization(.never)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
-                                .frame(height: 60)
-                        )
+                    TextField(
+                        "간단한 메모를 남겨 기록하세요",
+                        text: Binding(
+                            get: { record.content ?? "" },
+                            set: { record.content = $0 }
+                        ),
+                        axis: .vertical
+                    )
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
+                            .frame(height: 60)
+                    )
                 }
             }
             .frame(height: 60)
         }
         .padding(.vertical)
         .background() {
-            TMPPickerActionSheet(isPresented: $isTMPPickerPresented, selectedTemperature: $temperature)
+            TMPPickerActionSheet(
+                isPresented: $isTMPPickerPresented,
+                selectedTemperature: Binding(
+                    get: { record.temperature ?? 36.5 },
+                    set: { record.temperature = $0 }
+                )
+            )
         }
     }
 }
 
-#Preview {
-    HealthRecordView()
-}
+//#Preview {
+//    HealthRecordView()
+//}

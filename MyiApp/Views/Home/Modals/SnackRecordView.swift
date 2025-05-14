@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SnackRecordView: View {
-    @State var text: String = ""
+    @Binding var record: Record
     
     var body: some View {
         VStack(spacing: 24) {
@@ -28,7 +28,14 @@ struct SnackRecordView: View {
                 }
             }
             
-            TextField("간식을 입력해 주세요", text: $text, axis: .vertical)
+            TextField(
+                "간식을 입력해 주세요",
+                text: Binding(
+                    get: { record.content ?? "" },
+                    set: { record.content = $0 }
+                ),
+                axis: .vertical
+            )
                 .padding()
                 .textInputAutocapitalization(.never)
                 .disableAutocorrection(true)
@@ -43,6 +50,6 @@ struct SnackRecordView: View {
     }
 }
 
-#Preview {
-    SnackRecordView()
-}
+//#Preview {
+//    SnackRecordView()
+//}
