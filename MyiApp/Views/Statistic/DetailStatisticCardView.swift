@@ -254,6 +254,7 @@ struct DetailPottyStatisticCardView: View {
     let big: Int
     let yesterdaybig: Int
     let mode: String
+    let selectedDate: Date
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -262,11 +263,37 @@ struct DetailPottyStatisticCardView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 32, height: 32)
-                Text("배변 통계")
-                    .font(.headline)
-                    .foregroundColor(.primary)
+                if (mode == "daily") {
+                    Text("일별 통계")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                } else if (mode == "weekly") {
+                    Text("주별 통계")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                } else {
+                    Text("월별 통계")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                }
                 Spacer()
+                if (mode == "daily") {
+                    Text("\(formattedDate(selectedDate))")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                } else if (mode == "weekly") {
+                    Text("\(formattedDate(weekStartDate(from: selectedDate))) ~ \(formattedDate(weekEndDate(from: selectedDate)))")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                } else {
+                    Text("\(formattedMonth(selectedDate))")
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                }
             }
+            pottyComparisonMessage(small: small, yesterdaysmall: yesterdaysmall, big: big, yesterdaybig: yesterdaybig)
+            
+            Divider()
             VStack(alignment: .leading, spacing: 6) {
                 
                 Text("소변 \(small)회")
@@ -286,5 +313,56 @@ struct DetailPottyStatisticCardView: View {
                 .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
         )
         .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
+    }
+    func formattedTime(from minutes: Int?) -> String {
+        guard let m = minutes else { return "-시간-분" }
+        let h = m / 60
+        let min = m % 60
+        return h > 0 ? "\(h)시간 \(min)분" : "\(min)분"
+    }
+    func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "M월 d일"
+        return formatter.string(from: date)
+    }
+    func weekStartDate(from date: Date) -> Date {
+        var calendar = Calendar.current
+        calendar.firstWeekday = 2
+        return calendar.dateInterval(of: .weekOfYear, for: date)?.start ?? date
+    }
+    func weekEndDate(from date: Date) -> Date {
+        let startOfWeek = weekStartDate(from: date)
+        return Calendar.current.date(byAdding: .day, value: 6, to: startOfWeek) ?? date
+    }
+    func formattedMonth(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "yyyy년 M월"
+        return formatter.string(from: date)
+    }
+    func pottyComparisonMessage(small: Int, yesterdaysmall: Int, big: Int, yesterdaybig: Int) -> Text {
+        let label: String
+            switch mode {
+            case "daily":
+                label = "어제보다"
+            case "weekly":
+                label = "지난주보다"
+            default:
+                label = "지난달보다"
+            }
+
+            let smallText = small > yesterdaysmall
+                ? "\(label) 소변 횟수가 증가,"
+                : "\(label) 소변 횟수가 감소,"
+
+            let bigText = big > yesterdaybig
+                ? " 대변 횟수가 증가하였습니다."
+                : " 대변 횟수가 감소하였습니다."
+
+            return Text(smallText + bigText)
+            .font(.subheadline)
+            .foregroundColor(.gray)
+        
     }
 }
