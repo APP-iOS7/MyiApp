@@ -20,20 +20,15 @@ enum CryAnalysisStep {
 }
 
 class VoiceRecordViewModel: ObservableObject {
-    // MARK: - Audio Engine Setup Error
+
     private enum AudioEngineError: Error {
         case initializationFailed
     }
 
-    // MARK: - Common audio engine setup
-    /// Configures and starts AVAudioEngine with a tap handler.
     private func configureEngine(tapHandler: @escaping (AVAudioPCMBuffer, AVAudioTime) -> Void) throws {
-        // Ensure audio session is active
         setupAudioSession()
-        // Tear down any existing engine
         stopAudioMonitoring()
-
-        // Initialize engine and input node
+        
         engine = AVAudioEngine()
         guard let engine = engine else {
             throw AudioEngineError.initializationFailed
@@ -41,12 +36,9 @@ class VoiceRecordViewModel: ObservableObject {
         inputNode = engine.inputNode
         recordingBuffer.removeAll()
 
-        // Determine input format
         let inputFormat = inputNode!.outputFormat(forBus: 0)
-        // Install tap to capture buffers
         inputNode!.installTap(onBus: 0, bufferSize: 1024, format: inputFormat, block: tapHandler)
 
-        // Start engine
         try engine.start()
     }
     

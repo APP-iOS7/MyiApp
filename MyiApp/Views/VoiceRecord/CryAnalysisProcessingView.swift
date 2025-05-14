@@ -72,7 +72,7 @@ struct CryAnalysisProcessingView: View {
             dotCount = (dotCount + 1) % 4
         }
         .onAppear {
-            viewModel.startAnalysis() // ✅ 분석 시작
+            viewModel.startAnalysis()
         }
     }
     
@@ -89,6 +89,7 @@ struct CryAnalysisProcessingView: View {
         }
     }
 }
+
 //#Preview {
 //    CryAnalysisProcessingView()
 //}
