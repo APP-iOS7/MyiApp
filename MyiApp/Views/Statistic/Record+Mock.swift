@@ -12,7 +12,7 @@ extension Record {
         let korea = TimeZone(identifier: "Asia/Seoul")!
         var calendar = Calendar.current
         calendar.timeZone = korea
-
+        
         return [
             Record(
                 createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 13, hour: 23, minute: 19, second: 47))!,
@@ -94,7 +94,7 @@ extension Record {
                 title: .formula,
                 mlAmount: 20
             ),
-
+            
             Record(
                 createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 11, hour: 14, minute: 00, second: 0))!,
                 title: .pumpedMilk,
@@ -123,11 +123,90 @@ extension Record {
             
             
             Record(
-                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 12, hour: 5, minute: 49, second: 23))!,
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 3, day: 15, hour: 0, minute: 0, second: 0))!,
                 title: .heightWeight,
-                height: 68.5,
-                weight: 8.8
+                height: 65.6,
+                weight: 7.7
             ),
+            Record(
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 3, day: 22, hour: 0, minute: 0, second: 0))!,
+                title: .heightWeight,
+                height: 66.1,
+                weight: 7.8
+            ),
+            Record(
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 3, day: 29, hour: 0, minute: 0, second: 0))!,
+                title: .heightWeight,
+                height: 66.7,
+                weight: 7.9
+            ),
+            Record(
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 4, day: 5, hour: 0, minute: 0, second: 0))!,
+                title: .heightWeight,
+                height: 67.0,
+                weight: 8.1
+            ),
+            Record(
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 4, day: 12, hour: 0, minute: 0, second: 0))!,
+                title: .heightWeight,
+                height: 67.3,
+                weight: 8.3
+            ),
+            Record(
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 4, day: 19, hour: 0, minute: 0, second: 0))!,
+                title: .heightWeight,
+                height: 67.7,
+                weight: 8.5
+            ),
+            Record(
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 4, day: 26, hour: 0, minute: 0, second: 0))!,
+                title: .heightWeight,
+                height: 68.2,
+                weight: 8.7
+            ),
+            Record(
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 3, hour: 0, minute: 0, second: 0))!,
+                title: .heightWeight,
+                height: 68.6,
+                weight: 8.9
+            ),
+            Record(
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 10, hour: 0, minute: 0, second: 0))!,
+                title: .heightWeight,
+                height: 69.2,
+                weight: 9.2
+            ),
+            Record(
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 3, day: 18))!,
+                title: .heightWeight,
+                height: 65.9,
+                weight: 7.75
+            ),
+            Record(
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 3, day: 25))!,
+                title: .heightWeight,
+                height: 66.4,
+                weight: 7.85
+            ),
+            Record(
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 4, day: 8))!,
+                title: .heightWeight,
+                height: 67.1,
+                weight: 8.2
+            ),
+            Record(
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 4, day: 22))!,
+                title: .heightWeight,
+                height: 67.9,
+                weight: 8.6
+            ),
+            Record(
+                createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 6))!,
+                title: .heightWeight,
+                height: 68.9,
+                weight: 9.0
+            ),
+
             
             
             
@@ -202,7 +281,7 @@ extension Record {
                 createdAt: calendar.date(from: DateComponents(year: 2025, month: 5, day: 11, hour: 8, minute: 15))!,
                 title: .pottyAll
             ),
-
+            
         ]
     }()
 }

@@ -74,13 +74,26 @@ struct StatisticView: View {
         ScrollView {
             VStack(spacing: 20) {
                 VStack(spacing: 10) {
-                    toggleMode
-                    Spacer()
+                    ZStack {
+                        HStack {
+                            Spacer()
+                            toggleMode
+                            Spacer()
+                        }
+                        HStack {
+                            Spacer()
+                            heightWeightButton
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 10)
+                    
                     dateMove
+                        .padding(.horizontal)
+                        .padding(.vertical, 10)
                 }
-                .padding(.horizontal)
-                .padding(.vertical, 10)
-                .background(Color.white)
+                
+                
                 
                 iconGrid
                     .padding(.horizontal)
@@ -173,6 +186,12 @@ struct StatisticView: View {
             }
         }
         
+    }
+    private var heightWeightButton: some View {
+        NavigationLink(destination: GrowthChartView()) {
+            Image(systemName: "chart.xyaxis.line")
+                .foregroundColor(.gray)
+        }
     }
     private var chartView: some View {
         Group {
