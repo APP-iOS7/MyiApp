@@ -54,9 +54,7 @@ struct NoteDetailView: View {
         }
         .sheet(isPresented: $showingEditSheet, onDismiss: {
             if viewModel.toastMessage != nil {
-                DispatchQueue.main.asyncAfter(deadline: .now()) {
-                    presentationMode.wrappedValue.dismiss()
-                }
+                presentationMode.wrappedValue.dismiss()
             }
         }) {
             NoteEditorView(selectedDate: event.date, note: event)

@@ -15,6 +15,7 @@ struct NoteView: View {
     @State private var isLoading = false
     @State private var showMonthYearPicker = false
     @State private var selectedDate: Date? = nil
+    @State private var isFirstAppear = true
     
     var body: some View {
         ScrollView {
@@ -50,9 +51,7 @@ struct NoteView: View {
         .navigationTitle("육아 수첩")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingNoteEditor, onDismiss: {
-            // 노트 추가 후 토스트 메시지가 있는지 확인
             if viewModel.toastMessage != nil {
-                // 토스트 메시지가 자동으로 표시됨
             }
         }) {
             NoteEditorView(selectedDate: viewModel.selectedDay?.date ?? Date())
@@ -97,8 +96,10 @@ struct NoteView: View {
         .onAppear {
             isLoading = true
             
-            // 화면이 나타날 때마다 오늘 날짜 선택
-            selectToday()
+            if isFirstAppear {
+                selectToday()
+                isFirstAppear = false
+            }
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 isLoading = false
@@ -311,8 +312,8 @@ struct NoteView: View {
                     emptyEventsView
                 } else {
                     let filteredEvents = selectedFilterCategory == nil ?
-                        dayEvents :
-                        dayEvents.filter { $0.category == selectedFilterCategory }
+                    dayEvents :
+                    dayEvents.filter { $0.category == selectedFilterCategory }
                     
                     if filteredEvents.isEmpty {
                         VStack {
