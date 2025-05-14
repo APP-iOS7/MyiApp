@@ -78,13 +78,6 @@ struct NoteDetailView: View {
                 "이 일지는 영구적으로 삭제되며,\n복구할 수 없습니다." :
                 "이 일정은 영구적으로 삭제되며,\n복구할 수 없습니다.")
         }
-        .onReceive(viewModel.$toastMessage) { message in
-            if message != nil && showingEditSheet == false {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    presentationMode.wrappedValue.dismiss()
-                }
-            }
-        }
     }
     
     private var headerSection: some View {
@@ -188,10 +181,7 @@ struct NoteDetailView: View {
             viewModel.toastMessage = ToastMessage(message: "일정이 삭제되었습니다.", type: .info)
         }
         viewModel.deleteNote(note: event)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            presentationMode.wrappedValue.dismiss()
-        }
+        presentationMode.wrappedValue.dismiss()
     }
     
     private func categoryColor(for category: NoteCategory) -> Color {

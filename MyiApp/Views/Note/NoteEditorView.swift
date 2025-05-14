@@ -156,16 +156,11 @@ struct NoteEditorView: View {
                     Color.black.opacity(0.4)
                         .ignoresSafeArea()
                         .overlay(
-                            VStack {
-                                ProgressView()
-                                    .scaleEffect(1.5)
-                                    .padding()
-                                Text("저장 중...")
-                                    .foregroundColor(.white)
-                                    .padding()
-                            }
-                            .background(Color("sharkPrimaryColor").opacity(0.8))
-                            .cornerRadius(10)
+                            CleanLoadingOverlay(
+                                message: isEditing ? "수정 중..." : "저장 중...",
+                                imageNames: ["sharkNewBorn", "sharkInfant", "sharkToddler"],
+                                frameInterval: 0.5
+                            )
                         )
                 }
             }
