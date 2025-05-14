@@ -135,85 +135,65 @@ struct DetailStatisticCardView: View {
         }
     }
     func feedingComparisonMessage(count: Int, lastCount: Int) -> Text {
-        if (mode == "daily") {
-            if count > lastCount {
-                return Text("어제보다 수유 횟수가 증가하였습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            } else {
-                return Text("어제보다 수유 횟수가 감소하였습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
-        } else if (mode == "weekly") {
-            if count > lastCount {
-                return Text("지난주보다 수유 횟수가 증가하였습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            } else {
-                return Text("지난주보다 수유 횟수가 감소하였습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
-        } else {
-            if count > lastCount {
-                return Text("지난달보다 수유 횟수가 증가하였습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            } else {
-                return Text("지난달보다 수유 횟수가 감소하였습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
+        let label: String
+        switch mode {
+        case "daily":
+            label = "어제보다"
+        case "weekly":
+            label = "지난주보다"
+        default:
+            label = "지난달보다"
         }
+        
+        let text = count > lastCount
+        ? "\(label) 수유 횟수가 증가하였습니다."
+        : "\(label) 수유 횟수가 감소하였습니다."
+        
+        return Text(text)
+            .font(.subheadline)
+            .foregroundColor(.gray)
         
     }
 
     func diaperComparisonMessage(count: Int, lastCount: Int) -> Text {
-        if (mode == "daily") {
-            if count > lastCount {
-                return Text("어제보다 기저귀 교체 횟수가 증가하였습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            } else {
-                return Text("어제보다 기저귀 교체 횟수가 감소하였습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
-        } else if (mode == "weekly") {
-            if count > lastCount {
-                return Text("지난주보다 기저귀 교체 횟수가 증가하였습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            } else {
-                return Text("지난주보다 기저귀 교체 횟수가 감소하였습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
-        } else {
-            if count > lastCount {
-                return Text("지난달보다 기저귀 교체 횟수가 증가하였습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            } else {
-                return Text("지난달보다 기저귀 교체 횟수가 감소하였습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
+        let label: String
+        switch mode {
+        case "daily":
+            label = "어제보다"
+        case "weekly":
+            label = "지난주보다"
+        default:
+            label = "지난달보다"
         }
+        
+        let text = count > lastCount
+        ? "\(label) 기저귀 교체 횟수가 증가하였습니다."
+        : "\(label) 기저귀 교체 횟수가 감소하였습니다."
+        
+        return Text(text)
+            .font(.subheadline)
+            .foregroundColor(.gray)
         
     }
     func sleepComparisonMessage(count: Int, lastCount: Int) -> Text {
         if let time = time, let lasttime = lasttime {
-            if time > lasttime {
-                return Text("어제보다 수면 시간이 증가하였습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            } else {
-                return Text("어제보다 수면 시간이 감소하였습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+            let label: String
+            switch mode {
+            case "daily":
+                label = "어제보다"
+            case "weekly":
+                label = "지난주보다"
+            default:
+                label = "지난달보다"
             }
+            
+            let text = time > lasttime
+            ? "\(label) 기저귀 수면 시간이 증가하였습니다."
+            : "\(label) 기저귀 수면 시간이 감소하였습니다."
+            
+            return Text(text)
+                .font(.subheadline)
+                .foregroundColor(.gray)
         } else {
             return Text("수면 시간 정보를 확인할 수 없습니다.")
                 .font(.subheadline)
@@ -222,26 +202,42 @@ struct DetailStatisticCardView: View {
 
     }
     func bathComparisonMessage(count: Int, lastCount: Int) -> Text {
-        if count > lastCount {
-            return Text("어제보다 목욕 횟수가 증가하였습니다.")
-                .font(.subheadline)
-                .foregroundColor(.gray)
-        } else {
-            return Text("어제보다 목욕 횟수가 감소하였습니다.")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+        let label: String
+        switch mode {
+        case "daily":
+            label = "어제보다"
+        case "weekly":
+            label = "지난주보다"
+        default:
+            label = "지난달보다"
         }
+        
+        let text = count > lastCount
+        ? "\(label) 목욕 횟수가 증가하였습니다."
+        : "\(label) 목욕 횟수가 감소하였습니다."
+        
+        return Text(text)
+            .font(.subheadline)
+            .foregroundColor(.gray)
     }
     func snackComparisonMessage(count: Int, lastCount: Int) -> Text {
-        if count > lastCount {
-            return Text("어제보다 간식을 먹은 횟수가 증가하였습니다.")
-                .font(.subheadline)
-                .foregroundColor(.gray)
-        } else {
-            return Text("어제보다 간식을 먹은 횟수가 감소하였습니다.")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+        let label: String
+        switch mode {
+        case "daily":
+            label = "어제보다"
+        case "weekly":
+            label = "지난주보다"
+        default:
+            label = "지난달보다"
         }
+        
+        let text = count > lastCount
+        ? "\(label) 간식을 먹은 횟수가 증가하였습니다."
+        : "\(label) 간식을 먹은 횟수가 감소하였습니다."
+        
+        return Text(text)
+            .font(.subheadline)
+            .foregroundColor(.gray)
     }
 
 
@@ -343,24 +339,24 @@ struct DetailPottyStatisticCardView: View {
     }
     func pottyComparisonMessage(small: Int, yesterdaysmall: Int, big: Int, yesterdaybig: Int) -> Text {
         let label: String
-            switch mode {
-            case "daily":
-                label = "어제보다"
-            case "weekly":
-                label = "지난주보다"
-            default:
-                label = "지난달보다"
-            }
-
-            let smallText = small > yesterdaysmall
-                ? "\(label) 소변 횟수가 증가,"
-                : "\(label) 소변 횟수가 감소,"
-
-            let bigText = big > yesterdaybig
-                ? " 대변 횟수가 증가하였습니다."
-                : " 대변 횟수가 감소하였습니다."
-
-            return Text(smallText + bigText)
+        switch mode {
+        case "daily":
+            label = "어제보다"
+        case "weekly":
+            label = "지난주보다"
+        default:
+            label = "지난달보다"
+        }
+        
+        let smallText = small > yesterdaysmall
+        ? "\(label) 소변 횟수가 증가,"
+        : "\(label) 소변 횟수가 감소,"
+        
+        let bigText = big > yesterdaybig
+        ? " 대변 횟수가 증가하였습니다."
+        : " 대변 횟수가 감소하였습니다."
+        
+        return Text(smallText + bigText)
             .font(.subheadline)
             .foregroundColor(.gray)
         

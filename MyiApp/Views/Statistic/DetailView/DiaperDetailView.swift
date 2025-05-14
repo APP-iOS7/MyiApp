@@ -239,7 +239,7 @@ struct DailyDiaperChartView: View {
                 
                 // 날짜별로 값 구해서
                 let values = weekDates.map { date in
-                    amountFor(on: date)
+                    diaperCount(on: date)
                 }
                 
                 // 최대값 구하기
@@ -289,7 +289,7 @@ struct DailyDiaperChartView: View {
         .padding()
     }
     
-    func amountFor(on date: Date) -> Int {
+    func diaperCount(on date: Date) -> Int {
         let calendar = Calendar.current
         let recordsForDate = records.filter {
             calendar.isDate($0.createdAt, inSameDayAs: date) &&
