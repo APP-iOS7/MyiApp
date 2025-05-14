@@ -270,7 +270,7 @@ struct DailyFeedChartView: View {
                                     Text("평균 \(Int(avgAmount))\(type == .breastfeeding ? "분" : "ml")")
                                         .font(.caption2)
                                         .foregroundColor(.red)
-                                        .offset(x: -20, y: -20),
+                                        .offset(x: -20, y: 105 - avgY),
                                     alignment: .topTrailing
                                 )
                             HStack(alignment: .bottom, spacing: 10) {
@@ -469,7 +469,7 @@ struct WeeklyFeedChartView: View {
                                     Text("평균 \(Int(avgAmount))\(type == .breastfeeding ? "분" : "ml")")
                                         .font(.caption2)
                                         .foregroundColor(.red)
-                                        .offset(x: -20, y: -20),
+                                        .offset(x: -20, y: 105 - avgY),
                                     alignment: .topTrailing
                                 )
                             HStack(alignment: .bottom, spacing: 10) {
@@ -673,7 +673,7 @@ struct MonthlyFeedChartView: View {
                                     Text("평균 \(Int(avgAmount))\(type == .breastfeeding ? "분" : "ml")")
                                         .font(.caption2)
                                         .foregroundColor(.red)
-                                        .offset(x: -20, y: -20),
+                                        .offset(x: -20, y: 105 - avgY),
                                     alignment: .topTrailing
                                 )
                             HStack(alignment: .bottom, spacing: 10) {

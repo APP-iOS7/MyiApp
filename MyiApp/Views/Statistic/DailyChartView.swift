@@ -66,7 +66,7 @@ struct DailyChartView: View {
         let calendar = Calendar.current
         let filteredRecords = records.filter { record in
             // 몸무게/키와 건강관리는 제외
-            guard record.title != .heightWeight && record.title != .health else { return false }
+            guard record.title != .heightWeight && record.title != .temperature && record.title != .medicine && record.title != .clinic else { return false }
 
             if record.title == .sleep, let start = record.sleepStart, let end = record.sleepEnd {
                 return calendar.isDate(start, inSameDayAs: selectedDate)
@@ -78,7 +78,7 @@ struct DailyChartView: View {
 
         
         return filteredRecords.flatMap { record in
-            guard record.title != .heightWeight && record.title != .health else {
+            guard record.title != .heightWeight && record.title != .temperature && record.title != .medicine && record.title != .clinic else {
                 return [] as [TimedRecord]
             }
             
@@ -155,7 +155,9 @@ private func color(for title: TitleCategory) -> Color {
     case .heightWeight: return Color("heightWeight")
     case .bath: return Color("bath")
     case .snack: return Color("snack")
-    case .health: return Color("health")
+    case .temperature: return Color("health")
+    case .medicine: return Color("health")
+    case .clinic: return Color("health")
     }
 }
 

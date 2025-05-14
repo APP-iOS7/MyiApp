@@ -22,10 +22,12 @@ struct Record: Codable, Identifiable {
     // 키/몸무게
     var height: Double?
     var weight: Double?
+    // 온도
+    var temperature: Double?
     // 텍스트 필드 내용
     var content: String?
     
-    init(createdAt: Date = Date(), title: TitleCategory, mlAmount: Int? = nil, breastfeedingLeftMinutes: Int? = nil, breastfeedingRightMinutes: Int? = nil, sleepStart: Date? = nil, sleepEnd: Date? = nil, height: Double? = nil, weight: Double? = nil, content: String? = nil) {
+    init(createdAt: Date = Date(), title: TitleCategory, mlAmount: Int? = nil, breastfeedingLeftMinutes: Int? = nil, breastfeedingRightMinutes: Int? = nil, sleepStart: Date? = nil, sleepEnd: Date? = nil, height: Double? = nil, weight: Double? = nil, temperature: Double? = nil, content: String? = nil) {
         self.id = UUID()
         self.createdAt = createdAt
         self.title = title
@@ -36,6 +38,7 @@ struct Record: Codable, Identifiable {
         self.sleepEnd = sleepEnd
         self.height = height
         self.weight = weight
+        self.temperature = temperature
         self.content = content
     }
 }
@@ -50,11 +53,14 @@ enum TitleCategory: String, Codable, CaseIterable {
     case heightWeight   // 키/몸무게
     case bath           // 목욕
     case snack          // 간식
-    case health         // 건강관리
+    case temperature    // 온도
+    case medicine
+    case clinic
     case poop
     case pee
     case pottyAll
 }
+
 extension Record {
     static let mockRecords: [Record] = [
         // 분유
@@ -232,17 +238,17 @@ extension Record {
         // 건강관리
         Record(
             createdAt: Date().addingTimeInterval(-50000),
-            title: .health,
-            content: "해열제 2ml 복용, 소아과 정기 검진, 귀 점검 완료"
+            title: .temperature,
+            temperature: 37.2
         ),
         Record(
             createdAt: Date().addingTimeInterval(-71600),
-            title: .health,
+            title: .clinic,
             content: "예방접종 2차 완료"
         ),
         Record(
             createdAt: Date().addingTimeInterval(-93200),
-            title: .health,
+            title: .medicine,
             content: "비타민 D 드롭 1방울 복용"
         )
     ]
