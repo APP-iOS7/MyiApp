@@ -12,7 +12,6 @@ struct NoteView: View {
     @State private var showingNoteEditor = false
     @State private var selectedFilterCategory: NoteCategory? = nil
     @State private var selectedEvent: Note? = nil
-    @State private var isLoading = false
     @State private var showMonthYearPicker = false
     @State private var selectedDate: Date? = nil
     @State private var isFirstAppear = true
@@ -61,16 +60,6 @@ struct NoteView: View {
             NoteDetailView(event: event)
                 .environmentObject(viewModel)
         }
-        .overlay {
-            if isLoading {
-                ProgressView()
-                    .scaleEffect(1.5)
-                    .frame(width: 80, height: 80)
-                    .background(Color.white.opacity(0.8))
-                    .cornerRadius(10)
-                    .shadow(radius: 5)
-            }
-        }
         .sheet(isPresented: $showMonthYearPicker) {
             VStack {
                 HStack {
@@ -94,15 +83,9 @@ struct NoteView: View {
             }
         }
         .onAppear {
-            isLoading = true
-            
             if isFirstAppear {
                 selectToday()
                 isFirstAppear = false
-            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                isLoading = false
             }
         }
         .toast(message: $viewModel.toastMessage)
