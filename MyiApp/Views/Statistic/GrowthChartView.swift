@@ -243,7 +243,7 @@ struct HeightChartView: View {
                         Spacer()
                         Text(shortDate(twoThirdDate))
                         Spacer()
-                        Text(shortDate(endDate))
+                        Text(shortDate(lastDate))
                     }
                     .font(.caption2)
                     .foregroundColor(.gray)
@@ -377,7 +377,7 @@ struct WeightChartView: View {
                         Spacer()
                         Text(shortDate(twoThirdDate))
                         Spacer()
-                        Text(shortDate(endDate))
+                        Text(shortDate(lastDate))
                     }
                     .font(.caption2)
                     .foregroundColor(.gray)
