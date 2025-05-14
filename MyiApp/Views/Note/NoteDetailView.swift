@@ -13,29 +13,27 @@ struct NoteDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var showingEditSheet = false
     @State private var showingDeleteAlert = false
-    @State private var selectedImageURL: String? = nil
-    @State private var showingImageViewer = false
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                
+            VStack(alignment: .leading, spacing: 0) {
                 // 헤더
                 headerSection
                 
-                // 내용
-                contentSection
-                
                 // 이미지 섹션
                 if event.category == .일지 && !event.imageURLs.isEmpty {
-                    imagesSection
+                    ImageGallery(imageURLs: event.imageURLs)
+                        .padding(.top, 0)
                 }
+                
+                // 내용
+                contentSection
+                    .padding(.top, 16)
                 
                 if event.category == .일정 {
                     reminderSection
+                        .padding(.top, 16)
                 }
-                
-                relatedEventsSection
             }
             .padding(.bottom, 20)
         }
@@ -62,7 +60,9 @@ struct NoteDetailView: View {
         }
         .sheet(isPresented: $showingEditSheet, onDismiss: {
             if viewModel.toastMessage != nil {
-                presentationMode.wrappedValue.dismiss()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    presentationMode.wrappedValue.dismiss()
+                }
             }
         }) {
             NoteEditorView(selectedDate: event.date, note: event)
@@ -78,11 +78,11 @@ struct NoteDetailView: View {
                 "이 일지는 영구적으로 삭제되며,\n복구할 수 없습니다." :
                 "이 일정은 영구적으로 삭제되며,\n복구할 수 없습니다.")
         }
-        .fullScreenCover(isPresented: $showingImageViewer) {
-            if let selectedURL = selectedImageURL {
-                ImageViewerView(imageURL: selectedURL, onDismiss: {
-                    showingImageViewer = false
-                })
+        .onReceive(viewModel.$toastMessage) { message in
+            if message != nil && showingEditSheet == false {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    presentationMode.wrappedValue.dismiss()
+                }
             }
         }
     }
@@ -123,45 +123,13 @@ struct NoteDetailView: View {
     
     private var contentSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("상세 내용")
+            Text("내용")
                 .font(.headline)
             
             Text(event.description)
                 .lineLimit(nil)
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-        )
-        .padding(.horizontal)
-    }
-    
-    // 이미지 갤러리 섹션
-    private var imagesSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("이미지")
-                .font(.headline)
-            
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150))], spacing: 10) {
-                ForEach(event.imageURLs, id: \.self) { url in
-                    Button(action: {
-                        selectedImageURL = url
-                        showingImageViewer = true
-                    }) {
-                        AsyncImageView(url: url)
-                            .frame(height: 150)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                            )
-                    }
-                }
-            }
         }
         .padding()
         .background(
@@ -213,60 +181,6 @@ struct NoteDetailView: View {
         .padding(.horizontal)
     }
     
-    private var relatedEventsSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("같은 카테고리의 기록")
-                .font(.headline)
-            
-            ForEach(getRelatedEvents(), id: \.id) { relatedEvent in
-                Button {
-                } label: {
-                    HStack {
-                        Circle()
-                            .fill(categoryColor(for: relatedEvent.category))
-                            .frame(width: 8, height: 8)
-                        
-                        Text(relatedEvent.title)
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
-                        
-                        Spacer()
-                        
-                        Text(relatedEvent.date.formattedKoreanDateString())
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color("sharkCardBackground"))
-                    )
-                }
-            }
-            
-            if getRelatedEvents().isEmpty {
-                Text("같은 카테고리의 다른 기록이 없습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                    .padding()
-            }
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-        )
-        .padding(.horizontal)
-    }
-    
-    private func getRelatedEvents() -> [Note] {
-        let allEvents = viewModel.events.values.flatMap { $0 }
-        let sameCategory = allEvents.filter { $0.category == event.category && $0.id != event.id }
-        let sorted = sameCategory.sorted { $0.date > $1.date }
-        return Array(sorted.prefix(3))
-    }
-    
     private func deleteNote() {
         if event.category == .일지 {
             viewModel.toastMessage = ToastMessage(message: "일지가 삭제되었습니다.", type: .info)
@@ -274,7 +188,10 @@ struct NoteDetailView: View {
             viewModel.toastMessage = ToastMessage(message: "일정이 삭제되었습니다.", type: .info)
         }
         viewModel.deleteNote(note: event)
-        presentationMode.wrappedValue.dismiss()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            presentationMode.wrappedValue.dismiss()
+        }
     }
     
     private func categoryColor(for category: NoteCategory) -> Color {
@@ -292,92 +209,6 @@ struct NoteDetailView: View {
             return "note.text"
         case .일정:
             return "calendar"
-        }
-    }
-}
-
-// 전체 화면 이미지 뷰어
-struct ImageViewerView: View {
-    let imageURL: String
-    var onDismiss: () -> Void
-    
-    @State private var scale: CGFloat = 1.0
-    @State private var lastScale: CGFloat = 1.0
-    @State private var offset: CGSize = .zero
-    @State private var lastOffset: CGSize = .zero
-    @State private var isLoading = true
-    
-    var body: some View {
-        ZStack {
-            Color.black
-                .ignoresSafeArea()
-            
-            VStack {
-                ZStack {
-                    if isLoading {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                            .scaleEffect(1.5)
-                    }
-                    
-                    AsyncImageView(url: imageURL)
-                        .aspectRatio(contentMode: .fit)
-                        .scaleEffect(scale)
-                        .offset(offset)
-                        .gesture(
-                            MagnificationGesture()
-                                .onChanged { value in
-                                    let delta = value / lastScale
-                                    lastScale = value
-                                    scale = min(max(scale * delta, 1), 5)
-                                }
-                                .onEnded { _ in
-                                    lastScale = 1.0
-                                }
-                        )
-                        .gesture(
-                            DragGesture()
-                                .onChanged { value in
-                                    offset = CGSize(
-                                        width: lastOffset.width + value.translation.width,
-                                        height: lastOffset.height + value.translation.height
-                                    )
-                                }
-                                .onEnded { _ in
-                                    lastOffset = offset
-                                }
-                        )
-                        .onTapGesture(count: 2) {
-                            withAnimation {
-                                scale = scale > 1 ? 1 : 2
-                                offset = .zero
-                                lastOffset = .zero
-                            }
-                        }
-                        .onAppear {
-                            isLoading = false
-                        }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            
-            VStack {
-                HStack {
-                    Spacer()
-                    Button(action: onDismiss) {
-                        Image(systemName: "xmark")
-                            .font(.title)
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(Circle().fill(Color.black.opacity(0.5)))
-                    }
-                    .padding()
-                }
-                Spacer()
-            }
-        }
-        .onTapGesture {
-            onDismiss()
         }
     }
 }

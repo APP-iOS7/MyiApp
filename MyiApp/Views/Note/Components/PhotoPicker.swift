@@ -117,7 +117,7 @@ struct URLImagePreviewGrid: View {
             LazyHStack(spacing: 10) {
                 ForEach(Array(imageURLs.enumerated()), id: \.element) { index, url in
                     ZStack(alignment: .topTrailing) {
-                        AsyncImageView(url: url)
+                        CustomAsyncImageView(imageUrlString: url)
                             .frame(width: 100, height: 100)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .overlay(
@@ -146,47 +146,5 @@ struct URLImagePreviewGrid: View {
             .padding(.horizontal)
         }
         .frame(height: imageURLs.isEmpty ? 0 : 120)
-    }
-}
-
-struct AsyncImageView: View {
-    let url: String
-    @State private var image: UIImage? = nil
-    @State private var isLoading = true
-    
-    var body: some View {
-        ZStack {
-            if let image = image {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-            } else if isLoading {
-                ProgressView()
-            } else {
-                Image(systemName: "photo")
-                    .foregroundColor(.gray)
-                    .font(.largeTitle)
-            }
-        }
-        .onAppear {
-            loadImage()
-        }
-    }
-    
-    private func loadImage() {
-        guard let imageURL = URL(string: url) else {
-            isLoading = false
-            return
-        }
-        
-        URLSession.shared.dataTask(with: imageURL) { data, response, error in
-            isLoading = false
-            
-            if let data = data, let downloadedImage = UIImage(data: data) {
-                DispatchQueue.main.async {
-                    self.image = downloadedImage
-                }
-            }
-        }.resume()
     }
 }

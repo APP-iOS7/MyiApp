@@ -19,6 +19,7 @@ struct NoteEditorView: View {
     @State private var selectedImages: [UIImage] = []
     @State private var showingPhotoPicker = false
     @State private var existingImageURLs: [String] = []
+    @State private var isSaving = false
     
     let isEditing: Bool
     let noteId: UUID?
@@ -140,13 +141,40 @@ struct NoteEditorView: View {
                     Button("취소") {
                         dismiss()
                     }
+                    .disabled(isSaving)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button(isEditing ? "수정" : "저장") {
                         saveNote()
                     }
-                    .disabled(title.isEmpty)
+                    .disabled(title.isEmpty || isSaving)
+                }
+            }
+            .overlay {
+                if isSaving {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                        .overlay(
+                            VStack {
+                                ProgressView()
+                                    .scaleEffect(1.5)
+                                    .padding()
+                                Text("저장 중...")
+                                    .foregroundColor(.white)
+                                    .padding()
+                            }
+                            .background(Color("sharkPrimaryColor").opacity(0.8))
+                            .cornerRadius(10)
+                        )
+                }
+            }
+            .onChange(of: viewModel.isLoading) { _, newValue in
+                if isSaving && !newValue {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        isSaving = false
+                        dismiss()
+                    }
                 }
             }
         }
@@ -156,6 +184,8 @@ struct NoteEditorView: View {
         if title.isEmpty {
             return
         }
+        
+        isSaving = true
         
         if isEditing, let id = noteId {
             if !selectedImages.isEmpty && selectedCategory == .일지 {
@@ -186,6 +216,11 @@ struct NoteEditorView: View {
                 } else {
                     viewModel.toastMessage = ToastMessage(message: "일정이 수정되었습니다.", type: .success)
                 }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    isSaving = false
+                    dismiss()
+                }
             }
         } else {
             if !selectedImages.isEmpty && selectedCategory == .일지 {
@@ -209,10 +244,13 @@ struct NoteEditorView: View {
                 } else {
                     viewModel.toastMessage = ToastMessage(message: "새 일정이 저장되었습니다.", type: .success)
                 }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    isSaving = false
+                    dismiss()
+                }
             }
         }
-        
-        dismiss()
     }
 }
 

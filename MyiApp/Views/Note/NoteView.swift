@@ -378,7 +378,7 @@ struct NoteEventRow: View {
         } label: {
             HStack(spacing: 12) {
                 if event.category == .일지 && !event.imageURLs.isEmpty {
-                    AsyncImageView(url: event.imageURLs[0])
+                    CustomAsyncImageView(imageUrlString: event.imageURLs[0])
                         .frame(width: 40, height: 40)
                         .clipShape(Circle())
                         .overlay(
