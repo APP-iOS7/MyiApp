@@ -159,7 +159,7 @@ class NoteViewModel: ObservableObject {
         } else {
             return nil
         }
-
+        
         let imageURLs = dict["imageURLs"] as? [String] ?? []
         
         return Note(
@@ -385,8 +385,8 @@ class NoteViewModel: ObservableObject {
         var calendarDays: [CalendarDay] = []
         
         if firstWeekday > 1 {
-            for day in (1..<firstWeekday).reversed() {
-                if let prevDate = calendar.date(byAdding: .day, value: -day + 1, to: startDate) {
+            for day in 1..<firstWeekday {
+                if let prevDate = calendar.date(byAdding: .day, value: -(firstWeekday - day), to: startDate) {
                     let dayNumber = String(calendar.component(.day, from: prevDate))
                     calendarDays.append(CalendarDay(
                         id: UUID(),
