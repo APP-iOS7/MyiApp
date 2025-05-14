@@ -9,10 +9,10 @@ import SwiftUI
 
 struct VoiceRecordView: View {
     @State private var isAnalyzing = false
+    @StateObject private var viewModel = VoiceRecordViewModel()
     
     var body: some View {
         VStack(spacing: 24) {
-            
             Text("울음 분석")
                 .font(.largeTitle)
                 .fontWeight(.bold)
@@ -37,6 +37,7 @@ struct VoiceRecordView: View {
             Spacer()
             
             Button(action: {
+                viewModel.startAnalysis()
                 isAnalyzing = true
             }) {
                 Text("분석 시작")
@@ -50,11 +51,10 @@ struct VoiceRecordView: View {
             }
         }
         .navigationDestination(isPresented: $isAnalyzing) {
-            CryAnalysisProcessingView()
+            CryAnalysisProcessingView(viewModel: viewModel)
         }
     }
 }
-
 
 #Preview {
     NavigationStack {

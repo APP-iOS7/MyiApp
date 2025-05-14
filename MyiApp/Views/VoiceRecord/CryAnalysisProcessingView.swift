@@ -11,10 +11,12 @@ struct CryAnalysisProcessingView: View {
     @State private var dotCount: Int = 0
     @State private var showResultView = false
     @Environment(\.dismiss) private var dismiss
+    @ObservedObject var viewModel: VoiceRecordViewModel
     
     private let dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
     
-    var body: some View {
+    @ViewBuilder
+    func processingViewContent() -> some View {
         VStack(spacing: 24) {
             Text("분석 중")
                 .font(.system(size: 32, weight: .heavy))
@@ -69,9 +71,24 @@ struct CryAnalysisProcessingView: View {
         .onReceive(dotTimer) { _ in
             dotCount = (dotCount + 1) % 4
         }
+        .onAppear {
+            viewModel.startAnalysis() // ✅ 분석 시작
+        }
+    }
+    
+    var body: some View {
+        switch viewModel.step {
+        case .processing, .recording:
+            processingViewContent()
+        case .result(let result):
+            CryAnalysisResultView(emotionLabel: result.type.rawValue, confidence: Float(result.confidence))
+        case .error(let message):
+            Text("에러 발생: \(message)")
+        default:
+            EmptyView()
+        }
     }
 }
-
-#Preview {
-    CryAnalysisProcessingView()
-}
+//#Preview {
+//    CryAnalysisProcessingView()
+//}
