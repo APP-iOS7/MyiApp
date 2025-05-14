@@ -120,7 +120,12 @@ struct NoteEditorView: View {
             )
             
             viewModel.updateNote(note: updatedNote)
-            viewModel.toastMessage = ToastMessage(message: "\(selectedCategory.rawValue)가 수정되었습니다.", type: .success)
+            
+            if selectedCategory == .일지 {
+                viewModel.toastMessage = ToastMessage(message: "일지가 수정되었습니다.", type: .success)
+            } else {
+                viewModel.toastMessage = ToastMessage(message: "일정이 수정되었습니다.", type: .success)
+            }
         } else {
             // 새 노트
             viewModel.addNote(
@@ -129,7 +134,12 @@ struct NoteEditorView: View {
                 date: date,
                 category: selectedCategory
             )
-            viewModel.toastMessage = ToastMessage(message: "새 \(selectedCategory.rawValue)가 저장되었습니다.", type: .success)
+            
+            if selectedCategory == .일지 {
+                viewModel.toastMessage = ToastMessage(message: "새 일지가 저장되었습니다.", type: .success)
+            } else {
+                viewModel.toastMessage = ToastMessage(message: "새 일정이 저장되었습니다.", type: .success)
+            }
         }
         
         dismiss()

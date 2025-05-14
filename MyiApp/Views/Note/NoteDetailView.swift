@@ -60,13 +60,15 @@ struct NoteDetailView: View {
             NoteEditorView(selectedDate: event.date, note: event)
                 .environmentObject(viewModel)
         }
-        .alert("삭제하시겠습니까?", isPresented: $showingDeleteAlert) {
+        .alert("삭제 시 되돌릴 수 없습니다", isPresented: $showingDeleteAlert) {
             Button("취소", role: .cancel) { }
             Button("삭제", role: .destructive) {
                 deleteNote()
             }
         } message: {
-            Text("이 \(event.category.rawValue)를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.")
+            Text(event.category == .일지 ?
+                "이 일지는 영구적으로 삭제되며,\n복구할 수 없습니다." :
+                "이 일정은 영구적으로 삭제되며,\n복구할 수 없습니다.")
         }
     }
     
@@ -219,7 +221,11 @@ struct NoteDetailView: View {
     }
     
     private func deleteNote() {
-        viewModel.toastMessage = ToastMessage(message: "\(event.category.rawValue)가 삭제되었습니다.", type: .info)
+        if event.category == .일지 {
+            viewModel.toastMessage = ToastMessage(message: "일지가 삭제되었습니다.", type: .info)
+        } else {
+            viewModel.toastMessage = ToastMessage(message: "일정이 삭제되었습니다.", type: .info)
+        }
         viewModel.deleteNote(note: event)
         presentationMode.wrappedValue.dismiss()
     }
