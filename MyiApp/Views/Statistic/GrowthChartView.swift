@@ -33,6 +33,15 @@ struct GrowthChartView: View {
     @State private var showCalendar = false
     let modes = ["키", "몸무게"]
     
+    @State private var startDate: Date
+    @State private var endDate: Date
+    
+    init() {
+        let birth = Calendar.current.date(byAdding: .month, value: -2, to: Date())!
+        _startDate = State(initialValue: birth)
+        _endDate = State(initialValue: Date())
+    }
+    
     var body: some View {
         ZStack {
             mainScrollView
@@ -59,15 +68,24 @@ struct GrowthChartView: View {
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 10)
+                DateRangeSelectView(startDate: $startDate, endDate: $endDate)
                 
                 VStack(spacing: 10) {
                     if (selectedMode == "키") {
-                        HeightChartView(data: heightData, birthDate: birthDate)
+                        HeightChartView(
+                            data: heightData,
+                            startDate: startDate,
+                            endDate: endDate
+                        )
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .padding(.horizontal)
                             .padding(.vertical, 20)
                     } else {
-                        WeightChartView(data: weightData, birthDate: birthDate)
+                        WeightChartView(
+                            data: weightData,
+                            startDate: startDate,
+                            endDate: endDate
+                        )
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .padding(.horizontal)
                             .padding(.vertical, 20)
@@ -75,12 +93,7 @@ struct GrowthChartView: View {
                 }
                 .frame(minHeight: 300)
                 
-                Divider()
-                if (selectedMode == "키") {
-                    //heightstatisticList
-                } else {
-                    //weightstatisticList
-                }
+                
             }
             .padding()
         }
@@ -121,21 +134,23 @@ struct GrowthChartView: View {
 }
 struct HeightChartView: View {
     let data: [(date: Date, height: Double)]
-    let birthDate: Date
+    let startDate: Date
+    let endDate: Date
 
     var body: some View {
         GeometryReader { geometry in
-            let sortedData = data.sorted { $0.date < $1.date }
+            let filteredData = data.filter { $0.date >= startDate && $0.date <= endDate }
+            let sortedData = filteredData.sorted { $0.date < $1.date }
 
             if let lastDate = sortedData.last?.date,
                let minHeight = sortedData.map({ $0.height }).min(),
                let maxHeight = sortedData.map({ $0.height }).max(),
                maxHeight > minHeight {
 
-                let totalInterval = lastDate.timeIntervalSince(birthDate)
-                let intervalStep = totalInterval / 9.0
+                let dateRangeInterval = endDate.timeIntervalSince(startDate)
+                let intervalStep = dateRangeInterval / 9.0
                 let desiredDates: [Date] = (0..<10).map {
-                    birthDate.addingTimeInterval(Double($0) * intervalStep)
+                    startDate.addingTimeInterval(Double($0) * intervalStep)
                 }
 
                 let cappedData: [(date: Date, height: Double)] = desiredDates.compactMap { targetDate in
@@ -145,8 +160,8 @@ struct HeightChartView: View {
                     })
                 }
 
-                let firstDate = birthDate
-                let dateRange = lastDate.timeIntervalSince(firstDate)
+                let firstDate = startDate
+                let dateRange = endDate.timeIntervalSince(firstDate)
                 let heightRange = maxHeight - minHeight
                 let oneThirdDate = firstDate.addingTimeInterval(dateRange / 3)
                 let twoThirdDate = firstDate.addingTimeInterval(dateRange * 2 / 3)
@@ -199,7 +214,7 @@ struct HeightChartView: View {
                                     .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
 
                                     // 강조된 점
-                                    ForEach(cappedData, id: \ .date) { entry in
+                                    ForEach(cappedData, id: \.date) { entry in
                                         let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                                         let y = height - ((CGFloat(entry.height - minHeight) / CGFloat(heightRange)) * height)
                                         Circle()
@@ -222,13 +237,13 @@ struct HeightChartView: View {
                         .frame(height: 1)
 
                     HStack {
-                        Text(shortDate(birthDate))
+                        Text(shortDate(startDate))
                         Spacer()
                         Text(shortDate(oneThirdDate))
                         Spacer()
                         Text(shortDate(twoThirdDate))
                         Spacer()
-                        Text(shortDate(lastDate))
+                        Text(shortDate(endDate))
                     }
                     .font(.caption2)
                     .foregroundColor(.gray)
@@ -253,21 +268,23 @@ struct HeightChartView: View {
 }
 struct WeightChartView: View {
     let data: [(date: Date, weight: Double)]
-    let birthDate: Date
+    let startDate: Date
+    let endDate: Date
 
     var body: some View {
         GeometryReader { geometry in
-            let sortedData = data.sorted { $0.date < $1.date }
+            let filteredData = data.filter { $0.date >= startDate && $0.date <= endDate }
+            let sortedData = filteredData.sorted { $0.date < $1.date }
 
             if let lastDate = sortedData.last?.date,
                let minWeight = sortedData.map({ $0.weight }).min(),
                let maxWeight = sortedData.map({ $0.weight }).max(),
                maxWeight > minWeight {
 
-                let totalInterval = lastDate.timeIntervalSince(birthDate)
+                let totalInterval = endDate.timeIntervalSince(startDate)
                 let intervalStep = totalInterval / 9.0
                 let desiredDates: [Date] = (0..<10).map {
-                    birthDate.addingTimeInterval(Double($0) * intervalStep)
+                    startDate.addingTimeInterval(Double($0) * intervalStep)
                 }
 
                 let cappedData: [(date: Date, weight: Double)] = desiredDates.compactMap { targetDate in
@@ -277,8 +294,8 @@ struct WeightChartView: View {
                     })
                 }
 
-                let firstDate = birthDate
-                let dateRange = lastDate.timeIntervalSince(firstDate)
+                let firstDate = startDate
+                let dateRange = endDate.timeIntervalSince(firstDate)
                 let weightRange = maxWeight - minWeight
                 let oneThirdDate = firstDate.addingTimeInterval(dateRange / 3)
                 let twoThirdDate = firstDate.addingTimeInterval(dateRange * 2 / 3)
@@ -354,13 +371,13 @@ struct WeightChartView: View {
                         .frame(height: 1)
 
                     HStack {
-                        Text(shortDate(birthDate))
+                        Text(shortDate(startDate))
                         Spacer()
                         Text(shortDate(oneThirdDate))
                         Spacer()
                         Text(shortDate(twoThirdDate))
                         Spacer()
-                        Text(shortDate(lastDate))
+                        Text(shortDate(endDate))
                     }
                     .font(.caption2)
                     .foregroundColor(.gray)
@@ -381,5 +398,99 @@ struct WeightChartView: View {
         formatter.dateFormat = "M월 d일"
         formatter.locale = Locale(identifier: "ko_KR")
         return formatter.string(from: date)
+    }
+}
+struct DateRangeSelectView: View {
+    @Binding var startDate: Date
+    @Binding var endDate: Date
+    
+    @State private var showStartPicker: Bool = false
+    @State private var showEndPicker: Bool = false
+    
+    var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "yy. M. d"
+        return formatter
+    }
+    
+    var body: some View {
+        VStack(spacing: 25) {
+            
+            HStack(alignment: .center) {
+                // 시작 날짜 선택
+                HStack {
+                    Text("\(dateFormatter.string(from: startDate))")
+                        .foregroundColor(.primary)
+                        .padding(.vertical, 12)
+                        .padding(.leading, 12)
+                    Spacer()
+                    Image(systemName: "calendar")
+                        .foregroundColor(Color("sharkPrimaryColor"))
+                        .padding(.trailing, 12)
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
+                )
+                .padding(.horizontal)
+                .onTapGesture {
+                    showStartPicker = true
+                }
+                .sheet(isPresented: $showStartPicker) {
+                    VStack {
+                        DatePicker("시작일", selection: $startDate, in: ...endDate, displayedComponents: .date)
+                            .datePickerStyle(.graphical)
+                            .labelsHidden()
+                        Button("완료") {
+                            showStartPicker = false
+                        }
+                        .padding()
+                    }
+                    .padding()
+                    .presentationDetents([.height(500)])
+                    .presentationDragIndicator(.visible)
+                }
+                Spacer()
+                Text("~")
+                Spacer()
+                
+                // 종료 날짜 선택
+                HStack {
+                    Text("\(dateFormatter.string(from: endDate))")
+                        .foregroundColor(.primary)
+                        .padding(.vertical, 12)
+                        .padding(.leading, 12)
+                    Spacer()
+                    Image(systemName: "calendar")
+                        .foregroundColor(Color("sharkPrimaryColor"))
+                        .padding(.trailing, 12)
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
+                )
+                .padding(.horizontal)
+                .onTapGesture {
+                    showEndPicker = true
+                }
+                .sheet(isPresented: $showEndPicker) {
+                    VStack {
+                        DatePicker("종료일", selection: $endDate, in: startDate..., displayedComponents: .date)
+                            .datePickerStyle(.graphical)
+                            .labelsHidden()
+                        Button("완료") {
+                            showEndPicker = false
+                        }
+                        .padding()
+                    }
+                    .padding()
+                    .presentationDetents([.height(500)])
+                    .presentationDragIndicator(.visible)
+                }
+            }
+            
+            
+        }
     }
 }
