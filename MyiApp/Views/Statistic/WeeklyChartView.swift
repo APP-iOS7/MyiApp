@@ -101,7 +101,7 @@ struct WeeklyChartView: View {
 
         return records
             .filter { record in
-                record.title != .heightWeight && record.title != .health
+                record.title != .heightWeight && record.title != .temperature && record.title != .medicine && record.title != .clinic
             }
             .flatMap { record in
                 // 수면시간은 나눠서 관리
@@ -183,6 +183,8 @@ private func color(for title: TitleCategory) -> Color {
     case .heightWeight: return Color("heightWeight")
     case .bath: return Color("bath")
     case .snack: return Color("snack")
-    case .health: return Color("health")
+    case .temperature: return Color("health")
+    case .medicine: return Color("health")
+    case .clinic: return Color("health")
     }
 }

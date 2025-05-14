@@ -170,16 +170,38 @@ struct DetailStatisticCardView: View {
     }
 
     func diaperComparisonMessage(count: Int, lastCount: Int) -> Text {
-        
-        if count > lastCount {
-            return Text("어제보다 기저귀 교체 횟수가 증가하였습니다.")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+        if (mode == "daily") {
+            if count > lastCount {
+                return Text("어제보다 기저귀 교체 횟수가 증가하였습니다.")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            } else {
+                return Text("어제보다 기저귀 교체 횟수가 감소하였습니다.")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
+        } else if (mode == "weekly") {
+            if count > lastCount {
+                return Text("지난주보다 기저귀 교체 횟수가 증가하였습니다.")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            } else {
+                return Text("지난주보다 기저귀 교체 횟수가 감소하였습니다.")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
         } else {
-            return Text("어제보다 기저귀 교체 횟수가 감소하였습니다.")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+            if count > lastCount {
+                return Text("지난달보다 기저귀 교체 횟수가 증가하였습니다.")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            } else {
+                return Text("지난달보다 기저귀 교체 횟수가 감소하였습니다.")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
         }
+        
     }
     func sleepComparisonMessage(count: Int, lastCount: Int) -> Text {
         if let time = time, let lasttime = lasttime {

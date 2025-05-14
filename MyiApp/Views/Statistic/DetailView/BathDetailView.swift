@@ -120,7 +120,17 @@ struct BathDetailView: View {
         Group {
             HStack {
                 Button(action: {
-                    selectedDate = Calendar.current.date(byAdding: .day, value: selectedMode == "일" ? -1 : -7, to: selectedDate) ?? selectedDate
+                    let calendar = Calendar.current
+                    switch selectedMode {
+                    case "일":
+                        selectedDate = calendar.date(byAdding: .day, value: -1, to: selectedDate) ?? selectedDate
+                    case "주":
+                        selectedDate = calendar.date(byAdding: .day, value: -7, to: selectedDate) ?? selectedDate
+                    case "월":
+                        selectedDate = calendar.date(byAdding: .month, value: -1, to: selectedDate) ?? selectedDate
+                    default:
+                        break
+                    }
                 }) {
                     Image(systemName: "chevron.left")
                         .foregroundColor(.black)
@@ -143,7 +153,17 @@ struct BathDetailView: View {
                 Spacer()
                 
                 Button(action: {
-                    selectedDate = Calendar.current.date(byAdding: .day, value: selectedMode == "일" ? 1 : 7, to: selectedDate) ?? selectedDate
+                    let calendar = Calendar.current
+                    switch selectedMode {
+                    case "일":
+                        selectedDate = calendar.date(byAdding: .day, value: 1, to: selectedDate) ?? selectedDate
+                    case "주":
+                        selectedDate = calendar.date(byAdding: .day, value: 7, to: selectedDate) ?? selectedDate
+                    case "월":
+                        selectedDate = calendar.date(byAdding: .month, value: 1, to: selectedDate) ?? selectedDate
+                    default:
+                        break
+                    }
                 }) {
                     Image(systemName: "chevron.right")
                         .foregroundColor(.black)
