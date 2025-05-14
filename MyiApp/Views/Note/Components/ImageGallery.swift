@@ -66,6 +66,8 @@ struct CustomAsyncImageView: View {
                     .scaledToFill()
             } else if isLoading {
                 ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: Color("sharkPrimaryColor")))
+                    .scaleEffect(1.5)
             } else {
                 Image(systemName: "photo")
                     .foregroundColor(.gray)
