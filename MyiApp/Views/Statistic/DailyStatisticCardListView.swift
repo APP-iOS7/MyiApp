@@ -102,7 +102,7 @@ struct DailyStatisticCardListView: View {
             $0.title == title && calendar.isDate($0.createdAt, inSameDayAs: date)
         }.count
     }
-    // ml 총계
+    // ml 총계ㄴ
     func totalMlAmount(in records: [Record], on date: Date) -> Int {
         let calendar = Calendar.current
         return records
@@ -181,6 +181,6 @@ struct DailyStatisticCardListView: View {
             }
             .reduce(0, +)
         
-        return totalMinutes > 0 ? totalMinutes : nil
+        return totalMinutes >= 0 ? totalMinutes : nil
     }
 }
