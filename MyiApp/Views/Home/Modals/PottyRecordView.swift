@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct PottyRecordView: View {
-    @State private var selectedType: Int = 0
+    @Binding var record: Record
     
     var body: some View {
         VStack(spacing: 24) {
             HStack(spacing: 15) {
-                Button(action: { selectedType = 0 }) {
+                Button(action: { record.title = .pee }) {
                     VStack {
                         Image(.normalPee)
                             .resizable()
@@ -21,14 +21,14 @@ struct PottyRecordView: View {
                             .padding(7)
                             .background(
                                 Circle()
-                                    .fill(selectedType == 0 ? Color.sharkPrimary : Color.gray)
+                                    .fill(record.title == .pee ? Color.sharkPrimary : Color.gray)
                             )
                         Text("소변")
                             .font(.system(size: 14))
-                            .tint(selectedType == 0 ? .primary : .secondary)
+                            .tint(record.title == .pee ? .primary : .secondary)
                     }
                 }
-                Button(action: { selectedType = 1 }) {
+                Button(action: { record.title = .poop }) {
                     VStack {
                         Image(.normalPoop)
                             .resizable()
@@ -36,14 +36,14 @@ struct PottyRecordView: View {
                             .padding(7)
                             .background(
                                 Circle()
-                                    .fill(selectedType == 1 ? Color.sharkPrimary : Color.gray)
+                                    .fill(record.title == .poop ? Color.sharkPrimary : Color.gray)
                             )
                         Text("대변")
                             .font(.system(size: 14))
-                            .tint(selectedType == 1 ? .primary : .secondary)
+                            .tint(record.title == .poop ? .primary : .secondary)
                     }
                 }
-                Button(action: { selectedType = 2 }) {
+                Button(action: { record.title = .pottyAll }) {
                     VStack {
                         Image(.normalPotty)
                             .resizable()
@@ -51,11 +51,11 @@ struct PottyRecordView: View {
                             .padding(7)
                             .background(
                                 Circle()
-                                    .fill(selectedType == 2 ? Color.sharkPrimary : Color.gray)
+                                    .fill(record.title == .pottyAll ? Color.sharkPrimary : Color.gray)
                             )
                         Text("둘다")
                             .font(.system(size: 14))
-                            .tint(selectedType == 2 ? .primary : .secondary)
+                            .tint(record.title == .pottyAll ? .primary : .secondary)
                     }
                 }
             }
@@ -76,6 +76,7 @@ struct PottyRecordView: View {
     }
 }
 
-#Preview {
-    PottyRecordView()
-}
+//#Preview {
+//
+//    PottyRecordView(record: $)
+//}

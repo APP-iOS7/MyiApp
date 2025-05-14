@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct SleepRecordView: View {
-    @State var startTime: Date = Date()
-    @State var endTime: Date = Date()
+    @Binding var record: Record
     @State var isStartPresented = false
     @State var isEndPresented = false
     
@@ -36,15 +35,18 @@ struct SleepRecordView: View {
                     .foregroundColor(.primary)
                     .padding(7)
                 Button(action: { isStartPresented = true }) {
-                    Text(startTime.formattedKoreanDateString() + " " + startTime.to24HourTimeString())
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
-                                .frame(height: 40)
-                        )
+                    Text(record.sleepStart == nil ? "시작 시간 선택" : 
+                        record.sleepStart!.formattedKoreanDateString() + " " + 
+                        record.sleepStart!.to24HourTimeString()
+                    )
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundColor(record.sleepStart == nil ? .gray : .primary)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
+                            .frame(height: 40)
+                    )
                 }
             }
             .padding(.bottom, 9)
@@ -54,28 +56,42 @@ struct SleepRecordView: View {
                     .foregroundColor(.primary)
                     .padding(7)
                 Button(action: { isEndPresented = true }) {
-                    Text(endTime.formattedKoreanDateString() + " " + endTime.to24HourTimeString())
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
-                                .frame(height: 40)
-                        )
+                    Text(record.sleepEnd == nil ? "종료 시간 선택" : 
+                        record.sleepEnd!.formattedKoreanDateString() + " " + 
+                        record.sleepEnd!.to24HourTimeString()
+                    )
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundColor(record.sleepEnd == nil ? .gray : .primary)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(red: 0.75, green: 0.85, blue: 1.0), lineWidth: 2)
+                            .frame(height: 40)
+                    )
                 }
             }
         }
         .background(
-            UIDatePickerActionSheet(isPresented: $isStartPresented, selectedDate: $startTime)
+            UIDatePickerActionSheet(
+                isPresented: $isStartPresented,
+                selectedDate: Binding(
+                    get: { record.sleepStart ?? Date() },
+                    set: { record.sleepStart = $0 }
+                )
+            )
         )
         .background {
-            UIDatePickerActionSheet(isPresented: $isEndPresented, selectedDate: $endTime)
-
+            UIDatePickerActionSheet(
+                isPresented: $isEndPresented,
+                selectedDate: Binding(
+                    get: { record.sleepEnd ?? Date() },
+                    set: { record.sleepEnd = $0 }
+                )
+            )
         }
     }
 }
 
-#Preview {
-    SleepRecordView()
-}
+//#Preview {
+//    SleepRecordView()
+//}
