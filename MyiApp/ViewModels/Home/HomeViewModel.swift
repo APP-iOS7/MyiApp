@@ -12,8 +12,9 @@ class HomeViewModel: ObservableObject {
     @Published var selectedBaby: Baby?
     @Published var records: [Record] = Record.mockRecords
     @Published var selectedDate: Date = Date()
-    @Published var selectedCategory: CareCategory?
-    private let db = DatabaseService.shared
+    @Published var selectedCategory: GridItemCategory?
+    @Published var isFlipped = false
+//    private let db = DatabaseService.shared
     
     func loadBabyInfo() { }
     

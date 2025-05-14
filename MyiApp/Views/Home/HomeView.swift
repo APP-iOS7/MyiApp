@@ -22,7 +22,7 @@ struct HomeView: View {
             .padding()
         }
         .sheet(item: $viewModel.selectedCategory) { category in
-            AddRecordView(category: category)
+            AddRecordView(careCategory: category)
                 .presentationDetents([.medium])
         }
     }
@@ -53,7 +53,7 @@ struct HomeView: View {
             }
             Spacer()
             VStack(alignment: .leading) {
-                Button(action: {}) {
+                Button(action: { viewModel.isFlipped = true }) {
                     Image(systemName: "arrow.uturn.backward.circle.fill")
                         .resizable()
                         .frame(width: 25, height: 25)
@@ -103,22 +103,20 @@ struct HomeView: View {
         .padding()
     }
     private var gridItems: some View {
-        let careItems: [CareCategory] = [
-            .init(name: "수유/이유식", image: .colorBabyFood),
-            .init(name: "기저귀", image: .colorDiaper),
-            .init(name: "배변", image: .colorPotty),
-            .init(name: "수면", image: .colorSleep),
-            .init(name: "키/몸무게", image: .colorHeightWeight),
-            .init(name: "목욕", image: .colorBath),
-            .init(name: "간식", image: .colorSnack),
-            .init(name: "건강 관리", image: .colorCheckList)
+        let careItems: [GridItemCategory] = [
+            .init(name: "수유/이유식", category: .breastfeeding, image: .colorBabyFood),
+            .init(name: "기저귀", category: .diaper, image: .colorDiaper),
+            .init(name: "배변", category: .pee, image: .colorPotty),
+            .init(name: "수면", category: .sleep, image: .colorSleep),
+            .init(name: "키/몸무게", category: .heightWeight, image: .colorHeightWeight),
+            .init(name: "목욕", category: .bath, image: .colorBath),
+            .init(name: "간식", category: .snack, image: .colorSnack),
+            .init(name: "건강 관리", category: .temperature, image: .colorCheckList)
         ]
         let columns = Array(repeating: GridItem(.flexible()), count: 4)
         return LazyVGrid(columns: columns) {
             ForEach(careItems, id: \.name) { item in
-                Button(action: {
-                    viewModel.selectedCategory = item
-                }) {
+                Button(action: { viewModel.selectedCategory = item } ) {
                     VStack(spacing: 0) {
                         Image(uiImage: item.image)
                             .resizable()
@@ -148,9 +146,10 @@ struct HomeView: View {
     }
 }
 
-struct CareCategory: Identifiable {
+struct GridItemCategory: Identifiable {
     let id: UUID = UUID()
     let name: String
+    let category: TitleCategory
     let image: UIImage
 }
 
