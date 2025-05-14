@@ -182,7 +182,7 @@ struct WeeklyStatisticCardListView: View {
             }
             .reduce(0, +)
 
-        return totalMinutes > 0 ? totalMinutes : nil
+        return totalMinutes >= 0 ? totalMinutes : nil
     }
 
 }

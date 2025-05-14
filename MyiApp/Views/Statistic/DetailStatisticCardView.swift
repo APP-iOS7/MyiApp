@@ -188,8 +188,8 @@ struct DetailStatisticCardView: View {
             }
             
             let text = time > lasttime
-            ? "\(label) 기저귀 수면 시간이 증가하였습니다."
-            : "\(label) 기저귀 수면 시간이 감소하였습니다."
+            ? "\(label) 수면 시간이 증가하였습니다."
+            : "\(label) 수면 시간이 감소하였습니다."
             
             return Text(text)
                 .font(.subheadline)
