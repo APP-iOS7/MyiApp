@@ -15,7 +15,6 @@ struct NoteEditorView: View {
     @State private var description: String = ""
     @State private var date: Date
     @State private var selectedCategory: NoteCategory = .일지
-    @State private var showToast: ToastMessage? = nil
     
     let isEditing: Bool
     let noteId: UUID?
@@ -102,13 +101,11 @@ struct NoteEditorView: View {
                     .disabled(title.isEmpty)
                 }
             }
-            .toast(message: $showToast)
         }
     }
     
     private func saveNote() {
         if title.isEmpty {
-            showToast = ToastMessage(message: "제목을 입력해주세요.", type: .error)
             return
         }
         
@@ -123,7 +120,7 @@ struct NoteEditorView: View {
             )
             
             viewModel.updateNote(note: updatedNote)
-            showToast = ToastMessage(message: "\(selectedCategory.rawValue)가 수정되었습니다.", type: .success)
+            viewModel.toastMessage = ToastMessage(message: "\(selectedCategory.rawValue)가 수정되었습니다.", type: .success)
         } else {
             // 새 노트
             viewModel.addNote(
@@ -132,12 +129,10 @@ struct NoteEditorView: View {
                 date: date,
                 category: selectedCategory
             )
-            showToast = ToastMessage(message: "새 \(selectedCategory.rawValue)가 저장되었습니다.", type: .success)
+            viewModel.toastMessage = ToastMessage(message: "새 \(selectedCategory.rawValue)가 저장되었습니다.", type: .success)
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            dismiss()
-        }
+        dismiss()
     }
 }
 
@@ -180,9 +175,4 @@ struct RadioButtonRow: View {
         }
         .buttonStyle(PlainButtonStyle())
     }
-}
-
-#Preview {
-    NoteEditorView(selectedDate: Date())
-        .environmentObject(NoteViewModel())
 }

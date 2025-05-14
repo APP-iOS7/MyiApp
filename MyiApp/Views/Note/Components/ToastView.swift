@@ -18,7 +18,7 @@ struct ToastMessage: Equatable {
         
         var color: Color {
             switch self {
-            case .success: return Color.green
+            case .success: return Color("sharkPrimaryColor")
             case .error: return Color.red
             case .info: return Color("sharkPrimaryColor")
             }
@@ -84,7 +84,6 @@ struct ToastModifier: ViewModifier {
                                 dismissToast()
                             }
                             .transition(.move(edge: .bottom).combined(with: .opacity))
-                            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: toast)
                             .padding(.bottom, 20)
                         }
                     }
