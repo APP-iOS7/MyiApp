@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct StatisticView: View {
+    
     var body: some View {
         Text("통계 화면")
     }
@@ -15,6 +16,6 @@ struct StatisticView: View {
 
 #Preview {
     NavigationStack {
-        StatisticView()
+//        StatisticView()
     }
 }

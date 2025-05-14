@@ -9,7 +9,7 @@ import SwiftUI
 import Combine
 
 class AddRecordViewModel: ObservableObject {
-    
+    private let caregiverManager = CaregiverManager.shared
     @Published var record: Record
     @Published var showActionSheet = false
     @Published var isSaveDisabled = true
@@ -58,7 +58,7 @@ class AddRecordViewModel: ObservableObject {
     }
     
     func saveRecord() {
-        // TODO: 저장 로직 구현하기.
+        caregiverManager.saveRecord(record: record)
     }
 }
 
@@ -94,7 +94,6 @@ struct AddRecordView: View {
                 case .poop, .pee, .pottyAll: return "배변 기록"
             }
         }
-        
         var titleImage: ImageResource {
             switch viewModel.record.title {
                 case .formula, .babyFood, .pumpedMilk, .breastfeeding: return .colorMeal
@@ -107,7 +106,6 @@ struct AddRecordView: View {
                 case .poop, .pee, .pottyAll: return .colorPotty
             }
         }
-        
         var backgoundColor: Color {
             switch viewModel.record.title {
                 case .formula, .babyFood, .pumpedMilk, .breastfeeding: return .pink
@@ -196,7 +194,11 @@ struct AddRecordView: View {
                             .stroke(Color.gray.opacity(0.5), lineWidth: 1)
                     )
             }
-            Button(action: { print(viewModel.record); dismiss() }) {
+            Button(
+                action: {
+                    viewModel.saveRecord()
+                    dismiss()
+                }) {
                 Text("저장")
                     .frame(maxWidth: .infinity)
                     .fontWeight(.bold)
@@ -214,5 +216,5 @@ struct AddRecordView: View {
 }
 
 #Preview {
-    AddRecordView(careCategory: .init(name: "수면", category: .sleep, image: .colorBabyFood))
+    AddRecordView(careCategory: .init(name: "수면", category: .babyFood, image: .colorBabyFood))
 }

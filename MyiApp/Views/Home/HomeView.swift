@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct HomeView: View {
-    @StateObject var viewModel: HomeViewModel = .init()
-
+    @StateObject var viewModel: HomeViewModel
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 5) {
@@ -40,15 +40,15 @@ struct HomeView: View {
                 )
                 .padding(.trailing)
             VStack(alignment: .leading, spacing: 4) {
-                Text("김죠스")
+                Text(viewModel.displayName)
                     .font(.system(size: 10))
-                Text("여아")
+                Text(viewModel.displayGender)
                     .font(.system(size: 10))
-                Text("2025.05.07")
+                Text(viewModel.displayBirthDate)
                     .font(.system(size: 10))
-                Text("1개월 9일")
+                Text(viewModel.displayMonthDay)
                     .font(.system(size: 10))
-                Text("39일")
+                Text(viewModel.displayDayCount)
                     .font(.system(size: 10))
             }
             Spacer()
@@ -139,7 +139,7 @@ struct HomeView: View {
     }
     private var timeline: some View {
         VStack(spacing: 0) {
-            ForEach(viewModel.records) { record in
+            ForEach(viewModel.baby.records) { record in
                 TimelineRow(record: record)
             }
         }
@@ -153,6 +153,6 @@ struct GridItemCategory: Identifiable {
     let image: UIImage
 }
 
-#Preview {
-    HomeView()
-}
+//#Preview {
+//    HomeView()
+//}
