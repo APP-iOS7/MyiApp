@@ -16,23 +16,31 @@ struct Record: Codable, Identifiable {
     // 모유수유: 좌/우 분유 수유 시간 (분)
     var breastfeedingLeftMinutes: Int?
     var breastfeedingRightMinutes: Int?
-    // 배변 종류
-    var pottyType: PoopType?
     // 수면: 시작 및 종료 시간
     var sleepStart: Date?
     var sleepEnd: Date?
     // 키/몸무게
     var height: Double?
     var weight: Double?
-    // 간식 내용
-    var snackContent: String?
-    // 건강관리 세부 정보
-    var bodyTemperature: Double?       // 체온 측정 값
-    var medicineMemo: String?          // 약 투여 메모
-    var clinicMemo: String?            // 병원 방문 메모
-    var healthEtcMemo: String?         // 기타 건강관리 메모
-    // 고정 이벤트 (기저귀, 목욕 등)
-    var isFixedEvent: Bool?
+    // 온도
+    var temperature: Double?
+    // 텍스트 필드 내용
+    var content: String?
+    
+    init(createdAt: Date = Date(), title: TitleCategory, mlAmount: Int? = nil, breastfeedingLeftMinutes: Int? = nil, breastfeedingRightMinutes: Int? = nil, sleepStart: Date? = nil, sleepEnd: Date? = nil, height: Double? = nil, weight: Double? = nil, temperature: Double? = nil, content: String? = nil) {
+        self.id = UUID()
+        self.createdAt = createdAt
+        self.title = title
+        self.mlAmount = mlAmount
+        self.breastfeedingLeftMinutes = breastfeedingLeftMinutes
+        self.breastfeedingRightMinutes = breastfeedingRightMinutes
+        self.sleepStart = sleepStart
+        self.sleepEnd = sleepEnd
+        self.height = height
+        self.weight = weight
+        self.temperature = temperature
+        self.content = content
+    }
 }
 
 enum TitleCategory: String, Codable, CaseIterable {
@@ -41,122 +49,207 @@ enum TitleCategory: String, Codable, CaseIterable {
     case pumpedMilk     // 유축수유
     case breastfeeding  // 모유수유
     case diaper         // 기저귀
-    case potty          // 배변
     case sleep          // 수면
     case heightWeight   // 키/몸무게
     case bath           // 목욕
     case snack          // 간식
-    case health         // 건강관리
-}
-
-enum PoopType: String, Codable {
+    case temperature    // 온도
+    case medicine
+    case clinic
     case poop
     case pee
-    case all
+    case pottyAll
 }
 
 extension Record {
     static let mockRecords: [Record] = [
         // 분유
         Record(
-            id: UUID(),
             createdAt: Date(),
             title: .formula,
             mlAmount: 120
         ),
+        Record(
+            createdAt: Date().addingTimeInterval(-21600),
+            title: .formula,
+            mlAmount: 150
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-43200),
+            title: .formula,
+            mlAmount: 130
+        ),
 
         // 이유식
         Record(
-            id: UUID(),
             createdAt: Date().addingTimeInterval(-3600),
             title: .babyFood,
             mlAmount: 80
         ),
+        Record(
+            createdAt: Date().addingTimeInterval(-25200),
+            title: .babyFood,
+            mlAmount: 100
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-46800),
+            title: .babyFood,
+            mlAmount: 90
+        ),
 
         // 유축수유
         Record(
-            id: UUID(),
             createdAt: Date().addingTimeInterval(-7200),
             title: .pumpedMilk,
             mlAmount: 100
         ),
+        Record(
+            createdAt: Date().addingTimeInterval(-28800),
+            title: .pumpedMilk,
+            mlAmount: 120
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-50400),
+            title: .pumpedMilk,
+            mlAmount: 110
+        ),
 
         // 모유수유
         Record(
-            id: UUID(),
             createdAt: Date().addingTimeInterval(-10800),
             title: .breastfeeding,
             breastfeedingLeftMinutes: 10,
             breastfeedingRightMinutes: 15
         ),
+        Record(
+            createdAt: Date().addingTimeInterval(-32400),
+            title: .breastfeeding,
+            breastfeedingLeftMinutes: 12,
+            breastfeedingRightMinutes: 13
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-54000),
+            title: .breastfeeding,
+            breastfeedingLeftMinutes: 15,
+            breastfeedingRightMinutes: 10
+        ),
 
         // 기저귀
         Record(
-            id: UUID(),
             createdAt: Date().addingTimeInterval(-14400),
-            title: .diaper,
-            isFixedEvent: true
+            title: .diaper
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-36000),
+            title: .diaper
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-57600),
+            title: .diaper
         ),
 
         // 배변 - poop
         Record(
-            id: UUID(),
             createdAt: Date().addingTimeInterval(-18000),
-            title: .potty,
-            pottyType: .poop
+            title: .poop,
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-39600),
+            title: .poop,
         ),
 
         // 배변 - pee
         Record(
-            id: UUID(),
             createdAt: Date().addingTimeInterval(-21600),
-            title: .potty,
-            pottyType: .pee
+            title: .pee,
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-43200),
+            title: .pee,
         ),
 
         // 수면
         Record(
-            id: UUID(),
             createdAt: Date().addingTimeInterval(-25200),
             title: .sleep,
             sleepStart: Date().addingTimeInterval(-25200),
             sleepEnd: Date().addingTimeInterval(-21600)
         ),
+        Record(
+            createdAt: Date().addingTimeInterval(-46800),
+            title: .sleep,
+            sleepStart: Date().addingTimeInterval(-46800),
+            sleepEnd: Date().addingTimeInterval(-43200)
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-68400),
+            title: .sleep,
+            sleepStart: Date().addingTimeInterval(-68400),
+            sleepEnd: Date().addingTimeInterval(-64800)
+        ),
 
         // 키/몸무게
         Record(
-            id: UUID(),
             createdAt: Date().addingTimeInterval(-86400),
             title: .heightWeight,
             height: 65.3,
             weight: 7.8
         ),
+        Record(
+            createdAt: Date().addingTimeInterval(-172800),
+            title: .heightWeight,
+            height: 64.8,
+            weight: 7.6
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-259200),
+            title: .heightWeight,
+            height: 64.2,
+            weight: 7.5
+        ),
 
         // 목욕
         Record(
-            id: UUID(),
             createdAt: Date().addingTimeInterval(-30000),
-            title: .bath,
-            isFixedEvent: true
+            title: .bath
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-51600),
+            title: .bath
         ),
 
         // 간식
         Record(
-            id: UUID(),
             createdAt: Date().addingTimeInterval(-40000),
             title: .snack,
-            snackContent: "바나나 퓨레 1/2개"
+            content: "바나나 퓨레 1/2개"
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-61600),
+            title: .snack,
+            content: "사과 퓨레 1/3개"
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-83200),
+            title: .snack,
+            content: "당근 퓨레 1/4개"
         ),
 
         // 건강관리
         Record(
-            id: UUID(),
             createdAt: Date().addingTimeInterval(-50000),
-            title: .health,
-            bodyTemperature: 37.4,
-            medicineMemo: "해열제 2ml 복용",
-            clinicMemo: "소아과 정기 검진",
-            healthEtcMemo: "귀 점검 완료"
+            title: .temperature,
+            temperature: 37.2
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-71600),
+            title: .clinic,
+            content: "예방접종 2차 완료"
+        ),
+        Record(
+            createdAt: Date().addingTimeInterval(-93200),
+            title: .medicine,
+            content: "비타민 D 드롭 1방울 복용"
         )
     ]
 }
