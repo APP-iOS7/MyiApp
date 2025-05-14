@@ -250,9 +250,9 @@ struct DailyPottyChartView: View {
                         }
                         
                         // 최대값 구하기
-                        let maxAmount = values.max() ?? 1 // 0 방지
+                        let maxAmount = values.max() ?? 0
                         let avgAmount = Double(values.reduce(0, +)) / Double(values.count)
-                        let avgY = CGFloat(avgAmount) / CGFloat(maxAmount) * 100
+                        let avgY: CGFloat = maxAmount == 0 ? 0 : CGFloat(avgAmount) / CGFloat(maxAmount) * 100
                         
                         ZStack(alignment: .topLeading) {
                             
@@ -261,7 +261,7 @@ struct DailyPottyChartView: View {
                                 .frame(width: totalWidth + 60, height: 1)
                                 .offset(y: 100 - avgY)
                                 .overlay(
-                                    Text("평균 \(Int(avgAmount))회")
+                                    Text("평균 \(String(format: "%.2f", avgAmount))회")
                                         .font(.caption2)
                                         .foregroundColor(.red)
                                         .offset(x: -20, y: 105 - avgY),
@@ -270,17 +270,31 @@ struct DailyPottyChartView: View {
                             HStack(alignment: .bottom, spacing: 10) {
                                 ForEach(Array(zip(weekDates, values)), id: \.0) { date, value in
                                     VStack {
-                                        Text("\(value)회")
-                                            .font(.caption2)
-                                            .foregroundColor(.black)
-                                            .frame(height: 12)
-                                        Rectangle()
-                                            .fill(Color.gray.opacity(0.3))
-                                            .frame(
-                                                width: barWidth,
-                                                height: maxAmount > 0 ? CGFloat(value) / CGFloat(maxAmount) * 100 : 0
-                                            )
-                                            .cornerRadius(4)
+                                        if (maxAmount > 0) {
+                                            Text("\(value)회")
+                                                .font(.caption2)
+                                                .foregroundColor(.black)
+                                                .frame(height: 12)
+                                            Rectangle()
+                                                .fill(Color.gray.opacity(0.3))
+                                                .frame(
+                                                    width: barWidth,
+                                                    height: CGFloat(value) / CGFloat(maxAmount) * 100
+                                                )
+                                                .cornerRadius(4)
+                                        } else if (maxAmount == 0) {
+                                            Rectangle()
+                                                .fill(Color.clear)
+                                                .frame(
+                                                    width: barWidth,
+                                                    height: 100
+                                                )
+                                                .cornerRadius(4)
+                                            Text("\(value)회")
+                                                .font(.caption2)
+                                                .foregroundColor(.black)
+                                                .frame(height: 12)
+                                        }
                                         Text(shortDateString(for: date))
                                             .font(.caption2)
                                             .foregroundColor(.gray)
@@ -422,9 +436,9 @@ struct WeeklyPottyChartView: View {
                             return pottyCount(type, from: startDate, to: endDate)
                         }
                         
-                        let maxAmount = values.max() ?? 1
+                        let maxAmount = values.max() ?? 0
                         let avgAmount = Double(values.reduce(0, +)) / Double(values.count)
-                        let avgY = CGFloat(avgAmount) / CGFloat(maxAmount) * 100
+                        let avgY: CGFloat = maxAmount == 0 ? 0 : CGFloat(avgAmount) / CGFloat(maxAmount) * 100
                         
                         
                         ZStack(alignment: .topLeading) {
@@ -434,7 +448,7 @@ struct WeeklyPottyChartView: View {
                                 .frame(width: totalWidth + 60, height: 1)
                                 .offset(y: 100 - avgY)
                                 .overlay(
-                                    Text("평균 \(Int(avgAmount))회")
+                                    Text("평균 \(String(format: "%.2f", avgAmount))회")
                                         .font(.caption2)
                                         .foregroundColor(.red)
                                         .offset(x: -20, y: 105 - avgY),
@@ -443,17 +457,31 @@ struct WeeklyPottyChartView: View {
                             HStack(alignment: .bottom, spacing: 10) {
                                 ForEach(Array(zip(sixWeekStartDates, values)), id: \.0) { startDate, value in
                                     VStack {
-                                        Text("\(value)회")
-                                            .font(.caption2)
-                                            .foregroundColor(.black)
-                                            .frame(height: 12)
-                                        Rectangle()
-                                            .fill(Color.gray.opacity(0.3))
-                                            .frame(
-                                                width: barWidth,
-                                                height: CGFloat(value) / CGFloat(maxAmount) * 100
-                                            )
-                                            .cornerRadius(4)
+                                        if (maxAmount > 0) {
+                                            Text("\(value)회")
+                                                .font(.caption2)
+                                                .foregroundColor(.black)
+                                                .frame(height: 12)
+                                            Rectangle()
+                                                .fill(Color.gray.opacity(0.3))
+                                                .frame(
+                                                    width: barWidth,
+                                                    height: CGFloat(value) / CGFloat(maxAmount) * 100
+                                                )
+                                                .cornerRadius(4)
+                                        } else if (maxAmount == 0) {
+                                            Rectangle()
+                                                .fill(Color.clear)
+                                                .frame(
+                                                    width: barWidth,
+                                                    height: 100
+                                                )
+                                                .cornerRadius(4)
+                                            Text("\(value)회")
+                                                .font(.caption2)
+                                                .foregroundColor(.black)
+                                                .frame(height: 12)
+                                        }
                                         Text(shortWeekLabel(for: startDate))
                                             .font(.caption2)
                                             .foregroundColor(.gray)
@@ -601,9 +629,9 @@ struct MonthlyPottyChartView: View {
                             return pottyCount(type, from: startDate, to: endDate)
                         }
                         
-                        let maxAmount = values.max() ?? 1
+                        let maxAmount = values.max() ?? 0
                         let avgAmount = Double(values.reduce(0, +)) / Double(values.count)
-                        let avgY = CGFloat(avgAmount) / CGFloat(maxAmount) * 100
+                        let avgY: CGFloat = maxAmount == 0 ? 0 : CGFloat(avgAmount) / CGFloat(maxAmount) * 100
                         
                         
                         ZStack(alignment: .topLeading) {
@@ -613,7 +641,7 @@ struct MonthlyPottyChartView: View {
                                 .frame(width: totalWidth + 60, height: 1)
                                 .offset(y: 100 - avgY)
                                 .overlay(
-                                    Text("평균 \(Int(avgAmount))회")
+                                    Text("평균 \(String(format: "%.2f", avgAmount))회")
                                         .font(.caption2)
                                         .foregroundColor(.red)
                                         .offset(x: -20, y: 105 - avgY),
@@ -622,17 +650,31 @@ struct MonthlyPottyChartView: View {
                             HStack(alignment: .bottom, spacing: 10) {
                                 ForEach(Array(zip(sixMonthStartDates, values)), id: \.0) { startDate, value in
                                     VStack {
-                                        Text("\(value)회")
-                                            .font(.caption2)
-                                            .foregroundColor(.black)
-                                            .frame(height: 12)
-                                        Rectangle()
-                                            .fill(Color.gray.opacity(0.3))
-                                            .frame(
-                                                width: barWidth,
-                                                height: CGFloat(value) / CGFloat(maxAmount) * 100
-                                            )
-                                            .cornerRadius(4)
+                                        if (maxAmount > 0) {
+                                            Text("\(value)회")
+                                                .font(.caption2)
+                                                .foregroundColor(.black)
+                                                .frame(height: 12)
+                                            Rectangle()
+                                                .fill(Color.gray.opacity(0.3))
+                                                .frame(
+                                                    width: barWidth,
+                                                    height: CGFloat(value) / CGFloat(maxAmount) * 100
+                                                )
+                                                .cornerRadius(4)
+                                        } else if (maxAmount == 0) {
+                                            Rectangle()
+                                                .fill(Color.clear)
+                                                .frame(
+                                                    width: barWidth,
+                                                    height: 100
+                                                )
+                                                .cornerRadius(4)
+                                            Text("\(value)회")
+                                                .font(.caption2)
+                                                .foregroundColor(.black)
+                                                .frame(height: 12)
+                                        }
                                         Text(shortMonthLabel(for: startDate))
                                             .font(.caption2)
                                             .foregroundColor(.gray)
