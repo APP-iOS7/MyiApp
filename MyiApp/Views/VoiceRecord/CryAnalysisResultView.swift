@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct CryAnalysisResultView: View {
+    @Environment(\.dismiss) private var dismiss
+    
     let emotionLabel: String
     let confidence: Float
     
@@ -15,48 +17,54 @@ struct CryAnalysisResultView: View {
     private var resultImageName: String {
         switch emotionLabel {
         case "배고파요":
-            return "sharkToddler"
+            return "sharkChild"
         case "무서워요":
-            return "sharkToddler"
+            return "sharkChild"
         case "졸려요":
-            return "sharkToddler"
+            return "sharkChild"
         case "놀아주세요":
-            return "sharkToddler"
+            return "sharkChild"
         default:
-            return "sharkToddler"
+            return "sharkChild"
         }
     }
 
     var body: some View {
-        VStack(spacing: 30) {
+        VStack(spacing: 24) {
+            Text("결과")
+                .font(.system(size: 32, weight: .heavy))
+                .padding(.top)
             Spacer()
             
-            Text("결과")
-                .font(.system(size: 28, weight: .bold))
-
             Image(resultImageName)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(height: 200)
-
+            
+            Spacer()
+            
             VStack(spacing: 8) {
                 Text(emotionLabel)
-                    .font(.system(size: 24, weight: .bold))
-                Text("(\(Int(confidence * 100))%)")
+                    .font(.system(size: 40, weight: .bold))
+                    .padding()
+                
+                Text("정확도: \(Int(confidence * 100))%")
                     .font(.system(size: 20, weight: .bold))
             }
 
             Spacer()
 
             Button(action: {
-                // 뒤로 가기 처리
+                dismiss()
             }) {
-                Text("돌아가기")
+                Text("닫기")
+                    .font(.system(size: 30, weight: .bold))
+                    .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue.opacity(0.2))
-                    .foregroundColor(.blue)
+                    .frame(height: 60)
+                    .background(Color("sharkPrimaryColor"))
                     .cornerRadius(12)
+                    .padding(.horizontal, 24)
             }
             .padding(.horizontal)
 

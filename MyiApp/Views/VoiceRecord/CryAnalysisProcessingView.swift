@@ -11,15 +11,15 @@ struct CryAnalysisProcessingView: View {
     @State private var dotCount: Int = 0
     @State private var showResultView = false
     @Environment(\.dismiss) private var dismiss
+    @ObservedObject var viewModel: VoiceRecordViewModel
     
     private let dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
     
-    var body: some View {
+    @ViewBuilder
+    func processingViewContent() -> some View {
         VStack(spacing: 24) {
-            Spacer().frame(height: 24)
-
             Text("분석 중")
-                .font(.system(size: 24, weight: .bold))
+                .font(.system(size: 32, weight: .heavy))
                 .padding(.top)
 
             EqualizerView()
@@ -36,7 +36,7 @@ struct CryAnalysisProcessingView: View {
             Text("아기의 상태를 분석하고 있어요" + String(repeating: ".", count: dotCount))
                 .font(.system(size: 20))
                 .bold()
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
                 .padding(.top, 8)
 
             Spacer()
@@ -53,6 +53,7 @@ struct CryAnalysisProcessingView: View {
                     .cornerRadius(12)
                     .padding(.horizontal, 24)
             }
+            .padding(.horizontal)
 
             Spacer().frame(height: 16)
         }
@@ -63,19 +64,32 @@ struct CryAnalysisProcessingView: View {
                     dismiss()
                 }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.blue) // Or your custom color
+                        .foregroundColor(.blue)
                 }
             }
-        }
-        .onAppear {
-            // No-op, but required for .onReceive to start
         }
         .onReceive(dotTimer) { _ in
             dotCount = (dotCount + 1) % 4
         }
+        .onAppear {
+            viewModel.startAnalysis()
+        }
+    }
+    
+    var body: some View {
+        switch viewModel.step {
+        case .processing, .recording:
+            processingViewContent()
+        case .result(let result):
+            CryAnalysisResultView(emotionLabel: result.type.rawValue, confidence: Float(result.confidence))
+        case .error(let message):
+            Text("에러 발생: \(message)")
+        default:
+            EmptyView()
+        }
     }
 }
 
-#Preview {
-    CryAnalysisProcessingView()
-}
+//#Preview {
+//    CryAnalysisProcessingView()
+//}
