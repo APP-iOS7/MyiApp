@@ -42,6 +42,6 @@ struct EqualizerView: View {
     }
 }
 
-#Preview {
-    CryAnalysisProcessingView()
-}
+//#Preview {
+//    CryAnalysisProcessingView()
+//}
