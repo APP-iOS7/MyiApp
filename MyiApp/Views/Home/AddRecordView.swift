@@ -13,7 +13,6 @@ class AddRecordViewModel: ObservableObject {
     @Published var record: Record
     @Published var showActionSheet = false
     @Published var isSaveDisabled = true
-    private var cancellables: Set<AnyCancellable> = []
     
     init(record: Record) {
         self.record = record
@@ -53,12 +52,15 @@ class AddRecordViewModel: ObservableObject {
                         return false
                 }
             }
-            .assign(to: \.isSaveDisabled, on: self)
-            .store(in: &cancellables)
+            .assign(to: &$isSaveDisabled)
     }
     
     func saveRecord() {
         caregiverManager.saveRecord(record: record)
+    }
+    
+    func removeRecord() {
+        caregiverManager.deleteRecord(record: record)
     }
 }
 
@@ -66,9 +68,8 @@ struct AddRecordView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var viewModel: AddRecordViewModel
     
-    init(careCategory: GridItemCategory) {
-        let newRecord = Record(title: careCategory.category)
-        self._viewModel = StateObject(wrappedValue: AddRecordViewModel(record: newRecord))
+    init(record: Record) {
+        self._viewModel = StateObject(wrappedValue: AddRecordViewModel(record: record))
     }
     
     var body: some View {
@@ -130,7 +131,10 @@ struct AddRecordView: View {
             Text(title)
                 .font(.system(size: 25, weight: .medium))
             Spacer()
-            Button(action: {}) {
+            Button(
+                action: {
+                    viewModel.removeRecord(); dismiss()
+                }) {
                 Image(systemName: "trash")
                     .foregroundStyle(.foreground)
                     .font(.system(size: 20))
@@ -216,5 +220,5 @@ struct AddRecordView: View {
 }
 
 #Preview {
-    AddRecordView(careCategory: .init(name: "수면", category: .babyFood, image: .colorBabyFood))
+    AddRecordView(record: Record.mockRecords[1])
 }

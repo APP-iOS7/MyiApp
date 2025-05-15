@@ -60,40 +60,40 @@ struct TimelineRow: View {
         }
     }
     
-//    private var circleColor: Color {
-//        switch record.title {
-//            case .formula:
-//                <#code#>
-//            case .babyFood:
-//                <#code#>
-//            case .pumpedMilk:
-//                <#code#>
-//            case .breastfeeding:
-//                <#code#>
-//            case .diaper:
-//                <#code#>
-//            case .sleep:
-//                <#code#>
-//            case .heightWeight:
-//                <#code#>
-//            case .bath:
-//                <#code#>
-//            case .snack:
-//                <#code#>
-//            case .temperature:
-//                <#code#>
-//            case .medicine:
-//                <#code#>
-//            case .clinic:
-//                <#code#>
-//            case .poop:
-//                <#code#>
-//            case .pee:
-//                <#code#>
-//            case .pottyAll:
-//                <#code#>
-//        }
-//    }
+    private var circleColor: Color {
+        switch record.title {
+            case .formula:
+                return Color.blue.opacity(0.6)
+            case .babyFood:
+                return Color.orange.opacity(0.7)
+            case .pumpedMilk:
+                return Color.cyan
+            case .breastfeeding:
+                return Color.pink.opacity(0.7)
+            case .diaper:
+                return Color.brown.opacity(0.5)
+            case .sleep:
+                return Color.purple.opacity(0.6)
+            case .heightWeight:
+                return Color.green.opacity(0.6)
+            case .bath:
+                return Color.mint
+            case .snack:
+                return Color.yellow.opacity(0.8)
+            case .temperature:
+                return Color.red.opacity(0.7)
+            case .medicine:
+                return Color.indigo
+            case .clinic:
+                return Color.teal
+            case .poop:
+                return Color(red: 0.6, green: 0.4, blue: 0.2)  // 진한 갈색
+            case .pee:
+                return Color.yellow.opacity(0.6)
+            case .pottyAll:
+                return Color(red: 0.7, green: 0.6, blue: 0.3)
+        }
+    }
     
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -106,7 +106,7 @@ struct TimelineRow: View {
                     .fill(Color.gray.opacity(0.4))
                     .frame(width: 1, height: 20)
                 Circle()
-                    .fill(Color.pink)
+                    .fill(circleColor)
                     .frame(width: 10, height: 10)
                 Rectangle()
                     .fill(Color.gray.opacity(0.4))

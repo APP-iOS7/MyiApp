@@ -22,7 +22,8 @@ struct HomeView: View {
             .padding()
         }
         .sheet(item: $viewModel.selectedCategory) { category in
-            AddRecordView(careCategory: category)
+            let newRecord = Record(title: category.category)
+            AddRecordView(record: newRecord)
                 .presentationDetents([.medium])
         }
     }
@@ -141,6 +142,13 @@ struct HomeView: View {
         VStack(spacing: 0) {
             ForEach(viewModel.baby.records) { record in
                 TimelineRow(record: record)
+                    .onTapGesture {
+                        viewModel.recordToEdit = record
+                    }
+            }
+            .sheet(item: $viewModel.recordToEdit) { record in
+                AddRecordView(record: record)
+                    .presentationDetents([.medium])
             }
         }
     }
