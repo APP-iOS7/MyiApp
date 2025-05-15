@@ -90,6 +90,8 @@ struct CryAnalysisProcessingView: View {
     }
 }
 
-//#Preview {
-//    CryAnalysisProcessingView()
-//}
+#Preview {
+    let mockViewModel = VoiceRecordViewModel()
+    mockViewModel.step = .processing
+    return CryAnalysisProcessingView(viewModel: mockViewModel)
+}
