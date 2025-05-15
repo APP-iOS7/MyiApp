@@ -334,7 +334,7 @@ struct NoteEditorView: View {
                 
                 if selectedCategory == .일정 && isReminderEnabled {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        NotificationService.shared.scheduleNotification(for: newNote, minutesBefore: reminderMinutesBefore)
+                        _ = NotificationService.shared.scheduleNotification(for: newNote, minutesBefore: reminderMinutesBefore)
                     }
                 }
             } else {
