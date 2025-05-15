@@ -303,56 +303,61 @@ class NoteViewModel: ObservableObject {
     }
     
     // MARK: - 노트 삭제
-    func deleteNote(note: Note) {
-        guard let baby = babyInfo else { return }
-        
-        let babyRef = db.collection("babies").document(baby.id.uuidString)
-        
-        db.runTransaction({ (transaction, errorPointer) -> Any? in
-            let babyDocument: DocumentSnapshot
-            do {
-                try babyDocument = transaction.getDocument(babyRef)
-            } catch let fetchError as NSError {
-                errorPointer?.pointee = fetchError
-                return nil
+        func deleteNote(note: Note) {
+            guard let baby = babyInfo else { return }
+            
+            // 일정인 경우 관련 알림 취소
+            if note.category == .일정 {
+                NotificationService.shared.cancelNotification(with: note.id.uuidString)
             }
             
-            guard var notes = babyDocument.data()?["note"] as? [[String: Any]] else {
-                return nil
-            }
+            let babyRef = db.collection("babies").document(baby.id.uuidString)
             
-            notes.removeAll { ($0["id"] as? String) == note.id.uuidString }
-            
-            transaction.updateData(["note": notes], forDocument: babyRef)
-            
-            return notes
-        }) { [weak self] (_, error) in
-            guard let self = self else { return }
-            
-            if let error = error {
-                DispatchQueue.main.async {
-                    self.errorMessage = "노트 삭제에 실패했습니다: \(error.localizedDescription)"
+            db.runTransaction({ (transaction, errorPointer) -> Any? in
+                let babyDocument: DocumentSnapshot
+                do {
+                    try babyDocument = transaction.getDocument(babyRef)
+                } catch let fetchError as NSError {
+                    errorPointer?.pointee = fetchError
+                    return nil
                 }
-                return
-            }
-            
-            DispatchQueue.main.async {
-                let calendar = Calendar.current
-                let startOfDay = calendar.startOfDay(for: note.date)
                 
-                if var dayNotes = self.events[startOfDay] {
-                    dayNotes.removeAll { $0.id == note.id }
+                guard var notes = babyDocument.data()?["note"] as? [[String: Any]] else {
+                    return nil
+                }
+                
+                notes.removeAll { ($0["id"] as? String) == note.id.uuidString }
+                
+                transaction.updateData(["note": notes], forDocument: babyRef)
+                
+                return notes
+            }) { [weak self] (_, error) in
+                guard let self = self else { return }
+                
+                if let error = error {
+                    DispatchQueue.main.async {
+                        self.errorMessage = "노트 삭제에 실패했습니다: \(error.localizedDescription)"
+                    }
+                    return
+                }
+                
+                DispatchQueue.main.async {
+                    let calendar = Calendar.current
+                    let startOfDay = calendar.startOfDay(for: note.date)
                     
-                    if dayNotes.isEmpty {
-                        self.events.removeValue(forKey: startOfDay)
-                    } else {
-                        dayNotes.sort { $0.date < $1.date }
-                        self.events[startOfDay] = dayNotes
+                    if var dayNotes = self.events[startOfDay] {
+                        dayNotes.removeAll { $0.id == note.id }
+                        
+                        if dayNotes.isEmpty {
+                            self.events.removeValue(forKey: startOfDay)
+                        } else {
+                            dayNotes.sort { $0.date < $1.date }
+                            self.events[startOfDay] = dayNotes
+                        }
                     }
                 }
             }
         }
-    }
     
     // MARK: - 특정 날짜의 이벤트 가져오기
     func getEventsForDay(_ day: CalendarDay) -> [Note] {
