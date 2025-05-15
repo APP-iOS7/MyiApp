@@ -13,21 +13,29 @@ struct NoteDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var showingEditSheet = false
     @State private var showingDeleteAlert = false
+    @State private var hasNotification = false
+    @State private var notificationTime: String?
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                
+            VStack(alignment: .leading, spacing: 0) {
                 // 헤더
                 headerSection
+                
+                // 이미지 섹션
+                if event.category == .일지 && !event.imageURLs.isEmpty {
+                    ImageGallery(imageURLs: event.imageURLs)
+                        .padding(.top, 0)
+                }
+                
                 // 내용
                 contentSection
+                    .padding(.top, 16)
                 
                 if event.category == .일정 {
                     reminderSection
+                        .padding(.top, 16)
                 }
-                
-                relatedEventsSection
             }
             .padding(.bottom, 20)
         }
@@ -52,19 +60,69 @@ struct NoteDetailView: View {
                 }
             }
         }
-        .sheet(isPresented: $showingEditSheet) {
+        .sheet(isPresented: $showingEditSheet, onDismiss: {
+            if viewModel.toastMessage != nil {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    presentationMode.wrappedValue.dismiss()
+                }
+            }
+        }) {
             NoteEditorView(selectedDate: event.date, note: event)
                 .environmentObject(viewModel)
         }
-        .alert(isPresented: $showingDeleteAlert) {
-            Alert(
-                title: Text(event.category == .일지 ? "일지 삭제" : "일정 삭제"),
-                message: Text("이 \(event.category.rawValue)을(를) 삭제하시겠습니까? 삭제한 후에는 복구할 수 없습니다."),
-                primaryButton: .destructive(Text("삭제")) {
-                    deleteNote()
-                },
-                secondaryButton: .cancel(Text("취소"))
-            )
+        .alert("삭제 시 되돌릴 수 없습니다", isPresented: $showingDeleteAlert) {
+            Button("취소", role: .cancel) { }
+            Button("삭제", role: .destructive) {
+                deleteNote()
+            }
+        } message: {
+            Text(event.category == .일지 ?
+                "이 일지는 영구적으로 삭제되며,\n복구할 수 없습니다." :
+                "이 일정은 영구적으로 삭제되며,\n복구할 수 없습니다.")
+        }
+        .onAppear {
+            if event.category == .일정 {
+                checkNotificationStatus()
+            }
+        }
+    }
+    
+    private func checkNotificationStatus() {
+        NotificationService.shared.checkNotificationExists(with: event.id.uuidString) { exists in
+            self.hasNotification = exists
+            if exists {
+                // 실제 알림 시간 가져오기
+                NotificationService.shared.getNotificationTriggerDate(with: event.id.uuidString) { triggerDate in
+                    if let triggerDate = triggerDate {
+                        let formatter = DateFormatter()
+                        formatter.dateFormat = "MM월 dd일 a h:mm"
+                        formatter.amSymbol = "오전"
+                        formatter.pmSymbol = "오후"
+                        formatter.locale = Locale(identifier: "ko_KR")
+                        
+                        self.notificationTime = formatter.string(from: triggerDate)
+                        
+                        // 시간 차이 계산하여 표시 (옵션)
+                        let diffSeconds = self.event.date.timeIntervalSince(triggerDate)
+                        let diffMinutes = Int(diffSeconds / 60)
+                        
+                        if diffMinutes >= 60 {
+                            if diffMinutes % 60 == 0 {
+                                let hours = diffMinutes / 60
+                                self.notificationTime! += " (\(hours)시간 전)"
+                            } else {
+                                let hours = diffMinutes / 60
+                                let mins = diffMinutes % 60
+                                self.notificationTime! += " (\(hours)시간 \(mins)분 전)"
+                            }
+                        } else {
+                            self.notificationTime! += " (\(diffMinutes)분 전)"
+                        }
+                    } else {
+                        self.notificationTime = NotificationService.shared.getNotificationTimeText(for: self.event.date)
+                    }
+                }
+            }
         }
     }
     
@@ -104,7 +162,7 @@ struct NoteDetailView: View {
     
     private var contentSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("상세 내용")
+            Text("내용")
                 .font(.headline)
             
             Text(event.description)
@@ -127,77 +185,61 @@ struct NoteDetailView: View {
             Text("알림 정보")
                 .font(.headline)
             
-            HStack {
-                Image(systemName: "bell.fill")
-                    .foregroundColor(.orange)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("알림 예정(미구현입니다)")
-                        .font(.subheadline)
+            if hasNotification, let notificationTime = notificationTime {
+                HStack {
+                    Image(systemName: "bell.fill")
+                        .foregroundColor(.orange)
                     
-                    Text("일정 30분 전")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                Spacer()
-                
-                Button(action: {
-                }) {
-                    Text("변경")
-                        .font(.caption)
-                        .foregroundColor(.blue)
-                }
-            }
-            .padding()
-            .background(Color("sharkCardBackground"))
-            .cornerRadius(8)
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-        )
-        .padding(.horizontal)
-    }
-    
-    private var relatedEventsSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("같은 카테고리의 기록")
-                .font(.headline)
-            
-            ForEach(getRelatedEvents(), id: \.id) { relatedEvent in
-                Button {
-                } label: {
-                    HStack {
-                        Circle()
-                            .fill(categoryColor(for: relatedEvent.category))
-                            .frame(width: 8, height: 8)
-                        
-                        Text(relatedEvent.title)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("알림 예정")
                             .font(.subheadline)
-                            .foregroundColor(.primary)
+                            .fontWeight(.medium)
                         
-                        Spacer()
-                        
-                        Text(relatedEvent.date.formattedKoreanDateString())
+                        Text(notificationTime)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color("sharkCardBackground"))
-                    )
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        showingEditSheet = true
+                    }) {
+                        Text("변경")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
                 }
-            }
-            
-            if getRelatedEvents().isEmpty {
-                Text("같은 카테고리의 다른 기록이 없습니다.")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-                    .padding()
+                .padding()
+                .background(Color("sharkCardBackground"))
+                .cornerRadius(8)
+            } else {
+                HStack {
+                    Image(systemName: "bell.slash")
+                        .foregroundColor(.gray)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("알림 없음")
+                            .font(.subheadline)
+                        
+                        Text("이 일정에는 알림이 설정되어 있지 않습니다.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        showingEditSheet = true
+                    }) {
+                        Text("설정")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
+                }
+                .padding()
+                .background(Color("sharkCardBackground"))
+                .cornerRadius(8)
             }
         }
         .padding()
@@ -209,17 +251,17 @@ struct NoteDetailView: View {
         .padding(.horizontal)
     }
     
-    private func getRelatedEvents() -> [Note] {
-
-        let allEvents = viewModel.events.values.flatMap { $0 }
-
-        let sameCategory = allEvents.filter { $0.category == event.category && $0.id != event.id }
-
-        let sorted = sameCategory.sorted { $0.date > $1.date }
-        return Array(sorted.prefix(3))
-    }
-    
     private func deleteNote() {
+        // 알림이 있다면 삭제
+        if event.category == .일정 {
+            NotificationService.shared.cancelNotification(with: event.id.uuidString)
+        }
+        
+        if event.category == .일지 {
+            viewModel.toastMessage = ToastMessage(message: "일지가 삭제되었습니다.", type: .info)
+        } else {
+            viewModel.toastMessage = ToastMessage(message: "일정이 삭제되었습니다.", type: .info)
+        }
         viewModel.deleteNote(note: event)
         presentationMode.wrappedValue.dismiss()
     }

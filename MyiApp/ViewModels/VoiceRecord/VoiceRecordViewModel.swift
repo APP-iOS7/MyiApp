@@ -21,6 +21,37 @@ enum CryAnalysisStep {
 
 class VoiceRecordViewModel: ObservableObject {
 
+    // MARK: Constants
+    private let fftBarCount = 8
+    private let fftNormalizationFactor: Float = 5000.0
+    private let mfccTargetSampleCount = 15600
+    private let outputSampleRate: Double = 22050.0
+    private let recordingDuration: TimeInterval = 7.0 // 녹음 시간 (7초)
+
+    // MARK: Published Properties
+    @Published var audioLevels: [Float] = Array(repeating: 0.0, count: 8) // EqualizerView의 막대 수
+    @Published var step: CryAnalysisStep = .start
+    @Published var recordingProgress: Double = 0.0
+
+    // MARK: Audio Components
+    private var engine: AVAudioEngine?
+    private var inputNode: AVAudioInputNode?
+    private var audioSession: AVAudioSession?
+    private var converter: AVAudioConverter?
+
+    // MARK: Buffers and Timers
+    private var recordingBuffer: [Float] = []
+    private var analysisTimer: Timer?
+
+    // MARK: CoreML Model
+    private let model: DeepInfant_V2 = {
+        do {
+            return try DeepInfant_V2(configuration: MLModelConfiguration())
+        } catch {
+            fatalError("❌ CoreML 모델 로드 실패: \(error.localizedDescription)")
+        }
+    }()
+
     // MARK: 내부 에러 정의
     private enum AudioEngineError: Error {
         case initializationFailed
@@ -44,30 +75,6 @@ class VoiceRecordViewModel: ObservableObject {
 
         try engine.start()
     }
-    
-    private var engine: AVAudioEngine?
-    private var inputNode: AVAudioInputNode?
-    private var audioSession: AVAudioSession?
-    private var recordingBuffer: [Float] = []
-    private var analysisTimer: Timer?
-    
-    private var converter: AVAudioConverter?
-    private let outputSampleRate: Double = 22050.0
-    
-    // CoreML 모델 로드
-    private let model: DeepInfant_V2 = {
-        do {
-            return try DeepInfant_V2(configuration: MLModelConfiguration())
-        } catch {
-            fatalError("❌ CoreML 모델 로드 실패: \(error.localizedDescription)")
-        }
-    }()
-    
-    private let recordingDuration: TimeInterval = 7.0 // 녹음 시간 (7초)
-    
-    @Published var audioLevels: [Float] = Array(repeating: 0.0, count: 8) // EqualizerView의 막대 수
-    @Published var step: CryAnalysisStep = .start
-    @Published var recordingProgress: Double = 0.0
     
     // MARK: 유틸 함수
     // AVAudioPCMBuffer Float 배열 추출 함수
@@ -93,49 +100,93 @@ class VoiceRecordViewModel: ObservableObject {
         }
     }
     
+    // MARK: 마이크 권한 확인 함수
+    func checkMicrophonePermission(completion: @escaping (Bool) -> Void) {
+        if #available(iOS 17.0, *) {
+            switch AVAudioApplication.shared.recordPermission {
+            case .granted:
+                completion(true)
+            case .denied:
+                completion(false)
+            case .undetermined:
+                AVAudioApplication.requestRecordPermission(completionHandler: { granted in
+                    DispatchQueue.main.async {
+                        completion(granted)
+                    }
+                })
+            @unknown default:
+                completion(false)
+            }
+        } else {
+            switch AVAudioSession.sharedInstance().recordPermission {
+            case .granted:
+                completion(true)
+            case .denied:
+                completion(false)
+            case .undetermined:
+                AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                    DispatchQueue.main.async {
+                        completion(granted)
+                    }
+                }
+            @unknown default:
+                completion(false)
+            }
+        }
+    }
+    
     // MARK: 실시간 이퀄라이저용 FFT 및 녹음 처리
     func startAudioMonitoring() {
-        do {
-            try configureEngine { buffer, time in
-                // FFT -> 이퀄라이저 값 추출
-                let magnitudes = self.fftFromBuffer(buffer)
+        checkMicrophonePermission { granted in
+            guard granted else {
                 DispatchQueue.main.async {
-                    self.audioLevels = magnitudes
+                    self.step = .error("마이크 접근 권한이 필요합니다")
                 }
-                
-                // 녹음 버퍼에 변환된 float 데이터 추가
-                guard let converter = self.converter else { return }
-                
-                let inputBlock: AVAudioConverterInputBlock = { _, outStatus in
-                    outStatus.pointee = .haveData
-                    return buffer
-                }
-                
-                let inputFormat = self.inputNode!.outputFormat(forBus: 0)
-                let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32,
-                                                 sampleRate: 22050,
-                                                 channels: 1,
-                                                 interleaved: false)!
-                
-                let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat,
-                                                       frameCapacity: AVAudioFrameCount(outputFormat.sampleRate) * buffer.frameLength / AVAudioFrameCount(inputFormat.sampleRate))!
-                
-                let status = converter.convert(to: convertedBuffer, error: nil, withInputFrom: inputBlock)
-                if status == .haveData, let floatData = convertedBuffer.floatChannelData?[0] {
-                    let newData = Array(UnsafeBufferPointer(start: floatData, count: Int(convertedBuffer.frameLength)))
-                    self.recordingBuffer.append(contentsOf: newData)
-                }
+                return
             }
-            print("✅ AVAudioEngine 시작됨")
-            startRecordingTimer()
-            DispatchQueue.main.async {
-                self.step = .recording
-                self.recordingProgress = 0.0
-            }
-        } catch {
-            print("❌ 오디오 엔진 구성 실패: \(error)")
-            DispatchQueue.main.async {
-                self.step = .error("오디오 녹음을 시작할 수 없습니다.")
+
+            do {
+                try self.configureEngine { buffer, time in
+                    // FFT -> 이퀄라이저 값 추출
+                    let magnitudes = self.fftFromBuffer(buffer)
+                    DispatchQueue.main.async {
+                        self.audioLevels = magnitudes
+                    }
+                    
+                    // 녹음 버퍼에 변환된 float 데이터 추가
+                    guard let converter = self.converter else { return }
+                    
+                    let inputBlock: AVAudioConverterInputBlock = { _, outStatus in
+                        outStatus.pointee = .haveData
+                        return buffer
+                    }
+                    
+                    let inputFormat = self.inputNode!.outputFormat(forBus: 0)
+                    let outputFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32,
+                                                     sampleRate: 22050,
+                                                     channels: 1,
+                                                     interleaved: false)!
+                    
+                    let convertedBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat,
+                                                           frameCapacity: AVAudioFrameCount(outputFormat.sampleRate) * buffer.frameLength / AVAudioFrameCount(inputFormat.sampleRate))!
+                    
+                    let status = converter.convert(to: convertedBuffer, error: nil, withInputFrom: inputBlock)
+                    if status == .haveData, let floatData = convertedBuffer.floatChannelData?[0] {
+                        let newData = Array(UnsafeBufferPointer(start: floatData, count: Int(convertedBuffer.frameLength)))
+                        self.recordingBuffer.append(contentsOf: newData)
+                    }
+                }
+                print("✅ AVAudioEngine 시작됨")
+                self.startRecordingTimer()
+                DispatchQueue.main.async {
+                    self.step = .recording
+                    self.recordingProgress = 0.0
+                }
+            } catch {
+                print("❌ 오디오 엔진 구성 실패: \(error)")
+                DispatchQueue.main.async {
+                    self.step = .error("오디오 녹음을 시작할 수 없습니다.")
+                }
             }
         }
     }
@@ -145,12 +196,12 @@ class VoiceRecordViewModel: ObservableObject {
         let frameCount = Int(buffer.frameLength)
         let log2n = vDSP_Length(log2(Float(frameCount)))
         guard frameCount > 0, let fftSetup = vDSP_create_fftsetup(log2n, FFTRadix(kFFTRadix2)) else {
-            return Array(repeating: 0.0, count: audioLevels.count)
+            return Array(repeating: 0.0, count: fftBarCount)
         }
         defer { vDSP_destroy_fftsetup(fftSetup) }
 
         guard let channelData = buffer.floatChannelData?[0] else {
-            return Array(repeating: 0.0, count: audioLevels.count)
+            return Array(repeating: 0.0, count: fftBarCount)
         }
 
         // Hann 윈도우 적용 후 FFT 수행
@@ -163,7 +214,7 @@ class VoiceRecordViewModel: ObservableObject {
         var real = [Float](repeating: 0, count: frameCount/2)
         var imag = [Float](repeating: 0, count: frameCount/2)
         var magnitudes = [Float](repeating: 0.0, count: frameCount / 2)
-        var normalizedMagnitudes = [Float](repeating: 0.0, count: audioLevels.count)
+        var normalizedMagnitudes = [Float](repeating: 0.0, count: fftBarCount)
 
         real.withUnsafeMutableBufferPointer { realPtr in
             imag.withUnsafeMutableBufferPointer { imagPtr in
@@ -179,13 +230,13 @@ class VoiceRecordViewModel: ObservableObject {
         }
 
         // 구간별 평균 -> 막대별 스케일링
-        let step = magnitudes.count / audioLevels.count
-        for i in 0..<audioLevels.count {
+        let step = magnitudes.count / fftBarCount
+        for i in 0..<fftBarCount {
             let start = i * step
             let end = min(start + step, magnitudes.count)
             let slice = magnitudes[start..<end]
             let avg = slice.reduce(0, +) / Float(slice.count)
-            normalizedMagnitudes[i] = min(1.0, pow(avg, 0.5) / 5000.0)
+            normalizedMagnitudes[i] = min(1.0, pow(avg, 0.5) / fftNormalizationFactor)
         }
 
         return normalizedMagnitudes
@@ -273,7 +324,7 @@ class VoiceRecordViewModel: ObservableObject {
 
             do {
                 // 모델 입력 크기 조정(패딩 or 잘라내기)
-                let targetCount = 15600
+                let targetCount = self.mfccTargetSampleCount
                 let trimmed = Array(self.recordingBuffer.prefix(targetCount)) +
                               Array(repeating: 0.0, count: max(0, targetCount - self.recordingBuffer.count))
                 let inputArray = try MLMultiArray(shape: [NSNumber(value: targetCount)], dataType: .float32)
