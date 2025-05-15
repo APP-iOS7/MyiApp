@@ -119,7 +119,6 @@ struct NoteDetailView: View {
                             self.notificationTime! += " (\(diffMinutes)분 전)"
                         }
                     } else {
-                        // 알림 시간 정보를 가져올 수 없는 경우 기본값 사용
                         self.notificationTime = NotificationService.shared.getNotificationTimeText(for: self.event.date)
                     }
                 }

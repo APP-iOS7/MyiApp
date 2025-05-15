@@ -35,12 +35,11 @@ struct NoteEditorView: View {
         
         // 새로운 일정인 경우 일정 시간을 기본값으로
         if note == nil {
-            _reminderTime = State(initialValue: selectedDate) // 일정 시간 자체를 알림 시간으로
-            _reminderMinutesBefore = State(initialValue: 0) // 0은 일정 시간과 동일함을 의미
+            _reminderTime = State(initialValue: selectedDate)
+            _reminderMinutesBefore = State(initialValue: 0)
         } else {
-            // 기존 일정 수정의 경우 - 임시 초기값 설정 (나중에 업데이트됨)
             _reminderTime = State(initialValue: note!.date)
-            _reminderMinutesBefore = State(initialValue: 0) // 일정 시간과 동일
+            _reminderMinutesBefore = State(initialValue: 0)
         }
         
         if let note = note {
@@ -58,48 +57,40 @@ struct NoteEditorView: View {
         }
     }
     
-    // onAppear에서 알림 상태 확인
     private func checkNotificationStatus() {
         if let id = noteId, selectedCategory == .일정 {
             NotificationService.shared.checkNotificationExists(with: id.uuidString) { exists in
                 DispatchQueue.main.async {
                     self.isReminderEnabled = exists
                     
-                    // 기존 알림이 있다면 예상 시간 가져오기
                     if exists {
-                        // 기존 알림 시간 정보 가져오기
                         NotificationService.shared.getNotificationTriggerDate(with: id.uuidString) { triggerDate in
                             DispatchQueue.main.async {
                                 if let triggerDate = triggerDate {
                                     self.reminderTime = triggerDate
                                     
-                                    // 분 단위 차이 계산
                                     let diffSeconds = self.date.timeIntervalSince(triggerDate)
                                     let diffMinutes = Int(diffSeconds / 60)
                                     
                                     if diffMinutes > 0 {
-                                        // 표준 옵션과 일치하는지 확인
                                         if [10, 15, 30, 60, 120, 1440].contains(diffMinutes) {
                                             self.reminderMinutesBefore = diffMinutes
                                         } else {
-                                            self.reminderMinutesBefore = -1 // 사용자 지정 값
+                                            self.reminderMinutesBefore = -1
                                         }
                                     } else {
-                                        // 미래 시간이면 일정 시간으로 설정
                                         self.reminderTime = self.date
-                                        self.reminderMinutesBefore = -1 // 사용자 지정 값
+                                        self.reminderMinutesBefore = -1
                                     }
                                 } else {
-                                    // 알림 시간 정보가 없으면 일정 시간 사용
                                     self.reminderTime = self.date
-                                    self.reminderMinutesBefore = -1 // 사용자 지정 값
+                                    self.reminderMinutesBefore = -1
                                 }
                             }
                         }
                     } else {
-                        // 알림이 없는 경우 일정 시간으로 초기화
                         self.reminderTime = self.date
-                        self.reminderMinutesBefore = -1 // 사용자 지정 값
+                        self.reminderMinutesBefore = -1
                     }
                 }
             }
@@ -120,7 +111,6 @@ struct NoteEditorView: View {
                             selectedCategory = .일지
                         }
                         
-                        // 일정 카테고리 옵션
                         RadioButtonRow(
                             title: "일정",
                             icon: "calendar",
@@ -141,7 +131,6 @@ struct NoteEditorView: View {
                     DatePicker("날짜 및 시간", selection: $date)
                         .datePickerStyle(.compact)
                         .onChange(of: date) { _, newValue in
-                            // 날짜가 변경되면 자동으로 알림 시간도 업데이트
                             reminderTime = newValue.addingTimeInterval(TimeInterval(-reminderMinutesBefore * 60))
                         }
                 }
@@ -244,7 +233,6 @@ struct NoteEditorView: View {
                 }
             }
             .onAppear {
-                // 뷰가 나타날 때 알림 상태 확인
                 checkNotificationStatus()
             }
         }
@@ -266,7 +254,6 @@ struct NoteEditorView: View {
                 
                 notificationTimeString = NotificationService.shared.getNotificationTimeText(for: date, minutesBefore: reminderMinutesBefore)
             } else if let id = noteId {
-                // 알림이 비활성화되었다면 기존 알림 취소
                 NotificationService.shared.cancelNotification(with: id.uuidString)
             }
         }
@@ -295,7 +282,6 @@ struct NoteEditorView: View {
                 
                 viewModel.updateNote(note: updatedNote)
                 
-    // 알림 설정
     if selectedCategory == .일정 && isReminderEnabled {
         if NotificationService.shared.authorizationStatus == .authorized {
             let notificationResult = NotificationService.shared.scheduleNotification(for: updatedNote, minutesBefore: reminderMinutesBefore)
@@ -327,7 +313,6 @@ struct NoteEditorView: View {
                 }
             }
         } else {
-            // 새로운 노트 생성
             let newNoteId = UUID()
             
             if !selectedImages.isEmpty && selectedCategory == .일지 {
@@ -347,7 +332,6 @@ struct NoteEditorView: View {
                     images: selectedImages
                 )
                 
-                // 이미지 업로드 후 저장이 완료되면 알림 처리
                 if selectedCategory == .일정 && isReminderEnabled {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                         NotificationService.shared.scheduleNotification(for: newNote, minutesBefore: reminderMinutesBefore)
@@ -369,7 +353,6 @@ struct NoteEditorView: View {
                     category: selectedCategory
                 )
                 
-                // 알림 설정
                 if selectedCategory == .일정 && isReminderEnabled {
                     if NotificationService.shared.authorizationStatus == .authorized {
                         let notificationResult = NotificationService.shared.scheduleNotification(for: newNote, minutesBefore: reminderMinutesBefore)
