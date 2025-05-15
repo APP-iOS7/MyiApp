@@ -15,6 +15,7 @@ class HomeViewModel: ObservableObject {
     @Published var selectedCategory: GridItemCategory?
     @Published var recordToEdit: Record?
     @Published var isFlipped = false
+    
     private var cancellables = Set<AnyCancellable>()
     var displayName: String {
         baby.name
@@ -34,6 +35,15 @@ class HomeViewModel: ObservableObject {
     var displayDayCount: String {
         let days = Calendar.current.dateComponents([.day], from: baby.birthDate, to: Date()).day ?? 0
         return "\(days + 1)일"
+    }
+    var filteredRecords: [Record] {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: selectedDate)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return [] }
+        let filtered = baby.records.filter { record in
+            return record.createdAt >= startOfDay && record.createdAt < endOfDay
+        }
+        return filtered.sorted { $0.createdAt > $1.createdAt }
     }
     
     init() {

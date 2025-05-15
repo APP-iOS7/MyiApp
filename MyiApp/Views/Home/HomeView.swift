@@ -140,15 +140,27 @@ struct HomeView: View {
     }
     private var timeline: some View {
         VStack(spacing: 0) {
-            ForEach(viewModel.baby.records) { record in
-                TimelineRow(record: record)
-                    .onTapGesture {
-                        viewModel.recordToEdit = record
-                    }
-            }
-            .sheet(item: $viewModel.recordToEdit) { record in
-                AddRecordView(record: record)
-                    .presentationDetents([.medium])
+            if viewModel.filteredRecords.isEmpty {
+                VStack(spacing: 10) {
+                    Image(systemName: "doc.text.magnifyingglass")
+                        .font(.largeTitle)
+                        .foregroundColor(.gray)
+                    Text("이 날짜에 기록이 없습니다")
+                        .foregroundColor(.gray)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 50)
+            } else {
+                ForEach(viewModel.filteredRecords) { record in
+                    TimelineRow(record: record)
+                        .onTapGesture {
+                            viewModel.recordToEdit = record
+                        }
+                }
+                .sheet(item: $viewModel.recordToEdit) { record in
+                    AddRecordView(record: record)
+                        .presentationDetents([.medium])
+                }
             }
         }
     }
