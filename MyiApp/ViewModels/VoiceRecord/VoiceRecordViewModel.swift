@@ -21,10 +21,13 @@ enum CryAnalysisStep {
 
 class VoiceRecordViewModel: ObservableObject {
 
+    // MARK: 내부 에러 정의
     private enum AudioEngineError: Error {
         case initializationFailed
     }
 
+    // MARK: 엔진 구성
+    // 오디오 엔진 초기화 및 입력 탭 설치
     private func configureEngine(tapHandler: @escaping (AVAudioPCMBuffer, AVAudioTime) -> Void) throws {
         setupAudioSession()
         stopAudioMonitoring()
@@ -51,7 +54,7 @@ class VoiceRecordViewModel: ObservableObject {
     private var converter: AVAudioConverter?
     private let outputSampleRate: Double = 22050.0
     
-    // CoreML 모델 프로퍼티 추가
+    // CoreML 모델 로드
     private let model: DeepInfant_V2 = {
         do {
             return try DeepInfant_V2(configuration: MLModelConfiguration())
@@ -60,13 +63,13 @@ class VoiceRecordViewModel: ObservableObject {
         }
     }()
     
-    // 녹음 지속 시간 (7초)
-    private let recordingDuration: TimeInterval = 7.0
+    private let recordingDuration: TimeInterval = 7.0 // 녹음 시간 (7초)
     
-    @Published var audioLevels: [Float] = Array(repeating: 0.0, count: 8) // EqualizerView의 막대 수와 일치
+    @Published var audioLevels: [Float] = Array(repeating: 0.0, count: 8) // EqualizerView의 막대 수
     @Published var step: CryAnalysisStep = .start
     @Published var recordingProgress: Double = 0.0
     
+    // MARK: 유틸 함수
     // AVAudioPCMBuffer Float 배열 추출 함수
     func extractFloatArray(from buffer: AVAudioPCMBuffer) -> [Float] {
         guard let channelData = buffer.floatChannelData?[0] else {
@@ -76,7 +79,7 @@ class VoiceRecordViewModel: ObservableObject {
         return Array(UnsafeBufferPointer(start: channelData, count: frameLength))
     }
     
-    // 오디오 세션 설정하기
+    // MARK: 오디오 세션 설정
     func setupAudioSession() {
         audioSession = AVAudioSession.sharedInstance()
         do {
@@ -90,16 +93,17 @@ class VoiceRecordViewModel: ObservableObject {
         }
     }
     
-    // 오디오 측정을 시작하는 함수
+    // MARK: 실시간 이퀄라이저용 FFT 및 녹음 처리
     func startAudioMonitoring() {
         do {
             try configureEngine { buffer, time in
-                // 기존 FFT + converter + buffer append 로직 유지
+                // FFT -> 이퀄라이저 값 추출
                 let magnitudes = self.fftFromBuffer(buffer)
                 DispatchQueue.main.async {
                     self.audioLevels = magnitudes
                 }
-
+                
+                // 녹음 버퍼에 변환된 float 데이터 추가
                 guard let converter = self.converter else { return }
                 
                 let inputBlock: AVAudioConverterInputBlock = { _, outStatus in
@@ -136,7 +140,7 @@ class VoiceRecordViewModel: ObservableObject {
         }
     }
     
-    // FFT 분석 및 주파수별 magnitude 계산 함수
+    // MARK: FFT를 통한 이퀄라이저 애니메이션 값 계산
     private func fftFromBuffer(_ buffer: AVAudioPCMBuffer) -> [Float] {
         let frameCount = Int(buffer.frameLength)
         let log2n = vDSP_Length(log2(Float(frameCount)))
@@ -144,51 +148,46 @@ class VoiceRecordViewModel: ObservableObject {
             return Array(repeating: 0.0, count: audioLevels.count)
         }
         defer { vDSP_destroy_fftsetup(fftSetup) }
-        
+
         guard let channelData = buffer.floatChannelData?[0] else {
             return Array(repeating: 0.0, count: audioLevels.count)
         }
-        
+
+        // Hann 윈도우 적용 후 FFT 수행
         var window = [Float](repeating: 0, count: frameCount)
         vDSP_hann_window(&window, vDSP_Length(frameCount), Int32(vDSP_HANN_NORM))
         var windowedSignal = [Float](repeating: 0, count: frameCount)
         vDSP_vmul(channelData, 1, window, 1, &windowedSignal, 1, vDSP_Length(frameCount))
-        
+
+        // 복소수 변환 및 magnitude 계산
         var real = [Float](repeating: 0, count: frameCount/2)
         var imag = [Float](repeating: 0, count: frameCount/2)
         var magnitudes = [Float](repeating: 0.0, count: frameCount / 2)
         var normalizedMagnitudes = [Float](repeating: 0.0, count: audioLevels.count)
-        
+
         real.withUnsafeMutableBufferPointer { realPtr in
             imag.withUnsafeMutableBufferPointer { imagPtr in
                 var splitComplex = DSPSplitComplex(realp: realPtr.baseAddress!, imagp: imagPtr.baseAddress!)
-                
                 windowedSignal.withUnsafeBufferPointer {
-                    guard let baseAddress = $0.baseAddress else { return }
-                    baseAddress.withMemoryRebound(to: DSPComplex.self, capacity: frameCount) {
+                    $0.baseAddress!.withMemoryRebound(to: DSPComplex.self, capacity: frameCount) {
                         vDSP_ctoz($0, 2, &splitComplex, 1, vDSP_Length(frameCount / 2))
                     }
                 }
-                
                 vDSP_fft_zrip(fftSetup, &splitComplex, 1, log2n, FFTDirection(FFT_FORWARD))
                 vDSP_zvmags(&splitComplex, 1, &magnitudes, 1, vDSP_Length(frameCount / 2))
-                
-                guard audioLevels.count > 0 else { return }
-                let step = magnitudes.count / audioLevels.count
-                for i in 0..<audioLevels.count {
-                    let start = i * step
-                    let end = start + step
-                    if start < magnitudes.count {
-                        let validEnd = min(end, magnitudes.count)
-                        let slice = magnitudes[start..<validEnd]
-                        let avg = slice.reduce(0, +) / Float(slice.count)
-                        let scaled = pow(avg, 0.5) / 5000.0
-                        normalizedMagnitudes[i] = min(1.0, scaled)
-                    }
-                }
             }
         }
-        
+
+        // 구간별 평균 -> 막대별 스케일링
+        let step = magnitudes.count / audioLevels.count
+        for i in 0..<audioLevels.count {
+            let start = i * step
+            let end = min(start + step, magnitudes.count)
+            let slice = magnitudes[start..<end]
+            let avg = slice.reduce(0, +) / Float(slice.count)
+            normalizedMagnitudes[i] = min(1.0, pow(avg, 0.5) / 5000.0)
+        }
+
         return normalizedMagnitudes
     }
     
@@ -236,7 +235,7 @@ class VoiceRecordViewModel: ObservableObject {
         return array
     }
     
-    
+    // MARK: 분석 실행
     func recordAndAnalyzeCry(completion: @escaping (EmotionResult) -> Void) {
         do {
             try configureEngine { buffer, time in
@@ -273,15 +272,16 @@ class VoiceRecordViewModel: ObservableObject {
 
 
             do {
+                // 모델 입력 크기 조정(패딩 or 잘라내기)
                 let targetCount = 15600
                 let trimmed = Array(self.recordingBuffer.prefix(targetCount)) +
                               Array(repeating: 0.0, count: max(0, targetCount - self.recordingBuffer.count))
-
                 let inputArray = try MLMultiArray(shape: [NSNumber(value: targetCount)], dataType: .float32)
                 for (i, value) in trimmed.enumerated() {
                     inputArray[i] = NSNumber(value: value)
                 }
-
+                
+                // Core ML 모델 추론
                 let input = DeepInfant_V2Input(audioSamples: inputArray)
                 let output = try self.model.prediction(input: input)
                 let label = output.target
@@ -289,7 +289,6 @@ class VoiceRecordViewModel: ObservableObject {
 
                 let result = EmotionResult(type: EmotionType(rawValue: label) ?? .unknown, confidence: confidence)
                 print("🔍 분석 결과: \(label), 신뢰도: \(confidence)")
-
                 completion(result)
             } catch {
                 print("❌ CoreML 추론 실패: \(error.localizedDescription)")
@@ -298,7 +297,7 @@ class VoiceRecordViewModel: ObservableObject {
         }
     }
     
-    
+    // MARK: 정리 및 취소
     func stopAudioMonitoring() {
         analysisTimer?.invalidate()
         analysisTimer = nil
