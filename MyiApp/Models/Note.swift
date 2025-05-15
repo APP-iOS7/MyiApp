@@ -21,6 +21,7 @@ struct Note: Identifiable, Hashable, Codable {
     var description: String
     var date: Date
     var category: NoteCategory
+    var imageURLs: [String]
     
     var timeString: String {
         let formatter = DateFormatter()
@@ -37,6 +38,15 @@ struct Note: Identifiable, Hashable, Codable {
     
     static func == (lhs: Note, rhs: Note) -> Bool {
         lhs.id == rhs.id
+    }
+    
+    init(id: UUID = UUID(), title: String, description: String, date: Date, category: NoteCategory, imageURLs: [String] = []) {
+        self.id = id
+        self.title = title
+        self.description = description
+        self.date = date
+        self.category = category
+        self.imageURLs = imageURLs
     }
 }
 
