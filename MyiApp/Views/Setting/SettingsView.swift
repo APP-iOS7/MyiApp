@@ -10,11 +10,13 @@ import SwiftUI
 struct SettingsView: View {
     @StateObject private var viewModel = AccountSettingsViewModel.shared
     @State private var showingAlert = false
+    @State private var showSnackbar = false
+    @State private var snackbarMessage = ""
     
     
     var body: some View {
         NavigationStack {
-            List {
+            Form {
                 // 프로필 섹션
                 Section(header: Text("사용자 프로필")) {
                     HStack {
@@ -62,7 +64,46 @@ struct SettingsView: View {
             } message: {
                 Text("로그아웃 됩니다")
             }
+            .overlay {
+                if showSnackbar {
+                    SnackbarView(message: snackbarMessage)
+                        .transition(.move(edge: .bottom))
+                }
+            }
+            .onChange(of: viewModel.isProfileSaved) { _, newValue in
+                if newValue {
+                    snackbarMessage = "프로필이 변경되었습니다"
+                    showSnackbar = true
+                    Task {
+                        try await Task.sleep(for: .seconds(2))
+                        withAnimation {
+                            showSnackbar = false
+                            viewModel.isProfileSaved = false
+                        }
+                    }
+                }
+            }
         }
+    }
+}
+
+// 스낵바 뷰
+struct SnackbarView: View {
+    let message: String
+    
+    var body: some View {
+        VStack {
+            Spacer()
+            Text(message)
+                .padding(.vertical, 12)
+                .padding(.horizontal, 20)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(12)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 20)
+        }
+        .animation(.easeInOut, value: UUID())
     }
 }
 
