@@ -8,60 +8,59 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @State private var profileImage: Image = Image(systemName: "person.circle.fill")
+    @StateObject private var viewModel = AccountSettingsViewModel.shared
     @State private var showingAlert = false
     
+    
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 // 프로필 섹션
                 Section(header: Text("사용자 프로필")) {
                     HStack {
-                        profileImage
-                            .resizable()
-                            .frame(width: 44, height: 44)
-                            .clipShape(Circle())
-                            .foregroundColor(Color("sharkPrimaryColor"))
-                            .font(.headline)
-                        
-                        NavigationLink(destination: AccountSettingsView()){
-                            Text("김죠스 엄마")
+                        if let profileImage = viewModel.profileImage {
+                            Image(uiImage: profileImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 60, height: 60)
+                                .clipShape(Circle())
+                        } else {
+                            Image(systemName: "person.crop.circle.fill")
+                                .resizable()
+                                .frame(width: 60, height: 60)
+                                .foregroundStyle(.gray)
                         }
+                        
+                        NavigationLink(destination: AccountSettingsView(viewModel: viewModel)) {
+                            Text(viewModel.name.isEmpty ? "이름 없음" : viewModel.name)
+                                .padding(.leading, 16)
+                                .font(.system(size: 20))
+                        }
+                        
                         Spacer()
                     }
                 }
                 Section(header: Text("계정 설정")) {
-                    NavigationLink(destination: BabyProfileView()) {
-                        Text("아기 정보")
-                    }
-                    NavigationLink(destination: NotificationSettingsView()) {
-                        Text("알림 설정")
-                    }
+                    NavigationLink("아기 정보", destination: BabyProfileView())
+                    NavigationLink("알림 설정", destination: NotificationSettingsView())
                 }
                 Section(header: Text("개인 정보")) {
-                    NavigationLink(destination: PrivacyPolicyView()) {
-                        Text("개인정보 처리 방침")
-                    }
-                    NavigationLink(destination: TermsOfServiceView()) {
-                        Text("이용약관")
-                    }
+                    NavigationLink("개인정보 처리 방침", destination: PrivacyPolicyView())
+                    NavigationLink("이용약관", destination: TermsOfServiceView())
                 }
                 Section(header: Text("기타")) {
-                    NavigationLink(destination: AppVersionView()) {
-                        Text("앱 버전")
-                    }
+                    NavigationLink("앱 버전", destination: AppVersionView())
                 }
-                Button("로그아웃", action: { showingAlert = true })
-                    .foregroundStyle(Color.red)
+                Button("로그아웃", role: .destructive) { showingAlert = true }
             }
-            .navigationTitle(Text("설정"))
+            .navigationTitle("설정")
             .alert("로그아웃", isPresented: $showingAlert) {
-                Button("Cancel", role: .cancel) { }
-                Button("Log Out", role: .destructive) {
+                Button("취소", role: .cancel) {}
+                Button("로그아웃", role: .destructive) {
                     AuthService.shared.signOut()
                 }
             } message: {
-                Text("정말 로그아웃 하시겠습니까?")
+                Text("로그아웃 됩니다")
             }
         }
     }
