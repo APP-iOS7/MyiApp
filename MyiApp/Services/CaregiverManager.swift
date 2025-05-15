@@ -17,7 +17,7 @@ class CaregiverManager: ObservableObject {
             if selectedBaby == nil && !babies.isEmpty {
                 selectedBaby = babies[0]
             } else {
-                print("선택된 아기가 없음. CaregiverManager를 봐야함.")
+                print("CaregiverManager: 선택된 아기가 없음. 봐야함.")
             }
         }
     }
@@ -46,6 +46,7 @@ class CaregiverManager: ObservableObject {
                 
                 await MainActor.run {
                     self.babies = loadedBabies
+
                     self.caregiver = Caregiver(id: uid, babies: loadedBabies)
                 }
             }
@@ -55,33 +56,6 @@ class CaregiverManager: ObservableObject {
         setupBinding()
     }
     
-    //    func addBaby(_ baby: Baby) async throws {
-    //        let babyRef = db.collection("babies").document(baby.id.uuidString)
-    //        try babyRef.setData(from: baby)
-    //
-    //        guard let uid = AuthService.shared.user?.uid else { return }
-    //        let userDocRef = db.collection("users").document(uid)
-    //        try await userDocRef.setData([
-    //            "babies": FieldValue.arrayUnion([babyRef])
-    //        ], merge: true)
-    //
-    //        await loadCaregiverInfo()
-    //    }
-    //
-    //    func removeBaby(_ baby: Baby) async throws {
-    //        let babyRef = db.collection("babies").document(baby.id.uuidString)
-    //        try await babyRef.delete()
-    //
-    //        guard let uid = AuthService.shared.user?.uid else { return }
-    //        let userDocRef = db.collection("users").document(uid)
-    //        try await userDocRef.setData([
-    //            "babies": FieldValue.arrayRemove([babyRef])
-    //        ], merge: true)
-    //
-    //        await loadCaregiverInfo()
-    //    }
-    
-    @MainActor
     private func setupBinding() {
         if let babyId = selectedBaby?.id {
             let babyRef = db.collection("babies").document(babyId.uuidString)
@@ -93,9 +67,9 @@ class CaregiverManager: ObservableObject {
                     if case .failure(let error) = completion {
                         print("아기 정보를 가져오는데 실패했습니다: \(error.localizedDescription)")
                     }
-                }, receiveValue: { baby in
-                    self.selectedBaby = baby
-                    print("setupBinding: selectedBaby updated \(baby.records.count)")
+                }, receiveValue: { [weak self] baby in
+                    self?.selectedBaby = baby
+                    print("CaregiverManager: selectedBaby record updated \(baby.records.count)")
                 })
                 .store(in: &cancellables)
             
@@ -103,33 +77,59 @@ class CaregiverManager: ObservableObject {
     }
     
     func saveRecord(record: Record) {
-        // 선택된 아기가 없는 경우 오류를 출력하고 종료합니다.
         guard let babyId = selectedBaby?.id else {
             print("오류: 선택된 아기가 없습니다.")
             return
         }
-        
         let babyRef = db.collection("babies").document(babyId.uuidString)
-        
-        do {
-            // Record 객체를 Firestore에 저장할 수 있는 Dictionary로 인코딩합니다.
-            let recordData = try Firestore.Encoder().encode(record)
-            
-            // Baby.swift의 records 배열 필드에 새 레코드를 추가합니다.
-            babyRef.updateData(["records": FieldValue.arrayUnion([recordData])])
-                .sink { completion in
-                    switch completion {
-                        case .failure(let error):
-                            print("레코드 저장 중 오류: \(error.localizedDescription)")
-                        case .finished:
-                            print("레코드 저장 완료.")
-                    }
-                } receiveValue: { _ in
+        babyRef.getDocument()
+            .compactMap { try? $0.data(as: Baby.self) }
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    print("데이터 가져오기 오류: \(error.localizedDescription)")
                 }
-                .store(in: &cancellables)
-            
-        } catch {
-            print("레코드 인코딩 오류: \(error.localizedDescription)")
+            } receiveValue: { baby in
+                var updatedRecords = baby.records.filter { $0.id != record.id }
+                updatedRecords.append(record)
+                babyRef.updateData(["records": updatedRecords.map { try! Firestore.Encoder().encode($0) }])
+                    .sink { completion in
+                        switch completion {
+                            case .failure(let error):
+                                print("레코드 저장/업데이트 오류: \(error.localizedDescription)")
+                            case .finished:
+                                print("레코드 저장/업데이트 완료.")
+                        }
+                    } receiveValue: { _ in }
+                    .store(in: &self.cancellables)
+            }
+            .store(in: &cancellables)
+    }
+    
+    func deleteRecord(record: Record) {
+        guard let babyId = selectedBaby?.id else {
+            print("오류: 선택된 아기가 없습니다.")
+            return
         }
+        let babyRef = db.collection("babies").document(babyId.uuidString)
+        babyRef.getDocument()
+            .compactMap { try? $0.data(as: Baby.self) }
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    print("데이터 가져오기 오류: \(error.localizedDescription)")
+                }
+            } receiveValue: { baby in
+                let updatedRecords = baby.records.filter { $0.id != record.id }
+                babyRef.updateData(["records": updatedRecords.map { try! Firestore.Encoder().encode($0) }])
+                    .sink { completion in
+                        switch completion {
+                            case .failure(let error):
+                                print("레코드 삭제 오류: \(error.localizedDescription)")
+                            case .finished:
+                                print("레코드 삭제 완료.")
+                        }
+                    } receiveValue: { _ in }
+                    .store(in: &self.cancellables)
+            }
+            .store(in: &cancellables)
     }
 }

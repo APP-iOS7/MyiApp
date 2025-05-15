@@ -10,12 +10,12 @@ import SwiftUI
 import Combine
 
 class HomeViewModel: ObservableObject {
-    @Published var baby: Baby = CaregiverManager.shared.selectedBaby!
+    @Published var baby: Baby!
     @Published var selectedDate: Date = Date()
     @Published var selectedCategory: GridItemCategory?
+    @Published var recordToEdit: Record?
     @Published var isFlipped = false
     private var cancellables = Set<AnyCancellable>()
-    private let caregiverManager = CaregiverManager.shared
     var displayName: String {
         baby.name
     }
@@ -36,4 +36,9 @@ class HomeViewModel: ObservableObject {
         return "\(days + 1)일"
     }
     
+    init() {
+        self.baby = CaregiverManager.shared.selectedBaby!
+        CaregiverManager.shared.$selectedBaby
+            .assign(to: &$baby)
+    }
 }
