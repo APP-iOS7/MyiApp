@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		821A3C642DD41BAB003BFB6C /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 821A3C632DD41BAB003BFB6C /* FirebaseStorage */; };
 		B3019C532DCB6DB300C3F02A /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B3019C522DCB6DB300C3F02A /* FirebaseAnalytics */; };
 		B3019C552DCB6DB300C3F02A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = B3019C542DCB6DB300C3F02A /* FirebaseAuth */; };
 		B3019C572DCB6DB300C3F02A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B3019C562DCB6DB300C3F02A /* FirebaseFirestore */; };
@@ -53,6 +54,7 @@
 				B35CF1742DCE722000FAD1FA /* GoogleSignIn in Frameworks */,
 				B3412B582DCF86B50059184D /* FirebaseFirestoreCombine-Community in Frameworks */,
 				D87807D62DD4316400328465 /* FirebaseStorage in Frameworks */,
+				821A3C642DD41BAB003BFB6C /* FirebaseStorage in Frameworks */,
 				B3019C552DCB6DB300C3F02A /* FirebaseAuth in Frameworks */,
 				B3019C572DCB6DB300C3F02A /* FirebaseFirestore in Frameworks */,
 			);
@@ -113,6 +115,7 @@
 				B3412B572DCF86B50059184D /* FirebaseFirestoreCombine-Community */,
 				D87807D52DD4316400328465 /* FirebaseStorage */,
 				D87807D72DD4319100328465 /* FirebaseStorageCombine-Community */,
+
 			);
 			productName = MyiApp;
 			productReference = B3019C252DCB69B300C3F02A /* MyiApp.app */;
@@ -304,10 +307,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
-				CODE_SIGN_ENTITLEMENTS = MyiApp/MyiApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6Z8UAF8H5G;
+				DEVELOPMENT_TEAM = 59FP2PXRXK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MyiApp/Info.plist;
@@ -336,10 +338,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
-				CODE_SIGN_ENTITLEMENTS = MyiApp/MyiApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6Z8UAF8H5G;
+				DEVELOPMENT_TEAM = 59FP2PXRXK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MyiApp/Info.plist;
@@ -405,6 +406,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		821A3C632DD41BAB003BFB6C /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B3019C512DCB6DB300C3F02A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
 		B3019C522DCB6DB300C3F02A /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B3019C512DCB6DB300C3F02A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
