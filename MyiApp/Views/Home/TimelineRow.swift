@@ -62,36 +62,14 @@ struct TimelineRow: View {
     
     private var circleColor: Color {
         switch record.title {
-            case .formula:
-                return Color.blue.opacity(0.6)
-            case .babyFood:
-                return Color.orange.opacity(0.7)
-            case .pumpedMilk:
-                return Color.cyan
-            case .breastfeeding:
-                return Color.pink.opacity(0.7)
-            case .diaper:
-                return Color.brown.opacity(0.5)
-            case .sleep:
-                return Color.purple.opacity(0.6)
-            case .heightWeight:
-                return Color.green.opacity(0.6)
-            case .bath:
-                return Color.mint
-            case .snack:
-                return Color.yellow.opacity(0.8)
-            case .temperature:
-                return Color.red.opacity(0.7)
-            case .medicine:
-                return Color.indigo
-            case .clinic:
-                return Color.teal
-            case .poop:
-                return Color(red: 0.6, green: 0.4, blue: 0.2)  // 진한 갈색
-            case .pee:
-                return Color.yellow.opacity(0.6)
-            case .pottyAll:
-                return Color(red: 0.7, green: 0.6, blue: 0.3)
+            case .formula, .babyFood, .pumpedMilk, .breastfeeding: return .food
+            case .diaper: return .diaper
+            case .sleep: return .sleep
+            case .heightWeight: return .heightWeight
+            case .bath: return .bath
+            case .snack: return .snack
+            case .temperature, .medicine, .clinic: return .health
+            case .pottyAll, .poop, .pee: return .potty
         }
     }
     
