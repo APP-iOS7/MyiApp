@@ -51,7 +51,7 @@ struct PhotoPicker: UIViewControllerRepresentable {
                     result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] (object, error) in
                         defer { dispatchGroup.leave() }
                         
-                        guard let self = self, let image = object as? UIImage else { return }
+                        guard let _self = self, let image = object as? UIImage else { return }
                         newImages.append(image)
                     }
                 } else {
