@@ -8,13 +8,15 @@
 import Accelerate
 import Foundation
 
+// MFCC를 추출하는 구조체
 struct MFCCExtractor {
     let sampleRate: Float = 22050
-    let frameLength: Int = 2048
-    let hopLength: Int = 512
-    let numMelBands: Int = 40
-    let numCoefficients: Int = 13
+    let frameLength: Int = 2048 // 한 프레임당의 길이
+    let hopLength: Int = 512 // 프레임 간격
+    let numMelBands: Int = 40 // Mel 필터 수
+    let numCoefficients: Int = 13 // 최종 추출할 MFCC 계수 수
 
+    // 음성 신호로부터 MFCC 특징 벡터 배열을 추출
     func extract(from signal: [Float]) -> [[Float]] {
         guard signal.count >= frameLength else { return [] }
 
@@ -25,7 +27,7 @@ struct MFCCExtractor {
 
         var mfccs: [[Float]] = []
 
-        // 1. Hann Window
+        // 1. Hann Window 생성 (프레임 경계의 급격한 변화 완화용)
         var window = [Float](repeating: 0.0, count: frameLength)
         vDSP_hann_window(&window, vDSP_Length(frameLength), Int32(vDSP_HANN_NORM))
 
@@ -36,11 +38,11 @@ struct MFCCExtractor {
             let avgAmplitude = frame.reduce(0, +) / Float(frame.count)
             print("📊 \(frameIndex)번째 프레임 평균: \(avgAmplitude)")
 
-            // 3. Apply window
+            // 2. Window 적용
             var windowed = [Float](repeating: 0.0, count: frameLength)
             vDSP_vmul(frame, 1, window, 1, &windowed, 1, vDSP_Length(frameLength))
 
-            // 4. FFT
+            // 3. FFT (실수 신호를 복소수 주파수 영역으로 변환)
             var realp = [Float](repeating: 0.0, count: frameLength / 2)
             var imagp = [Float](repeating: 0.0, count: frameLength / 2)
             realp.withUnsafeMutableBufferPointer { realBuf in
@@ -59,10 +61,8 @@ struct MFCCExtractor {
                 }
             }
 
-            // 5. Power spectrum
+            // 4. 파워 스펙트럼 계산 (각 주파수의 에너지 크기 계산)
             var magnitudes = [Float](repeating: 0.0, count: frameLength / 2)
-            
-            // Fix: 여기서 realp와 imagp 배열에 안전하게 접근
             realp.withUnsafeMutableBufferPointer { realBuf in
                 imagp.withUnsafeMutableBufferPointer { imagBuf in
                     var splitComplex = DSPSplitComplex(realp: realBuf.baseAddress!, imagp: imagBuf.baseAddress!)
@@ -70,19 +70,21 @@ struct MFCCExtractor {
                 }
             }
 
-            // 6. Mel filterbank (simplified - real Mel filters needed for production)
+            // 5. Mel 필터뱅그 적용 (아직 간단하게 구현된 버전이라 더 정교한 로직 필요)
             let melEnergies = Array(magnitudes.prefix(numMelBands))
 
-            // 7. Log compression
-            let epsilon: Float = 1e-6
+            // 6. Log 압축 (에너지 값의 크기 차이가 커서 Log로 스케일 조정)
+            let epsilon: Float = 1e-6 // log(0) 방지
             let logMel = melEnergies.map { log($0 + epsilon) }
             print("🔍 로그 Mel 에너지 (프레임 \(frameIndex)): \(logMel)")
             
+            // NaN 또는 무한값 검출 (안정성 확보)
             if logMel.contains(where: { $0.isNaN || $0.isInfinite }) {
                 print("🚫 로그 Mel 에너지에 NaN 또는 무한값 있음 → 프레임 \(frameIndex) 스킵")
                 continue
             }
-
+            
+            // 7. DCT 적용 -> MFCC 추출
             let mfcc = computeDCT(logMel, outputCount: numCoefficients)
             print("🎼 MFCC 결과 (프레임 \(frameIndex)): \(mfcc)")
             mfccs.append(mfcc)
@@ -91,6 +93,8 @@ struct MFCCExtractor {
         print("✅ 최종 MFCC 개수: \(mfccs.count)")
         return mfccs
     }
+    
+    // DCT 수행 -> 저주파 정보 추출
     private func computeDCT(_ input: [Float], outputCount: Int) -> [Float] {
         let N = input.count
         var result = [Float](repeating: 0.0, count: outputCount)
