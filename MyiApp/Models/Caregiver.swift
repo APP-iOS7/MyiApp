@@ -8,6 +8,11 @@
 import Foundation
 
 struct Caregiver: Codable, Identifiable {
-    var id: UUID
+    var id: String
     var babies: [Baby]
+    
+    init(id: String, babies: [Baby]) {
+        self.id = id
+        self.babies = babies
+    }
 }
