@@ -8,7 +8,15 @@
 import SwiftUI
 
 struct DailyChartView: View {
-    let records: [Record]
+    let baby: Baby
+    
+    var birthDate: Date {
+        baby.birthDate
+    }
+    
+    var records: [Record] {
+        baby.records
+    }
     let selectedDate: Date
     
     var body: some View {
@@ -54,7 +62,10 @@ struct DailyChartView: View {
             }
             
             //가운데 정보
-            Text("13개월 18일")
+            let months = Calendar.current.dateComponents([.month, .day], from: baby.birthDate, to: Date()).month ?? 0
+            let days = Calendar.current.dateComponents([.day], from: Calendar.current.date(byAdding: .month, value: months, to: baby.birthDate) ?? Date(), to: Date()).day ?? 0
+            
+            Text("\(months)개월 \(days)일")
                 .font(.headline)
                 .foregroundColor(.gray)
         }
@@ -133,7 +144,7 @@ struct DailyChartView: View {
     }
 }
 
-// 예: 13:30 → 13.5
+// 예: 13:30 -> 13.5
 private func hourDecimal(from date: Date) -> Double {
     let components = Calendar.current.dateComponents([.hour, .minute], from: date)
     let hour = Double(components.hour ?? 0)

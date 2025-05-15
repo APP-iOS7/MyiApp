@@ -9,7 +9,15 @@ import SwiftUI
 
 struct WeeklyStatisticCardListView: View {
     
-    let records: [Record]
+    let baby: Baby
+    
+    var birthDate: Date {
+        baby.birthDate
+    }
+    
+    var records: [Record] {
+        baby.records
+    }
     let selectedDate: Date
     var thisWeekRange: DateInterval {
         var calendar = Calendar.current
@@ -44,7 +52,8 @@ struct WeeklyStatisticCardListView: View {
                 lastamount: totalMlAmount(in: records, within: lastWeekRange),
                 time: totalBreastfeedingMinutes(in: records, within: thisWeekRange),
                 lasttime: totalBreastfeedingMinutes(in: records, within: lastWeekRange),
-                mode : "weekly"
+                mode : "weekly",
+                baby: baby
             )
             
             StatisticCardView(
@@ -57,14 +66,16 @@ struct WeeklyStatisticCardListView: View {
                 lastamount: nil,
                 time: nil,
                 lasttime: nil,
-                mode : "weekly"
+                mode : "weekly",
+                baby: baby
             )
             PottyStatisticCardView(
                 small: pottyCount.small,
                 yesterdaysmall: yesterdaypottyCount.small,
                 big: pottyCount.big,
                 yesterdaybig: yesterdaypottyCount.big,
-                mode : "weekly"
+                mode : "weekly",
+                baby: baby
             )
             
             StatisticCardView(
@@ -77,7 +88,8 @@ struct WeeklyStatisticCardListView: View {
                 lastamount: nil,
                 time: totalSleepMinutes(in: records, within: thisWeekRange),
                 lasttime: totalSleepMinutes(in: records, within: lastWeekRange),
-                mode : "weekly"
+                mode : "weekly",
+                baby: baby
             )
             
             StatisticCardView(
@@ -90,7 +102,8 @@ struct WeeklyStatisticCardListView: View {
                 lastamount: nil,
                 time: nil,
                 lasttime: nil,
-                mode : "weekly"
+                mode : "weekly",
+                baby: baby
             )
             
             StatisticCardView(
@@ -103,7 +116,8 @@ struct WeeklyStatisticCardListView: View {
                 lastamount: nil,
                 time: nil,
                 lasttime: nil,
-                mode : "weekly"
+                mode : "weekly",
+                baby: baby
             )
         }
         .padding(.horizontal)

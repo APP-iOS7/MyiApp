@@ -19,9 +19,15 @@ struct StatisticCardView: View {
     let lasttime: Int?
     let mode : String
     
+    let baby: Baby
+    
+    var records: [Record] {
+        baby.records
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            NavigationLink(destination: destinationView(for: title)) {
+            NavigationLink(destination: destinationView(for: title, baby: baby)) {
                 HStack {
                     Image(uiImage: image)
                         .resizable()
@@ -90,9 +96,15 @@ struct PottyStatisticCardView: View {
     let yesterdaybig: Int
     let mode: String
     
+    let baby: Baby
+    
+    var records: [Record] {
+        baby.records
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            NavigationLink(destination: destinationView(for: "배변 통계")) {
+            NavigationLink(destination: destinationView(for: "배변 통계", baby: baby)) {
                 HStack {
                     Image(uiImage: .colorPotty)
                         .resizable()
@@ -129,20 +141,20 @@ struct PottyStatisticCardView: View {
 }
 
 @ViewBuilder
-func destinationView(for title: String) -> some View {
+func destinationView(for title: String, baby: Baby) -> some View {
     switch title {
     case "분유/수유/이유식 통계":
-        FoodDetailView()
+        FoodDetailView(baby: baby)
     case "기저귀 통계":
-        DiaperDetailView()
+        DiaperDetailView(baby: baby)
     case "수면 통계":
-        SleepDetailView()
+        SleepDetailView(baby: baby)
     case "목욕 통계":
-        BathDetailView()
+        BathDetailView(baby: baby)
     case "간식 통계":
-        SnackDetailView()
+        SnackDetailView(baby: baby)
     case "배변 통계":
-        PottyDetailView()
+        PottyDetailView(baby: baby)
     default:
         EmptyView()
     }
