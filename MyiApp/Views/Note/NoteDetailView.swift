@@ -13,6 +13,8 @@ struct NoteDetailView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var showingEditSheet = false
     @State private var showingDeleteAlert = false
+    @State private var hasNotification = false
+    @State private var notificationTime: String?
     
     var body: some View {
         ScrollView {
@@ -78,6 +80,51 @@ struct NoteDetailView: View {
                 "이 일지는 영구적으로 삭제되며,\n복구할 수 없습니다." :
                 "이 일정은 영구적으로 삭제되며,\n복구할 수 없습니다.")
         }
+        .onAppear {
+            if event.category == .일정 {
+                checkNotificationStatus()
+            }
+        }
+    }
+    
+    private func checkNotificationStatus() {
+        NotificationService.shared.checkNotificationExists(with: event.id.uuidString) { exists in
+            self.hasNotification = exists
+            if exists {
+                // 실제 알림 시간 가져오기
+                NotificationService.shared.getNotificationTriggerDate(with: event.id.uuidString) { triggerDate in
+                    if let triggerDate = triggerDate {
+                        let formatter = DateFormatter()
+                        formatter.dateFormat = "MM월 dd일 a h:mm"
+                        formatter.amSymbol = "오전"
+                        formatter.pmSymbol = "오후"
+                        formatter.locale = Locale(identifier: "ko_KR")
+                        
+                        self.notificationTime = formatter.string(from: triggerDate)
+                        
+                        // 시간 차이 계산하여 표시 (옵션)
+                        let diffSeconds = self.event.date.timeIntervalSince(triggerDate)
+                        let diffMinutes = Int(diffSeconds / 60)
+                        
+                        if diffMinutes >= 60 {
+                            if diffMinutes % 60 == 0 {
+                                let hours = diffMinutes / 60
+                                self.notificationTime! += " (\(hours)시간 전)"
+                            } else {
+                                let hours = diffMinutes / 60
+                                let mins = diffMinutes % 60
+                                self.notificationTime! += " (\(hours)시간 \(mins)분 전)"
+                            }
+                        } else {
+                            self.notificationTime! += " (\(diffMinutes)분 전)"
+                        }
+                    } else {
+                        // 알림 시간 정보를 가져올 수 없는 경우 기본값 사용
+                        self.notificationTime = NotificationService.shared.getNotificationTimeText(for: self.event.date)
+                    }
+                }
+            }
+        }
     }
     
     private var headerSection: some View {
@@ -139,31 +186,62 @@ struct NoteDetailView: View {
             Text("알림 정보")
                 .font(.headline)
             
-            HStack {
-                Image(systemName: "bell.fill")
-                    .foregroundColor(.orange)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("알림 예정(미구현입니다)")
-                        .font(.subheadline)
+            if hasNotification, let notificationTime = notificationTime {
+                HStack {
+                    Image(systemName: "bell.fill")
+                        .foregroundColor(.orange)
                     
-                    Text("일정 30분 전")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("알림 예정")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
+                        Text(notificationTime)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        showingEditSheet = true
+                    }) {
+                        Text("변경")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
                 }
-                
-                Spacer()
-                
-                Button(action: {
-                }) {
-                    Text("변경")
-                        .font(.caption)
-                        .foregroundColor(.blue)
+                .padding()
+                .background(Color("sharkCardBackground"))
+                .cornerRadius(8)
+            } else {
+                HStack {
+                    Image(systemName: "bell.slash")
+                        .foregroundColor(.gray)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("알림 없음")
+                            .font(.subheadline)
+                        
+                        Text("이 일정에는 알림이 설정되어 있지 않습니다.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        showingEditSheet = true
+                    }) {
+                        Text("설정")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                    }
                 }
+                .padding()
+                .background(Color("sharkCardBackground"))
+                .cornerRadius(8)
             }
-            .padding()
-            .background(Color("sharkCardBackground"))
-            .cornerRadius(8)
         }
         .padding()
         .background(
@@ -175,6 +253,11 @@ struct NoteDetailView: View {
     }
     
     private func deleteNote() {
+        // 알림이 있다면 삭제
+        if event.category == .일정 {
+            NotificationService.shared.cancelNotification(with: event.id.uuidString)
+        }
+        
         if event.category == .일지 {
             viewModel.toastMessage = ToastMessage(message: "일지가 삭제되었습니다.", type: .info)
         } else {
