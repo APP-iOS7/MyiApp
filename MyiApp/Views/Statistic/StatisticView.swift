@@ -9,7 +9,15 @@ import SwiftUI
 
 struct StatisticView: View {
     
-    let records = Record.mockTestRecords
+    let baby: Baby
+    
+    var birthDate: Date {
+        baby.birthDate
+    }
+    
+    var records: [Record] {
+        baby.records
+    }
     
     @State private var selectedDate = Date()
     @State private var selectedMode = "일"
@@ -58,8 +66,6 @@ struct StatisticView: View {
                 }
         )
     }
-    
-    
     var iconGrid: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 20) {
             IconItem(title: "밥", image: .colorMeal)
@@ -188,7 +194,7 @@ struct StatisticView: View {
         
     }
     private var heightWeightButton: some View {
-        NavigationLink(destination: GrowthChartView()) {
+        NavigationLink(destination: GrowthChartView(baby: baby)) {
             Image(systemName: "chart.xyaxis.line")
                 .foregroundColor(.gray)
         }
@@ -196,14 +202,14 @@ struct StatisticView: View {
     private var chartView: some View {
         Group {
             if selectedMode == "주" {
-                WeeklyChartView(records: records,  selectedDate: selectedDate)
+                WeeklyChartView(baby: baby,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(.horizontal)
                     .padding(.vertical, 20)
                 
             } else if selectedMode == "일" {
                 Spacer()
-                DailyChartView(records: records,  selectedDate: selectedDate)
+                DailyChartView(baby: baby,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(.horizontal)
                     .padding(.vertical, 20)
@@ -214,19 +220,49 @@ struct StatisticView: View {
         
     }
     private var babyInfo: some View {
-        Text("여 · 13개월 18일, 2살(만1세)")
+        let genderText = baby.gender == .female ? "여" : "남"
+        let ageComponents = Calendar.current.dateComponents([.year, .month, .day], from: baby.birthDate, to: Date())
+        
+        let months = Calendar.current.dateComponents([.month, .day], from: baby.birthDate, to: Date()).month ?? 0
+        let days = Calendar.current.dateComponents([.day], from: Calendar.current.date(byAdding: .month, value: months, to: baby.birthDate) ?? Date(), to: Date()).day ?? 0
+        
+        let ageInYears = (ageComponents.year ?? 0) + 1
+        let fullAge = getFullAge(from: baby.birthDate)
+        
+        return Text("\(genderText) · \(months)개월 \(days)일, \(ageInYears)살(만 \(fullAge)세)")
             .font(.subheadline)
             .foregroundColor(.gray)
             .padding(.horizontal)
     }
+    private func getFullAge(from birthDate: Date) -> Int {
+        let now = Date()
+        let calendar = Calendar.current
+
+        let birthYear = calendar.component(.year, from: birthDate)
+        let birthMonth = calendar.component(.month, from: birthDate)
+        let birthDay = calendar.component(.day, from: birthDate)
+
+        let nowYear = calendar.component(.year, from: now)
+        let nowMonth = calendar.component(.month, from: now)
+        let nowDay = calendar.component(.day, from: now)
+
+        var age = nowYear - birthYear
+
+        if (nowMonth < birthMonth) || (nowMonth == birthMonth && nowDay < birthDay) {
+            age -= 1
+        }
+
+        return age
+    }
+
     private var statisticList: some View {
         Group {
             if selectedMode == "주" {
-                WeeklyStatisticCardListView(records: records,  selectedDate: selectedDate)
+                WeeklyStatisticCardListView(baby: baby,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
             } else if selectedMode == "일" {
-                DailyStatisticCardListView(records: records,  selectedDate: selectedDate)
+                DailyStatisticCardListView(baby: baby,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }

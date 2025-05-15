@@ -8,7 +8,15 @@
 import SwiftUI
 
 struct WeeklyChartView: View {
-    let records: [Record]
+    let baby: Baby
+    
+    var birthDate: Date {
+        baby.birthDate
+    }
+    
+    var records: [Record] {
+        baby.records
+    }
     let selectedDate: Date
     
     private var weekDates: [Date] {
@@ -81,11 +89,6 @@ struct WeeklyChartView: View {
                         Rectangle()
                             .fill(record.color)
                             .frame(width: dayWidth * 0.6, height: max(height, 0.1))
-                            .overlay(
-                                    Text("\(String(format: "%.1f", record.startHour))~\(String(format: "%.1f", record.endHour))")
-                                        .font(.system(size: 6))
-                                        .foregroundColor(.black)
-                                )
                             .position(x: x + dayWidth / 2, y: y + height / 2)
 
                         
@@ -119,17 +122,25 @@ struct WeeklyChartView: View {
                             let clippedStart = max(start, startOfDay)
                             let clippedEnd = min(end, endOfDay)
                             
+                            let startHourDecimal = hourDecimal(from: clippedStart)
+                            var endHourDecimal = hourDecimal(from: clippedEnd)
+
+                            if calendar.isDate(clippedEnd, equalTo: endOfDay, toGranularity: .minute) {
+                                endHourDecimal = 24.0
+                            }
+                            
                             result.append(TimedWeeklyRecord(
                                 id: UUID(),
                                 dayIndex: index,
-                                startHour: hourDecimal(from: clippedStart),
-                                endHour: hourDecimal(from: clippedEnd),
+                                startHour: startHourDecimal,
+                                endHour: endHourDecimal,
                                 color: color(for: record.title)
                             ))
-                            
                         }
                     }
 
+                    print("🧾 TimedWeeklyRecord 생성 결과:")
+                    result.forEach { print($0) }
                     return result
                 }
 
@@ -143,13 +154,18 @@ struct WeeklyChartView: View {
                 let start = record.createdAt
                 let end = calendar.date(byAdding: .minute, value: 30, to: start) ?? start.addingTimeInterval(1800)
 
-                return [TimedWeeklyRecord(
-                    id: record.id,
-                    dayIndex: dayIndex,
-                    startHour: hourDecimal(from: start),
-                    endHour: hourDecimal(from: end),
-                    color: color(for: record.title)
-                )]
+                let result = [
+                    TimedWeeklyRecord(
+                        id: record.id,
+                        dayIndex: dayIndex,
+                        startHour: hourDecimal(from: start),
+                        endHour: hourDecimal(from: end),
+                        color: color(for: record.title)
+                    )
+                ]
+
+                return result
+
             }
     }
 

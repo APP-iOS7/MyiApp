@@ -44,9 +44,6 @@ struct DetailStatisticCardView: View {
                             .font(.subheadline)
                             .foregroundColor(.primary)
                 }
-                
-                
-                
             }
             comparisonMessage(for: image, count: count, lastCount: lastcount)
             
@@ -134,6 +131,7 @@ struct DetailStatisticCardView: View {
             return Text("") // 기본값
         }
     }
+    
     func feedingComparisonMessage(count: Int, lastCount: Int) -> Text {
         let label: String
         switch mode {
@@ -154,7 +152,6 @@ struct DetailStatisticCardView: View {
             .foregroundColor(.gray)
         
     }
-
     func diaperComparisonMessage(count: Int, lastCount: Int) -> Text {
         let label: String
         switch mode {
@@ -239,8 +236,6 @@ struct DetailStatisticCardView: View {
             .font(.subheadline)
             .foregroundColor(.gray)
     }
-
-
 
 }
 //배변은 카드를 따로 만듦

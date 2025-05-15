@@ -9,7 +9,15 @@ import SwiftUI
 
 struct DailyStatisticCardListView: View {
     
-    let records: [Record]
+    let baby: Baby
+    
+    var birthDate: Date {
+        baby.birthDate
+    }
+    
+    var records: [Record] {
+        baby.records
+    }
     let selectedDate: Date
     var yesterday: Date {
         Calendar.current.date(byAdding: .day, value: -1, to: selectedDate)!
@@ -31,7 +39,8 @@ struct DailyStatisticCardListView: View {
                 lastamount: totalMlAmount(in: records, on: yesterday),
                 time: totalBreastfeedingMinutes(in: records, on: selectedDate),
                 lasttime: totalBreastfeedingMinutes(in: records, on: yesterday),
-                mode : "daily"
+                mode : "daily",
+                baby: baby
             )
             
             StatisticCardView(
@@ -44,14 +53,17 @@ struct DailyStatisticCardListView: View {
                 lastamount: nil,
                 time: nil,
                 lasttime: nil,
-                mode : "daily"
+                mode : "daily",
+                baby: baby
             )
+            
             PottyStatisticCardView(
                 small: pottyCount.small,
                 yesterdaysmall: yesterdaypottyCount.small,
                 big: pottyCount.big,
                 yesterdaybig: yesterdaypottyCount.big,
-                mode : "daily"
+                mode : "daily",
+                baby: baby
             )
             
             StatisticCardView(
@@ -64,7 +76,8 @@ struct DailyStatisticCardListView: View {
                 lastamount: nil,
                 time: totalSleepMinutes(in: records, on: selectedDate),
                 lasttime: totalSleepMinutes(in: records, on: yesterday),
-                mode : "daily"
+                mode : "daily",
+                baby: baby
             )
             
             StatisticCardView(
@@ -77,7 +90,8 @@ struct DailyStatisticCardListView: View {
                 lastamount: nil,
                 time: nil,
                 lasttime: nil,
-                mode : "daily"
+                mode : "daily",
+                baby: baby
             )
             
             StatisticCardView(
@@ -90,7 +104,8 @@ struct DailyStatisticCardListView: View {
                 lastamount: nil,
                 time: nil,
                 lasttime: nil,
-                mode : "daily"
+                mode : "daily",
+                baby: baby
             )
         }
         .padding(.horizontal)
@@ -102,7 +117,7 @@ struct DailyStatisticCardListView: View {
             $0.title == title && calendar.isDate($0.createdAt, inSameDayAs: date)
         }.count
     }
-    // ml 총계ㄴ
+    // ml 총계
     func totalMlAmount(in records: [Record], on date: Date) -> Int {
         let calendar = Calendar.current
         return records

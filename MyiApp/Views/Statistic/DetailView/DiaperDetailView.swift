@@ -9,7 +9,11 @@ import SwiftUI
 
 struct DiaperDetailView: View {
     
-    let records = Record.mockTestRecords
+    let baby: Baby
+    
+    var records: [Record] {
+        baby.records
+    }
     
     @State private var selectedDate = Date()
     @State private var selectedMode = "일"

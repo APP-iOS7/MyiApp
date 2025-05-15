@@ -9,7 +9,16 @@ import SwiftUI
 
 struct GrowthChartView: View {
     
-    let records = Record.mockTestRecords
+    let baby: Baby
+    
+    var birthDate: Date {
+        baby.birthDate
+    }
+    
+    var records: [Record] {
+        baby.records
+    }
+    
     var heightweightRecords: [Record] {
         records.filter { $0.title == .heightWeight }
     }
@@ -25,7 +34,6 @@ struct GrowthChartView: View {
             return (record.createdAt, weight)
         }
     }
-    let birthDate = Calendar.current.date(byAdding: .month, value: -2, to: Date())!
     
     
     @State private var selectedDate = Date()
@@ -36,9 +44,9 @@ struct GrowthChartView: View {
     @State private var startDate: Date
     @State private var endDate: Date
     
-    init() {
-        let birth = Calendar.current.date(byAdding: .month, value: -2, to: Date())!
-        _startDate = State(initialValue: birth)
+    init(baby: Baby) {
+        self.baby = baby
+        _startDate = State(initialValue: baby.birthDate)
         _endDate = State(initialValue: Date())
     }
     
@@ -136,6 +144,8 @@ struct HeightChartView: View {
     let data: [(date: Date, height: Double)]
     let startDate: Date
     let endDate: Date
+    
+    @State private var selectedEntry: (date: Date, height: Double)? = nil
 
     var body: some View {
         GeometryReader { geometry in
@@ -218,11 +228,45 @@ struct HeightChartView: View {
                                         let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                                         let y = height - ((CGFloat(entry.height - minHeight) / CGFloat(heightRange)) * height)
                                         Circle()
-                                            .fill(Color("sharkPrimaryColor"))
-                                            .frame(width: 6, height: 6)
+                                            .fill(selectedEntry?.date == entry.date ? Color("food") : Color("sharkPrimaryColor"))
+                                            .frame(width: 10, height: 10)
                                             .position(x: x, y: y)
+                                            .onTapGesture {
+                                                if selectedEntry?.date == entry.date {
+                                                    selectedEntry = nil
+                                                } else {
+                                                    selectedEntry = entry
+                                                }
+                                            }
                                     }
-
+                                    ForEach(cappedData, id: \.date) { entry in
+                                        if let entry = selectedEntry {
+                                            let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
+                                            let y = height - ((CGFloat(entry.height - minHeight) / CGFloat(heightRange)) * height)
+                                            let yOffset: CGFloat = y > height / 2 ? -50 : 50
+                                            
+                                            let toStart = abs(entry.date.timeIntervalSince(startDate))
+                                            let toEnd = abs(entry.date.timeIntervalSince(endDate))
+                                            let xOffset: CGFloat = toStart < toEnd ? 30 : -30
+                                            VStack(alignment: .leading) {
+                                                Text("날짜 : \(longDate(entry.date))")
+                                                    .font(.footnote)
+                                                Text("키 : \(String(format: "%.1f", entry.height))cm")
+                                                    .font(.footnote)
+                                            }
+                                            .padding(6)
+                                            .frame(minWidth: 150, minHeight: 80)
+                                            .background(Color.white.opacity(0.1))
+                                            .cornerRadius(12)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 12)
+                                                    .stroke(Color("sharkPrimaryColor"), lineWidth: 1)
+                                            )
+                                            .position(x: x + xOffset, y: y + yOffset)
+                                            
+                                        }
+                                    }
+                                    
                                     
                                 }
                             }
@@ -230,6 +274,8 @@ struct HeightChartView: View {
                     }
                     .frame(height: 200)
                     .padding(.leading, 4)
+                    
+                    
 
                     // 가로축 기준선
                     Rectangle()
@@ -261,7 +307,13 @@ struct HeightChartView: View {
 
     func shortDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "M월 d일"
+        formatter.dateFormat = "yy. M. d"
+        formatter.locale = Locale(identifier: "ko_KR")
+        return formatter.string(from: date)
+    }
+    func longDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yy년 M월 d일"
         formatter.locale = Locale(identifier: "ko_KR")
         return formatter.string(from: date)
     }
@@ -270,6 +322,8 @@ struct WeightChartView: View {
     let data: [(date: Date, weight: Double)]
     let startDate: Date
     let endDate: Date
+    
+    @State private var selectedEntry: (date: Date, weight: Double)? = nil
 
     var body: some View {
         GeometryReader { geometry in
@@ -352,10 +406,45 @@ struct WeightChartView: View {
                                         let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                                         let y = height - ((CGFloat(entry.weight - minWeight) / CGFloat(weightRange)) * height)
                                         Circle()
-                                            .fill(Color("sharkPrimaryColor"))
-                                            .frame(width: 6, height: 6)
+                                            .fill(selectedEntry?.date == entry.date ? Color("food") : Color("sharkPrimaryColor"))
+                                            .frame(width: 10, height: 10)
                                             .position(x: x, y: y)
+                                            .onTapGesture {
+                                                if selectedEntry?.date == entry.date {
+                                                    selectedEntry = nil
+                                                } else {
+                                                    selectedEntry = entry
+                                                }
+                                            }
                                     }
+                                    ForEach(cappedData, id: \.date) { entry in
+                                        if let entry = selectedEntry {
+                                            let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
+                                            let y = height - ((CGFloat(entry.weight - minWeight) / CGFloat(weightRange)) * height)
+                                            let yOffset: CGFloat = y > height / 2 ? -50 : 50
+                                            
+                                            let toStart = abs(entry.date.timeIntervalSince(startDate))
+                                            let toEnd = abs(entry.date.timeIntervalSince(endDate))
+                                            let xOffset: CGFloat = toStart < toEnd ? 30 : -30
+                                            VStack(alignment: .leading) {
+                                                Text("날짜 : \(longDate(entry.date))")
+                                                    .font(.footnote)
+                                                Text("키 : \(String(format: "%.1f", entry.weight))kg")
+                                                    .font(.footnote)
+                                            }
+                                            .padding(6)
+                                            .frame(minWidth: 150, minHeight: 80)
+                                            .background(Color.white.opacity(0.1))
+                                            .cornerRadius(12)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 12)
+                                                    .stroke(Color("sharkPrimaryColor"), lineWidth: 1)
+                                            )
+                                            .position(x: x + xOffset, y: y + yOffset)
+                                            
+                                        }
+                                    }
+                                    
 
                                     
                                 }
@@ -395,7 +484,13 @@ struct WeightChartView: View {
 
     func shortDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "M월 d일"
+        formatter.dateFormat = "yy. M. d"
+        formatter.locale = Locale(identifier: "ko_KR")
+        return formatter.string(from: date)
+    }
+    func longDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yy년 M월 d일"
         formatter.locale = Locale(identifier: "ko_KR")
         return formatter.string(from: date)
     }

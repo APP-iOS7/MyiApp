@@ -9,7 +9,11 @@ import SwiftUI
 
 struct SleepDetailView: View {
     
-    let records = Record.mockTestRecords
+    let baby: Baby
+    
+    var records: [Record] {
+        baby.records
+    }
     
     @State private var selectedDate = Date()
     @State private var selectedMode = "일"
@@ -318,7 +322,7 @@ struct DailySleepChartView: View {
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
         
         let filtered = records.filter { $0.title == .sleep }
-
+        
         switch type {
         case .count:
             return recordsCount(for: .sleep, in: records, on: date)
@@ -510,33 +514,32 @@ struct WeeklySleepChartView: View {
     }
     
     func amountFor(_ type: SleepType, from start: Date, to end: Date) -> Int {
-        let calendar = Calendar.current
-            let filtered = records.filter { $0.title == .sleep }
-
-            switch type {
-            case .count:
-                // 수면 시작일(sleepStart)이 해당 주 범위에 포함된 횟수
-                return recordsCount(for: .sleep, in: records, within: DateInterval(start: start, end: end))
-
-            case .time:
-                // 해당 주 범위 내의 수면 시간 (시작/종료를 클리핑하여 계산)
-                let totalMinutes = filtered.compactMap { record -> Int? in
-                    guard let startTime = record.sleepStart, let endTime = record.sleepEnd else { return nil }
-
-                    let clippedStart = max(startTime, start)
-                    let clippedEnd = min(endTime, end)
-                    let interval = clippedEnd.timeIntervalSince(clippedStart)
-                    return interval > 0 ? Int(interval / 60) : nil
-                }
-                .reduce(0, +)
-
-                return totalMinutes
+        let filtered = records.filter { $0.title == .sleep }
+        
+        switch type {
+        case .count:
+            // 수면 시작일(sleepStart)이 해당 주 범위에 포함된 횟수
+            return recordsCount(for: .sleep, in: records, within: DateInterval(start: start, end: end))
+            
+        case .time:
+            // 해당 주 범위 내의 수면 시간 (시작/종료를 클리핑하여 계산)
+            let totalMinutes = filtered.compactMap { record -> Int? in
+                guard let startTime = record.sleepStart, let endTime = record.sleepEnd else { return nil }
+                
+                let clippedStart = max(startTime, start)
+                let clippedEnd = min(endTime, end)
+                let interval = clippedEnd.timeIntervalSince(clippedStart)
+                return interval > 0 ? Int(interval / 60) : nil
             }
+                .reduce(0, +)
+            
+            return totalMinutes
+        }
     }
     func recordsCount(for title: TitleCategory, in records: [Record], within range: DateInterval) -> Int {
         return records.filter {
-                $0.title == title && range.contains($0.createdAt)
-            }.count
+            $0.title == title && range.contains($0.createdAt)
+        }.count
     }
     
     func shortWeekLabel(for date: Date) -> String {
@@ -588,8 +591,8 @@ struct WeeklySleepListView: View {
     // 카테고리 받아서 횟수 셀리기
     func recordsCount(for title: TitleCategory, in records: [Record], within range: DateInterval) -> Int {
         return records.filter {
-                $0.title == title && range.contains($0.createdAt)
-            }.count
+            $0.title == title && range.contains($0.createdAt)
+        }.count
     }
     // 수면 시간 총계
     func totalSleepMinutes(in records: [Record], within range: DateInterval) -> Int? {
@@ -597,19 +600,19 @@ struct WeeklySleepListView: View {
             .filter { $0.title == .sleep }
             .compactMap { record -> Int? in
                 guard let start = record.sleepStart, let end = record.sleepEnd else { return nil }
-
+                
                 // 수면이 지정된 범위를 넘는 경우 잘라서 계산
                 let clippedStart = max(start, range.start)
                 let clippedEnd = min(end, range.end)
-
+                
                 let interval = clippedEnd.timeIntervalSince(clippedStart)
                 return interval > 0 ? Int(interval / 60) : nil
             }
             .reduce(0, +)
-
+        
         return totalMinutes >= 0 ? totalMinutes : nil
     }
-
+    
 }
 struct MonthlySleepChartView: View {
     let selectedDate: Date
@@ -629,7 +632,7 @@ struct MonthlySleepChartView: View {
             return calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
         }
     }
-
+    
     
     var body: some View {
         VStack(spacing: 35) {
@@ -716,31 +719,30 @@ struct MonthlySleepChartView: View {
     }
     
     func amountFor(_ type: SleepType, from start: Date, to end: Date) -> Int {
-        let calendar = Calendar.current
-            let filtered = records.filter { $0.title == .sleep }
-
-            switch type {
-            case .count:
-                return recordsCount(for: .sleep, in: records, within: DateInterval(start: start, end: end))
-
-            case .time:
-                let totalMinutes = filtered.compactMap { record -> Int? in
-                    guard let startTime = record.sleepStart, let endTime = record.sleepEnd else { return nil }
-
-                    let clippedStart = max(startTime, start)
-                    let clippedEnd = min(endTime, end)
-                    let interval = clippedEnd.timeIntervalSince(clippedStart)
-                    return interval > 0 ? Int(interval / 60) : nil
-                }
-                .reduce(0, +)
-
-                return totalMinutes
+        let filtered = records.filter { $0.title == .sleep }
+        
+        switch type {
+        case .count:
+            return recordsCount(for: .sleep, in: records, within: DateInterval(start: start, end: end))
+            
+        case .time:
+            let totalMinutes = filtered.compactMap { record -> Int? in
+                guard let startTime = record.sleepStart, let endTime = record.sleepEnd else { return nil }
+                
+                let clippedStart = max(startTime, start)
+                let clippedEnd = min(endTime, end)
+                let interval = clippedEnd.timeIntervalSince(clippedStart)
+                return interval > 0 ? Int(interval / 60) : nil
             }
+                .reduce(0, +)
+            
+            return totalMinutes
+        }
     }
     func recordsCount(for title: TitleCategory, in records: [Record], within range: DateInterval) -> Int {
         return records.filter {
-                $0.title == title && range.contains($0.createdAt)
-            }.count
+            $0.title == title && range.contains($0.createdAt)
+        }.count
     }
     
     
@@ -750,7 +752,7 @@ struct MonthlySleepChartView: View {
         formatter.dateFormat = "M월"
         return formatter.string(from: date)
     }
-
+    
 }
 struct MonthlySleepListView: View {
     
@@ -792,8 +794,8 @@ struct MonthlySleepListView: View {
     // 카테고리 받아서 횟수 셀리기
     func recordsCount(for title: TitleCategory, in records: [Record], within range: DateInterval) -> Int {
         return records.filter {
-                $0.title == title && range.contains($0.createdAt)
-            }.count
+            $0.title == title && range.contains($0.createdAt)
+        }.count
     }
     // 수면 시간 총계
     func totalSleepMinutes(in records: [Record], within range: DateInterval) -> Int? {
@@ -801,16 +803,16 @@ struct MonthlySleepListView: View {
             .filter { $0.title == .sleep }
             .compactMap { record -> Int? in
                 guard let start = record.sleepStart, let end = record.sleepEnd else { return nil }
-
+                
                 // 수면이 지정된 범위를 넘는 경우 잘라서 계산
                 let clippedStart = max(start, range.start)
                 let clippedEnd = min(end, range.end)
-
+                
                 let interval = clippedEnd.timeIntervalSince(clippedStart)
                 return interval > 0 ? Int(interval / 60) : nil
             }
             .reduce(0, +)
-
+        
         return totalMinutes >= 0 ? totalMinutes : nil
     }
 }
