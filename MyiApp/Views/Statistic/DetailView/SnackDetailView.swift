@@ -82,7 +82,6 @@ struct SnackDetailView: View {
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 10)
-                .background(Color.white)
                 if (selectedMode == "일") {
                     DailySnackChartView(
                         weekDates: generateWeekDates(from: selectedDate),
@@ -121,7 +120,7 @@ struct SnackDetailView: View {
                 }) {
                     Text(mode)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : Color.gray)
+                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : Color("sharkCardBackground"))
                         .frame(maxWidth: 90, minHeight: 32)
                         .background(
                             ZStack {
@@ -162,7 +161,7 @@ struct SnackDetailView: View {
                     }
                 }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
                 
                 Spacer()
@@ -173,7 +172,7 @@ struct SnackDetailView: View {
                     }
                 }) {
                     Image(systemName: "calendar")
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
                 
                 Text(formattedDateString)
@@ -195,7 +194,7 @@ struct SnackDetailView: View {
                     }
                 }) {
                     Image(systemName: "chevron.right")
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
             }
             if showCalendar {

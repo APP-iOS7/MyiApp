@@ -63,7 +63,7 @@ struct DailyChartView: View {
             
             //가운데 정보
             let months = Calendar.current.dateComponents([.month, .day], from: baby.birthDate, to: Date()).month ?? 0
-            let days = Calendar.current.dateComponents([.day], from: Calendar.current.date(byAdding: .month, value: months, to: baby.birthDate) ?? Date(), to: Date()).day ?? 0
+            let days = Calendar.current.dateComponents([.day], from: Calendar.current.date(byAdding: .month, value: months, to: baby.birthDate) ?? Date(), to: selectedDate).day ?? 0
             
             Text("\(months)개월 \(days)일")
                 .font(.headline)

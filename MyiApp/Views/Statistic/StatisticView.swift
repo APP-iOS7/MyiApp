@@ -122,7 +122,7 @@ struct StatisticView: View {
                 }) {
                     Text(mode)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : Color.gray)
+                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : Color("sharkCardBackground"))
                         .frame(maxWidth: 90, minHeight: 32)
                         .background(
                             ZStack {
@@ -153,7 +153,7 @@ struct StatisticView: View {
                     selectedDate = Calendar.current.date(byAdding: .day, value: selectedMode == "일" ? -1 : -7, to: selectedDate) ?? selectedDate
                 }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
                 
                 Spacer()
@@ -164,7 +164,7 @@ struct StatisticView: View {
                     }
                 }) {
                     Image(systemName: "calendar")
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
                 
                 Text(formattedDateString)
@@ -176,7 +176,7 @@ struct StatisticView: View {
                     selectedDate = Calendar.current.date(byAdding: .day, value: selectedMode == "일" ? 1 : 7, to: selectedDate) ?? selectedDate
                 }) {
                     Image(systemName: "chevron.right")
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
             }
             if showCalendar {
@@ -278,7 +278,7 @@ struct IconItem: View {
         VStack(spacing: 8) {
             ZStack {
                 RoundedRectangle(cornerRadius: 18)
-                    .fill(Color.blue.opacity(0.1))
+                    .fill(Color("sharkCardBackground"))
                     .frame(width: 40, height: 40)
                 
                 Image(uiImage: image)
@@ -289,7 +289,7 @@ struct IconItem: View {
             
             Text(title)
                 .font(.caption)
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
                 .multilineTextAlignment(.center)
         }
     }

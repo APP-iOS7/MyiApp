@@ -100,8 +100,26 @@ struct GrowthChartView: View {
                     }
                 }
                 .frame(minHeight: 300)
-                
-                
+                Divider()
+                VStack(spacing: 10) {
+                    if (selectedMode == "키") {
+                        lastHeightInfoView(
+                            data: heightData
+                        )
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding(.horizontal)
+                            .padding(.vertical, 20)
+                    } else {
+                        lastWeightInfoView(
+                            data: weightData
+                        )
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding(.horizontal)
+                            .padding(.vertical, 20)
+                    }
+                }
+                .padding(.bottom, 40)
+
             }
             .padding()
         }
@@ -115,7 +133,7 @@ struct GrowthChartView: View {
                 }) {
                     Text(mode)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : Color.gray)
+                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : Color("sharkCardBackground"))
                         .frame(maxWidth: 90, minHeight: 32)
                         .background(
                             ZStack {
@@ -429,7 +447,7 @@ struct WeightChartView: View {
                                             VStack(alignment: .leading) {
                                                 Text("날짜 : \(longDate(entry.date))")
                                                     .font(.footnote)
-                                                Text("키 : \(String(format: "%.1f", entry.weight))kg")
+                                                Text("몸무게 : \(String(format: "%.1f", entry.weight))kg")
                                                     .font(.footnote)
                                             }
                                             .padding(6)
@@ -587,5 +605,47 @@ struct DateRangeSelectView: View {
             
             
         }
+    }
+}
+struct lastHeightInfoView: View {
+    let data: [(date: Date, height: Double)]
+    
+    var body: some View {
+        if let recent = data.sorted(by: { $0.date > $1.date }).first {
+            VStack(spacing: 4) {
+                Text("최근 키 측정")
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+                Text("\(longDate(recent.date)) / \(String(format: "%.1f", recent.height))cm")
+                    .font(.subheadline)
+            }
+        }
+    }
+    func longDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yy년 M월 d일"
+        formatter.locale = Locale(identifier: "ko_KR")
+        return formatter.string(from: date)
+    }
+}
+struct lastWeightInfoView: View {
+    let data: [(date: Date, weight: Double)]
+    
+    var body: some View {
+        if let recent = data.sorted(by: { $0.date > $1.date }).first {
+            VStack(spacing: 4) {
+                Text("최근 키 측정")
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+                Text("\(longDate(recent.date)) / \(String(format: "%.1f", recent.weight))kg")
+                    .font(.subheadline)
+            }
+        }
+    }
+    func longDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yy년 M월 d일"
+        formatter.locale = Locale(identifier: "ko_KR")
+        return formatter.string(from: date)
     }
 }
