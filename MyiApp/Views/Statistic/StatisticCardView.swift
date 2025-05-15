@@ -76,7 +76,6 @@ struct StatisticCardView: View {
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(color, lineWidth: 1)
-                .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
         )
         .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
     }
@@ -134,7 +133,6 @@ struct PottyStatisticCardView: View {
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .stroke(Color("potty"), lineWidth: 1)
-                .background(RoundedRectangle(cornerRadius: 16).fill(Color.white))
         )
         .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
     }

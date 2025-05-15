@@ -139,8 +139,6 @@ struct WeeklyChartView: View {
                         }
                     }
 
-                    print("🧾 TimedWeeklyRecord 생성 결과:")
-                    result.forEach { print($0) }
                     return result
                 }
 

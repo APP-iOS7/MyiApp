@@ -82,7 +82,6 @@ struct PottyDetailView: View {
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 10)
-                .background(Color.white)
                 
                 if (selectedMode == "일") {
                     DailyPottyChartView(
@@ -122,7 +121,7 @@ struct PottyDetailView: View {
                 }) {
                     Text(mode)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : Color.gray)
+                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : Color("sharkCardBackground"))
                         .frame(maxWidth: 90, minHeight: 32)
                         .background(
                             ZStack {
@@ -163,7 +162,7 @@ struct PottyDetailView: View {
                     }
                 }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
                 
                 Spacer()
@@ -174,7 +173,7 @@ struct PottyDetailView: View {
                     }
                 }) {
                     Image(systemName: "calendar")
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
                 
                 Text(formattedDateString)
@@ -196,7 +195,7 @@ struct PottyDetailView: View {
                     }
                 }) {
                     Image(systemName: "chevron.right")
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                 }
             }
             if showCalendar {
