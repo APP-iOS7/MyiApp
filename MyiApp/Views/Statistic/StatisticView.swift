@@ -9,12 +9,16 @@ import SwiftUI
 
 struct StatisticView: View {
     
+    @ObservedObject var caregiverManager = CaregiverManager.shared
+    
     struct CareCategory: Equatable {
         let name: String
         let image: UIImage
     }
     
-    let baby: Baby
+    var baby: Baby {
+        caregiverManager.selectedBaby ?? Baby(name: "", birthDate: Date(), gender: .male, height: 0, weight: 0, bloodType: .A)
+    }
     
     var birthDate: Date {
         baby.birthDate
