@@ -15,6 +15,7 @@ extension Note {
         case description
         case date
         case category
+        case imageURLs
     }
     
     func encode(to encoder: Encoder) throws {
@@ -24,6 +25,7 @@ extension Note {
         try container.encode(description, forKey: .description)
         try container.encode(date, forKey: .date)
         try container.encode(category, forKey: .category)
+        try container.encode(imageURLs, forKey: .imageURLs)
     }
     
     init(from decoder: Decoder) throws {
@@ -43,6 +45,7 @@ extension Note {
         description = try container.decode(String.self, forKey: .description)
         date = try container.decode(Date.self, forKey: .date)
         category = try container.decode(NoteCategory.self, forKey: .category)
+        imageURLs = try container.decodeIfPresent([String].self, forKey: .imageURLs) ?? []
     }
 }
 

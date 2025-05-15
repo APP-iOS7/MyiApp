@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct NoteEditorView: View {
     @Environment(\.dismiss) private var dismiss
@@ -15,8 +16,16 @@ struct NoteEditorView: View {
     @State private var description: String = ""
     @State private var date: Date
     @State private var selectedCategory: NoteCategory = .일지
-    @State private var showAlert = false
-    @State private var alertMessage = ""
+    @State private var selectedImages: [UIImage] = []
+    @State private var showingPhotoPicker = false
+    @State private var existingImageURLs: [String] = []
+    @State private var isSaving = false
+    
+    // 알림 관련 상태 변수
+    @State private var isReminderEnabled: Bool = false
+    @State private var reminderTime: Date
+    @State private var reminderMinutesBefore: Int = 30
+    @State private var notificationTimeString: String?
     
     let isEditing: Bool
     let noteId: UUID?
@@ -24,16 +33,67 @@ struct NoteEditorView: View {
     init(selectedDate: Date, note: Note? = nil) {
         _date = State(initialValue: selectedDate)
         
+        // 새로운 일정인 경우 일정 시간을 기본값으로
+        if note == nil {
+            _reminderTime = State(initialValue: selectedDate)
+            _reminderMinutesBefore = State(initialValue: 0)
+        } else {
+            _reminderTime = State(initialValue: note!.date)
+            _reminderMinutesBefore = State(initialValue: 0)
+        }
+        
         if let note = note {
             _title = State(initialValue: note.title)
             _description = State(initialValue: note.description)
             _date = State(initialValue: note.date)
             _selectedCategory = State(initialValue: note.category)
+            _existingImageURLs = State(initialValue: note.imageURLs)
+            
             self.isEditing = true
             self.noteId = note.id
         } else {
             self.isEditing = false
             self.noteId = nil
+        }
+    }
+    
+    private func checkNotificationStatus() {
+        if let id = noteId, selectedCategory == .일정 {
+            NotificationService.shared.checkNotificationExists(with: id.uuidString) { exists in
+                DispatchQueue.main.async {
+                    self.isReminderEnabled = exists
+                    
+                    if exists {
+                        NotificationService.shared.getNotificationTriggerDate(with: id.uuidString) { triggerDate in
+                            DispatchQueue.main.async {
+                                if let triggerDate = triggerDate {
+                                    self.reminderTime = triggerDate
+                                    
+                                    let diffSeconds = self.date.timeIntervalSince(triggerDate)
+                                    let diffMinutes = Int(diffSeconds / 60)
+                                    
+                                    if diffMinutes > 0 {
+                                        if [10, 15, 30, 60, 120, 1440].contains(diffMinutes) {
+                                            self.reminderMinutesBefore = diffMinutes
+                                        } else {
+                                            self.reminderMinutesBefore = -1
+                                        }
+                                    } else {
+                                        self.reminderTime = self.date
+                                        self.reminderMinutesBefore = -1
+                                    }
+                                } else {
+                                    self.reminderTime = self.date
+                                    self.reminderMinutesBefore = -1
+                                }
+                            }
+                        }
+                    } else {
+                        self.reminderTime = self.date
+                        self.reminderMinutesBefore = -1
+                    }
+                }
+            }
         }
     }
     
@@ -51,7 +111,6 @@ struct NoteEditorView: View {
                             selectedCategory = .일지
                         }
                         
-                        // 일정 카테고리 옵션
                         RadioButtonRow(
                             title: "일정",
                             icon: "calendar",
@@ -71,6 +130,9 @@ struct NoteEditorView: View {
                 Section(header: Text("날짜 및 시간")) {
                     DatePicker("날짜 및 시간", selection: $date)
                         .datePickerStyle(.compact)
+                        .onChange(of: date) { _, newValue in
+                            reminderTime = newValue.addingTimeInterval(TimeInterval(-reminderMinutesBefore * 60))
+                        }
                 }
                 
                 Section(header: Text("내용")) {
@@ -78,12 +140,57 @@ struct NoteEditorView: View {
                         .frame(minHeight: 150)
                 }
                 
+                if selectedCategory == .일지 {
+                    Section(header: Text("이미지")) {
+                        if !existingImageURLs.isEmpty {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("기존 이미지")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                
+                                URLImagePreviewGrid(imageURLs: existingImageURLs) { index in
+                                    if let id = noteId, let note = viewModel.events.values.flatMap({ $0 }).first(where: { $0.id == id }) {
+                                        viewModel.deleteImage(fromNote: note, at: index)
+                                        existingImageURLs.remove(at: index)
+                                    }
+                                }
+                            }
+                        }
+                        
+                        if !selectedImages.isEmpty {
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("추가할 이미지")
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                
+                                ImagePreviewGrid(images: $selectedImages) { index in
+                                    selectedImages.remove(at: index)
+                                }
+                            }
+                        }
+                        
+                        Button(action: {
+                            showingPhotoPicker = true
+                        }) {
+                            HStack {
+                                Image(systemName: "photo.on.rectangle.angled")
+                                Text("이미지 추가")
+                            }
+                        }
+                        .sheet(isPresented: $showingPhotoPicker) {
+                            PhotoPicker(selectedImages: $selectedImages, selectionLimit: 10)
+                        }
+                    }
+                }
+                
                 if selectedCategory == .일정 {
-                    Section(header: Text("알림")) {
-                        Toggle("일정 알림", isOn: .constant(false))
-                        DatePicker("알림 시간", selection: .constant(date - 3600))
-                            .datePickerStyle(.compact)
-                            .disabled(true)
+                    Section(header: Text("알림(미완성)")) {
+                        NoteReminderView(
+                            isEnabled: $isReminderEnabled,
+                            reminderTime: $reminderTime,
+                            reminderMinutesBefore: $reminderMinutesBefore,
+                            eventDate: date
+                        )
                     }
                 }
             }
@@ -94,58 +201,193 @@ struct NoteEditorView: View {
                     Button("취소") {
                         dismiss()
                     }
+                    .disabled(isSaving)
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button(isEditing ? "수정" : "저장") {
                         saveNote()
                     }
-                    .disabled(title.isEmpty)
+                    .disabled(title.isEmpty || isSaving)
                 }
             }
-            .alert(isPresented: $showAlert) {
-                Alert(
-                    title: Text("알림"),
-                    message: Text(alertMessage),
-                    dismissButton: .default(Text("확인"))
-                )
+            .overlay {
+                if isSaving {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                        .overlay(
+                            CleanLoadingOverlay(
+                                message: isEditing ? "수정 중..." : "저장 중...",
+                                imageNames: ["sharkNewBorn", "sharkInfant", "sharkToddler"],
+                                frameInterval: 0.5
+                            )
+                        )
+                }
+            }
+            .onChange(of: viewModel.isLoading) { _, newValue in
+                if isSaving && !newValue {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        isSaving = false
+                        dismiss()
+                    }
+                }
+            }
+            .onAppear {
+                checkNotificationStatus()
             }
         }
     }
     
     private func saveNote() {
         if title.isEmpty {
-            alertMessage = "제목을 입력해주세요."
-            showAlert = true
             return
         }
         
-        if isEditing, let id = noteId {
-            // 수정
-            let updatedNote = Note(
-                id: id,
-                title: title,
-                description: description,
-                date: date,
-                category: selectedCategory
-            )
-            
-            viewModel.updateNote(note: updatedNote)
-            alertMessage = "\(selectedCategory.rawValue)가 수정되었습니다."
-        } else {
-            // 새 노트
-            viewModel.addNote(
-                title: title,
-                description: description,
-                date: date,
-                category: selectedCategory
-            )
-            alertMessage = "새 \(selectedCategory.rawValue)가 저장되었습니다."
+        isSaving = true
+        
+        // 알림 처리
+        if selectedCategory == .일정 {
+            if isReminderEnabled {
+                // 알림 시간 계산 (일정에서 minutesBefore 만큼 이전)
+                let timeDiff = Int(date.timeIntervalSince(reminderTime) / 60)
+                reminderMinutesBefore = timeDiff > 0 ? timeDiff : 30
+                
+                notificationTimeString = NotificationService.shared.getNotificationTimeText(for: date, minutesBefore: reminderMinutesBefore)
+            } else if let id = noteId {
+                NotificationService.shared.cancelNotification(with: id.uuidString)
+            }
         }
         
-        showAlert = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            dismiss()
+        if isEditing, let id = noteId {
+            if !selectedImages.isEmpty && selectedCategory == .일지 {
+                let updatedNote = Note(
+                    id: id,
+                    title: title,
+                    description: description,
+                    date: date,
+                    category: selectedCategory,
+                    imageURLs: existingImageURLs
+                )
+                
+                viewModel.updateNoteWithImages(note: updatedNote, newImages: selectedImages)
+            } else {
+                let updatedNote = Note(
+                    id: id,
+                    title: title,
+                    description: description,
+                    date: date,
+                    category: selectedCategory,
+                    imageURLs: existingImageURLs
+                )
+                
+                viewModel.updateNote(note: updatedNote)
+                
+    if selectedCategory == .일정 && isReminderEnabled {
+        if NotificationService.shared.authorizationStatus == .authorized {
+            let notificationResult = NotificationService.shared.scheduleNotification(for: updatedNote, minutesBefore: reminderMinutesBefore)
+            if notificationResult == nil {
+                viewModel.toastMessage = ToastMessage(message: "알림 권한이 없어 알림이 설정되지 않았습니다.", type: .error)
+            }
+        } else {
+            NotificationService.shared.requestAuthorization { granted in
+                if granted {
+                    DispatchQueue.main.async {
+                        _ = NotificationService.shared.scheduleNotification(for: updatedNote, minutesBefore: reminderMinutesBefore)
+                    }
+                } else {
+                    viewModel.toastMessage = ToastMessage(message: "알림 권한이 없어 알림이 설정되지 않았습니다.", type: .error)
+                }
+            }
+        }
+    }
+                
+                if selectedCategory == .일지 {
+                    viewModel.toastMessage = ToastMessage(message: "일지가 수정되었습니다.", type: .success)
+                } else {
+                    viewModel.toastMessage = ToastMessage(message: "일정이 수정되었습니다.", type: .success)
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    isSaving = false
+                    dismiss()
+                }
+            }
+        } else {
+            let newNoteId = UUID()
+            
+            if !selectedImages.isEmpty && selectedCategory == .일지 {
+                let newNote = Note(
+                    id: newNoteId,
+                    title: title,
+                    description: description,
+                    date: date,
+                    category: selectedCategory
+                )
+                
+                viewModel.addNoteWithImages(
+                    title: title,
+                    description: description,
+                    date: date,
+                    category: selectedCategory,
+                    images: selectedImages
+                )
+                
+                if selectedCategory == .일정 && isReminderEnabled {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        _ = NotificationService.shared.scheduleNotification(for: newNote, minutesBefore: reminderMinutesBefore)
+                    }
+                }
+            } else {
+                let newNote = Note(
+                    id: newNoteId,
+                    title: title,
+                    description: description,
+                    date: date,
+                    category: selectedCategory
+                )
+                
+                viewModel.addNote(
+                    title: title,
+                    description: description,
+                    date: date,
+                    category: selectedCategory
+                )
+                
+                if selectedCategory == .일정 && isReminderEnabled {
+                    if NotificationService.shared.authorizationStatus == .authorized {
+                        let notificationResult = NotificationService.shared.scheduleNotification(for: newNote, minutesBefore: reminderMinutesBefore)
+                        if notificationResult == nil {
+                            viewModel.toastMessage = ToastMessage(message: "알림 권한이 없어 알림이 설정되지 않았습니다.", type: .error)
+                        } else {
+                            let message = "새 일정이 저장되었습니다. 알림이 설정되었습니다."
+                            viewModel.toastMessage = ToastMessage(message: message, type: .success)
+                        }
+                    } else {
+                        NotificationService.shared.requestAuthorization { granted in
+                            if granted {
+                                DispatchQueue.main.async {
+                                    _ = NotificationService.shared.scheduleNotification(for: newNote, minutesBefore: reminderMinutesBefore)
+                                    let message = "새 일정이 저장되었습니다. 알림이 설정되었습니다."
+                                    viewModel.toastMessage = ToastMessage(message: message, type: .success)
+                                }
+                            } else {
+                                viewModel.toastMessage = ToastMessage(message: "알림 권한이 없어 알림이 설정되지 않았습니다.", type: .error)
+                            }
+                        }
+                    }
+                } else {
+                    if selectedCategory == .일지 {
+                        viewModel.toastMessage = ToastMessage(message: "새 일지가 저장되었습니다.", type: .success)
+                    } else {
+                        viewModel.toastMessage = ToastMessage(message: "새 일정이 저장되었습니다.", type: .success)
+                    }
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    isSaving = false
+                    dismiss()
+                }
+            }
         }
     }
 }
@@ -189,9 +431,4 @@ struct RadioButtonRow: View {
         }
         .buttonStyle(PlainButtonStyle())
     }
-}
-
-#Preview {
-    NoteEditorView(selectedDate: Date())
-        .environmentObject(NoteViewModel())
 }

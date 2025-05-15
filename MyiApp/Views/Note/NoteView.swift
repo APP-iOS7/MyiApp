@@ -12,9 +12,9 @@ struct NoteView: View {
     @State private var showingNoteEditor = false
     @State private var selectedFilterCategory: NoteCategory? = nil
     @State private var selectedEvent: Note? = nil
-    @State private var isLoading = false
     @State private var showMonthYearPicker = false
     @State private var selectedDate: Date? = nil
+    @State private var isFirstAppear = true
     
     var body: some View {
         ScrollView {
@@ -49,23 +49,16 @@ struct NoteView: View {
         }
         .navigationTitle("육아 수첩")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showingNoteEditor) {
+        .sheet(isPresented: $showingNoteEditor, onDismiss: {
+            if viewModel.toastMessage != nil {
+            }
+        }) {
             NoteEditorView(selectedDate: viewModel.selectedDay?.date ?? Date())
                 .environmentObject(viewModel)
         }
         .navigationDestination(item: $selectedEvent) { event in
             NoteDetailView(event: event)
                 .environmentObject(viewModel)
-        }
-        .overlay {
-            if isLoading {
-                ProgressView()
-                    .scaleEffect(1.5)
-                    .frame(width: 80, height: 80)
-                    .background(Color.white.opacity(0.8))
-                    .cornerRadius(10)
-                    .shadow(radius: 5)
-            }
         }
         .sheet(isPresented: $showMonthYearPicker) {
             VStack {
@@ -90,15 +83,12 @@ struct NoteView: View {
             }
         }
         .onAppear {
-            isLoading = true
-            
-            // 화면이 나타날 때마다 오늘 날짜 선택
-            selectToday()
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                isLoading = false
+            if isFirstAppear {
+                selectToday()
+                isFirstAppear = false
             }
         }
+        .toast(message: $viewModel.toastMessage)
     }
     
     // 오늘 날짜 선택
@@ -133,7 +123,7 @@ struct NoteView: View {
                 }) {
                     HStack {
                         Text(viewModel.currentMonth)
-                            .font(.title2)
+                            .font(.custom("Cafe24-Ohsquareair", size: 24))
                             .fontWeight(.bold)
                             .foregroundStyle(.secondary)
                         
@@ -291,8 +281,8 @@ struct NoteView: View {
                     Button(action: {
                         showingNoteEditor = true
                     }) {
-                        Label("추가", systemImage: "plus.circle.fill")
-                            .font(.caption)
+                        Label("일지/일정 추가", systemImage: "plus.circle.fill")
+                            .font(.subheadline)
                             .foregroundColor(Color("sharkPrimaryDark"))
                     }
                 }
@@ -305,8 +295,8 @@ struct NoteView: View {
                     emptyEventsView
                 } else {
                     let filteredEvents = selectedFilterCategory == nil ?
-                        dayEvents :
-                        dayEvents.filter { $0.category == selectedFilterCategory }
+                    dayEvents :
+                    dayEvents.filter { $0.category == selectedFilterCategory }
                     
                     if filteredEvents.isEmpty {
                         VStack {
@@ -370,15 +360,24 @@ struct NoteEventRow: View {
             onTap?()
         } label: {
             HStack(spacing: 12) {
-                // 카테고리별 아이콘
-                Image(systemName: categoryIcon(for: event.category))
-                    .foregroundColor(categoryColor(for: event.category))
-                    .font(.system(size: 24))
-                    .frame(width: 40, height: 40)
-                    .background(
-                        Circle()
-                            .fill(categoryColor(for: event.category).opacity(0.2))
-                    )
+                if event.category == .일지 && !event.imageURLs.isEmpty {
+                    CustomAsyncImageView(imageUrlString: event.imageURLs[0])
+                        .frame(width: 40, height: 40)
+                        .clipShape(Circle())
+                        .overlay(
+                            Circle()
+                                .stroke(categoryColor(for: event.category).opacity(0.3), lineWidth: 2)
+                        )
+                } else {
+                    Image(systemName: categoryIcon(for: event.category))
+                        .foregroundColor(categoryColor(for: event.category))
+                        .font(.system(size: 24))
+                        .frame(width: 40, height: 40)
+                        .background(
+                            Circle()
+                                .fill(categoryColor(for: event.category).opacity(0.2))
+                        )
+                }
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(event.title)
@@ -393,9 +392,27 @@ struct NoteEventRow: View {
                 
                 Spacer()
                 
-                Text(event.timeString)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text(event.timeString)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    if event.category == .일지 && event.imageURLs.count > 0 {
+                        HStack(spacing: 4) {
+                            Image(systemName: "photo")
+                                .font(.system(size: 10))
+                            Text("\(event.imageURLs.count)")
+                                .font(.system(size: 10))
+                        }
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(
+                            Capsule()
+                                .fill(Color.gray.opacity(0.1))
+                        )
+                    }
+                }
             }
             .padding()
             .background(
@@ -406,7 +423,7 @@ struct NoteEventRow: View {
         }
         .buttonStyle(PlainButtonStyle())
     }
-
+    
     private func categoryColor(for category: NoteCategory) -> Color {
         switch category {
         case .일지:
@@ -423,11 +440,5 @@ struct NoteEventRow: View {
         case .일정:
             return "calendar"
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        NoteView()
     }
 }
