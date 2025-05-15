@@ -184,7 +184,7 @@ struct NoteEditorView: View {
                 }
                 
                 if selectedCategory == .일정 {
-                    Section(header: Text("알림")) {
+                    Section(header: Text("알림(미완성)")) {
                         NoteReminderView(
                             isEnabled: $isReminderEnabled,
                             reminderTime: $reminderTime,
