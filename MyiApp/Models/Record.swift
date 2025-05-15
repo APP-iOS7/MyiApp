@@ -151,21 +151,21 @@ extension Record {
         // 배변 - poop
         Record(
             createdAt: Date().addingTimeInterval(-18000),
-            title: .poop,
+            title: .poop
         ),
         Record(
             createdAt: Date().addingTimeInterval(-39600),
-            title: .poop,
+            title: .poop
         ),
 
         // 배변 - pee
         Record(
             createdAt: Date().addingTimeInterval(-21600),
-            title: .pee,
+            title: .pee
         ),
         Record(
             createdAt: Date().addingTimeInterval(-43200),
-            title: .pee,
+            title: .pee
         ),
 
         // 수면
