@@ -9,6 +9,11 @@ import SwiftUI
 
 struct StatisticView: View {
     
+    struct CareCategory: Equatable {
+        let name: String
+        let image: UIImage
+    }
+    
     let baby: Baby
     
     var birthDate: Date {
@@ -122,7 +127,7 @@ struct StatisticView: View {
                 }) {
                     Text(mode)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : Color("sharkCardBackground"))
+                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : Color(.black))
                         .frame(maxWidth: 90, minHeight: 32)
                         .background(
                             ZStack {
@@ -237,24 +242,24 @@ struct StatisticView: View {
     private func getFullAge(from birthDate: Date) -> Int {
         let now = Date()
         let calendar = Calendar.current
-
+        
         let birthYear = calendar.component(.year, from: birthDate)
         let birthMonth = calendar.component(.month, from: birthDate)
         let birthDay = calendar.component(.day, from: birthDate)
-
+        
         let nowYear = calendar.component(.year, from: now)
         let nowMonth = calendar.component(.month, from: now)
         let nowDay = calendar.component(.day, from: now)
-
+        
         var age = nowYear - birthYear
-
+        
         if (nowMonth < birthMonth) || (nowMonth == birthMonth && nowDay < birthDay) {
             age -= 1
         }
-
+        
         return age
     }
-
+    
     private var statisticList: some View {
         Group {
             if selectedMode == "주" {
@@ -267,6 +272,41 @@ struct StatisticView: View {
             }
         }
         
+    }
+    
+    private var gridItems: some View {
+        let careItems: [CareCategory] = [
+            .init(name: "수유/이유식", image: .colorBabyFood),
+            .init(name: "기저귀", image: .colorBabyFood),
+            .init(name: "배변", image: .colorBabyFood),
+            .init(name: "수면", image: .colorBabyFood),
+            .init(name: "키/몸무게", image: .colorBabyFood),
+            .init(name: "목욕", image: .colorBabyFood),
+            .init(name: "간식", image: .colorBabyFood),
+            .init(name: "건강 관리", image: .colorBabyFood)
+        ]
+        let columns = Array(repeating: GridItem(.flexible()), count: 4)
+        return LazyVGrid(columns: columns) {
+            ForEach(careItems, id: \.name) { item in
+                Button(action: {print(item)}) {
+                    VStack(spacing: 0) {
+                        Image(uiImage: item.image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .padding()
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(Color.blue.opacity(0.1))
+                                    .frame(width: 70, height: 70)
+                            )
+                        Text(item.name)
+                            .font(.system(size: 12))
+                    }
+                }
+                
+            }
+        }
+        .padding(.horizontal)
     }
 }
 
@@ -294,43 +334,3 @@ struct IconItem: View {
         }
     }
 }
-
-private var gridItems: some View {
-    struct CareCategory: Equatable {
-        let name: String
-        let image: UIImage
-    }
-    let careItems: [CareCategory] = [
-        .init(name: "수유/이유식", image: .colorBabyFood),
-        .init(name: "기저귀", image: .colorBabyFood),
-        .init(name: "배변", image: .colorBabyFood),
-        .init(name: "수면", image: .colorBabyFood),
-        .init(name: "키/몸무게", image: .colorBabyFood),
-        .init(name: "목욕", image: .colorBabyFood),
-        .init(name: "간식", image: .colorBabyFood),
-        .init(name: "건강 관리", image: .colorBabyFood)
-    ]
-    let columns = Array(repeating: GridItem(.flexible()), count: 4)
-    return LazyVGrid(columns: columns) {
-        ForEach(careItems, id: \.name) { item in
-            Button(action: {print(item)}) {
-                VStack(spacing: 0) {
-                    Image(uiImage: item.image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.blue.opacity(0.1))
-                                .frame(width: 70, height: 70)
-                        )
-                    Text(item.name)
-                        .font(.system(size: 12))
-                }
-            }
-            
-        }
-    }
-    .padding(.horizontal)
-}
-
