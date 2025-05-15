@@ -38,7 +38,10 @@ struct MyiApp: App {
         WindowGroup {
             NavigationStack {
                 currentView
-                    .task { await updateAppState() }
+                    .task {
+                        await updateAppState()
+                        await AccountSettingsViewModel.shared.loadProfile()
+                    }
                     .onChange(of: authService.user) { _, _ in
                         Task { await updateAppState() }
                     }
