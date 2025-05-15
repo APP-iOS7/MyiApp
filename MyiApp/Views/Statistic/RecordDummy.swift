@@ -8,7 +8,7 @@
 import Foundation
 
 extension Record {
-    static let mockTestRecords: [Record] = {
+    static let dummyRecords: [Record] = {
         let korea = TimeZone(identifier: "Asia/Seoul")!
         var calendar = Calendar.current
         calendar.timeZone = korea
