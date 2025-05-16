@@ -499,7 +499,7 @@ extension NoteViewModel {
             return
         }
         
-        guard let _user = authService.user, let babyId = babyInfo?.id else {
+        guard authService.user != nil, let babyId = babyInfo?.id else {
             completion(.failure(NSError(domain: "AuthError", code: 0, userInfo: [NSLocalizedDescriptionKey: "인증 정보가 없습니다."])))
             return
         }
