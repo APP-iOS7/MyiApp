@@ -107,16 +107,17 @@ struct AddRecordView: View {
                 case .poop, .pee, .pottyAll: return .colorPotty
             }
         }
+         
         var backgoundColor: Color {
             switch viewModel.record.title {
-                case .formula, .babyFood, .pumpedMilk, .breastfeeding: return .pink
-                case .diaper: return .purple
-                case .sleep: return .gray
-                case .heightWeight: return .green
-                case .bath: return .blue
-                case .snack: return .orange
-                case .temperature, .medicine, .clinic: return .yellow
-                case .poop, .pee, .pottyAll: return .brown
+                case .formula, .babyFood, .pumpedMilk, .breastfeeding: return .food
+                case .diaper: return .diaper
+                case .sleep: return .sleep
+                case .heightWeight: return .heightWeight
+                case .bath: return .bath
+                case .snack: return .snack
+                case .temperature, .medicine, .clinic: return .health
+                case .poop, .pee, .pottyAll: return .potty
             }
         }
         

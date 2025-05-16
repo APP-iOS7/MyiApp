@@ -15,6 +15,7 @@ final class AccountSettingsViewModel: ObservableObject {
     @Published var selectedPhoto: PhotosPickerItem?
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var isProfileSaved: Bool = false
     
     private let databaseService = DatabaseService.shared
     private let imageCache: NSCache<NSString, UIImage> = {
@@ -96,8 +97,10 @@ final class AccountSettingsViewModel: ObservableObject {
             }
             try await databaseService.saveUserProfile(name: name, imageUrl: imageUrl)
             self.errorMessage = nil
+            self.isProfileSaved = true
         } catch {
             self.errorMessage = "프로필 저장 실패: \(error.localizedDescription)"
+            self.isProfileSaved = false
         }
     }
 }

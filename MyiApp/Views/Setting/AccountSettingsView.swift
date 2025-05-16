@@ -12,6 +12,8 @@ struct AccountSettingsView: View {
     @ObservedObject private var viewModel = AccountSettingsViewModel.shared
     @State private var showPhotoActionSheet = false
     @State private var showPhotoPicker = false
+    @Environment(\.dismiss) private var dismiss
+    @FocusState private var isTextFieldFocused: Bool
     
     init(viewModel: AccountSettingsViewModel) {
         self.viewModel = viewModel
@@ -46,7 +48,25 @@ struct AccountSettingsView: View {
                 }
                 
                 Section("사용자") {
-                    TextField("이름", text: $viewModel.name)
+                    HStack {
+                        TextField("이름", text: $viewModel.name)
+                            .disableAutocorrection(true)
+                            .textInputAutocapitalization(.never)
+                            .focused($isTextFieldFocused)
+                            .submitLabel(.done)
+                        
+                        if !viewModel.name.isEmpty {
+                            Button(action: {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    viewModel.name = ""
+                                    isTextFieldFocused = false
+                                }
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                    }
                 }
                 
                 if let errorMessage = viewModel.errorMessage {
@@ -59,7 +79,12 @@ struct AccountSettingsView: View {
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button("저장") {
-                        Task { await viewModel.saveProfile() }
+                        Task {
+                            await viewModel.saveProfile()
+                            if viewModel.isProfileSaved {
+                                dismiss()
+                            }
+                        }
                     }
                     .disabled(viewModel.isLoading)
                 }
@@ -94,3 +119,4 @@ struct AccountSettingsView: View {
         }
     }
 }
+

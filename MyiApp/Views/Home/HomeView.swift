@@ -207,6 +207,7 @@ struct HomeView: View {
             } else {
                 ForEach(viewModel.filteredRecords) { record in
                     TimelineRow(record: record)
+                        .contentShape(Rectangle())
                         .onTapGesture {
                             viewModel.recordToEdit = record
                         }
