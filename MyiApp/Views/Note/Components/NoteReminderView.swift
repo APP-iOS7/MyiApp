@@ -26,13 +26,39 @@ struct NoteReminderView: View {
                 authorizedView
             } else {
                 NotificationPermissionView {
-                    isEnabled = true
+                    notificationService.requestAuthorization { granted in
+                        if granted {
+                            print("알림 권한 획득 성공!")
+                            isEnabled = true
+                            
+                            let now = Date()
+                            let minReminderTime = now.addingTimeInterval(5 * 60)
+                            
+                            if minReminderTime < eventDate {
+                                reminderMinutesBefore = 30
+                                reminderTime = max(
+                                    eventDate.addingTimeInterval(-30 * 60),
+                                    now.addingTimeInterval(5 * 60)
+                                )
+                            } else {
+                                isEnabled = false
+                            }
+                        } else {
+                            print("알림 권한 획득 실패!")
+                        }
+                    }
                 }
             }
         }
         .animation(.easeInOut, value: notificationService.authorizationStatus)
         .onAppear {
             notificationService.checkAuthorizationStatus()
+            print("NoteReminderView appeared: isEnabled=\(isEnabled), minutesBefore=\(reminderMinutesBefore)")
+            print("알림 권한 상태: \(notificationService.authorizationStatus.rawValue)")
+            
+            if isEnabled && reminderTime <= Date() {
+                adjustReminderTime()
+            }
         }
         .alert("알림 시간 오류", isPresented: $showInvalidTimeAlert) {
             Button("확인", role: .cancel) { }
@@ -41,10 +67,34 @@ struct NoteReminderView: View {
         }
     }
     
+    private func adjustReminderTime() {
+        let now = Date()
+        let minReminderTime = now.addingTimeInterval(5 * 60)
+        
+        if minReminderTime < eventDate {
+            reminderTime = minReminderTime
+            let diffMinutes = Int(eventDate.timeIntervalSince(minReminderTime) / 60)
+            reminderMinutesBefore = diffMinutes
+            print("알림 시간 자동 조정: \(reminderTime), \(reminderMinutesBefore)분 전")
+        } else {
+            isEnabled = false
+            print("일정 시간이 너무 가까워 알림 비활성화")
+        }
+    }
+    
     private var authorizedView: some View {
         VStack(spacing: 16) {
             Toggle("일정 알림", isOn: $isEnabled)
                 .tint(Color("sharkPrimaryColor"))
+                .onChange(of: isEnabled) { _, enabled in
+                    print("알림 토글 변경: \(enabled)")
+                    
+                    if enabled {
+                        if reminderTime <= Date() {
+                            adjustReminderTime()
+                        }
+                    }
+                }
             
             if isEnabled {
                 VStack(spacing: 16) {
@@ -57,15 +107,33 @@ struct NoteReminderView: View {
                         Menu {
                             ForEach(reminderOptions, id: \.self) { minutes in
                                 Button(action: {
-                                    reminderMinutesBefore = minutes
-                                    // 알림 시간 업데이트
-                                    reminderTime = eventDate.addingTimeInterval(TimeInterval(-minutes * 60))
+                                    let newReminderTime = eventDate.addingTimeInterval(TimeInterval(-minutes * 60))
+                                    if newReminderTime > Date() {
+                                        reminderMinutesBefore = minutes
+                                        reminderTime = newReminderTime
+                                        print("알림 옵션 선택: \(minutes)분 전, 시간: \(reminderTime)")
+                                    } else {
+                                        adjustReminderTime()
+                                    }
                                 }) {
                                     HStack {
                                         Text(minutesToString(minutes))
                                         if reminderMinutesBefore == minutes {
                                             Image(systemName: "checkmark")
                                         }
+                                    }
+                                }
+                            }
+                            
+                            Button(action: {
+                                tempReminderTime = reminderTime
+                                showTimePicker = true
+                                print("직접 설정 시작")
+                            }) {
+                                HStack {
+                                    Text("직접 설정")
+                                    if reminderMinutesBefore == -1 {
+                                        Image(systemName: "checkmark")
                                     }
                                 }
                             }
@@ -110,8 +178,6 @@ struct NoteReminderView: View {
                             DatePicker("알림 시간", selection: $tempReminderTime, displayedComponents: [.date, .hourAndMinute])
                                 .datePickerStyle(.wheel)
                                 .labelsHidden()
-                                .onChange(of: tempReminderTime) { _, _ in
-                                }
                             
                             HStack {
                                 Button("취소") {
@@ -124,24 +190,26 @@ struct NoteReminderView: View {
                                 .cornerRadius(10)
                                 
                                 Button("확인") {
-                                    // 시간이 유효한지 확인
-                                    let diffSeconds = eventDate.timeIntervalSince(tempReminderTime)
-                                    let diffMinutes = Int(diffSeconds / 60)
-                                    
-                                    if diffMinutes <= 0 {
+                                    if tempReminderTime >= eventDate {
                                         showInvalidTimeAlert = true
+                                        print("선택한 알림 시간이 일정보다 이후임: \(tempReminderTime) >= \(eventDate)")
+                                    } else if tempReminderTime <= Date() {
+                                        showInvalidTimeAlert = true
+                                        print("선택한 알림 시간이 현재보다 이전임: \(tempReminderTime) <= \(Date())")
                                     } else {
                                         reminderTime = tempReminderTime
                                         
-                                        if tempReminderTime == eventDate {
-                                            reminderMinutesBefore = 0
-                                        }
-                                        else if reminderOptions.contains(diffMinutes) {
+                                        let diffSeconds = eventDate.timeIntervalSince(tempReminderTime)
+                                        let diffMinutes = Int(diffSeconds / 60)
+                                        print("알림 시간 차이: \(diffMinutes)분")
+                                        
+                                        if reminderOptions.contains(diffMinutes) {
                                             reminderMinutesBefore = diffMinutes
                                         } else {
                                             reminderMinutesBefore = -1
                                         }
                                         
+                                        print("알림 시간 설정 완료: \(reminderTime), \(reminderMinutesBefore)분 전")
                                         showTimePicker = false
                                     }
                                 }
@@ -170,24 +238,20 @@ struct NoteReminderView: View {
         formatter.amSymbol = "오전"
         formatter.pmSymbol = "오후"
         formatter.locale = Locale(identifier: "ko_KR")
-        
-        if reminderMinutesBefore == -1 {
-            return formatter.string(from: reminderTime)
-        }
-        
         return formatter.string(from: reminderTime)
     }
     
     private func minutesToString(_ minutes: Int) -> String {
-        if minutes == 0 {
+        switch minutes {
+        case 0:
             return "일정 시간"
-        } else if minutes == -1 {
+        case -1:
             return "사용자 지정"
-        } else if minutes == 1440 {
+        case 1440:
             return "1일 전"
-        } else if minutes >= 60 {
-            return "\(minutes / 60)시간 전"
-        } else {
+        case let m where m >= 60:
+            return "\(m / 60)시간 전"
+        default:
             return "\(minutes)분 전"
         }
     }
