@@ -25,22 +25,20 @@ struct NoteEditorView: View {
     @State private var isReminderEnabled: Bool = false
     @State private var reminderTime: Date
     @State private var reminderMinutesBefore: Int = 30
-    @State private var notificationTimeString: String?
+    @State private var showAlertMessage = false
+    @State private var alertMessage = ""
     
     let isEditing: Bool
     let noteId: UUID?
     
     init(selectedDate: Date, note: Note? = nil) {
-        _date = State(initialValue: selectedDate)
+        // 날짜 초기화 - 현재 시간보다 30분 후로 기본 설정
+        let futureDate = max(selectedDate, Date().addingTimeInterval(30 * 60))
+        _date = State(initialValue: futureDate)
         
-        // 새로운 일정인 경우 일정 시간을 기본값으로
-        if note == nil {
-            _reminderTime = State(initialValue: selectedDate)
-            _reminderMinutesBefore = State(initialValue: 0)
-        } else {
-            _reminderTime = State(initialValue: note!.date)
-            _reminderMinutesBefore = State(initialValue: 0)
-        }
+        // 알림 시간은 일정 시간 30분 전으로 설정 (최소한 현재 시간 이후)
+        let defaultReminderTime = futureDate.addingTimeInterval(-30 * 60)
+        _reminderTime = State(initialValue: max(defaultReminderTime, Date().addingTimeInterval(60)))
         
         if let note = note {
             _title = State(initialValue: note.title)
@@ -48,6 +46,20 @@ struct NoteEditorView: View {
             _date = State(initialValue: note.date)
             _selectedCategory = State(initialValue: note.category)
             _existingImageURLs = State(initialValue: note.imageURLs)
+            
+            // 알림 정보가 있으면 설정
+            if let notificationEnabled = note.notificationEnabled,
+               notificationEnabled,
+               let notificationTime = note.notificationTime {
+                _isReminderEnabled = State(initialValue: true)
+                _reminderTime = State(initialValue: notificationTime)
+                
+                // 시간 차이 계산
+                let diffMinutes = Int(note.date.timeIntervalSince(notificationTime) / 60)
+                if diffMinutes > 0 {
+                    _reminderMinutesBefore = State(initialValue: diffMinutes)
+                }
+            }
             
             self.isEditing = true
             self.noteId = note.id
@@ -58,39 +70,61 @@ struct NoteEditorView: View {
     }
     
     private func checkNotificationStatus() {
-        if let id = noteId, selectedCategory == .일정 {
-            NotificationService.shared.checkNotificationExists(with: id.uuidString) { exists in
-                DispatchQueue.main.async {
-                    self.isReminderEnabled = exists
+        guard let id = noteId, selectedCategory == .일정 else { return }
+        
+        print("🔔 알림 상태 확인: \(id.uuidString)")
+        // 모든 알림 출력 (디버깅)
+        NotificationService.shared.printAllScheduledNotifications()
+        
+        // 먼저 Note 객체의 저장된 알림 상태 확인
+        if let note = viewModel.getNoteById(id),
+           let enabled = note.notificationEnabled,
+           enabled,
+           let notificationTime = note.notificationTime {
+            
+            isReminderEnabled = true
+            reminderTime = notificationTime
+            
+            // 시간 차이 계산
+            let diffMinutes = Int(date.timeIntervalSince(notificationTime) / 60)
+            if diffMinutes > 0 {
+                reminderMinutesBefore = diffMinutes
+            }
+            
+            print("🔔 Note 객체에서 알림 정보 로드: time=\(notificationTime), \(reminderMinutesBefore)분 전")
+            return
+        }
+        
+        // 실제 알림 시스템에서 확인
+        NotificationService.shared.findNotificationForNote(noteId: id.uuidString) { exists, triggerDate, _ in
+            print("🔔 알림 시스템 확인 결과: 존재=\(exists), 시간=\(String(describing: triggerDate))")
+            
+            DispatchQueue.main.async {
+                self.isReminderEnabled = exists
+                
+                if exists, let triggerDate = triggerDate {
+                    self.reminderTime = triggerDate
                     
-                    if exists {
-                        NotificationService.shared.getNotificationTriggerDate(with: id.uuidString) { triggerDate in
-                            DispatchQueue.main.async {
-                                if let triggerDate = triggerDate {
-                                    self.reminderTime = triggerDate
-                                    
-                                    let diffSeconds = self.date.timeIntervalSince(triggerDate)
-                                    let diffMinutes = Int(diffSeconds / 60)
-                                    
-                                    if diffMinutes > 0 {
-                                        if [10, 15, 30, 60, 120, 1440].contains(diffMinutes) {
-                                            self.reminderMinutesBefore = diffMinutes
-                                        } else {
-                                            self.reminderMinutesBefore = -1
-                                        }
-                                    } else {
-                                        self.reminderTime = self.date
-                                        self.reminderMinutesBefore = -1
-                                    }
-                                } else {
-                                    self.reminderTime = self.date
-                                    self.reminderMinutesBefore = -1
-                                }
-                            }
+                    // 시간 차이 계산
+                    let diffMinutes = Int(self.date.timeIntervalSince(triggerDate) / 60)
+                    
+                    if diffMinutes > 0 {
+                        if [10, 15, 30, 60, 120, 1440].contains(diffMinutes) {
+                            self.reminderMinutesBefore = diffMinutes
+                        } else {
+                            self.reminderMinutesBefore = diffMinutes
                         }
                     } else {
-                        self.reminderTime = self.date
-                        self.reminderMinutesBefore = -1
+                        self.reminderMinutesBefore = 30 // 기본값
+                    }
+                    
+                    // Note 객체에 알림 정보 업데이트
+                    if let id = self.noteId {
+                        self.viewModel.updateNoteNotification(
+                            noteId: id,
+                            enabled: true,
+                            time: triggerDate
+                        )
                     }
                 }
             }
@@ -131,7 +165,22 @@ struct NoteEditorView: View {
                     DatePicker("날짜 및 시간", selection: $date)
                         .datePickerStyle(.compact)
                         .onChange(of: date) { _, newValue in
-                            reminderTime = newValue.addingTimeInterval(TimeInterval(-reminderMinutesBefore * 60))
+                            if isReminderEnabled {
+                                reminderTime = newValue.addingTimeInterval(TimeInterval(-reminderMinutesBefore * 60))
+                                
+                                if reminderTime < Date() {
+                                    let possibleTime = Date().addingTimeInterval(5 * 60)
+                                    if possibleTime < newValue {
+                                        reminderTime = possibleTime
+                                        let diffMinutes = Int(newValue.timeIntervalSince(possibleTime) / 60)
+                                        reminderMinutesBefore = diffMinutes
+                                    } else {
+                                        isReminderEnabled = false
+                                        showAlertMessage = true
+                                        alertMessage = "일정 시간이 너무 가까워 알림을 설정할 수 없습니다."
+                                    }
+                                }
+                            }
                         }
                 }
                 
@@ -184,7 +233,7 @@ struct NoteEditorView: View {
                 }
                 
                 if selectedCategory == .일정 {
-                    Section(header: Text("알림(미완성)")) {
+                    Section(header: Text("알림")) {
                         NoteReminderView(
                             isEnabled: $isReminderEnabled,
                             reminderTime: $reminderTime,
@@ -224,171 +273,132 @@ struct NoteEditorView: View {
                         )
                 }
             }
-            .onChange(of: viewModel.isLoading) { _, newValue in
-                if isSaving && !newValue {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        isSaving = false
-                        dismiss()
-                    }
-                }
+            .alert("알림", isPresented: $showAlertMessage) {
+                Button("확인", role: .cancel) {}
+            } message: {
+                Text(alertMessage)
             }
             .onAppear {
+                print("🔔 NoteEditorView appeared for \(isEditing ? "editing" : "new") \(selectedCategory.rawValue)")
                 checkNotificationStatus()
             }
         }
     }
     
     private func saveNote() {
-        if title.isEmpty {
-            return
-        }
+        if title.isEmpty { return }
         
         isSaving = true
+        print("노트 저장 시작: \(selectedCategory.rawValue)")
         
-        // 알림 처리
+        let noteId = self.noteId ?? UUID()
+        print("노트 ID: \(noteId.uuidString)")
+        
+        var notificationEnabled: Bool? = nil
+        var notificationTime: Date? = nil
+        
         if selectedCategory == .일정 {
             if isReminderEnabled {
-                // 알림 시간 계산 (일정에서 minutesBefore 만큼 이전)
-                let timeDiff = Int(date.timeIntervalSince(reminderTime) / 60)
-                reminderMinutesBefore = timeDiff > 0 ? timeDiff : 30
+                let result = handleNotificationForEvent(noteId: noteId)
                 
-                notificationTimeString = NotificationService.shared.getNotificationTimeText(for: date, minutesBefore: reminderMinutesBefore)
-            } else if let id = noteId {
-                NotificationService.shared.cancelNotification(with: id.uuidString)
+                if result.success, let time = result.time {
+                    notificationEnabled = true
+                    notificationTime = time
+                } else {
+                    notificationEnabled = false
+                    
+                    if !result.success {
+                        alertMessage = result.message ?? "알림 설정에 실패했습니다."
+                        showAlertMessage = true
+                    }
+                }
+            } else {
+                notificationEnabled = false
+                if isEditing {
+                    NotificationService.shared.cancelNotification(with: noteId.uuidString)
+                }
             }
         }
         
-        if isEditing, let id = noteId {
-            if !selectedImages.isEmpty && selectedCategory == .일지 {
-                let updatedNote = Note(
-                    id: id,
-                    title: title,
-                    description: description,
-                    date: date,
-                    category: selectedCategory,
-                    imageURLs: existingImageURLs
-                )
-                
-                viewModel.updateNoteWithImages(note: updatedNote, newImages: selectedImages)
+        // 2. 기본 Note 객체 생성
+        let note = Note(
+            id: noteId,
+            title: title,
+            description: description,
+            date: date,
+            category: selectedCategory,
+            imageURLs: existingImageURLs,
+            notificationEnabled: notificationEnabled,
+            notificationTime: notificationTime
+        )
+        
+        // 3. 노트 저장 처리 (이미지 유무에 따라)
+        if !selectedImages.isEmpty && selectedCategory == .일지 {
+            // 이미지가 있는 노트
+            if isEditing {
+                viewModel.updateNoteWithImages(note: note, newImages: selectedImages)
             } else {
-                let updatedNote = Note(
-                    id: id,
-                    title: title,
-                    description: description,
-                    date: date,
-                    category: selectedCategory,
-                    imageURLs: existingImageURLs
-                )
-                
-                viewModel.updateNote(note: updatedNote)
-                
-    if selectedCategory == .일정 && isReminderEnabled {
-        if NotificationService.shared.authorizationStatus == .authorized {
-            let notificationResult = NotificationService.shared.scheduleNotification(for: updatedNote, minutesBefore: reminderMinutesBefore)
-            if notificationResult == nil {
-                viewModel.toastMessage = ToastMessage(message: "알림 권한이 없어 알림이 설정되지 않았습니다.", type: .error)
+                viewModel.addNoteWithImages(note: note, images: selectedImages)
             }
+            
+            // 이미지 업로드는 비동기 처리되므로 콜백에서 화면 닫기
+            print("이미지 저장 처리 중...")
         } else {
-            NotificationService.shared.requestAuthorization { granted in
-                if granted {
-                    DispatchQueue.main.async {
-                        _ = NotificationService.shared.scheduleNotification(for: updatedNote, minutesBefore: reminderMinutesBefore)
-                    }
-                } else {
-                    viewModel.toastMessage = ToastMessage(message: "알림 권한이 없어 알림이 설정되지 않았습니다.", type: .error)
-                }
+            if isEditing {
+                viewModel.updateNote(note: note)
+            } else {
+                viewModel.addNote(note: note)
+            }
+            
+            setSuccessToastMessage(withNotification: notificationEnabled == true)
+            
+            print("노트 저장 완료 - 화면 닫기")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isSaving = false
+                dismiss()
             }
         }
     }
-                
-                if selectedCategory == .일지 {
-                    viewModel.toastMessage = ToastMessage(message: "일지가 수정되었습니다.", type: .success)
-                } else {
-                    viewModel.toastMessage = ToastMessage(message: "일정이 수정되었습니다.", type: .success)
-                }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    isSaving = false
-                    dismiss()
-                }
-            }
-        } else {
-            let newNoteId = UUID()
-            
-            if !selectedImages.isEmpty && selectedCategory == .일지 {
-                let newNote = Note(
-                    id: newNoteId,
-                    title: title,
-                    description: description,
-                    date: date,
-                    category: selectedCategory
-                )
-                
-                viewModel.addNoteWithImages(
-                    title: title,
-                    description: description,
-                    date: date,
-                    category: selectedCategory,
-                    images: selectedImages
-                )
-                
-                if selectedCategory == .일정 && isReminderEnabled {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        _ = NotificationService.shared.scheduleNotification(for: newNote, minutesBefore: reminderMinutesBefore)
-                    }
-                }
-            } else {
-                let newNote = Note(
-                    id: newNoteId,
-                    title: title,
-                    description: description,
-                    date: date,
-                    category: selectedCategory
-                )
-                
-                viewModel.addNote(
-                    title: title,
-                    description: description,
-                    date: date,
-                    category: selectedCategory
-                )
-                
-                if selectedCategory == .일정 && isReminderEnabled {
-                    if NotificationService.shared.authorizationStatus == .authorized {
-                        let notificationResult = NotificationService.shared.scheduleNotification(for: newNote, minutesBefore: reminderMinutesBefore)
-                        if notificationResult == nil {
-                            viewModel.toastMessage = ToastMessage(message: "알림 권한이 없어 알림이 설정되지 않았습니다.", type: .error)
-                        } else {
-                            let message = "새 일정이 저장되었습니다. 알림이 설정되었습니다."
-                            viewModel.toastMessage = ToastMessage(message: message, type: .success)
-                        }
-                    } else {
-                        NotificationService.shared.requestAuthorization { granted in
-                            if granted {
-                                DispatchQueue.main.async {
-                                    _ = NotificationService.shared.scheduleNotification(for: newNote, minutesBefore: reminderMinutesBefore)
-                                    let message = "새 일정이 저장되었습니다. 알림이 설정되었습니다."
-                                    viewModel.toastMessage = ToastMessage(message: message, type: .success)
-                                }
-                            } else {
-                                viewModel.toastMessage = ToastMessage(message: "알림 권한이 없어 알림이 설정되지 않았습니다.", type: .error)
-                            }
-                        }
-                    }
-                } else {
-                    if selectedCategory == .일지 {
-                        viewModel.toastMessage = ToastMessage(message: "새 일지가 저장되었습니다.", type: .success)
-                    } else {
-                        viewModel.toastMessage = ToastMessage(message: "새 일정이 저장되었습니다.", type: .success)
-                    }
-                }
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    isSaving = false
-                    dismiss()
-                }
-            }
+    
+    private func handleNotificationForEvent(noteId: UUID) -> (success: Bool, time: Date?, message: String?) {
+        print("알림 처리: isEnabled=\(isReminderEnabled), noteId=\(noteId)")
+        
+        if reminderTime <= Date() {
+            print("알림 시간이 현재보다 이전: \(reminderTime)")
+            return (false, nil, "알림 시간은 현재 시간 이후여야 합니다.")
         }
+        
+        let timeDiff = max(1, Int(date.timeIntervalSince(reminderTime) / 60))
+        
+        let note = Note(
+            id: noteId,
+            title: title,
+            description: description,
+            date: date,
+            category: .일정
+        )
+        
+        let result = NotificationService.shared.scheduleNotification(
+            for: note,
+            minutesBefore: timeDiff
+        )
+        
+        print("알림 예약 결과: \(result)")
+        return result
+    }
+    
+    private func setSuccessToastMessage(withNotification: Bool) {
+        let messagePrefix = isEditing ? "" : "새 "
+        let category = selectedCategory == .일지 ? "일지" : "일정"
+        let action = isEditing ? "수정" : "저장"
+        let notificationText = selectedCategory == .일정 && withNotification
+            ? " 알림이 설정되었습니다."
+            : ""
+        
+        viewModel.toastMessage = ToastMessage(
+            message: "\(messagePrefix)\(category)가 \(action)되었습니다.\(notificationText)",
+            type: .success
+        )
     }
 }
 
