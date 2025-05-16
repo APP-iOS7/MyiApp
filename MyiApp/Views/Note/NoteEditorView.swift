@@ -343,6 +343,14 @@ struct NoteEditorView: View {
             
             // 이미지 업로드는 비동기 처리되므로 콜백에서 화면 닫기
             print("이미지 저장 처리 중...")
+            
+            setSuccessToastMessage(withNotification: notificationEnabled == true)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                isSaving = false
+                dismiss()
+            }
+            
         } else {
             if isEditing {
                 viewModel.updateNote(note: note)
@@ -392,8 +400,8 @@ struct NoteEditorView: View {
         let category = selectedCategory == .일지 ? "일지" : "일정"
         let action = isEditing ? "수정" : "저장"
         let notificationText = selectedCategory == .일정 && withNotification
-            ? " 알림이 설정되었습니다."
-            : ""
+        ? " 알림이 설정되었습니다."
+        : ""
         
         viewModel.toastMessage = ToastMessage(
             message: "\(messagePrefix)\(category)가 \(action)되었습니다.\(notificationText)",
