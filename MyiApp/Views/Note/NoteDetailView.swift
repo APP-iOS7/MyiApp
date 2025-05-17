@@ -15,20 +15,18 @@ struct NoteDetailView: View {
     @State private var showingDeleteAlert = false
     @State private var hasNotification = false
     @State private var notificationTime: String?
+    @State private var refreshTrigger = false
     
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                // 헤더
                 headerSection
                 
-                // 이미지 섹션
                 if event.category == .일지 && !event.imageURLs.isEmpty {
                     ImageGallery(imageURLs: event.imageURLs)
                         .padding(.top, 0)
                 }
                 
-                // 내용
                 contentSection
                     .padding(.top, 16)
                 
@@ -61,6 +59,13 @@ struct NoteDetailView: View {
             }
         }
         .sheet(isPresented: $showingEditSheet, onDismiss: {
+            if event.category == .일정 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    refreshTrigger.toggle()
+                    checkNotificationStatus()
+                }
+            }
+            
             if viewModel.toastMessage != nil {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     presentationMode.wrappedValue.dismiss()
@@ -81,47 +86,14 @@ struct NoteDetailView: View {
                 "이 일정은 영구적으로 삭제되며,\n복구할 수 없습니다.")
         }
         .onAppear {
+            print("NoteDetailView appeared for: \(event.id), category: \(event.category.rawValue)")
             if event.category == .일정 {
                 checkNotificationStatus()
             }
         }
-    }
-    
-    private func checkNotificationStatus() {
-        NotificationService.shared.checkNotificationExists(with: event.id.uuidString) { exists in
-            self.hasNotification = exists
-            if exists {
-                // 실제 알림 시간 가져오기
-                NotificationService.shared.getNotificationTriggerDate(with: event.id.uuidString) { triggerDate in
-                    if let triggerDate = triggerDate {
-                        let formatter = DateFormatter()
-                        formatter.dateFormat = "MM월 dd일 a h:mm"
-                        formatter.amSymbol = "오전"
-                        formatter.pmSymbol = "오후"
-                        formatter.locale = Locale(identifier: "ko_KR")
-                        
-                        self.notificationTime = formatter.string(from: triggerDate)
-                        
-                        // 시간 차이 계산하여 표시 (옵션)
-                        let diffSeconds = self.event.date.timeIntervalSince(triggerDate)
-                        let diffMinutes = Int(diffSeconds / 60)
-                        
-                        if diffMinutes >= 60 {
-                            if diffMinutes % 60 == 0 {
-                                let hours = diffMinutes / 60
-                                self.notificationTime! += " (\(hours)시간 전)"
-                            } else {
-                                let hours = diffMinutes / 60
-                                let mins = diffMinutes % 60
-                                self.notificationTime! += " (\(hours)시간 \(mins)분 전)"
-                            }
-                        } else {
-                            self.notificationTime! += " (\(diffMinutes)분 전)"
-                        }
-                    } else {
-                        self.notificationTime = NotificationService.shared.getNotificationTimeText(for: self.event.date)
-                    }
-                }
+        .onChange(of: refreshTrigger) { _, _ in
+            if event.category == .일정 {
+                checkNotificationStatus()
             }
         }
     }
@@ -179,7 +151,7 @@ struct NoteDetailView: View {
         .padding(.horizontal)
     }
     
-    // 일정 알림 섹션
+    // 일정 알림 섹션 - 완전히 개선됨
     private var reminderSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("알림 정보")
@@ -249,19 +221,84 @@ struct NoteDetailView: View {
                 .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         )
         .padding(.horizontal)
+        .id("\(hasNotification)-\(notificationTime ?? "none")-\(refreshTrigger)") // 강제 새로고침 처리
+    }
+    
+    private func checkNotificationStatus() {
+        print("알림 상태 확인 시작: \(event.id.uuidString)")
+        
+        if let enabled = event.notificationEnabled,
+           enabled,
+           let time = event.notificationTime {
+            
+            hasNotification = true
+            setNotificationTimeText(triggerDate: time)
+            print("Note 객체에서 알림 정보 발견: \(time)")
+            return
+        }
+        
+        NotificationService.shared.findNotificationForNote(noteId: event.id.uuidString) { exists, triggerDate, title in
+            print("알림 상태 결과: 존재=\(exists), 시간=\(String(describing: triggerDate)), 제목=\(String(describing: title))")
+            
+            DispatchQueue.main.async {
+                self.hasNotification = exists
+                
+                if exists, let triggerDate = triggerDate {
+                    self.setNotificationTimeText(triggerDate: triggerDate)
+                    
+                    self.viewModel.updateNoteNotification(
+                        noteId: self.event.id,
+                        enabled: true,
+                        time: triggerDate
+                    )
+                } else {
+                    self.notificationTime = nil
+                    
+                    self.viewModel.updateNoteNotification(
+                        noteId: self.event.id,
+                        enabled: false,
+                        time: nil
+                    )
+                }
+            }
+        }
+    }
+    
+    private func setNotificationTimeText(triggerDate: Date) {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MM월 dd일 a h:mm"
+        formatter.amSymbol = "오전"
+        formatter.pmSymbol = "오후"
+        formatter.locale = Locale(identifier: "ko_KR")
+        
+        self.notificationTime = formatter.string(from: triggerDate)
+        
+        let diffSeconds = self.event.date.timeIntervalSince(triggerDate)
+        let diffMinutes = Int(diffSeconds / 60)
+        
+        if diffMinutes >= 60 {
+            if diffMinutes % 60 == 0 {
+                let hours = diffMinutes / 60
+                self.notificationTime! += " (\(hours)시간 전)"
+            } else {
+                let hours = diffMinutes / 60
+                let mins = diffMinutes % 60
+                self.notificationTime! += " (\(hours)시간 \(mins)분 전)"
+            }
+        } else {
+            self.notificationTime! += " (\(diffMinutes)분 전)"
+        }
     }
     
     private func deleteNote() {
-        // 알림이 있다면 삭제
         if event.category == .일정 {
+            print("노트 삭제 시 알림 취소: \(event.id.uuidString)")
             NotificationService.shared.cancelNotification(with: event.id.uuidString)
         }
         
-        if event.category == .일지 {
-            viewModel.toastMessage = ToastMessage(message: "일지가 삭제되었습니다.", type: .info)
-        } else {
-            viewModel.toastMessage = ToastMessage(message: "일정이 삭제되었습니다.", type: .info)
-        }
+        let category = event.category == .일지 ? "일지" : "일정"
+        viewModel.toastMessage = ToastMessage(message: "\(category)가 삭제되었습니다.", type: .info)
+        
         viewModel.deleteNote(note: event)
         presentationMode.wrappedValue.dismiss()
     }
