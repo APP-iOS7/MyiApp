@@ -22,6 +22,8 @@ struct Note: Identifiable, Hashable, Codable {
     var date: Date
     var category: NoteCategory
     var imageURLs: [String]
+    var notificationEnabled: Bool?
+    var notificationTime: Date?
     
     var timeString: String {
         let formatter = DateFormatter()
@@ -40,13 +42,15 @@ struct Note: Identifiable, Hashable, Codable {
         lhs.id == rhs.id
     }
     
-    init(id: UUID = UUID(), title: String, description: String, date: Date, category: NoteCategory, imageURLs: [String] = []) {
+    init(id: UUID = UUID(), title: String, description: String, date: Date, category: NoteCategory, imageURLs: [String] = [], notificationEnabled: Bool? = nil, notificationTime: Date? = nil) {
         self.id = id
         self.title = title
         self.description = description
         self.date = date
         self.category = category
         self.imageURLs = imageURLs
+        self.notificationEnabled = notificationEnabled
+        self.notificationTime = notificationTime
     }
 }
 

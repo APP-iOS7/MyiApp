@@ -162,18 +162,27 @@ class NoteViewModel: ObservableObject {
         
         let imageURLs = dict["imageURLs"] as? [String] ?? []
         
+        let notificationEnabled = dict["notificationEnabled"] as? Bool
+        var notificationTime: Date? = nil
+        
+        if let timeStamp = dict["notificationTime"] as? Timestamp {
+            notificationTime = timeStamp.dateValue()
+        }
+        
         return Note(
             id: id,
             title: title,
             description: description,
             date: date,
             category: category,
-            imageURLs: imageURLs
+            imageURLs: imageURLs,
+            notificationEnabled: notificationEnabled,
+            notificationTime: notificationTime
         )
     }
     
     private func noteToDictionary(_ note: Note) -> [String: Any] {
-        return [
+        var dict: [String: Any] = [
             "id": note.id.uuidString,
             "title": note.title,
             "description": note.description,
@@ -181,13 +190,21 @@ class NoteViewModel: ObservableObject {
             "category": note.category.rawValue,
             "imageURLs": note.imageURLs
         ]
+        
+        if let enabled = note.notificationEnabled {
+            dict["notificationEnabled"] = enabled
+            
+            if enabled, let time = note.notificationTime {
+                dict["notificationTime"] = Timestamp(date: time)
+            }
+        }
+        
+        return dict
     }
     
     // MARK: - 노트 추가
-    func addNote(title: String, description: String, date: Date, category: NoteCategory) {
+    func addNote(note: Note) {
         guard let baby = babyInfo else { return }
-        
-        let newNote = Note(id: UUID(), title: title, description: description, date: date, category: category)
         
         let babyRef = db.collection("babies").document(baby.id.uuidString)
         
@@ -205,7 +222,7 @@ class NoteViewModel: ObservableObject {
                 notes = existingNotes
             }
             
-            let noteData = self.noteToDictionary(newNote)
+            let noteData = self.noteToDictionary(note)
             notes.append(noteData)
             
             transaction.updateData(["note": notes], forDocument: babyRef)
@@ -223,14 +240,14 @@ class NoteViewModel: ObservableObject {
             
             DispatchQueue.main.async {
                 let calendar = Calendar.current
-                let startOfDay = calendar.startOfDay(for: date)
+                let startOfDay = calendar.startOfDay(for: note.date)
                 
                 if var dayNotes = self.events[startOfDay] {
-                    dayNotes.append(newNote)
+                    dayNotes.append(note)
                     dayNotes.sort { $0.date < $1.date }
                     self.events[startOfDay] = dayNotes
                 } else {
-                    self.events[startOfDay] = [newNote]
+                    self.events[startOfDay] = [note]
                 }
             }
         }
@@ -303,61 +320,58 @@ class NoteViewModel: ObservableObject {
     }
     
     // MARK: - 노트 삭제
-        func deleteNote(note: Note) {
-            guard let baby = babyInfo else { return }
-            
-            // 일정인 경우 관련 알림 취소
-            if note.category == .일정 {
-                NotificationService.shared.cancelNotification(with: note.id.uuidString)
+    func deleteNote(note: Note) {
+        cancelNotificationForNote(note)
+        
+        guard let baby = babyInfo else { return }
+        
+        let babyRef = db.collection("babies").document(baby.id.uuidString)
+        
+        db.runTransaction({ (transaction, errorPointer) -> Any? in
+            let babyDocument: DocumentSnapshot
+            do {
+                try babyDocument = transaction.getDocument(babyRef)
+            } catch let fetchError as NSError {
+                errorPointer?.pointee = fetchError
+                return nil
             }
             
-            let babyRef = db.collection("babies").document(baby.id.uuidString)
+            guard var notes = babyDocument.data()?["note"] as? [[String: Any]] else {
+                return nil
+            }
             
-            db.runTransaction({ (transaction, errorPointer) -> Any? in
-                let babyDocument: DocumentSnapshot
-                do {
-                    try babyDocument = transaction.getDocument(babyRef)
-                } catch let fetchError as NSError {
-                    errorPointer?.pointee = fetchError
-                    return nil
-                }
-                
-                guard var notes = babyDocument.data()?["note"] as? [[String: Any]] else {
-                    return nil
-                }
-                
-                notes.removeAll { ($0["id"] as? String) == note.id.uuidString }
-                
-                transaction.updateData(["note": notes], forDocument: babyRef)
-                
-                return notes
-            }) { [weak self] (_, error) in
-                guard let self = self else { return }
-                
-                if let error = error {
-                    DispatchQueue.main.async {
-                        self.errorMessage = "노트 삭제에 실패했습니다: \(error.localizedDescription)"
-                    }
-                    return
-                }
-                
+            notes.removeAll { ($0["id"] as? String) == note.id.uuidString }
+            
+            transaction.updateData(["note": notes], forDocument: babyRef)
+            
+            return notes
+        }) { [weak self] (_, error) in
+            guard let self = self else { return }
+            
+            if let error = error {
                 DispatchQueue.main.async {
-                    let calendar = Calendar.current
-                    let startOfDay = calendar.startOfDay(for: note.date)
+                    self.errorMessage = "노트 삭제에 실패했습니다: \(error.localizedDescription)"
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                let calendar = Calendar.current
+                let startOfDay = calendar.startOfDay(for: note.date)
+                
+                if var dayNotes = self.events[startOfDay] {
+                    dayNotes.removeAll { $0.id == note.id }
                     
-                    if var dayNotes = self.events[startOfDay] {
-                        dayNotes.removeAll { $0.id == note.id }
-                        
-                        if dayNotes.isEmpty {
-                            self.events.removeValue(forKey: startOfDay)
-                        } else {
-                            dayNotes.sort { $0.date < $1.date }
-                            self.events[startOfDay] = dayNotes
-                        }
+                    if dayNotes.isEmpty {
+                        self.events.removeValue(forKey: startOfDay)
+                    } else {
+                        dayNotes.sort { $0.date < $1.date }
+                        self.events[startOfDay] = dayNotes
                     }
                 }
             }
         }
+    }
     
     // MARK: - 특정 날짜의 이벤트 가져오기
     func getEventsForDay(_ day: CalendarDay) -> [Note] {
@@ -556,7 +570,34 @@ extension NoteViewModel {
         }
     }
     
-    func addNoteWithImages(title: String, description: String, date: Date, category: NoteCategory, images: [UIImage]) {
+    func getNoteById(_ id: UUID) -> Note? {
+        for (_, notes) in events {
+            if let note = notes.first(where: { $0.id == id }) {
+                return note
+            }
+        }
+        return nil
+    }
+
+    func updateNoteNotification(noteId: UUID, enabled: Bool, time: Date?) {
+        guard let note = getNoteById(noteId) else { return }
+        
+        let updatedNote = Note(
+            id: noteId,
+            title: note.title,
+            description: note.description,
+            date: note.date,
+            category: note.category,
+            imageURLs: note.imageURLs,
+            notificationEnabled: enabled,
+            notificationTime: time
+        )
+        
+        updateNote(note: updatedNote)
+        print("🔄 노트 알림 정보 업데이트: \(noteId.uuidString), enabled=\(enabled), time=\(String(describing: time))")
+    }
+    
+    func addNoteWithImages(note: Note, images: [UIImage]) {
         self.isLoading = true
         
         uploadImages(images) { [weak self] result in
@@ -568,8 +609,11 @@ extension NoteViewModel {
                 switch result {
                 case .success(let imageURLs):
                     // 이미지 URL과 함께 노트 추가
-                    self.addNote(title: title, description: description, date: date, category: category, imageURLs: imageURLs)
-                    if category == .일지 {
+                    var updatedNote = note
+                    updatedNote.imageURLs = imageURLs
+                    self.addNote(note: updatedNote)
+                    
+                    if note.category == .일지 {
                         self.toastMessage = ToastMessage(message: "이미지와 함께 새 일지가 저장되었습니다.", type: .success)
                     } else {
                         self.toastMessage = ToastMessage(message: "새 일정이 저장되었습니다.", type: .success)
@@ -579,7 +623,7 @@ extension NoteViewModel {
                     // 이미지 업로드 실패 처리
                     self.errorMessage = "이미지 업로드 실패: \(error.localizedDescription)"
                     // 이미지 없이 노트만 추가
-                    self.addNote(title: title, description: description, date: date, category: category)
+                    self.addNote(note: note)
                     self.toastMessage = ToastMessage(message: "이미지 업로드에 실패했지만, 내용은 저장되었습니다.", type: .error)
                 }
             }
@@ -685,6 +729,40 @@ extension NoteViewModel {
                     print("Firebase Storage에서 이미지 삭제 실패: \(error.localizedDescription)")
                 }
             }
+        }
+    }
+}
+
+extension NoteViewModel {
+    func scheduleNotificationForNote(_ note: Note, minutesBefore: Int) -> Bool {
+        guard note.category == .일정 else { return false }
+        
+        if NotificationService.shared.authorizationStatus == .authorized {
+            let notificationResult = NotificationService.shared.scheduleNotification(
+                for: note,
+                minutesBefore: minutesBefore
+            )
+            
+            if notificationResult.success == false {
+                self.toastMessage = ToastMessage(
+                    message: notificationResult.message ?? "알림 설정에 실패했습니다.",
+                    type: .error
+                )
+                return false
+            }
+            return true
+        } else {
+            self.toastMessage = ToastMessage(
+                message: "알림 권한이 필요합니다. 설정에서 권한을 허용해주세요.",
+                type: .error
+            )
+            return false
+        }
+    }
+    
+    func cancelNotificationForNote(_ note: Note) {
+        if note.category == .일정 {
+            NotificationService.shared.cancelNotification(with: note.id.uuidString)
         }
     }
 }
