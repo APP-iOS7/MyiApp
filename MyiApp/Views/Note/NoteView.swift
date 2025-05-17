@@ -217,6 +217,10 @@ struct NoteView: View {
         HStack {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
+                    Button("모든 알림 삭제") {
+                        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+                        print("모든 알림이 삭제되었습니다")
+                    }
                     Button(action: {
                         selectedFilterCategory = nil
                     }) {
