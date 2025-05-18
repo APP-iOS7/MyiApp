@@ -10,6 +10,7 @@ import SwiftUI
 @MainActor
 class RegisterBabyViewModel: ObservableObject {
     private let databaseService = DatabaseService.shared
+    private var hasMovedToHeight = false
     
     @Published var name: String = ""
     @Published var birthDate: Date?
@@ -18,9 +19,8 @@ class RegisterBabyViewModel: ObservableObject {
     @Published var weight: String = ""
     @Published var bloodType: BloodType?
     @Published var isRegistered: Bool = false
-    @Published var birthDateRawText: String = "" 
-    
-    // 등록 결과 메시지 등 필요시
+    @Published var birthDateRawText: String = ""
+    @Published var shouldMoveToHeight: Bool = false
     @Published var errorMessage: String?
     
     func registerBaby() {
@@ -67,38 +67,52 @@ class RegisterBabyViewModel: ObservableObject {
         }
     }
     
-    // 입력값을 Date로 파싱
+    // 출생일 Date로 파싱
     func parseBirthDate() {
-            guard birthDateRawText.count == 8 else {
-                birthDate = nil
-                return
-            }
-
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyyMMdd"
-            if let date = formatter.date(from: birthDateRawText) {
-                birthDate = date
-            } else {
-                birthDate = nil
-            }
+        guard birthDateRawText.count == 8 else {
+            birthDate = nil
+            shouldMoveToHeight = false
+            hasMovedToHeight = false
+            return
         }
-
-        // 포맷된 문자열 반환
-        var formattedBirthDateText: String {
-            let raw = birthDateRawText
-            guard raw.count == 8 else { return raw }
-
-            let year = raw.prefix(4)
-            let month = raw.dropFirst(4).prefix(2)
-            let day = raw.suffix(2)
-            return "\(year)/\(month)/\(day)"
-        }
-
-        // TextField에서 set할 때 호출
-        func updateBirthDateText(from newValue: String) {
-            let filtered = newValue.filter { $0.isNumber }
-            birthDateRawText = String(filtered.prefix(8))
-            parseBirthDate()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        if let date = formatter.date(from: birthDateRawText) {
+            birthDate = date
+            if !hasMovedToHeight {
+                shouldMoveToHeight = true
+                hasMovedToHeight = true
+            }
+        } else {
+            birthDate = nil
+            shouldMoveToHeight = false
+            hasMovedToHeight = false
         }
     }
+    
+    // 포맷된 문자열 반환
+    var formattedBirthDateText: String {
+        let raw = birthDateRawText
+        guard raw.count == 8 else { return raw }
+        
+        let year = raw.prefix(4)
+        let month = raw.dropFirst(4).prefix(2)
+        let day = raw.suffix(2)
+        return "\(year)년 \(month)월 \(day)일"
+    }
+    
+    // TextField에서 set할 때 호출
+    func updateBirthDateText(from newValue: String) {
+        let filtered = newValue.filter { $0.isNumber }
+        let limited = String(filtered.prefix(8))
+        birthDateRawText = limited
+        parseBirthDate()
+    }
+    
+    // 다시 수정을 시도할 때 포커스 자동 이동 상태 초기화
+    func resetAutoFocusState() {
+        shouldMoveToHeight = false
+        hasMovedToHeight = false
+    }
+}
 

@@ -1,21 +1,22 @@
-//
-//  RegisterBabyVIew.swift
-//  MyiApp
-//
-//  Created by Yung Hak Lee on 5/13/25.
-//
-
+// SwiftRegisterBabyView.swift
 import SwiftUI
 
 struct RegisterBabyView: View {
     @StateObject private var viewModel = RegisterBabyViewModel()
-    @State private var showDatePicker: Bool = false
     
-    // 날짜 포맷터
-    var dateFormatter: DateFormatter {
+    // 단계 완료 상태
+    @State private var isBloodTypeSelected: Bool = false
+    
+    // 포커스 상태
+    @FocusState private var focusedField: Field?
+    private enum Field: Hashable {
+        case name, birthDate, height, weight, submit
+    }
+    
+    // 입력용 날짜 포맷터
+    private var inputDateFormatter: DateFormatter {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ko_KR")
-        formatter.dateStyle = .medium
+        formatter.dateFormat = "yyyyMMdd"
         return formatter
     }
     
@@ -30,169 +31,227 @@ struct RegisterBabyView: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 25) {
-                Spacer()
-                    .frame(height: 30)
-                
-                VStack {
-                    Text("아이 정보를")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .multilineTextAlignment(.leading)
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 15) {
+                    // 헤더
+                    Text("아이 정보를\n입력해주세요")
+                        .font(.system(size: 30, weight: .bold))
+                        .foregroundStyle(Color.primary)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 40)
-                    Text("등록해주세요")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .multilineTextAlignment(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 60)
-                }
-                
-                Spacer()
-                
-                // 남 여 선택 버튼
-                HStack(spacing: 16) {
-                    Button(action: { viewModel.gender = Gender.male }) {
-                        Text("남아")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(viewModel.gender == Gender.male ? Color("boyColor") : Color.gray.opacity(0.2))
-                            .cornerRadius(10)
-                            .foregroundStyle(Color.primary)
-                    }
-                    Button(action: { viewModel.gender = Gender.female }) {
-                        Text("여아")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(viewModel.gender == Gender.female ? Color("girlColor") : Color.gray.opacity(0.2))
-                            .cornerRadius(10)
-                            .foregroundStyle(Color.primary)
-                    }
-                }
-                .font(.headline)
-                .padding(.horizontal)
-                
-                // 아기 이름 텍스트필드
-                TextField("이름", text: $viewModel.name)
-                    .padding(12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
-                    )
-                    .padding(.horizontal)
-                    .onSubmit { dismissKeyboard() }
-                
-                // 출생일 텍스트 필드
-                HStack {
-                    Text(viewModel.birthDate == nil ? "출생일" : dateFormatter.string(from: viewModel.birthDate!))
-                        .foregroundColor(viewModel.birthDate == nil ? .gray.opacity(0.5) : .primary)
-                        .padding(.vertical, 12)
-                        .padding(.leading, 12)
-                    Spacer()
-                    Image(systemName: "calendar")
-                        .foregroundColor(Color("sharkPrimaryColor"))
-                        .padding(.trailing, 12)
-                }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
-                )
-                .padding(.horizontal)
-                .onTapGesture {
-                    showDatePicker = true
-                }
-                
-                // DatePicker 표시
-                .sheet(isPresented: $showDatePicker) {
-                    VStack {
-                        DatePicker(
-                            "출생일",
-                            selection: Binding(get: { viewModel.birthDate ?? Date() }, set: { viewModel.birthDate = $0 }),
-                            displayedComponents: .date
-                        )
-                        .datePickerStyle(.graphical)
-                        .labelsHidden()
-                        Button("완료") {
-                            showDatePicker = false
-                        }
-                        .padding()
-                    }
-                    .padding()
-                    .cornerRadius(12)
-                    .presentationDetents([.height(500)])
-                    .presentationDragIndicator(.visible)
-                }
-                
-                // 키, 몸무게 텍스트필드
-                HStack(spacing: 16) {
-                    TextField("키", text: $viewModel.height)
-                        .keyboardType(.decimalPad)
-                        .padding(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
-                        )
-                        .onSubmit { dismissKeyboard() }
+                        .padding(.top, 80)
                     
-                    TextField("몸무게", text: $viewModel.weight)
-                        .keyboardType(.decimalPad)
-                        .padding(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
-                        )
-                        .onSubmit { dismissKeyboard() }
-                }
-                .padding(.horizontal)
-                
-                // 혈액형 입력
-                Picker("혈액형", selection: $viewModel.bloodType) {
-                    Text("혈액형 선택").tag(BloodType?.none)
-                    ForEach([BloodType.A, .B, .O, .AB], id: \.self) { type in
-                        Text(type.rawValue).tag(type as BloodType?)
+                    Spacer()
+                    
+                    // 혈액형
+                    if !viewModel.weight.isEmpty {
+                        SectionView(title: "혈액형") {
+                            Picker("혈액형", selection: $viewModel.bloodType) {
+                                Text("선택").tag(BloodType?.none)
+                                ForEach([BloodType.A, .B, .O, .AB], id: \.self) { type in
+                                    Text(type.rawValue).tag(type as BloodType?)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .tint(Color("buttonColor"))
+                            .onChange(of: viewModel.bloodType) {
+                                if viewModel.bloodType != nil {
+                                    withAnimation {
+                                        isBloodTypeSelected = true
+                                        focusedField = .submit
+                                        dismissKeyboard()
+                                    }
+                                }
+                            }
+                        }
                     }
+                    
+                    // 몸무게
+                    if !viewModel.height.isEmpty {
+                        SectionView(title: "몸무게") {
+                            HStack {
+                                TextField("몸무게", text: Binding(
+                                    get: { viewModel.weight },
+                                    set: { newValue in
+                                        // 숫자와 .만 허용
+                                        let filtered = newValue.filter { $0.isNumber || $0 == "." }
+                                        viewModel.weight = filtered
+                                    }
+                                ))
+                                .keyboardType(.decimalPad)
+                                .focused($focusedField, equals: .weight)
+                                .submitLabel(.done)
+                                .onSubmit {
+                                    if !viewModel.weight.isEmpty {
+                                        withAnimation {
+                                            focusedField = nil
+                                        }
+                                    }
+                                }
+                                
+                                Text("kg")
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                    }
+                    
+                    // 키
+                    if viewModel.birthDate != nil {
+                        SectionView(title: "키") {
+                            HStack {
+                                TextField("키", text: Binding(
+                                    get: { viewModel.height },
+                                    set: { newValue in
+                                        // 숫자와 .만 허용
+                                        let filtered = newValue.filter { $0.isNumber || $0 == "." }
+                                        viewModel.height = filtered
+                                    }
+                                ))
+                                .keyboardType(.decimalPad)
+                                .focused($focusedField, equals: .height)
+                                .submitLabel(.next)
+                                .onSubmit {
+                                    if !viewModel.height.isEmpty {
+                                        withAnimation {
+                                            focusedField = .weight
+                                        }
+                                    } else {
+                                        focusedField = nil
+                                    }
+                                }
+                                Text("cm")
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                    }
+                    
+                    // 출생일
+                    if !viewModel.name.isEmpty {
+                        SectionView(title: "출생일") {
+                            TextField("출생일 (YYYY년 MM월 DD일)", text: Binding(
+                                get: { viewModel.formattedBirthDateText },
+                                set: { newValue in
+                                    viewModel.updateBirthDateText(from: newValue)
+                                }
+                            ))
+                            .onTapGesture {
+                                viewModel.resetAutoFocusState()
+                            }
+                            .onChange(of: viewModel.shouldMoveToHeight) { _, shouldMove in
+                                if shouldMove {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        focusedField = .height
+                                    }
+                                }
+                            }
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .keyboardType(.numberPad)
+                            .foregroundColor(viewModel.birthDate == nil ? .gray : .primary)
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: .birthDate)
+                        }
+                    }
+                    
+                    // 아기 이름
+                    if viewModel.gender != nil {
+                        SectionView(title: "이름, 별명") {
+                            TextField("이름, 별명", text: $viewModel.name)
+                                .padding()
+                                .background(Color.gray.opacity(0.2))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .disableAutocorrection(true)
+                                .textInputAutocapitalization(.never)
+                                .submitLabel(.next)
+                                .focused($focusedField, equals: .name)
+                                .onSubmit {
+                                    if !viewModel.name.isEmpty {
+                                        withAnimation {
+                                            focusedField = .birthDate
+                                        }
+                                    }
+                                }
+                        }
+                    }
+                    
+                    // 성별 선택
+                    SectionView(title: "성별") {
+                        Picker("성별", selection: $viewModel.gender) {
+                            Text("남아").tag(Gender.male as Gender?)
+                            Text("여아").tag(Gender.female as Gender?)
+                        }
+                        .pickerStyle(.segmented)
+                        .tint(Color("buttonColor"))
+                        .onChange(of: viewModel.gender) {
+                            withAnimation {
+                                focusedField = .name
+                            }
+                        }
+                    }
+                    // 등록하기 버튼
+                    if viewModel.bloodType != nil {
+                        Button(action: {
+                            dismissKeyboard()
+                            viewModel.registerBaby()
+                        }) {
+                            Text("등록하기")
+                                .font(.headline)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .foregroundStyle(.white)
+                                .background(isButtonEnabled ? Color("buttonColor") : Color.gray)
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                        .disabled(!isButtonEnabled)
+                        .padding(.top, 20)
+                        .focused($focusedField, equals: .submit)
+                    }
+                    
+                    // 에러 메시지
+                    if let error = viewModel.errorMessage {
+                        Text(error)
+                            .foregroundStyle(.red)
+                            .font(.caption)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.top, 8)
+                    }
+                    
+                    Spacer()
                 }
-                .pickerStyle(.segmented)
-                .padding(.horizontal)
-                .onChange(of: viewModel.bloodType) {
-                    dismissKeyboard()
-                }
-                
-                // 등록하기 버튼
-                Button(action: {
-                    dismissKeyboard()
-                    viewModel.registerBaby()
-                }) {
-                    Text("등록하기")
-                        .foregroundColor(isButtonEnabled ? .white : .gray)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(isButtonEnabled ? Color("sharkPrimaryColor") : Color.gray.opacity(0.5))
-                        .cornerRadius(10)
-                }
-                .disabled(!isButtonEnabled)
-                .padding(.horizontal)
-                .padding(.bottom, 20)
-                
-                if let error = viewModel.errorMessage {
-                    Text(error)
-                        .foregroundColor(.red)
-                }
-                Color.clear
-                    .frame(height: 20)
-                
+                .padding(.horizontal, 20)
             }
-        }
-        .onTapGesture {
-            dismissKeyboard()
+            .onTapGesture {
+                dismissKeyboard()
+            }
         }
     }
     
     // 키보드 내리는 함수
     private func dismissKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                        to: nil, from: nil, for: nil)
+    }
+}
+
+struct SectionView<Content: View>: View {
+    let title: String
+    let content: () -> Content
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.primary)
+                .padding(.horizontal, 8)
+            content()
+        }
     }
 }
 
