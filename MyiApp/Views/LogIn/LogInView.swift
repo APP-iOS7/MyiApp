@@ -62,7 +62,9 @@ struct LogInView: View {
                             .frame(width: 15, height: 15)
                         
                         Text("Sign in with Google")
-                            .font(.system(size: 19, weight: .medium))
+                            .font(.system(size: 18, weight: .semibold))
+                            .kerning(-0.2)
+                            .baselineOffset(0.5)
                             .foregroundColor(.black)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -74,7 +76,6 @@ struct LogInView: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 5)
                         .stroke(Color.black, lineWidth: 0.8))
-                .frame(height: 50)
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 50)
                 
@@ -95,7 +96,6 @@ struct LogInView: View {
                         }
                     }
                 }
-                .fontWeight(.semibold)
                 .signInWithAppleButtonStyle(.whiteOutline)
                 .frame(height: 50)
                 .padding(.horizontal, 50)
