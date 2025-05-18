@@ -204,7 +204,9 @@ struct RegisterBabyView: View {
                         .tint(Color("buttonColor"))
                         .onChange(of: viewModel.gender) {
                             withAnimation {
-                                focusedField = .name
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    focusedField = .name
+                                }
                             }
                         }
                     }
