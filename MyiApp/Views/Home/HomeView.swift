@@ -31,95 +31,106 @@ struct HomeView: View {
     private var babyInfoCard: some View {
         Group {
             if viewModel.isFlipped == false {
-                HStack(alignment: .center, spacing: 16) {
-                    Image(.sharkChild)
-                        .resizable()
-                        .frame(width: 90, height: 90)
-                        .padding(8)
-                        .background(
-                            Circle()
-                                .fill(Color.sharkPrimaryLight)
-                                .stroke(Color.sharksSadowTone, lineWidth: 2)
-                        )
-                        .padding(.trailing)
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(viewModel.displayName)
-                            .font(.system(size: 10))
-                        Text(viewModel.displayGender)
-                            .font(.system(size: 10))
-                        Text(viewModel.displayBirthDate)
-                            .font(.system(size: 10))
-                        Text(viewModel.displayMonthDay)
-                            .font(.system(size: 10))
-                        Text(viewModel.displayDayCount)
-                            .font(.system(size: 10))
-                    }
-                    Spacer()
-                    VStack(alignment: .leading) {
-                        Button(action: { viewModel.isFlipped = true }) {
-                            Image(systemName: "arrow.uturn.backward.circle.fill")
-                                .resizable()
-                                .frame(width: 25, height: 25)
-                                .padding(8)
-                                .foregroundStyle(.sharkPrimaryDark)
+                VStack {
+                    HStack(alignment: .center, spacing: 16) {
+                        Image(.sharkChild)
+                            .resizable()
+                            .scaledToFit()
+                            .padding(8)
+                            .background(
+                                Circle()
+                                    .fill(Color.sharkPrimaryLight)
+                                    .stroke(Color.sharksSadowTone, lineWidth: 2)
+                            )
+                            .padding(.trailing)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(viewModel.displayName)
+                                .font(.system(size: 10))
+                            Text(viewModel.displayGender)
+                                .font(.system(size: 10))
+                            Text(viewModel.displayBirthDate)
+                                .font(.system(size: 10))
+                            Text(viewModel.displayMonthDay)
+                                .font(.system(size: 10))
+                            Text(viewModel.displayDayCount)
+                                .font(.system(size: 10))
                         }
                         Spacer()
-                    }
-                }
-                
-            } else {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading) {
-                        Text("성장단계")
-                        Text("기수")
-                            .font(.system(size: 10))
-                            .padding(.bottom)
-                        Text("이름")
-                        Text("김죠")
-                            .font(.system(size: 10))
-                            .padding(.bottom)
-                        Text("생년월일")
-                        Text("2.25.05.04")
-                            .font(.system(size: 10))
-                            .padding(.bottom)
-                    }
-                    Spacer()
-                    VStack(alignment: .leading) {
-                        Text("성별")
-                        Text("여아")
-                            .font(.system(size: 10))
-                            .padding(.bottom)
-                        Text("혈액형")
-                        Text("A형")
-                            .font(.system(size: 10))
-                            .padding(.bottom)
-                    }
-                    Spacer()
-                    VStack(alignment: .leading) {
-                        Text("키")
-                        Text("30")
-                            .font(.system(size: 10))
-                            .padding(.bottom)
-                        Text("몸무게")
-                        Text("4")
-                            .font(.system(size: 10))
-                            .padding(.bottom)
-                    }
-                    Spacer()
-                    VStack(alignment: .leading) {
-                        Button(action: { viewModel.isFlipped = false }) {
-                            Image(systemName: "arrow.uturn.backward.circle.fill")
-                                .resizable()
-                                .frame(width: 25, height: 25)
-                                .padding(8)
-                                .foregroundStyle(.sharkPrimaryDark)
+                        VStack() {
+                            Button(action: { viewModel.isFlipped = true }) {
+                                Image(systemName: "arrow.uturn.backward.circle.fill")
+                                    .resizable()
+                                    .frame(width: 25, height: 25)
+                                    .foregroundStyle(.sharkPrimaryDark)
+                            }
+                            Spacer()
                         }
                     }
+                    Spacer()
                 }
+                .padding(16)
+                
+            } else {
+                VStack {
+                    HStack(alignment: .top, spacing: 16) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("성장단계")
+                                .font(.headline)
+                            Text("기수")
+                                .font(.footnote)
+                                .padding(.bottom, 6)
+                            Text("이름")
+                                .font(.headline)
+                            Text("김죠")
+                                .font(.footnote)
+                                .padding(.bottom, 6)
+                            Text("생년월일")
+                                .font(.headline)
+                            Text("2.25.05.04")
+                                .font(.footnote)
+                        }
+                        
+                        Spacer()
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("성별")
+                                .font(.headline)
+                            Text("여아")
+                                .font(.footnote)
+                                .padding(.bottom, 6)
+                            Text("혈액형")
+                                .font(.headline)
+                            Text("A형")
+                                .font(.footnote)
+                                .padding(.bottom, 6)
+                            Text("키")
+                                .font(.headline)
+                            Text("30")
+                                .font(.footnote)
+                        }
+                        Spacer()
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("몸무게")
+                                .font(.headline)
+                            Text("4")
+                                .font(.footnote)
+                        }
+                        VStack(alignment: .trailing) {
+                            Button(action: { viewModel.isFlipped.toggle() }) {
+                                Image(systemName: "arrow.uturn.backward.circle.fill")
+                                    .resizable()
+                                    .frame(width: 25, height: 25)
+                                    .foregroundStyle(.sharkPrimaryDark)
+                            }
+                            Spacer()
+                        }
+                    }
+                    Spacer()
+                }
+                .padding(16)
             }
         }
-        .padding(8)
         .background(RoundedRectangle(cornerRadius: 24).fill(Color.sharkCardBackground))
+        .frame(height: 180)
     }
     private var dateSection: some View {
         ZStack {
