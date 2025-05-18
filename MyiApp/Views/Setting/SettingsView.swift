@@ -43,17 +43,61 @@ struct SettingsView: View {
                     }
                 }
                 Section(header: Text("계정 설정")) {
-                    NavigationLink("아기 정보", destination: BabyProfileView())
-                    NavigationLink("알림 설정", destination: NotificationSettingsView())
+                    NavigationLink(destination: BabyProfileView()) {
+                        HStack(spacing: 12) {
+                            Image("babyIcon")
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                            Text("아기 정보")
+                        }
+                    }
+                    NavigationLink(destination: NotificationSettingsView()) {
+                        HStack(spacing: 12) {
+                            Image("notificationIcon")
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                            Text("알림 설정")
+                        }
+                    }
                 }
                 Section(header: Text("개인 정보")) {
-                    NavigationLink("개인정보 처리 방침", destination: PrivacyPolicyView())
-                    NavigationLink("이용약관", destination: TermsOfServiceView())
+                    NavigationLink(destination: PrivacyPolicyView()) {
+                        HStack(spacing: 12) {
+                            Image("privacy")
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                            Text("개인정보 처리 방침")
+                        }
+                    }
+                    NavigationLink(destination: TermsOfServiceView()) {
+                        HStack(spacing: 12) {
+                            Image("agreementsLicense")
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                            Text("이용 약관")
+                        }
+                    }
                 }
                 Section(header: Text("기타")) {
-                    NavigationLink("앱 버전", destination: AppVersionView())
+                    NavigationLink(destination: AppVersionView()) {
+                        HStack(spacing: 12) {
+                            Image("appVIcon")
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                            Text("앱 버전")
+                        }
+                    }
                 }
-                Button("로그아웃", role: .destructive) { showingAlert = true }
+                Button(role: .destructive) {
+                    showingAlert = true
+                } label: {
+                    HStack {
+                        Image("logoutIcon")
+                            .resizable()
+                            .frame(width: 18, height: 18)
+                        Text("로그아웃")
+                    }
+                }
             }
             .navigationTitle("설정")
             .alert("로그아웃", isPresented: $showingAlert) {
