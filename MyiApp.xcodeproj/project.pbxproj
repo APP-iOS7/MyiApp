@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		892468D22DD95BA900C3BADF /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 892468D12DD95BA900C3BADF /* FirebaseStorage */; };
 		B3019C532DCB6DB300C3F02A /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B3019C522DCB6DB300C3F02A /* FirebaseAnalytics */; };
 		B3019C552DCB6DB300C3F02A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = B3019C542DCB6DB300C3F02A /* FirebaseAuth */; };
 		B3019C572DCB6DB300C3F02A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B3019C562DCB6DB300C3F02A /* FirebaseFirestore */; };
@@ -49,6 +50,7 @@
 				B3019C532DCB6DB300C3F02A /* FirebaseAnalytics in Frameworks */,
 				B35CF1742DCE722000FAD1FA /* GoogleSignIn in Frameworks */,
 				B3412B582DCF86B50059184D /* FirebaseFirestoreCombine-Community in Frameworks */,
+				892468D22DD95BA900C3BADF /* FirebaseStorage in Frameworks */,
 				B3019C552DCB6DB300C3F02A /* FirebaseAuth in Frameworks */,
 				B3019C572DCB6DB300C3F02A /* FirebaseFirestore in Frameworks */,
 			);
@@ -107,6 +109,7 @@
 				B35CF1732DCE722000FAD1FA /* GoogleSignIn */,
 				B35CF1752DCE722000FAD1FA /* GoogleSignInSwift */,
 				B3412B572DCF86B50059184D /* FirebaseFirestoreCombine-Community */,
+				892468D12DD95BA900C3BADF /* FirebaseStorage */,
 			);
 			productName = MyiApp;
 			productReference = B3019C252DCB69B300C3F02A /* MyiApp.app */;
@@ -298,7 +301,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
-				CODE_SIGN_ENTITLEMENTS = MyiApp/MyiApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 59FP2PXRXK;
@@ -330,7 +332,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
-				CODE_SIGN_ENTITLEMENTS = MyiApp/MyiApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 59FP2PXRXK;
@@ -399,6 +400,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		892468D12DD95BA900C3BADF /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B3019C512DCB6DB300C3F02A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
 		B3019C522DCB6DB300C3F02A /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B3019C512DCB6DB300C3F02A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
