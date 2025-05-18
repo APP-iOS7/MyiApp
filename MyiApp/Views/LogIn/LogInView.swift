@@ -63,6 +63,7 @@ struct LogInView: View {
                         
                         Text("Sign in with Google")
                             .font(.system(size: 20, weight: .medium))
+                            .foregroundColor(.primary)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.horizontal)
