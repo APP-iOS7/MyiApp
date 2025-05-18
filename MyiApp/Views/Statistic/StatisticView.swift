@@ -131,7 +131,7 @@ struct StatisticView: View {
                 }) {
                     Text(mode)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : Color(.black))
+                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : .primary)
                         .frame(maxWidth: 90, minHeight: 32)
                         .background(
                             ZStack {
