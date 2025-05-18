@@ -81,7 +81,7 @@ struct CryAnalysisProcessingView: View {
         case .processing, .recording:
             processingViewContent()
         case .result(let result):
-            CryAnalysisResultView(emotionLabel: result.type.rawValue, confidence: Float(result.confidence))
+            CryAnalysisResultView(emotionType: result.type, confidence: Float(result.confidence))
         case .error(let message):
             Text("에러 발생: \(message)")
         default:
