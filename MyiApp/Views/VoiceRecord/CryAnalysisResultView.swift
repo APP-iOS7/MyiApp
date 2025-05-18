@@ -10,22 +10,29 @@ import SwiftUI
 struct CryAnalysisResultView: View {
     @Environment(\.dismiss) private var dismiss
     
-    let emotionLabel: String
+    let emotionType: EmotionType
     let confidence: Float
     
-    // TODO: 각 케이스에 맞는 이미지 에셋 추가 후 코드 수정 예정
     private var resultImageName: String {
-        switch emotionLabel {
-        case "배고파요":
-            return "sharkChild"
-        case "무서워요":
-            return "sharkChild"
-        case "졸려요":
-            return "sharkChild"
-        case "놀아주세요":
-            return "sharkChild"
-        default:
-            return "sharkChild"
+        switch emotionType {
+        case .hungry:
+            return "sharkHungry"
+        case .scared:
+            return "sharkScared"
+        case .tired:
+            return "sharkSleepy"
+        case .lonely:
+            return "sharkLonely"
+        case .burping:
+            return "sharkBurping"
+        case .bellyPain:
+            return "sharkBelly"
+        case .coldHot:
+            return "sharkTemp"
+        case .discomfort:
+            return "sharkDiscomfort"
+        case .unknown:
+            return "sharkUnknown"
         }
     }
 
@@ -44,7 +51,7 @@ struct CryAnalysisResultView: View {
             Spacer()
             
             VStack(spacing: 8) {
-                Text(emotionLabel)
+                Text(emotionType.displayName)
                     .font(.system(size: 40, weight: .bold))
                     .padding()
                 
@@ -75,5 +82,5 @@ struct CryAnalysisResultView: View {
 }
 
 #Preview {
-    CryAnalysisResultView(emotionLabel: "놀아주세요", confidence: 0.81)
+    CryAnalysisResultView(emotionType: .lonely, confidence: 0.81)
 }
