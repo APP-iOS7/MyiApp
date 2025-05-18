@@ -11,13 +11,18 @@ struct VoiceRecord: Codable, Identifiable {
     var id: UUID
     var createdAt: Date
     var recordReference: String
-    var firstLabel: CryEmotion
+    var firstLabel: EmotionType
     var firstLabelConfidence: Double
-    var secondLabel: CryEmotion
+    var secondLabel: EmotionType
     var secondLabelConfidence: Double
 }
 
-enum CryEmotion: String, CaseIterable, Codable {
+struct EmotionResult {
+    let type: EmotionType
+    let confidence: Double
+}
+
+enum EmotionType: String, CaseIterable, Codable {
     case bellyPain = "belly_pain"
     case burping
     case coldHot = "cold_hot"
@@ -27,4 +32,20 @@ enum CryEmotion: String, CaseIterable, Codable {
     case scared
     case tired
     case unknown
+}
+
+extension EmotionType {
+    var displayName: String {
+        switch self {
+        case .bellyPain: return "배가 아파요"
+        case .burping: return "트림하고 싶어요"
+        case .coldHot: return "춥거나 더워요"
+        case .discomfort: return "불편해요"
+        case .hungry: return "배고파요"
+        case .lonely: return "외로워요"
+        case .scared: return "무서워요"
+        case .tired: return "졸려요"
+        case .unknown: return "분석 불가"
+        }
+    }
 }

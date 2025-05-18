@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct HomeView: View {
-    
-    @State var selectedDate = Date()
+    @StateObject var viewModel: HomeViewModel = .init()
     
     var body: some View {
         ScrollView {
@@ -22,52 +21,111 @@ struct HomeView: View {
             }
             .padding()
         }
+        .sheet(item: $viewModel.selectedCategory) { category in
+            let newRecord = Record(title: category.category)
+            AddRecordView(record: newRecord)
+                .presentationDetents([.medium])
+        }
     }
     
     private var babyInfoCard: some View {
-        HStack(alignment: .center, spacing: 16) {
-            Image(.colorBabyFood) // 임시 캐릭터
-                .resizable()
-                .frame(width: 90, height: 90)
-                .padding(8)
-                .background(
-                    Circle()
-                        .fill(Color.sharkPrimaryLight)
-                        .stroke(Color.sharksSadowTone, lineWidth: 2)
-                )
-                .padding(.trailing)
-            VStack(alignment: .leading, spacing: 4) {
-                Text("김죠스")
-                    .font(.system(size: 10))
-                Text("여아")
-                    .font(.system(size: 10))
-                Text("2025.05.07")
-                    .font(.system(size: 10))
-                Text("1개월 9일")
-                    .font(.system(size: 10))
-                Text("39일")
-                    .font(.system(size: 10))
+        Group {
+            if viewModel.isFlipped == false {
+                HStack(alignment: .center, spacing: 16) {
+                    Image(.sharkChild)
+                        .resizable()
+                        .frame(width: 90, height: 90)
+                        .padding(8)
+                        .background(
+                            Circle()
+                                .fill(Color.sharkPrimaryLight)
+                                .stroke(Color.sharksSadowTone, lineWidth: 2)
+                        )
+                        .padding(.trailing)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(viewModel.displayName)
+                            .font(.system(size: 10))
+                        Text(viewModel.displayGender)
+                            .font(.system(size: 10))
+                        Text(viewModel.displayBirthDate)
+                            .font(.system(size: 10))
+                        Text(viewModel.displayMonthDay)
+                            .font(.system(size: 10))
+                        Text(viewModel.displayDayCount)
+                            .font(.system(size: 10))
+                    }
+                    Spacer()
+                    VStack(alignment: .leading) {
+                        Button(action: { viewModel.isFlipped = true }) {
+                            Image(systemName: "arrow.uturn.backward.circle.fill")
+                                .resizable()
+                                .frame(width: 25, height: 25)
+                                .padding(8)
+                                .foregroundStyle(.sharkPrimaryDark)
+                        }
+                        Spacer()
+                    }
+                }
+                
+            } else {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading) {
+                        Text("성장단계")
+                        Text("기수")
+                            .font(.system(size: 10))
+                            .padding(.bottom)
+                        Text("이름")
+                        Text("김죠")
+                            .font(.system(size: 10))
+                            .padding(.bottom)
+                        Text("생년월일")
+                        Text("2.25.05.04")
+                            .font(.system(size: 10))
+                            .padding(.bottom)
+                    }
+                    Spacer()
+                    VStack(alignment: .leading) {
+                        Text("성별")
+                        Text("여아")
+                            .font(.system(size: 10))
+                            .padding(.bottom)
+                        Text("혈액형")
+                        Text("A형")
+                            .font(.system(size: 10))
+                            .padding(.bottom)
+                    }
+                    Spacer()
+                    VStack(alignment: .leading) {
+                        Text("키")
+                        Text("30")
+                            .font(.system(size: 10))
+                            .padding(.bottom)
+                        Text("몸무게")
+                        Text("4")
+                            .font(.system(size: 10))
+                            .padding(.bottom)
+                    }
+                    Spacer()
+                    VStack(alignment: .leading) {
+                        Button(action: { viewModel.isFlipped = false }) {
+                            Image(systemName: "arrow.uturn.backward.circle.fill")
+                                .resizable()
+                                .frame(width: 25, height: 25)
+                                .padding(8)
+                                .foregroundStyle(.sharkPrimaryDark)
+                        }
+                    }
+                }
             }
-            Spacer()
         }
         .padding(8)
-        .background(
-            RoundedRectangle(cornerRadius: 24).fill(
-                Color(
-                    red: 246/255,
-                    green: 244/255,
-                    blue: 253/255,
-                    opacity: 1
-                )
-            )
-        )
+        .background(RoundedRectangle(cornerRadius: 24).fill(Color.sharkCardBackground))
     }
-    
     private var dateSection: some View {
         ZStack {
             HStack(spacing: 6) {
                 Button(action: {
-                    selectedDate = Calendar.current.date(byAdding: .day, value: -1, to: selectedDate) ?? selectedDate
+                    viewModel.selectedDate = Calendar.current.date(byAdding: .day, value: -1, to: viewModel.selectedDate) ?? viewModel.selectedDate
                 }) {
                     Image(systemName: "chevron.left")
                         .font(.body)
@@ -75,13 +133,12 @@ struct HomeView: View {
                 .foregroundStyle(.primary)
                 Spacer()
                 Image(systemName: "calendar")
-                Text(selectedDate.formattedKoreanDateString())
+                Text(viewModel.selectedDate.formattedKoreanDateString())
                     .fontWeight(.medium)
                     .font(.body)
                 Spacer()
                 Button(action: {
-                    // 하루 전으로 이동
-                    selectedDate = Calendar.current.date(byAdding: .day, value: +1, to: selectedDate) ?? selectedDate
+                    viewModel.selectedDate = Calendar.current.date(byAdding: .day, value: +1, to: viewModel.selectedDate) ?? viewModel.selectedDate
                 }) {
                     Image(systemName: "chevron.right")
                         .font(.body)
@@ -90,7 +147,7 @@ struct HomeView: View {
             }
             DatePicker(
                 "",
-                selection: $selectedDate,
+                selection: $viewModel.selectedDate,
                 displayedComponents: [.date]
             )
             .datePickerStyle(.compact)
@@ -98,27 +155,23 @@ struct HomeView: View {
             .frame(width: 180, height: 30)
             .blendMode(.destinationOver)
         }
+        .padding()
     }
-    
     private var gridItems: some View {
-        struct CareCategory: Equatable {
-            let name: String
-            let image: UIImage
-        }
-        let careItems: [CareCategory] = [
-            .init(name: "수유/이유식", image: .colorBabyFood),
-            .init(name: "기저귀", image: .colorBabyFood),
-            .init(name: "배변", image: .colorBabyFood),
-            .init(name: "수면", image: .colorBabyFood),
-            .init(name: "키/몸무게", image: .colorBabyFood),
-            .init(name: "목욕", image: .colorBabyFood),
-            .init(name: "간식", image: .colorBabyFood),
-            .init(name: "건강 관리", image: .colorBabyFood)
+        let careItems: [GridItemCategory] = [
+            .init(name: "수유/이유식", category: .breastfeeding, image: .colorBabyFood),
+            .init(name: "기저귀", category: .diaper, image: .colorDiaper),
+            .init(name: "배변", category: .pee, image: .colorPotty),
+            .init(name: "수면", category: .sleep, image: .colorSleep),
+            .init(name: "키/몸무게", category: .heightWeight, image: .colorHeightWeight),
+            .init(name: "목욕", category: .bath, image: .colorBath),
+            .init(name: "간식", category: .snack, image: .colorSnack),
+            .init(name: "건강 관리", category: .temperature, image: .colorCheckList)
         ]
         let columns = Array(repeating: GridItem(.flexible()), count: 4)
         return LazyVGrid(columns: columns) {
             ForEach(careItems, id: \.name) { item in
-                Button(action: {print(item)}) {
+                Button(action: { viewModel.selectedCategory = item } ) {
                     VStack(spacing: 0) {
                         Image(uiImage: item.image)
                             .resizable()
@@ -126,78 +179,55 @@ struct HomeView: View {
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color.blue.opacity(0.1))
+                                    .fill(Color.sharkCardBackground)
                                     .frame(width: 70, height: 70)
                             )
                         Text(item.name)
                             .font(.system(size: 12))
+                            .foregroundStyle(.foreground)
                     }
                 }
-                
+                .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal)
+        .padding([.horizontal, .bottom])
     }
-    
     private var timeline: some View {
         VStack(spacing: 0) {
-            ForEach(Record.mockRecords) { record in
-                TimelineRow(record: record)
+            if viewModel.filteredRecords.isEmpty {
+                VStack(spacing: 10) {
+                    Image(systemName: "doc.text.magnifyingglass")
+                        .font(.largeTitle)
+                        .foregroundColor(.gray)
+                    Text("이 날짜에 기록이 없습니다")
+                        .foregroundColor(.gray)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 50)
+            } else {
+                ForEach(viewModel.filteredRecords) { record in
+                    TimelineRow(record: record)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.recordToEdit = record
+                        }
+                }
+                .sheet(item: $viewModel.recordToEdit) { record in
+                    AddRecordView(record: record)
+                        .presentationDetents([.medium])
+                }
             }
         }
     }
 }
 
-struct TimelineRow: View {
-    let record: Record
-    
-    var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            // 1. 시간
-            Text(record.createdAt.to24HourTimeString())
-                .font(.caption)
-                .frame(width: 50, alignment: .leading)
-            
-            // 2. 타임라인 (위-원-아래)
-            VStack(spacing: 0) {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.4))
-                    .frame(width: 1, height: 20)
-                Circle()
-                    .fill(Color.pink)
-                    .frame(width: 10, height: 10)
-                Rectangle()
-                    .fill(Color.gray.opacity(0.4))
-                    .frame(width: 1, height: 20)
-            }
-            
-            // 3. 아이콘 + 텍스트 그룹
-            HStack(spacing: 8) {
-                Image(.colorBabyFood)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 40, height: 40)
-                    .foregroundColor(.pink)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(record.title.rawValue)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                    Text("subtitle")
-                        .font(.caption2)
-                        .foregroundColor(.gray)
-                }
-            }
-            Spacer()
-            Image(systemName: "chevron.right")
-                .foregroundColor(.gray)
-        }
-        .padding(.horizontal)
-    }
+struct GridItemCategory: Identifiable {
+    let id: UUID = UUID()
+    let name: String
+    let category: TitleCategory
+    let image: UIImage
 }
 
 #Preview {
     HomeView()
-}
-#Preview {
-    TimelineRow(record: Record.mockRecords[0])
 }
