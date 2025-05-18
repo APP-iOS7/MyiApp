@@ -133,30 +133,43 @@ struct RegisterBabyView: View {
                     
                     // 출생일
                     if !viewModel.name.isEmpty {
-                        SectionView(title: "출생일") {
-                            TextField("출생일 (YYYY년 MM월 DD일)", text: Binding(
-                                get: { viewModel.formattedBirthDateText },
-                                set: { newValue in
-                                    viewModel.updateBirthDateText(from: newValue)
+                        VStack {
+                            SectionView(title: "출생일") {
+                                TextField("출생일 (YYYY년 MM월 DD일)", text: Binding(
+                                    get: { viewModel.formattedBirthDateText },
+                                    set: { newValue in
+                                        let filtered = newValue.filter(\.isNumber)
+                                        if filtered.count <= 8 {
+                                            viewModel.updateBirthDateText(from: filtered)
+                                        }
+                                    }
+                                ))
+                                .onTapGesture {
+                                    viewModel.resetAutoFocusState()
                                 }
-                            ))
-                            .onTapGesture {
-                                viewModel.resetAutoFocusState()
-                            }
-                            .onChange(of: viewModel.shouldMoveToHeight) { _, shouldMove in
-                                if shouldMove {
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        focusedField = .height
+                                .onChange(of: viewModel.shouldMoveToHeight) { _, shouldMove in
+                                    if shouldMove {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                            focusedField = .height
+                                        }
                                     }
                                 }
+                                .padding()
+                                .background(Color.gray.opacity(0.2))
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .keyboardType(.numberPad)
+                                .foregroundColor(viewModel.birthDate == nil ? .gray : .primary)
+                                .submitLabel(.next)
+                                .focused($focusedField, equals: .birthDate)
                             }
-                            .padding()
-                            .background(Color.gray.opacity(0.2))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .keyboardType(.numberPad)
-                            .foregroundColor(viewModel.birthDate == nil ? .gray : .primary)
-                            .submitLabel(.next)
-                            .focused($focusedField, equals: .birthDate)
+                            // 에러 메시지
+                            if let error = viewModel.errorMessage {
+                                Text(error)
+                                    .foregroundColor(.red)
+                                    .font(.caption)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.leading, 8)
+                            }
                         }
                     }
                     
@@ -212,15 +225,6 @@ struct RegisterBabyView: View {
                         .disabled(!isButtonEnabled)
                         .padding(.top, 20)
                         .focused($focusedField, equals: .submit)
-                    }
-                    
-                    // 에러 메시지
-                    if let error = viewModel.errorMessage {
-                        Text(error)
-                            .foregroundStyle(.red)
-                            .font(.caption)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.top, 8)
                     }
                     
                     Spacer()
