@@ -120,7 +120,7 @@ struct SnackDetailView: View {
                 }) {
                     Text(mode)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : Color("sharkCardBackground"))
+                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : .primary)
                         .frame(maxWidth: 90, minHeight: 32)
                         .background(
                             ZStack {

@@ -97,34 +97,26 @@ struct DailyChartView: View {
             if record.title == .sleep,
                let start = record.sleepStart,
                let end = record.sleepEnd {
-                
-                let isStartSameDay = calendar.isDate(start, inSameDayAs: selectedDate)
-                let isEndSameDay = calendar.isDate(end, inSameDayAs: selectedDate)
-                var spans: [TimedRecord] = []
-                
-                if isStartSameDay {
-                    let endOfDay = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: start))!
-                    spans.append(TimedRecord(
-                        id: UUID(),
-                        startHour: hourDecimal(from: start),
-                        endHour: hourDecimal(from: min(end, endOfDay)),
-                        color: color(for: record.title)
-                    ))
-                }
 
-                
-                if isEndSameDay {
-                    let startOfDay = calendar.startOfDay(for: end)
-                    spans.append(TimedRecord(
+                let startOfSelected = calendar.startOfDay(for: selectedDate)
+                let endOfSelected = calendar.date(byAdding: .day, value: 1, to: startOfSelected)!
+
+                let overlapStart = max(start, startOfSelected)
+                let overlapEnd = min(end, endOfSelected)
+
+                // 겹치는 구간이 존재할 때만 추가
+                if overlapStart < overlapEnd {
+                    return [TimedRecord(
                         id: UUID(),
-                        startHour: hourDecimal(from: startOfDay),
-                        endHour: hourDecimal(from: end),
+                        startHour: hourDecimal(from: overlapStart),
+                        endHour: hourDecimal(from: overlapEnd),
                         color: color(for: record.title)
-                    ))
+                    )]
+                } else {
+                    return []
                 }
-                
-                return spans
             }
+
 
             guard calendar.isDate(record.createdAt, inSameDayAs: selectedDate) else {
                 return []
