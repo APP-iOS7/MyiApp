@@ -11,6 +11,7 @@ import AuthenticationServices
 
 struct LogInView: View {
     @StateObject var viewModel: LogInViewModel = .init()
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         ZStack {
@@ -53,26 +54,26 @@ struct LogInView: View {
                         }
                     }
                 }) {
-                    HStack {
+                    HStack(spacing: 8) {
                         // Google 로고 (Asset에서 추가한 이미지 사용)
-                        Image("google-logo-icon") // Assets.xcassets에 google_logo 추가
+                        Image("google-logo-icon")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 18, height: 18)
-                            .padding(.leading)
+                            .frame(width: 15, height: 15)
                         
                         Text("Sign in with Google")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(.primary)
+                            .font(.system(size: 19, weight: .medium))
+                            .foregroundColor(.black)
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.horizontal)
                         .padding(.vertical, 13)
                 }
-                .background(Color(UIColor { trait in
-                    trait.userInterfaceStyle == .dark ? .systemGray5 : .white
-                }))
-                .clipShape(RoundedRectangle(cornerRadius: 8))                
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 5))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 5)
+                        .stroke(Color.black, lineWidth: 0.8))
                 .frame(height: 50)
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 50)
@@ -94,6 +95,8 @@ struct LogInView: View {
                         }
                     }
                 }
+                .fontWeight(.semibold)
+                .signInWithAppleButtonStyle(.whiteOutline)
                 .frame(height: 50)
                 .padding(.horizontal, 50)
                 
