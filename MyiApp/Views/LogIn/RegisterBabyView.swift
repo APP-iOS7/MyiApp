@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SwiftRegisterBabyView: View {
+struct RegisterBabyView: View {
     @StateObject private var viewModel = RegisterBabyViewModel()
     
     private var isButtonEnabled: Bool {
@@ -108,6 +108,6 @@ struct SwiftRegisterBabyView: View {
 
 #Preview {
     NavigationStack {
-        SwiftRegisterBabyView()
+        RegisterBabyView()
     }
 }

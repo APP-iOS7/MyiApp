@@ -91,7 +91,7 @@ struct MyiApp: App {
         case .content:
             ContentView()
         case .register:
-            SwiftRegisterBabyView()
+            RegisterBabyView()
         }
     }
     
