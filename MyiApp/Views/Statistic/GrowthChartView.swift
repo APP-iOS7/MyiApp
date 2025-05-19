@@ -38,7 +38,6 @@ struct GrowthChartView: View {
     
     @State private var selectedDate = Date()
     @State private var selectedMode = "키"
-    @State private var showCalendar = false
     let modes = ["키", "몸무게"]
     
     @State private var startDate: Date
@@ -49,6 +48,7 @@ struct GrowthChartView: View {
         _startDate = State(initialValue: baby.birthDate)
         _endDate = State(initialValue: Date())
     }
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         ZStack {
@@ -67,6 +67,17 @@ struct GrowthChartView: View {
         )
         .navigationTitle("성장곡선")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.blue)
+                }
+            }
+        }
     }
     var mainScrollView: some View {
         ScrollView {
@@ -126,35 +137,13 @@ struct GrowthChartView: View {
         
     }
     private var toggleMode: some View {
-        HStack(spacing: 4) {
+        Picker("모드 선택", selection: $selectedMode) {
             ForEach(modes, id: \.self) { mode in
-                Button(action: {
-                    selectedMode = mode
-                }) {
-                    Text(mode)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : .primary)
-                        .frame(maxWidth: 90, minHeight: 32)
-                        .background(
-                            ZStack {
-                                if selectedMode == mode {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .fill(Color.white)
-                                        )
-                                } else {
-                                    Color.clear
-                                }
-                            }
-                        )
-                }
+                Text(mode)
             }
         }
-        .padding(4)
-        .background(Color.gray.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .pickerStyle(.segmented)
+        .padding()
         .frame(width: 200, height: 50)
     }
 }
@@ -517,9 +506,6 @@ struct DateRangeSelectView: View {
     @Binding var startDate: Date
     @Binding var endDate: Date
     
-    @State private var showStartPicker: Bool = false
-    @State private var showEndPicker: Bool = false
-    
     var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
@@ -532,75 +518,65 @@ struct DateRangeSelectView: View {
             
             HStack(alignment: .center) {
                 // 시작 날짜 선택
-                HStack {
-                    Text("\(dateFormatter.string(from: startDate))")
-                        .foregroundColor(.primary)
-                        .padding(.vertical, 12)
-                        .padding(.leading, 12)
-                    Spacer()
-                    Image(systemName: "calendar")
-                        .foregroundColor(Color("sharkPrimaryColor"))
-                        .padding(.trailing, 12)
-                }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
-                )
-                .padding(.horizontal)
-                .onTapGesture {
-                    showStartPicker = true
-                }
-                .sheet(isPresented: $showStartPicker) {
-                    VStack {
-                        DatePicker("시작일", selection: $startDate, in: ...endDate, displayedComponents: .date)
-                            .datePickerStyle(.graphical)
-                            .labelsHidden()
-                        Button("완료") {
-                            showStartPicker = false
-                        }
-                        .padding()
+                ZStack {
+                    HStack {
+                        Text("\(dateFormatter.string(from: startDate))")
+                            .foregroundColor(.primary)
+                            .padding(.vertical, 12)
+                            .padding(.leading, 12)
+                        Spacer()
+                        Image(systemName: "calendar")
+                            .foregroundColor(Color("sharkPrimaryColor"))
+                            .padding(.trailing, 12)
                     }
-                    .padding()
-                    .presentationDetents([.height(500)])
-                    .presentationDragIndicator(.visible)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
+                    )
+                    .padding(.horizontal)
+                    DatePicker(
+                        "",
+                        selection: $startDate,
+                        displayedComponents: [.date]
+                    )
+                    .datePickerStyle(.compact)
+                    .labelsHidden()
+                    .frame(width: 180, height: 30)
+                    .blendMode(.destinationOver)
                 }
+                
                 Spacer()
                 Text("~")
                 Spacer()
                 
                 // 종료 날짜 선택
-                HStack {
-                    Text("\(dateFormatter.string(from: endDate))")
-                        .foregroundColor(.primary)
-                        .padding(.vertical, 12)
-                        .padding(.leading, 12)
-                    Spacer()
-                    Image(systemName: "calendar")
-                        .foregroundColor(Color("sharkPrimaryColor"))
-                        .padding(.trailing, 12)
-                }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
-                )
-                .padding(.horizontal)
-                .onTapGesture {
-                    showEndPicker = true
-                }
-                .sheet(isPresented: $showEndPicker) {
-                    VStack {
-                        DatePicker("종료일", selection: $endDate, in: startDate..., displayedComponents: .date)
-                            .datePickerStyle(.graphical)
-                            .labelsHidden()
-                        Button("완료") {
-                            showEndPicker = false
-                        }
-                        .padding()
+                ZStack {
+                    HStack {
+                        Text("\(dateFormatter.string(from: endDate))")
+                            .foregroundColor(.primary)
+                            .padding(.vertical, 12)
+                            .padding(.leading, 12)
+                        Spacer()
+                        Image(systemName: "calendar")
+                            .foregroundColor(Color("sharkPrimaryColor"))
+                            .padding(.trailing, 12)
                     }
-                    .padding()
-                    .presentationDetents([.height(500)])
-                    .presentationDragIndicator(.visible)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
+                    )
+                    .padding(.horizontal)
+                    DatePicker(
+                        "",
+                        selection: $endDate,
+                        displayedComponents: [.date]
+                    )
+                    .datePickerStyle(.compact)
+                    .labelsHidden()
+                    .frame(width: 180, height: 30)
+                    .blendMode(.destinationOver)
                 }
+                
             }
             
             
