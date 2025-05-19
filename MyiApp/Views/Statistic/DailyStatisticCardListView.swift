@@ -108,7 +108,6 @@ struct DailyStatisticCardListView: View {
                 baby: baby
             )
         }
-        .padding(.horizontal)
     }
     // 카테고리 받아서 횟수 셀리기
     func recordsCount(for title: TitleCategory, in records: [Record], on date: Date) -> Int {

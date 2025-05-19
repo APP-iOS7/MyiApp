@@ -17,8 +17,8 @@ struct PottyDetailView: View {
     
     @State private var selectedDate = Date()
     @State private var selectedMode = "일"
-    @State private var showCalendar = false
     let modes = ["일", "주", "월"]
+    @Environment(\.dismiss) private var dismiss
     
     private var formattedDateString: String {
         let formatter = DateFormatter()
@@ -51,6 +51,8 @@ struct PottyDetailView: View {
     
     var body: some View {
         ZStack {
+            Color("customBackgroundColor")
+                        .ignoresSafeArea()
             mainScrollView
         }
         .gesture(
@@ -70,6 +72,17 @@ struct PottyDetailView: View {
         )
         .navigationTitle("배변 통계")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.blue)
+                }
+            }
+        }
     }
     
     var mainScrollView: some View {
@@ -88,7 +101,6 @@ struct PottyDetailView: View {
                         weekDates: generateWeekDates(from: selectedDate),
                         records: records
                     )
-                    Divider()
                     DailyPottyListView(records: records,  selectedDate: selectedDate)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if (selectedMode == "주") {
@@ -96,7 +108,6 @@ struct PottyDetailView: View {
                         selectedDate: selectedDate,
                         records: records
                     )
-                    Divider()
                     WeeklyPottyListView(records: records,  selectedDate: selectedDate)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -104,7 +115,6 @@ struct PottyDetailView: View {
                         selectedDate: selectedDate,
                         records: records
                     )
-                    Divider()
                     MonthlyPottyListView(records: records,  selectedDate: selectedDate)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
@@ -114,39 +124,17 @@ struct PottyDetailView: View {
         
     }
     private var toggleMode: some View {
-        HStack(spacing: 4) {
+        Picker("모드 선택", selection: $selectedMode) {
             ForEach(modes, id: \.self) { mode in
-                Button(action: {
-                    selectedMode = mode
-                }) {
-                    Text(mode)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : .primary)
-                        .frame(maxWidth: 90, minHeight: 32)
-                        .background(
-                            ZStack {
-                                if selectedMode == mode {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .fill(Color.white)
-                                        )
-                                } else {
-                                    Color.clear
-                                }
-                            }
-                        )
-                }
+                Text(mode)
             }
         }
-        .padding(4)
-        .background(Color.gray.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .frame(width: 200, height: 50)
+        .pickerStyle(.segmented)
+        .padding()
+        .frame(width: 300, height: 50)
     }
     private var dateMove: some View {
-        Group {
+        ZStack {
             HStack {
                 Button(action: {
                     let calendar = Calendar.current
@@ -167,14 +155,8 @@ struct PottyDetailView: View {
                 
                 Spacer()
                 
-                Button(action: {
-                    withAnimation {
-                        showCalendar.toggle()
-                    }
-                }) {
-                    Image(systemName: "calendar")
-                        .foregroundColor(.primary)
-                }
+                Image(systemName: "calendar")
+                    .foregroundColor(.primary)
                 
                 Text(formattedDateString)
                     .font(.headline)
@@ -198,17 +180,15 @@ struct PottyDetailView: View {
                         .foregroundColor(.primary)
                 }
             }
-            if showCalendar {
-                DatePicker(
-                    "",
-                    selection: $selectedDate,
-                    displayedComponents: [.date]
-                )
-                .datePickerStyle(.graphical)
-                .environment(\.locale, Locale(identifier: "ko_KR"))
-                .transition(.opacity)
-                .tint(Color("sharkPrimaryColor"))
-            }
+            DatePicker(
+                "",
+                selection: $selectedDate,
+                displayedComponents: [.date]
+            )
+            .datePickerStyle(.compact)
+            .labelsHidden()
+            .frame(width: 180, height: 30)
+            .blendMode(.destinationOver)
         }
         
     }
@@ -232,7 +212,7 @@ struct DailyPottyChartView: View {
     }
     
     var body: some View {
-        VStack(spacing: 35) {
+        VStack {
             ForEach(PottyType.allCases, id: \.self) { type in
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 6) {
@@ -276,7 +256,7 @@ struct DailyPottyChartView: View {
                                         if (maxAmount > 0) {
                                             Text("\(value)회")
                                                 .font(.caption2)
-                                                .foregroundColor(.black)
+                                                .foregroundColor(.primary)
                                                 .frame(height: 12)
                                             Rectangle()
                                                 .fill(Color.gray.opacity(0.3))
@@ -295,7 +275,7 @@ struct DailyPottyChartView: View {
                                                 .cornerRadius(4)
                                             Text("\(value)회")
                                                 .font(.caption2)
-                                                .foregroundColor(.black)
+                                                .foregroundColor(.primary)
                                                 .frame(height: 12)
                                         }
                                         Text(shortDateString(for: date))
@@ -310,9 +290,13 @@ struct DailyPottyChartView: View {
                     .frame(height: 120)
                     
                 }
+                .padding()
+                .padding(.bottom, 20)
             }
+            .background(Color(.tertiarySystemBackground))
+            .cornerRadius(12)
+            .padding(.vertical, 10)
         }
-        .padding()
     }
     
     func iconImage(for type: PottyType) -> UIImage {
@@ -367,7 +351,6 @@ struct DailyPottyListView: View {
             mode : "daily",
             selectedDate : selectedDate
         )
-        .padding(.horizontal)
     }
     // 소변,배변 횟수 따로 셀리기
     func countPottyTypes(in records: [Record], on date: Date) -> (small: Int, big: Int) {
@@ -419,7 +402,7 @@ struct WeeklyPottyChartView: View {
     }
     
     var body: some View {
-        VStack(spacing: 35) {
+        VStack {
             ForEach(PottyType.allCases, id: \.self) { type in
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 6) {
@@ -463,7 +446,7 @@ struct WeeklyPottyChartView: View {
                                         if (maxAmount > 0) {
                                             Text("\(value)회")
                                                 .font(.caption2)
-                                                .foregroundColor(.black)
+                                                .foregroundColor(.primary)
                                                 .frame(height: 12)
                                             Rectangle()
                                                 .fill(Color.gray.opacity(0.3))
@@ -482,7 +465,7 @@ struct WeeklyPottyChartView: View {
                                                 .cornerRadius(4)
                                             Text("\(value)회")
                                                 .font(.caption2)
-                                                .foregroundColor(.black)
+                                                .foregroundColor(.primary)
                                                 .frame(height: 12)
                                         }
                                         Text(shortWeekLabel(for: startDate))
@@ -497,10 +480,14 @@ struct WeeklyPottyChartView: View {
                     .frame(height: 120)
                     
                 }
+                .padding()
+                .padding(.bottom, 20)
             }
+            .background(Color(.tertiarySystemBackground))
+            .cornerRadius(12)
+            .padding(.vertical, 10)
         }
         
-        .padding()
     }
     func iconImage(for type: PottyType) -> UIImage {
         switch type {
@@ -565,7 +552,6 @@ struct WeeklyPottyListView: View {
             mode : "weekly",
             selectedDate : selectedDate
         )
-        .padding(.horizontal)
     }
     // 소변,배변 횟수 따로 셀리기
     func countPottyTypes(in records: [Record], within range: DateInterval) -> (small: Int, big: Int) {
@@ -612,7 +598,7 @@ struct MonthlyPottyChartView: View {
 
     
     var body: some View {
-        VStack(spacing: 35) {
+        VStack {
             ForEach(PottyType.allCases, id: \.self) { type in
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 6) {
@@ -656,7 +642,7 @@ struct MonthlyPottyChartView: View {
                                         if (maxAmount > 0) {
                                             Text("\(value)회")
                                                 .font(.caption2)
-                                                .foregroundColor(.black)
+                                                .foregroundColor(.primary)
                                                 .frame(height: 12)
                                             Rectangle()
                                                 .fill(Color.gray.opacity(0.3))
@@ -675,7 +661,7 @@ struct MonthlyPottyChartView: View {
                                                 .cornerRadius(4)
                                             Text("\(value)회")
                                                 .font(.caption2)
-                                                .foregroundColor(.black)
+                                                .foregroundColor(.primary)
                                                 .frame(height: 12)
                                         }
                                         Text(shortMonthLabel(for: startDate))
@@ -690,10 +676,14 @@ struct MonthlyPottyChartView: View {
                     .frame(height: 120)
                     
                 }
+                .padding()
+                .padding(.bottom, 20)
             }
+            .background(Color(.tertiarySystemBackground))
+            .cornerRadius(12)
+            .padding(.vertical, 10)
         }
         
-        .padding()
     }
     func iconImage(for type: PottyType) -> UIImage {
         switch type {
@@ -755,7 +745,6 @@ struct MonthlyPottyListView: View {
             mode : "monthly",
             selectedDate : selectedDate
         )
-        .padding(.horizontal)
     }
     // 소변,배변 횟수 따로 셀리기
     func countPottyTypes(in records: [Record], within range: DateInterval) -> (small: Int, big: Int) {
