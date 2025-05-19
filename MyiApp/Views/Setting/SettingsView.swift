@@ -60,6 +60,7 @@ struct SettingsView: View {
                 Button("취소", role: .cancel) {}
                 Button("로그아웃", role: .destructive) {
                     AuthService.shared.signOut()
+                    CaregiverManager.shared.selectedBaby = nil
                 }
             } message: {
                 Text("로그아웃 됩니다")

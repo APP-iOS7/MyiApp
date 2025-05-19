@@ -46,6 +46,7 @@ class DatabaseService: ObservableObject {
         }
         let userDocRef = db.collection("users").document(uid)
         try await userDocRef.setData([
+            "id": uid,
             "babies": FieldValue.arrayUnion([babyRef])
         ], merge: true)
         
