@@ -16,7 +16,7 @@ struct GrowthChartView: View {
     }
     
     var records: [Record] {
-        baby.records
+        CaregiverManager.shared.records
     }
     
     var heightweightRecords: [Record] {
