@@ -17,7 +17,7 @@ struct StatisticView: View {
     }
     
     var baby: Baby {
-        caregiverManager.selectedBaby ?? Baby(name: "", birthDate: Date(), gender: .male, height: 0, weight: 0, bloodType: .A)
+        caregiverManager.selectedBaby ?? Baby(name: "", birthDate: Date(), birthTime: Date(), gender: .male, height: 0, weight: 0, bloodType: .A)
     }
     
     var birthDate: Date {
