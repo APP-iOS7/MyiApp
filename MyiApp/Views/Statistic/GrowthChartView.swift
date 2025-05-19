@@ -152,7 +152,7 @@ struct HeightChartView: View {
     let startDate: Date
     let endDate: Date
     
-    @State private var selectedEntry: (date: Date, height: Double)? = nil
+    @State private var selectedEntry: (id: UUID, date: Date, height: Double)? = nil
 
     var body: some View {
         GeometryReader { geometry in
@@ -170,11 +170,13 @@ struct HeightChartView: View {
                     startDate.addingTimeInterval(Double($0) * intervalStep)
                 }
 
-                let cappedData: [(date: Date, height: Double)] = desiredDates.compactMap { targetDate in
+                let cappedData: [(id: UUID, date: Date, height: Double)] = desiredDates.compactMap { targetDate in
                     sortedData.min(by: {
                         //절댓값
                         abs($0.date.timeIntervalSince(targetDate)) < abs($1.date.timeIntervalSince(targetDate))
-                    })
+                    }).map { entry in
+                        (UUID(), entry.date, entry.height)
+                    }
                 }
 
                 let firstDate = startDate
@@ -231,22 +233,22 @@ struct HeightChartView: View {
                                     .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
 
                                     // 강조된 점
-                                    ForEach(cappedData, id: \.date) { entry in
+                                    ForEach(cappedData, id: \.id) { entry in
                                         let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                                         let y = height - ((CGFloat(entry.height - minHeight) / CGFloat(heightRange)) * height)
                                         Circle()
-                                            .fill(selectedEntry?.date == entry.date ? Color("food") : Color("sharkPrimaryColor"))
+                                            .fill(selectedEntry?.id == entry.id ? Color("food") : Color("sharkPrimaryColor"))
                                             .frame(width: 10, height: 10)
                                             .position(x: x, y: y)
                                             .onTapGesture {
-                                                if selectedEntry?.date == entry.date {
+                                                if selectedEntry?.id == entry.id {
                                                     selectedEntry = nil
                                                 } else {
                                                     selectedEntry = entry
                                                 }
                                             }
                                     }
-                                    ForEach(cappedData, id: \.date) { entry in
+                                    ForEach(cappedData, id: \.id) { entry in
                                         if let entry = selectedEntry {
                                             let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                                             let y = height - ((CGFloat(entry.height - minHeight) / CGFloat(heightRange)) * height)
@@ -330,7 +332,7 @@ struct WeightChartView: View {
     let startDate: Date
     let endDate: Date
     
-    @State private var selectedEntry: (date: Date, weight: Double)? = nil
+    @State private var selectedEntry: (id: UUID, date: Date, weight: Double)? = nil
 
     var body: some View {
         GeometryReader { geometry in
@@ -348,11 +350,13 @@ struct WeightChartView: View {
                     startDate.addingTimeInterval(Double($0) * intervalStep)
                 }
 
-                let cappedData: [(date: Date, weight: Double)] = desiredDates.compactMap { targetDate in
+                let cappedData: [(id: UUID, date: Date, weight: Double)] = desiredDates.compactMap { targetDate in
                     sortedData.min(by: {
                         //절댓값
                         abs($0.date.timeIntervalSince(targetDate)) < abs($1.date.timeIntervalSince(targetDate))
-                    })
+                    }).map { entry in
+                        (UUID(), entry.date, entry.weight)
+                    }
                 }
 
                 let firstDate = startDate
@@ -409,22 +413,22 @@ struct WeightChartView: View {
                                     .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
 
                                     // 강조된 점
-                                    ForEach(cappedData, id: \.date) { entry in
+                                    ForEach(cappedData, id: \.id) { entry in
                                         let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                                         let y = height - ((CGFloat(entry.weight - minWeight) / CGFloat(weightRange)) * height)
                                         Circle()
-                                            .fill(selectedEntry?.date == entry.date ? Color("food") : Color("sharkPrimaryColor"))
+                                            .fill(selectedEntry?.id == entry.id ? Color("food") : Color("sharkPrimaryColor"))
                                             .frame(width: 10, height: 10)
                                             .position(x: x, y: y)
                                             .onTapGesture {
-                                                if selectedEntry?.date == entry.date {
+                                                if selectedEntry?.id == entry.id {
                                                     selectedEntry = nil
                                                 } else {
                                                     selectedEntry = entry
                                                 }
                                             }
                                     }
-                                    ForEach(cappedData, id: \.date) { entry in
+                                    ForEach(cappedData, id: \.id) { entry in
                                         if let entry = selectedEntry {
                                             let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                                             let y = height - ((CGFloat(entry.weight - minWeight) / CGFloat(weightRange)) * height)
