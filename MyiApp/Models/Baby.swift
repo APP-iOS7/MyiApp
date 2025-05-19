@@ -12,6 +12,7 @@ struct Baby: Codable, Identifiable {
     var id: UUID
     var name: String
     var birthDate: Date
+    var birthTime: Date?
     var gender: Gender
     var height: Double
     var weight: Double
@@ -20,10 +21,11 @@ struct Baby: Codable, Identifiable {
     
     var caregivers: [DocumentReference]
     
-    init(name: String, birthDate: Date, gender: Gender, height: Double, weight: Double, bloodType: BloodType) {
+    init(name: String, birthDate: Date, birthTime: Date?, gender: Gender, height: Double, weight: Double, bloodType: BloodType) {
         self.id = UUID()
         self.name = name
         self.birthDate = birthDate
+        self.birthTime = birthTime
         self.gender = gender
         self.height = height
         self.weight = weight
@@ -36,6 +38,7 @@ struct Baby: Codable, Identifiable {
             case id
             case name
             case birthDate = "birth_date"
+            case birthTime = "birth_time"
             case gender
             case height
             case weight
