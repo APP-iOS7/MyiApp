@@ -10,14 +10,12 @@ import SwiftUI
 struct DailyStatisticCardListView: View {
     
     let baby: Baby
+    let records: [Record]
     
     var birthDate: Date {
         baby.birthDate
     }
     
-    var records: [Record] {
-        CaregiverManager.shared.records
-    }
     let selectedDate: Date
     var yesterday: Date {
         Calendar.current.date(byAdding: .day, value: -1, to: selectedDate)!
@@ -40,7 +38,8 @@ struct DailyStatisticCardListView: View {
                 time: totalBreastfeedingMinutes(in: records, on: selectedDate),
                 lasttime: totalBreastfeedingMinutes(in: records, on: yesterday),
                 mode : "daily",
-                baby: baby
+                baby: baby,
+                records: records
             )
             
             StatisticCardView(
@@ -54,7 +53,8 @@ struct DailyStatisticCardListView: View {
                 time: nil,
                 lasttime: nil,
                 mode : "daily",
-                baby: baby
+                baby: baby,
+                records: records
             )
             
             PottyStatisticCardView(
@@ -63,7 +63,8 @@ struct DailyStatisticCardListView: View {
                 big: pottyCount.big,
                 yesterdaybig: yesterdaypottyCount.big,
                 mode : "daily",
-                baby: baby
+                baby: baby,
+                records: records
             )
             
             StatisticCardView(
@@ -77,7 +78,8 @@ struct DailyStatisticCardListView: View {
                 time: totalSleepMinutes(in: records, on: selectedDate),
                 lasttime: totalSleepMinutes(in: records, on: yesterday),
                 mode : "daily",
-                baby: baby
+                baby: baby,
+                records: records
             )
             
             StatisticCardView(
@@ -91,7 +93,8 @@ struct DailyStatisticCardListView: View {
                 time: nil,
                 lasttime: nil,
                 mode : "daily",
-                baby: baby
+                baby: baby,
+                records: records
             )
             
             StatisticCardView(
@@ -105,7 +108,8 @@ struct DailyStatisticCardListView: View {
                 time: nil,
                 lasttime: nil,
                 mode : "daily",
-                baby: baby
+                baby: baby,
+                records: records
             )
         }
     }

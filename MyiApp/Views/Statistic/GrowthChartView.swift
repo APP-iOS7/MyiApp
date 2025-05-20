@@ -10,15 +10,11 @@ import SwiftUI
 struct GrowthChartView: View {
     
     let baby: Baby
+    let records: [Record]
     
     var birthDate: Date {
         baby.birthDate
     }
-    
-    var records: [Record] {
-        CaregiverManager.shared.records
-    }
-    
     var heightweightRecords: [Record] {
         records.filter { $0.title == .heightWeight }
     }
@@ -43,11 +39,13 @@ struct GrowthChartView: View {
     @State private var startDate: Date
     @State private var endDate: Date
     
-    init(baby: Baby) {
+    init(baby: Baby, records: [Record]) {
         self.baby = baby
+        self.records = records
         _startDate = State(initialValue: baby.birthDate)
         _endDate = State(initialValue: Date())
     }
+    
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
