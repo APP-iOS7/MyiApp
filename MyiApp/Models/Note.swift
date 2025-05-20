@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
 struct CalendarDay: Identifiable {
     var id: UUID
@@ -24,6 +25,7 @@ struct Note: Identifiable, Hashable, Codable {
     var imageURLs: [String]
     var notificationEnabled: Bool?
     var notificationTime: Date?
+    var createdAt: Date
     
     var timeString: String {
         let formatter = DateFormatter()
@@ -51,6 +53,19 @@ struct Note: Identifiable, Hashable, Codable {
         self.imageURLs = imageURLs
         self.notificationEnabled = notificationEnabled
         self.notificationTime = notificationTime
+        self.createdAt = Date()
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case description
+        case date
+        case category
+        case imageURLs
+        case notificationEnabled
+        case notificationTime
+        case createdAt
     }
 }
 

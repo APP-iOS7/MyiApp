@@ -8,29 +8,27 @@
 import SwiftUI
 
 struct StatisticView: View {
-    
-    @ObservedObject var caregiverManager = CaregiverManager.shared
-    
+    @ObservedObject var viewModel = StatisticViewModel()
+
     struct CareCategory: Equatable {
         let name: String
         let image: UIImage
     }
     
     var baby: Baby {
-        caregiverManager.selectedBaby ?? Baby(name: "", birthDate: Date(), gender: .male, height: 0, weight: 0, bloodType: .A)
+        viewModel.baby
     }
-    
+        
     var birthDate: Date {
-        baby.birthDate
+        viewModel.baby.birthDate
     }
     
     var records: [Record] {
-        CaregiverManager.shared.records
+        viewModel.records
     }
     
     @State private var selectedDate = Date()
     @State private var selectedMode = "일"
-    @State private var showCalendar = false
     let modes = ["일", "주"]
     
     private var formattedDateString: String {
@@ -61,7 +59,10 @@ struct StatisticView: View {
     
     var body: some View {
         ZStack {
+            Color("customBackgroundColor")
+                        .ignoresSafeArea()
             mainScrollView
+
         }
         .gesture(
             DragGesture()
@@ -88,35 +89,27 @@ struct StatisticView: View {
     var mainScrollView: some View {
         ScrollView {
             VStack(spacing: 20) {
+                heightWeightButton
+                
                 VStack(spacing: 10) {
-                    ZStack {
-                        HStack {
-                            Spacer()
-                            toggleMode
-                            Spacer()
-                        }
-                        HStack {
-                            Spacer()
-                            heightWeightButton
-                        }
-                    }
-                    .padding(.horizontal)
+                    toggleMode
                     .padding(.vertical, 10)
                     
                     dateMove
-                        .padding(.horizontal)
                         .padding(.vertical, 10)
+                    
+                    
+                    
+                    iconGrid
+                        .padding(.bottom, 20)
+                    
+                    chartView
+                    babyInfo
                 }
+                .padding()
+                .background(Color(.tertiarySystemBackground))
+                .cornerRadius(12)
                 
-                
-                
-                iconGrid
-                    .padding(.horizontal)
-                    .padding(.bottom, 20)
-                
-                chartView
-                babyInfo
-                Divider()
                 statisticList
             }
             .padding()
@@ -124,39 +117,18 @@ struct StatisticView: View {
         
     }
     private var toggleMode: some View {
-        HStack(spacing: 4) {
+        Picker("모드 선택", selection: $selectedMode) {
             ForEach(modes, id: \.self) { mode in
-                Button(action: {
-                    selectedMode = mode
-                }) {
-                    Text(mode)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : .primary)
-                        .frame(maxWidth: 90, minHeight: 32)
-                        .background(
-                            ZStack {
-                                if selectedMode == mode {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .fill(Color.white)
-                                        )
-                                } else {
-                                    Color.clear
-                                }
-                            }
-                        )
-                }
+                Text(mode)
             }
         }
-        .padding(4)
-        .background(Color.gray.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .pickerStyle(.segmented)
+        .padding()
         .frame(width: 200, height: 50)
     }
+
     private var dateMove: some View {
-        Group {
+        ZStack {
             HStack {
                 Button(action: {
                     selectedDate = Calendar.current.date(byAdding: .day, value: selectedMode == "일" ? -1 : -7, to: selectedDate) ?? selectedDate
@@ -167,14 +139,8 @@ struct StatisticView: View {
                 
                 Spacer()
                 
-                Button(action: {
-                    withAnimation {
-                        showCalendar.toggle()
-                    }
-                }) {
-                    Image(systemName: "calendar")
-                        .foregroundColor(.primary)
-                }
+                Image(systemName: "calendar")
+                    .foregroundColor(.primary)
                 
                 Text(formattedDateString)
                     .font(.headline)
@@ -188,37 +154,46 @@ struct StatisticView: View {
                         .foregroundColor(.primary)
                 }
             }
-            if showCalendar {
-                DatePicker(
-                    "",
-                    selection: $selectedDate,
-                    displayedComponents: [.date]
-                )
-                .datePickerStyle(.graphical)
-                .environment(\.locale, Locale(identifier: "ko_KR"))
-                .transition(.opacity)
-                .tint(Color("sharkPrimaryColor"))
-            }
+            DatePicker(
+                "",
+                selection: $selectedDate,
+                displayedComponents: [.date]
+            )
+            .datePickerStyle(.compact)
+            .labelsHidden()
+            .frame(width: 180, height: 30)
+            .blendMode(.destinationOver)
         }
         
     }
     private var heightWeightButton: some View {
-        NavigationLink(destination: GrowthChartView(baby: baby)) {
-            Image(systemName: "chart.xyaxis.line")
-                .foregroundColor(.gray)
-        }
+        NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
+                HStack {
+                    Text("성장곡선")
+                        .font(.subheadline)
+                        .foregroundColor(.primary)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.primary)
+                }
+                .padding()
+                .background(Color(.tertiarySystemBackground))
+                .cornerRadius(12)
+            }
     }
     private var chartView: some View {
         Group {
             if selectedMode == "주" {
-                WeeklyChartView(baby: baby,  selectedDate: selectedDate)
+                WeeklyChartView(baby: baby, records: records,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(.horizontal)
                     .padding(.vertical, 20)
                 
             } else if selectedMode == "일" {
                 Spacer()
-                DailyChartView(baby: baby,  selectedDate: selectedDate)
+                DailyChartView(baby: baby, records: records,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(.horizontal)
                     .padding(.vertical, 20)
@@ -267,11 +242,11 @@ struct StatisticView: View {
     private var statisticList: some View {
         Group {
             if selectedMode == "주" {
-                WeeklyStatisticCardListView(baby: baby,  selectedDate: selectedDate)
+                WeeklyStatisticCardListView(baby: baby, records: records,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
             } else if selectedMode == "일" {
-                DailyStatisticCardListView(baby: baby,  selectedDate: selectedDate)
+                DailyStatisticCardListView(baby: baby, records: records,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
@@ -322,13 +297,13 @@ struct IconItem: View {
         VStack(spacing: 8) {
             ZStack {
                 RoundedRectangle(cornerRadius: 18)
-                    .fill(Color("sharkCardBackground"))
+                    .fill(Color("customBackgroundColor"))
                     .frame(width: 40, height: 40)
                 
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 25, height: 25)
+                    .frame(width: 35, height: 35)
             }
             
             Text(title)
