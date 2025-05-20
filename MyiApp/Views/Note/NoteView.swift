@@ -40,7 +40,7 @@ struct NoteView: View {
                     calendarGridSection
                         .padding(.bottom, 8)
                 }
-                .background(Color("sharkCardBackground"))
+                .background(Color(UIColor.tertiarySystemBackground)) // 섹션 카드 색상 변경
                 .cornerRadius(10)
                 .padding(.horizontal)
                 .padding(.top, 8)
@@ -97,14 +97,14 @@ struct NoteView: View {
                             .padding(.top, 16)
                     }
                 }
-                .background(Color(UIColor.secondarySystemGroupedBackground))
+                .background(Color(UIColor.tertiarySystemBackground)) // 섹션 카드 색상 변경
                 .cornerRadius(10)
                 .padding(.horizontal)
                 .padding(.top, 8)
                 .padding(.bottom, 16)
             }
         }
-        .background(Color(UIColor.systemGroupedBackground).ignoresSafeArea())
+        .background(Color("customBackgroundColor").ignoresSafeArea()) // 배경 색상 변경
         .navigationTitle("육아 수첩")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingNoteEditor, onDismiss: {
@@ -184,7 +184,7 @@ struct NoteView: View {
                         Text(viewModel.currentMonth)
                             .font(.custom("Cafe24-Ohsquareair", size: 24))
                             .fontWeight(.bold)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.button)
                         
                         Image(systemName: "chevron.down")
                             .font(.caption)
@@ -232,7 +232,7 @@ struct NoteView: View {
                     Text(day)
                         .font(.caption)
                         .fontWeight(.semibold)
-                        .foregroundColor(day == "일" ? .red : day == "토" ? .blue : .black)
+                        .foregroundColor(day == "일" ? .red : day == "토" ? .blue : .primary)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -356,7 +356,7 @@ struct NoteView: View {
                 .scaledToFit()
                 .frame(width: 50, height: 50)
                 .foregroundColor(Color("sharkPrimaryLight"))
-                .padding(.top, 20)
+                .padding(.top, 4)
             
             Text("기록된 일지가 없습니다.")
                 .font(.headline)
@@ -364,8 +364,8 @@ struct NoteView: View {
                 .padding(.top, 8)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 150)
-        .padding(.vertical, 12)
+        .frame(height: 97)
+        .padding(.vertical, 8)
     }
 }
 
@@ -427,7 +427,7 @@ struct NoteEventRow: View {
                         .padding(.vertical, 2)
                         .background(
                             Capsule()
-                                .fill(Color.gray.opacity(0.1))
+                                .fill(Color(UIColor.systemGray6))
                         )
                     }
                 }
@@ -435,7 +435,7 @@ struct NoteEventRow: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color("sharkCardBackground"))
+                    .fill(Color(UIColor.tertiarySystemBackground))
             )
         }
         .buttonStyle(PlainButtonStyle())
