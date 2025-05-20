@@ -10,15 +10,11 @@ import SwiftUI
 struct GrowthChartView: View {
     
     let baby: Baby
+    let records: [Record]
     
     var birthDate: Date {
         baby.birthDate
     }
-    
-    var records: [Record] {
-        CaregiverManager.shared.records
-    }
-    
     var heightweightRecords: [Record] {
         records.filter { $0.title == .heightWeight }
     }
@@ -38,17 +34,19 @@ struct GrowthChartView: View {
     
     @State private var selectedDate = Date()
     @State private var selectedMode = "키"
-    @State private var showCalendar = false
     let modes = ["키", "몸무게"]
     
     @State private var startDate: Date
     @State private var endDate: Date
     
-    init(baby: Baby) {
+    init(baby: Baby, records: [Record]) {
         self.baby = baby
+        self.records = records
         _startDate = State(initialValue: baby.birthDate)
         _endDate = State(initialValue: Date())
     }
+    
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         ZStack {
@@ -67,6 +65,17 @@ struct GrowthChartView: View {
         )
         .navigationTitle("성장곡선")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.blue)
+                }
+            }
+        }
     }
     var mainScrollView: some View {
         ScrollView {
@@ -126,35 +135,13 @@ struct GrowthChartView: View {
         
     }
     private var toggleMode: some View {
-        HStack(spacing: 4) {
+        Picker("모드 선택", selection: $selectedMode) {
             ForEach(modes, id: \.self) { mode in
-                Button(action: {
-                    selectedMode = mode
-                }) {
-                    Text(mode)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : .primary)
-                        .frame(maxWidth: 90, minHeight: 32)
-                        .background(
-                            ZStack {
-                                if selectedMode == mode {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .fill(Color.white)
-                                        )
-                                } else {
-                                    Color.clear
-                                }
-                            }
-                        )
-                }
+                Text(mode)
             }
         }
-        .padding(4)
-        .background(Color.gray.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .pickerStyle(.segmented)
+        .padding()
         .frame(width: 200, height: 50)
     }
 }
@@ -163,7 +150,7 @@ struct HeightChartView: View {
     let startDate: Date
     let endDate: Date
     
-    @State private var selectedEntry: (date: Date, height: Double)? = nil
+    @State private var selectedEntry: (id: UUID, date: Date, height: Double)? = nil
 
     var body: some View {
         GeometryReader { geometry in
@@ -181,11 +168,13 @@ struct HeightChartView: View {
                     startDate.addingTimeInterval(Double($0) * intervalStep)
                 }
 
-                let cappedData: [(date: Date, height: Double)] = desiredDates.compactMap { targetDate in
+                let cappedData: [(id: UUID, date: Date, height: Double)] = desiredDates.compactMap { targetDate in
                     sortedData.min(by: {
                         //절댓값
                         abs($0.date.timeIntervalSince(targetDate)) < abs($1.date.timeIntervalSince(targetDate))
-                    })
+                    }).map { entry in
+                        (UUID(), entry.date, entry.height)
+                    }
                 }
 
                 let firstDate = startDate
@@ -242,22 +231,22 @@ struct HeightChartView: View {
                                     .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
 
                                     // 강조된 점
-                                    ForEach(cappedData, id: \.date) { entry in
+                                    ForEach(cappedData, id: \.id) { entry in
                                         let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                                         let y = height - ((CGFloat(entry.height - minHeight) / CGFloat(heightRange)) * height)
                                         Circle()
-                                            .fill(selectedEntry?.date == entry.date ? Color("food") : Color("sharkPrimaryColor"))
+                                            .fill(selectedEntry?.id == entry.id ? Color("food") : Color("sharkPrimaryColor"))
                                             .frame(width: 10, height: 10)
                                             .position(x: x, y: y)
                                             .onTapGesture {
-                                                if selectedEntry?.date == entry.date {
+                                                if selectedEntry?.id == entry.id {
                                                     selectedEntry = nil
                                                 } else {
                                                     selectedEntry = entry
                                                 }
                                             }
                                     }
-                                    ForEach(cappedData, id: \.date) { entry in
+                                    ForEach(cappedData, id: \.id) { entry in
                                         if let entry = selectedEntry {
                                             let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                                             let y = height - ((CGFloat(entry.height - minHeight) / CGFloat(heightRange)) * height)
@@ -341,7 +330,7 @@ struct WeightChartView: View {
     let startDate: Date
     let endDate: Date
     
-    @State private var selectedEntry: (date: Date, weight: Double)? = nil
+    @State private var selectedEntry: (id: UUID, date: Date, weight: Double)? = nil
 
     var body: some View {
         GeometryReader { geometry in
@@ -359,11 +348,13 @@ struct WeightChartView: View {
                     startDate.addingTimeInterval(Double($0) * intervalStep)
                 }
 
-                let cappedData: [(date: Date, weight: Double)] = desiredDates.compactMap { targetDate in
+                let cappedData: [(id: UUID, date: Date, weight: Double)] = desiredDates.compactMap { targetDate in
                     sortedData.min(by: {
                         //절댓값
                         abs($0.date.timeIntervalSince(targetDate)) < abs($1.date.timeIntervalSince(targetDate))
-                    })
+                    }).map { entry in
+                        (UUID(), entry.date, entry.weight)
+                    }
                 }
 
                 let firstDate = startDate
@@ -420,22 +411,22 @@ struct WeightChartView: View {
                                     .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
 
                                     // 강조된 점
-                                    ForEach(cappedData, id: \.date) { entry in
+                                    ForEach(cappedData, id: \.id) { entry in
                                         let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                                         let y = height - ((CGFloat(entry.weight - minWeight) / CGFloat(weightRange)) * height)
                                         Circle()
-                                            .fill(selectedEntry?.date == entry.date ? Color("food") : Color("sharkPrimaryColor"))
+                                            .fill(selectedEntry?.id == entry.id ? Color("food") : Color("sharkPrimaryColor"))
                                             .frame(width: 10, height: 10)
                                             .position(x: x, y: y)
                                             .onTapGesture {
-                                                if selectedEntry?.date == entry.date {
+                                                if selectedEntry?.id == entry.id {
                                                     selectedEntry = nil
                                                 } else {
                                                     selectedEntry = entry
                                                 }
                                             }
                                     }
-                                    ForEach(cappedData, id: \.date) { entry in
+                                    ForEach(cappedData, id: \.id) { entry in
                                         if let entry = selectedEntry {
                                             let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                                             let y = height - ((CGFloat(entry.weight - minWeight) / CGFloat(weightRange)) * height)
@@ -517,9 +508,6 @@ struct DateRangeSelectView: View {
     @Binding var startDate: Date
     @Binding var endDate: Date
     
-    @State private var showStartPicker: Bool = false
-    @State private var showEndPicker: Bool = false
-    
     var dateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
@@ -532,75 +520,65 @@ struct DateRangeSelectView: View {
             
             HStack(alignment: .center) {
                 // 시작 날짜 선택
-                HStack {
-                    Text("\(dateFormatter.string(from: startDate))")
-                        .foregroundColor(.primary)
-                        .padding(.vertical, 12)
-                        .padding(.leading, 12)
-                    Spacer()
-                    Image(systemName: "calendar")
-                        .foregroundColor(Color("sharkPrimaryColor"))
-                        .padding(.trailing, 12)
-                }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
-                )
-                .padding(.horizontal)
-                .onTapGesture {
-                    showStartPicker = true
-                }
-                .sheet(isPresented: $showStartPicker) {
-                    VStack {
-                        DatePicker("시작일", selection: $startDate, in: ...endDate, displayedComponents: .date)
-                            .datePickerStyle(.graphical)
-                            .labelsHidden()
-                        Button("완료") {
-                            showStartPicker = false
-                        }
-                        .padding()
+                ZStack {
+                    HStack {
+                        Text("\(dateFormatter.string(from: startDate))")
+                            .foregroundColor(.primary)
+                            .padding(.vertical, 12)
+                            .padding(.leading, 12)
+                        Spacer()
+                        Image(systemName: "calendar")
+                            .foregroundColor(Color("sharkPrimaryColor"))
+                            .padding(.trailing, 12)
                     }
-                    .padding()
-                    .presentationDetents([.height(500)])
-                    .presentationDragIndicator(.visible)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
+                    )
+                    .padding(.horizontal)
+                    DatePicker(
+                        "",
+                        selection: $startDate,
+                        displayedComponents: [.date]
+                    )
+                    .datePickerStyle(.compact)
+                    .labelsHidden()
+                    .frame(width: 180, height: 30)
+                    .blendMode(.destinationOver)
                 }
+                
                 Spacer()
                 Text("~")
                 Spacer()
                 
                 // 종료 날짜 선택
-                HStack {
-                    Text("\(dateFormatter.string(from: endDate))")
-                        .foregroundColor(.primary)
-                        .padding(.vertical, 12)
-                        .padding(.leading, 12)
-                    Spacer()
-                    Image(systemName: "calendar")
-                        .foregroundColor(Color("sharkPrimaryColor"))
-                        .padding(.trailing, 12)
-                }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
-                )
-                .padding(.horizontal)
-                .onTapGesture {
-                    showEndPicker = true
-                }
-                .sheet(isPresented: $showEndPicker) {
-                    VStack {
-                        DatePicker("종료일", selection: $endDate, in: startDate..., displayedComponents: .date)
-                            .datePickerStyle(.graphical)
-                            .labelsHidden()
-                        Button("완료") {
-                            showEndPicker = false
-                        }
-                        .padding()
+                ZStack {
+                    HStack {
+                        Text("\(dateFormatter.string(from: endDate))")
+                            .foregroundColor(.primary)
+                            .padding(.vertical, 12)
+                            .padding(.leading, 12)
+                        Spacer()
+                        Image(systemName: "calendar")
+                            .foregroundColor(Color("sharkPrimaryColor"))
+                            .padding(.trailing, 12)
                     }
-                    .padding()
-                    .presentationDetents([.height(500)])
-                    .presentationDragIndicator(.visible)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
+                    )
+                    .padding(.horizontal)
+                    DatePicker(
+                        "",
+                        selection: $endDate,
+                        displayedComponents: [.date]
+                    )
+                    .datePickerStyle(.compact)
+                    .labelsHidden()
+                    .frame(width: 180, height: 30)
+                    .blendMode(.destinationOver)
                 }
+                
             }
             
             

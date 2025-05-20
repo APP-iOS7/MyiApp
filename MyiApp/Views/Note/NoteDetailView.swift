@@ -37,6 +37,7 @@ struct NoteDetailView: View {
             }
             .padding(.bottom, 20)
         }
+        .background(Color("customBackgroundColor").ignoresSafeArea())
         .navigationTitle(event.category == .일지 ? "일지 상세" : "일정 상세")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -82,8 +83,8 @@ struct NoteDetailView: View {
             }
         } message: {
             Text(event.category == .일지 ?
-                "이 일지는 영구적으로 삭제되며,\n복구할 수 없습니다." :
-                "이 일정은 영구적으로 삭제되며,\n복구할 수 없습니다.")
+                 "이 일지는 영구적으로 삭제되며,\n복구할 수 없습니다." :
+                    "이 일정은 영구적으로 삭제되며,\n복구할 수 없습니다.")
         }
         .onAppear {
             print("NoteDetailView appeared for: \(event.id), category: \(event.category.rawValue)")
@@ -107,7 +108,7 @@ struct NoteDetailView: View {
                     
                     Text(event.category.rawValue)
                         .font(.subheadline)
-                        .fontWeight(.medium)
+                        .fontWeight(.semibold)
                         .foregroundColor(categoryColor(for: event.category))
                 }
                 .padding(.horizontal, 12)
@@ -129,29 +130,19 @@ struct NoteDetailView: View {
             Spacer()
         }
         .padding()
-        .background(Color("sharkCardBackground"))
+        .background(Color(UIColor.tertiarySystemBackground))
     }
     
     private var contentSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("내용")
-                .font(.headline)
-            
-            Text(event.description)
-                .lineLimit(nil)
-                .multilineTextAlignment(.leading)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-        )
-        .padding(.horizontal)
+        Text(event.description)
+            .lineLimit(nil)
+            .multilineTextAlignment(.leading)
+            .fixedSize(horizontal: false, vertical: true)
+        
+            .padding(.horizontal)
     }
     
-    // 일정 알림 섹션 - 완전히 개선됨
+    // 일정 알림 섹션
     private var reminderSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("알림 정보")
@@ -183,7 +174,7 @@ struct NoteDetailView: View {
                     }
                 }
                 .padding()
-                .background(Color("sharkCardBackground"))
+                .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(8)
             } else {
                 HStack {
@@ -210,18 +201,18 @@ struct NoteDetailView: View {
                     }
                 }
                 .padding()
-                .background(Color("sharkCardBackground"))
+                .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(8)
             }
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white)
+                .fill(Color(UIColor.tertiarySystemBackground))
                 .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         )
         .padding(.horizontal)
-        .id("\(hasNotification)-\(notificationTime ?? "none")-\(refreshTrigger)") // 강제 새로고침 처리
+        .id("\(hasNotification)-\(notificationTime ?? "none")-\(refreshTrigger)")
     }
     
     private func checkNotificationStatus() {
@@ -273,7 +264,12 @@ struct NoteDetailView: View {
         
         self.notificationTime = formatter.string(from: triggerDate)
         
-        let diffSeconds = self.event.date.timeIntervalSince(triggerDate)
+        if Calendar.current.isDate(triggerDate, equalTo: event.date, toGranularity: .minute) {
+            self.notificationTime! += " (일정 시간)"
+            return
+        }
+        
+        let diffSeconds = event.date.timeIntervalSince(triggerDate)
         let diffMinutes = Int(diffSeconds / 60)
         
         if diffMinutes >= 60 {
@@ -306,7 +302,7 @@ struct NoteDetailView: View {
     private func categoryColor(for category: NoteCategory) -> Color {
         switch category {
         case .일지:
-            return Color("sharkPrimaryColor")
+            return Color.blue
         case .일정:
             return Color.orange
         }
