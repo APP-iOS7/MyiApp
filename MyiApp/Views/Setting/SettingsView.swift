@@ -71,9 +71,9 @@ struct SettingsView: View {
                             .padding(.bottom, 10)
                         } label: {
                             HStack {
-                                Image("appVIcon")
+                                Image("babyInfoIcon")
                                     .resizable()
-                                    .frame(width: 20, height: 20)
+                                    .frame(width: 30, height: 30)
                                 Text("아이 정보")
                                     .foregroundColor(.primary.opacity(0.6))
                                     .padding(.leading, 5)
@@ -92,9 +92,9 @@ struct SettingsView: View {
                         
                         NavigationLink(destination: NotificationSettingsView()) {
                             HStack {
-                                Image ("appVIcon")
+                                Image ("notificationIcon")
                                     .resizable()
-                                    .frame(width: 20, height: 20)
+                                    .frame(width: 30, height: 30)
                                 Text("알림 설정")
                                     .foregroundColor(.primary.opacity(0.6))
                                     .padding(.leading, 5)
@@ -121,9 +121,9 @@ struct SettingsView: View {
                         
                         NavigationLink(destination: PrivacyPolicyView()) {
                             HStack {
-                                Image ("appVIcon")
+                                Image ("privacyIcon")
                                     .resizable()
-                                    .frame(width: 20, height: 20)
+                                    .frame(width: 30, height: 30)
                                 Text("개인 정보 처리 방침")
                                     .foregroundColor(.primary.opacity(0.6))
                                     .padding(.leading, 5)
@@ -139,9 +139,9 @@ struct SettingsView: View {
                         
                         NavigationLink(destination: TermsOfServiceView()) {
                             HStack {
-                                Image ("appVIcon")
+                                Image ("agreementIcon")
                                     .resizable()
-                                    .frame(width: 20, height: 20)
+                                    .frame(width: 30, height: 30)
                                 Text("이용 약관")
                                     .foregroundColor(.primary.opacity(0.6))
                                     .padding(.leading, 5)
@@ -169,7 +169,7 @@ struct SettingsView: View {
                         HStack {
                             Image ("appVIcon")
                                 .resizable()
-                                .frame(width: 20, height: 20)
+                                .frame(width: 30, height: 30)
                             Text("앱 버전")
                                 .foregroundColor(.primary.opacity(0.6))
                                 .padding(.leading, 5)
