@@ -6,130 +6,104 @@
 //
 
 import Foundation
+import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFirestoreCombineSwift
 import Combine
 
 class CaregiverManager: ObservableObject {
     @Published var caregiver: Caregiver?
-    @Published var babies: [Baby] = [] {
+    @Published var babies: [Baby] = []
+    @Published var selectedBaby: Baby? {
         didSet {
-            if selectedBaby == nil && !babies.isEmpty {
-                selectedBaby = babies[0]
-            } else {
-                print("CaregiverManager: 선택된 아기가 없음. 봐야함.")
-            }
+            cancellables.removeAll()
+            subscribeToRecords()
+            subscribeToNotes()
         }
     }
-    @Published var selectedBaby: Baby?
     private let db = Firestore.firestore()
     private var cancellables: Set<AnyCancellable> = []
     static let shared = CaregiverManager()
-    
+    @Published var records: [Record] = []
+    @Published var voiceRecords: [VoiceRecord] = []
+    @Published var notes: [Note] = []
     private init() { }
     
-    @MainActor
-    func loadCaregiverInfo() async {
-        guard let uid = AuthService.shared.user?.uid else { return }
-        
-        do {
-            let userDoc = try await db.collection("users").document(uid).getDocument()
-            if let babyRefs = userDoc.get("babies") as? [DocumentReference] {
-                var loadedBabies: [Baby] = []
-                
-                for babyRef in babyRefs {
-                    let babyDoc = try await babyRef.getDocument()
-                    if let baby = try? babyDoc.data(as: Baby.self) {
-                        loadedBabies.append(baby)
-                    }
-                }
-                
-                await MainActor.run {
-                    self.babies = loadedBabies
 
-                    self.caregiver = Caregiver(id: uid, babies: loadedBabies)
-                }
+    func loadCaregiverInfo() async {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        if let caregiver = await loadCaregiver(uid: uid) {
+            let babies = await loadBabies(from: caregiver.babies)
+            await MainActor.run {
+                self.caregiver = caregiver
+                self.babies = babies
+                selectedBaby = babies.first
             }
-        } catch {
-            print("케어기버 정보를 불러오는데 실패했습니다: \(error.localizedDescription)")
-        }
-        setupBinding()
+        } else { print("Error from CaregiverManager.loadCaregiverInfo") }
     }
     
-    private func setupBinding() {
-        if let babyId = selectedBaby?.id {
-            let babyRef = db.collection("babies").document(babyId.uuidString)
-            babyRef
-                .snapshotPublisher()
-                .receive(on: RunLoop.main)
-                .tryMap { try $0.data(as: Baby.self) }
-                .sink(receiveCompletion: { completion in
-                    if case .failure(let error) = completion {
-                        print("아기 정보를 가져오는데 실패했습니다: \(error.localizedDescription)")
-                    }
-                }, receiveValue: { [weak self] baby in
-                    self?.selectedBaby = baby
-                    print("CaregiverManager: selectedBaby record updated \(baby.records.count)")
-                })
-                .store(in: &cancellables)
-            
-        }
-    }
-    
-    func saveRecord(record: Record) {
-        guard let babyId = selectedBaby?.id else {
-            print("오류: 선택된 아기가 없습니다.")
-            return
-        }
-        let babyRef = db.collection("babies").document(babyId.uuidString)
-        babyRef.getDocument()
-            .compactMap { try? $0.data(as: Baby.self) }
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    print("데이터 가져오기 오류: \(error.localizedDescription)")
-                }
-            } receiveValue: { baby in
-                var updatedRecords = baby.records.filter { $0.id != record.id }
-                updatedRecords.append(record)
-                babyRef.updateData(["records": updatedRecords.map { try! Firestore.Encoder().encode($0) }])
-                    .sink { completion in
-                        switch completion {
-                            case .failure(let error):
-                                print("레코드 저장/업데이트 오류: \(error.localizedDescription)")
-                            case .finished:
-                                print("레코드 저장/업데이트 완료.")
-                        }
-                    } receiveValue: { _ in }
-                    .store(in: &self.cancellables)
+    func subscribeToRecords() {
+        guard let babyId = selectedBaby?.id else { return }
+        Firestore.firestore()
+            .collection("babies").document(babyId.uuidString).collection("records")
+            .order(by: "createdAt", descending: true)
+            .snapshotPublisher()
+            .map { snapshot in
+                snapshot.documents.compactMap { try? $0.data(as: Record.self) }
             }
+            .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.records, on: self)
             .store(in: &cancellables)
     }
     
-    func deleteRecord(record: Record) {
-        guard let babyId = selectedBaby?.id else {
-            print("오류: 선택된 아기가 없습니다.")
-            return
-        }
-        let babyRef = db.collection("babies").document(babyId.uuidString)
-        babyRef.getDocument()
-            .compactMap { try? $0.data(as: Baby.self) }
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    print("데이터 가져오기 오류: \(error.localizedDescription)")
-                }
-            } receiveValue: { baby in
-                let updatedRecords = baby.records.filter { $0.id != record.id }
-                babyRef.updateData(["records": updatedRecords.map { try! Firestore.Encoder().encode($0) }])
-                    .sink { completion in
-                        switch completion {
-                            case .failure(let error):
-                                print("레코드 삭제 오류: \(error.localizedDescription)")
-                            case .finished:
-                                print("레코드 삭제 완료.")
-                        }
-                    } receiveValue: { _ in }
-                    .store(in: &self.cancellables)
+    func subscribeToNotes() {
+        guard let babyId = selectedBaby?.id else { return }
+        Firestore.firestore()
+            .collection("babies").document(babyId.uuidString).collection("notes")
+            .order(by: "createdAt", descending: true)
+            .snapshotPublisher()
+            .map { snapshot in
+                snapshot.documents.compactMap { try? $0.data(as: Note.self) }
             }
+            .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.notes, on: self)
             .store(in: &cancellables)
+    }
+    
+    func subscribeToVoiceRecords() {
+        guard let babyId = selectedBaby?.id else { return }
+        Firestore.firestore()
+            .collection("babies").document(babyId.uuidString).collection("records")
+            .order(by: "createdAt", descending: true)
+            .snapshotPublisher()
+            .map { snapshot in
+                snapshot.documents.compactMap { try? $0.data(as: VoiceRecord.self) }
+            }
+            .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.voiceRecords, on: self)
+            .store(in: &cancellables)
+    }
+    
+    func loadCaregiver(uid: String) async -> Caregiver? {
+        try? await Firestore.firestore().collection("users")
+            .document(uid).getDocument().data(as: Caregiver.self)
+    }
+    
+    func loadBabies(from refs: [DocumentReference]) async -> [Baby] {
+        await withTaskGroup(of: Baby?.self) { group in
+            for ref in refs {
+                group.addTask {
+                    try? await ref.getDocument().data(as: Baby.self)
+                }
+            }
+            var babies: [Baby] = []
+            for await baby in group where baby != nil {
+                babies.append(baby!)
+            }
+            return babies
+        }
     }
 }
