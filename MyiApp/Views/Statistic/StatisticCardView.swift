@@ -22,7 +22,7 @@ struct StatisticCardView: View {
     let baby: Baby
     
     var records: [Record] {
-        baby.records
+        CaregiverManager.shared.records
     }
     
     var body: some View {
@@ -98,7 +98,7 @@ struct PottyStatisticCardView: View {
     let baby: Baby
     
     var records: [Record] {
-        baby.records
+        CaregiverManager.shared.records
     }
     
     var body: some View {

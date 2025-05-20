@@ -9,117 +9,110 @@ import SwiftUI
 
 struct HomeView: View {
     @StateObject var viewModel: HomeViewModel = .init()
+    @State private var isPresented = false
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 5) {
-                babyInfoCard
-                dateSection
-                gridItems
-                Divider()
-                timeline
+        ZStack {
+            ScrollView {
+                VStack(spacing: 10) {
+                    babyInfoCard
+                    VStack {
+                        dateSection
+                        gridItems
+                        Divider()
+                            .padding(.horizontal)
+                        timeline
+                    }
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
+                }
+                .padding()
+                
             }
-            .padding()
-        }
-        .sheet(item: $viewModel.selectedCategory) { category in
-            let newRecord = Record(title: category.category)
-            AddRecordView(record: newRecord)
-                .presentationDetents([.medium])
-        }
-    }
-    
-    private var babyInfoCard: some View {
-        Group {
-            if viewModel.isFlipped == false {
-                HStack(alignment: .center, spacing: 16) {
+            .background(Color(uiColor: .systemGroupedBackground), ignoresSafeAreaEdges: .top)
+            .blur(radius: isPresented ? 10 : 0)
+            .id(isPresented ? "blurred" : "normal")
+            
+            if isPresented {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation {
+                            isPresented = false
+                        }
+                    }
+                
+                VStack {
+                    HStack {
+                        Spacer()
+                        Image(systemName: "square.and.pencil")
+                    }
+                    .padding(.trailing)
                     Image(.sharkChild)
                         .resizable()
-                        .frame(width: 90, height: 90)
+                        .frame(width: 150, height: 150)
                         .padding(8)
                         .background(
                             Circle()
                                 .fill(Color.sharkPrimaryLight)
                                 .stroke(Color.sharksSadowTone, lineWidth: 2)
                         )
-                        .padding(.trailing)
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(viewModel.displayName)
-                            .font(.system(size: 10))
-                        Text(viewModel.displayGender)
-                            .font(.system(size: 10))
-                        Text(viewModel.displayBirthDate)
-                            .font(.system(size: 10))
-                        Text(viewModel.displayMonthDay)
-                            .font(.system(size: 10))
-                        Text(viewModel.displayDayCount)
-                            .font(.system(size: 10))
-                    }
-                    Spacer()
-                    VStack(alignment: .leading) {
-                        Button(action: { viewModel.isFlipped = true }) {
-                            Image(systemName: "arrow.uturn.backward.circle.fill")
-                                .resizable()
-                                .frame(width: 25, height: 25)
-                                .padding(8)
-                                .foregroundStyle(.sharkPrimaryDark)
+                    Text("김죠스")
+                    Text("생년 월일")
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading) {
+                            Text("성별")
+                            Text("여아")
+                            Text("성장 단계")
+                            Text("영아기")
+                        }
+                        .padding(.leading)
+                        Spacer()
+                        VStack(alignment: .leading) {
+                            Text("키 / 몸무게")
+                            Text("30 / 10킬로")
+                            Text("혈액형")
+                            Text("A횽")
                         }
                         Spacer()
                     }
                 }
-                
-            } else {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading) {
-                        Text("성장단계")
-                        Text("기수")
-                            .font(.system(size: 10))
-                            .padding(.bottom)
-                        Text("이름")
-                        Text("김죠")
-                            .font(.system(size: 10))
-                            .padding(.bottom)
-                        Text("생년월일")
-                        Text("2.25.05.04")
-                            .font(.system(size: 10))
-                            .padding(.bottom)
-                    }
-                    Spacer()
-                    VStack(alignment: .leading) {
-                        Text("성별")
-                        Text("여아")
-                            .font(.system(size: 10))
-                            .padding(.bottom)
-                        Text("혈액형")
-                        Text("A형")
-                            .font(.system(size: 10))
-                            .padding(.bottom)
-                    }
-                    Spacer()
-                    VStack(alignment: .leading) {
-                        Text("키")
-                        Text("30")
-                            .font(.system(size: 10))
-                            .padding(.bottom)
-                        Text("몸무게")
-                        Text("4")
-                            .font(.system(size: 10))
-                            .padding(.bottom)
-                    }
-                    Spacer()
-                    VStack(alignment: .leading) {
-                        Button(action: { viewModel.isFlipped = false }) {
-                            Image(systemName: "arrow.uturn.backward.circle.fill")
-                                .resizable()
-                                .frame(width: 25, height: 25)
-                                .padding(8)
-                                .foregroundStyle(.sharkPrimaryDark)
-                        }
-                    }
-                }
+                .frame(width: 300, height: 400)
+                .background(RoundedRectangle(cornerRadius: 20).fill(Color(uiColor: .systemBackground)))
+                .padding()
             }
         }
-        .padding(8)
-        .background(RoundedRectangle(cornerRadius: 24).fill(Color.sharkCardBackground))
+    }
+    
+    private var babyInfoCard: some View {
+        HStack {
+            Image(.sharkChild)
+                .resizable()
+                .scaledToFit()
+                .padding(8)
+                .background(
+                    Circle()
+                        .fill(Color.sharkPrimaryLight)
+                        .stroke(Color.sharksSadowTone, lineWidth: 2)
+                )
+                .padding(8)
+                .padding(.leading)
+            VStack {
+                Text("Name")
+                Text("+ 39일")
+            }
+            Spacer()
+            Button(action: {isPresented = true}) {
+                Image(systemName: "magnifyingglass")
+                    .resizable()
+                    .frame(width: 15, height: 15)
+                    .padding(5)
+                    .background(Circle().fill(Color.sharkPrimaryDark))
+                    .tint(.white)
+            }
+            .padding(.trailing)
+        }
+        .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
+        .frame(height: 80)
     }
     private var dateSection: some View {
         ZStack {
@@ -131,6 +124,7 @@ struct HomeView: View {
                         .font(.body)
                 }
                 .foregroundStyle(.primary)
+                .padding(.horizontal)
                 Spacer()
                 Image(systemName: "calendar")
                 Text(viewModel.selectedDate.formattedKoreanDateString())
@@ -144,6 +138,7 @@ struct HomeView: View {
                         .font(.body)
                 }
                 .foregroundStyle(.primary)
+                .padding(.horizontal)
             }
             DatePicker(
                 "",
@@ -155,11 +150,11 @@ struct HomeView: View {
             .frame(width: 180, height: 30)
             .blendMode(.destinationOver)
         }
-        .padding()
+        .padding(.vertical, 7)
     }
     private var gridItems: some View {
         let careItems: [GridItemCategory] = [
-            .init(name: "수유/이유식", category: .breastfeeding, image: .colorBabyFood),
+            .init(name: "수유/이유식", category: .breastfeeding, image: .colorMeal),
             .init(name: "기저귀", category: .diaper, image: .colorDiaper),
             .init(name: "배변", category: .pee, image: .colorPotty),
             .init(name: "수면", category: .sleep, image: .colorSleep),
@@ -171,7 +166,81 @@ struct HomeView: View {
         let columns = Array(repeating: GridItem(.flexible()), count: 4)
         return LazyVGrid(columns: columns) {
             ForEach(careItems, id: \.name) { item in
-                Button(action: { viewModel.selectedCategory = item } ) {
+                Button {
+                    switch item.category {
+                        case .breastfeeding:
+                            if let recentMeal = viewModel.recentMeal {
+                                let newRecord = Record(
+                                    id: UUID(),
+                                    createdAt: Date(),
+                                    title: recentMeal.title,
+                                    mlAmount: recentMeal.mlAmount,
+                                    breastfeedingLeftMinutes: recentMeal.breastfeedingLeftMinutes,
+                                    breastfeedingRightMinutes: recentMeal.breastfeedingRightMinutes
+                                )
+                                viewModel.saveRecord(record: newRecord)
+                            } else {
+                                viewModel.saveRecord(record: Record(title: .breastfeeding))
+                            }
+                        case .diaper: return
+                            viewModel.saveRecord(record: Record(title: .diaper))
+                        case .pee:
+                            if let recentPotty = viewModel.recentPotty {
+                                let newRecord = Record(
+                                    id: UUID(),
+                                    createdAt: Date(),
+                                    title: recentPotty.title
+                                )
+                                viewModel.saveRecord(record: newRecord)
+                            } else {
+                                viewModel.saveRecord(record: Record(title: .pee))
+                            }
+                        case .sleep: return
+                            viewModel.saveRecord(record: Record(title: .sleep))
+                        case .heightWeight:
+                            if let recentHeightWeight = viewModel.recentHeightWeight {
+                                let newRecord = Record(
+                                    id: UUID(),
+                                    createdAt: Date(),
+                                    title: recentHeightWeight.title,
+                                    height: recentHeightWeight.height,
+                                    weight: recentHeightWeight.weight
+                                )
+                                viewModel.saveRecord(record: newRecord)
+                            } else {
+                                viewModel.saveRecord(record: Record(title: .heightWeight))
+                            }
+                        case .bath: return
+                            viewModel.saveRecord(record: Record(title: .bath))
+                        case .snack:
+                            if let recentSnack = viewModel.recentSnack {
+                                let newRecord = Record(
+                                    id: UUID(),
+                                    createdAt: Date(),
+                                    title: recentSnack.title,
+                                    content: recentSnack.content
+                                )
+                                viewModel.saveRecord(record: newRecord)
+                            } else {
+                                viewModel.saveRecord(record: Record(title: .snack))
+                            }
+                        case .temperature:
+                            if let recentHealth = viewModel.recentHealth {
+                                let newRecord = Record(
+                                    id: UUID(),
+                                    createdAt: Date(),
+                                    title: recentHealth.title,
+                                    temperature: recentHealth.temperature,
+                                    content: recentHealth.content
+                                )
+                                viewModel.saveRecord(record: newRecord)
+                            } else {
+                                viewModel.saveRecord(record: Record(title: .temperature, temperature: 36.5))
+                            }
+                        default:
+                            print(item.category)
+                    }
+                } label: {
                     VStack(spacing: 0) {
                         Image(uiImage: item.image)
                             .resizable()
@@ -194,6 +263,7 @@ struct HomeView: View {
     }
     private var timeline: some View {
         VStack(spacing: 0) {
+            
             if viewModel.filteredRecords.isEmpty {
                 VStack(spacing: 10) {
                     Image(systemName: "doc.text.magnifyingglass")
@@ -214,10 +284,11 @@ struct HomeView: View {
                 }
                 .sheet(item: $viewModel.recordToEdit) { record in
                     AddRecordView(record: record)
-                        .presentationDetents([.medium])
+                        .presentationDetents([.medium, .large])
                 }
             }
         }
+        .padding(.horizontal)
     }
 }
 

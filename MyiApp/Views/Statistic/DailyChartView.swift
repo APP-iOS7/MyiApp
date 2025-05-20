@@ -15,7 +15,7 @@ struct DailyChartView: View {
     }
     
     var records: [Record] {
-        baby.records
+        CaregiverManager.shared.records
     }
     let selectedDate: Date
     
