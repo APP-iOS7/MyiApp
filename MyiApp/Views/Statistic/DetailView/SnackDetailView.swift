@@ -17,8 +17,8 @@ struct SnackDetailView: View {
     
     @State private var selectedDate = Date()
     @State private var selectedMode = "일"
-    @State private var showCalendar = false
     let modes = ["일", "주", "월"]
+    @Environment(\.dismiss) private var dismiss
     
     private var formattedDateString: String {
         let formatter = DateFormatter()
@@ -51,6 +51,8 @@ struct SnackDetailView: View {
     
     var body: some View {
         ZStack {
+            Color("customBackgroundColor")
+                        .ignoresSafeArea()
             mainScrollView
         }
         .gesture(
@@ -70,6 +72,17 @@ struct SnackDetailView: View {
         )
         .navigationTitle("간식 통계")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.blue)
+                }
+            }
+        }
     }
     
     var mainScrollView: some View {
@@ -87,7 +100,10 @@ struct SnackDetailView: View {
                         weekDates: generateWeekDates(from: selectedDate),
                         records: records
                     )
-                    Divider()
+                    .padding(.vertical, 10)
+                    .padding(.bottom, 20)
+                    .background(Color(.tertiarySystemBackground))
+                    .cornerRadius(12)
                     DailySnackListView(records: records,  selectedDate: selectedDate)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if (selectedMode == "주") {
@@ -95,7 +111,10 @@ struct SnackDetailView: View {
                         selectedDate: selectedDate,
                         records: records
                     )
-                    Divider()
+                    .padding(.vertical, 10)
+                    .padding(.bottom, 20)
+                    .background(Color(.tertiarySystemBackground))
+                    .cornerRadius(12)
                     WeeklySnackListView(records: records,  selectedDate: selectedDate)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -103,7 +122,10 @@ struct SnackDetailView: View {
                         selectedDate: selectedDate,
                         records: records
                     )
-                    Divider()
+                    .padding(.vertical, 10)
+                    .padding(.bottom, 20)
+                    .background(Color(.tertiarySystemBackground))
+                    .cornerRadius(12)
                     MonthlySnackListView(records: records,  selectedDate: selectedDate)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
@@ -113,39 +135,17 @@ struct SnackDetailView: View {
         
     }
     private var toggleMode: some View {
-        HStack(spacing: 4) {
+        Picker("모드 선택", selection: $selectedMode) {
             ForEach(modes, id: \.self) { mode in
-                Button(action: {
-                    selectedMode = mode
-                }) {
-                    Text(mode)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(selectedMode == mode ? Color("sharkPrimaryColor") : .primary)
-                        .frame(maxWidth: 90, minHeight: 32)
-                        .background(
-                            ZStack {
-                                if selectedMode == mode {
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color("sharkPrimaryColor"), lineWidth: 2)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .fill(Color.white)
-                                        )
-                                } else {
-                                    Color.clear
-                                }
-                            }
-                        )
-                }
+                Text(mode)
             }
         }
-        .padding(4)
-        .background(Color.gray.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .frame(width: 200, height: 50)
+        .pickerStyle(.segmented)
+        .padding()
+        .frame(width: 300, height: 50)
     }
     private var dateMove: some View {
-        Group {
+        ZStack {
             HStack {
                 Button(action: {
                     let calendar = Calendar.current
@@ -166,14 +166,8 @@ struct SnackDetailView: View {
                 
                 Spacer()
                 
-                Button(action: {
-                    withAnimation {
-                        showCalendar.toggle()
-                    }
-                }) {
-                    Image(systemName: "calendar")
-                        .foregroundColor(.primary)
-                }
+                Image(systemName: "calendar")
+                    .foregroundColor(.primary)
                 
                 Text(formattedDateString)
                     .font(.headline)
@@ -197,17 +191,15 @@ struct SnackDetailView: View {
                         .foregroundColor(.primary)
                 }
             }
-            if showCalendar {
-                DatePicker(
-                    "",
-                    selection: $selectedDate,
-                    displayedComponents: [.date]
-                )
-                .datePickerStyle(.graphical)
-                .environment(\.locale, Locale(identifier: "ko_KR"))
-                .transition(.opacity)
-                .tint(Color("sharkPrimaryColor"))
-            }
+            DatePicker(
+                "",
+                selection: $selectedDate,
+                displayedComponents: [.date]
+            )
+            .datePickerStyle(.compact)
+            .labelsHidden()
+            .frame(width: 180, height: 30)
+            .blendMode(.destinationOver)
         }
         
     }
@@ -268,7 +260,7 @@ struct DailySnackChartView: View {
                                 if (maxAmount > 0) {
                                     Text("\(value)회")
                                         .font(.caption2)
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.primary)
                                         .frame(height: 12)
                                     Rectangle()
                                         .fill(Color.gray.opacity(0.3))
@@ -287,7 +279,7 @@ struct DailySnackChartView: View {
                                         .cornerRadius(4)
                                     Text("\(value)회")
                                         .font(.caption2)
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.primary)
                                         .frame(height: 12)
                                 }
                                 
@@ -347,7 +339,6 @@ struct DailySnackListView: View {
             mode : "daily",
             selectedDate : selectedDate
         )
-        .padding(.horizontal)
     }
     // 카테고리 받아서 횟수 셀리기
     func recordsCount(for title: TitleCategory, in records: [Record], on date: Date) -> Int {
@@ -418,7 +409,7 @@ struct WeeklySnackChartView: View {
                                 if (maxAmount > 0) {
                                     Text("\(value)회")
                                         .font(.caption2)
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.primary)
                                         .frame(height: 12)
                                     Rectangle()
                                         .fill(Color.gray.opacity(0.3))
@@ -437,7 +428,7 @@ struct WeeklySnackChartView: View {
                                         .cornerRadius(4)
                                     Text("\(value)회")
                                         .font(.caption2)
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.primary)
                                         .frame(height: 12)
                                 }
                                 Text(shortWeekLabel(for: startDate))
@@ -509,7 +500,6 @@ struct WeeklySnackListView: View {
             mode : "weekly",
             selectedDate : selectedDate
         )
-        .padding(.horizontal)
     }
     // 카테고리 받아서 횟수 셀리기
     func recordsCount(for title: TitleCategory, in records: [Record], within range: DateInterval) -> Int {
@@ -576,7 +566,7 @@ struct MonthlySnackChartView: View {
                                 if (maxAmount > 0) {
                                     Text("\(value)회")
                                         .font(.caption2)
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.primary)
                                         .frame(height: 12)
                                     Rectangle()
                                         .fill(Color.gray.opacity(0.3))
@@ -595,7 +585,7 @@ struct MonthlySnackChartView: View {
                                         .cornerRadius(4)
                                     Text("\(value)회")
                                         .font(.caption2)
-                                        .foregroundColor(.black)
+                                        .foregroundColor(.primary)
                                         .frame(height: 12)
                                 }
                                 Text(shortMonthLabel(for: startDate))
@@ -667,7 +657,6 @@ struct MonthlySnackListView: View {
             mode : "monthly",
             selectedDate : selectedDate
         )
-        .padding(.horizontal)
     }
     // 카테고리 받아서 횟수 셀리기
     func recordsCount(for title: TitleCategory, in records: [Record], within range: DateInterval) -> Int {

@@ -43,8 +43,8 @@ struct RegisterBabyView: View {
                         DatePicker(
                             "시간",
                             selection: Binding(
-                                get: { viewModel.birthTime ?? Date() },
-                                set: { viewModel.birthTime = $0 }
+                                get: { viewModel.birthDate ?? Date() },
+                                set: { viewModel.birthDate = $0 }
                             ),
                             displayedComponents: .hourAndMinute
                         )
