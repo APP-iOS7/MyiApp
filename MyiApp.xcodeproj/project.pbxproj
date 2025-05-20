@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		892468D22DD95BA900C3BADF /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 892468D12DD95BA900C3BADF /* FirebaseStorage */; };
+		821A3C642DD41BAB003BFB6C /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 821A3C632DD41BAB003BFB6C /* FirebaseStorage */; };
 		B3019C532DCB6DB300C3F02A /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B3019C522DCB6DB300C3F02A /* FirebaseAnalytics */; };
 		B3019C552DCB6DB300C3F02A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = B3019C542DCB6DB300C3F02A /* FirebaseAuth */; };
 		B3019C572DCB6DB300C3F02A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B3019C562DCB6DB300C3F02A /* FirebaseFirestore */; };
@@ -50,7 +50,7 @@
 				B3019C532DCB6DB300C3F02A /* FirebaseAnalytics in Frameworks */,
 				B35CF1742DCE722000FAD1FA /* GoogleSignIn in Frameworks */,
 				B3412B582DCF86B50059184D /* FirebaseFirestoreCombine-Community in Frameworks */,
-				892468D22DD95BA900C3BADF /* FirebaseStorage in Frameworks */,
+				821A3C642DD41BAB003BFB6C /* FirebaseStorage in Frameworks */,
 				B3019C552DCB6DB300C3F02A /* FirebaseAuth in Frameworks */,
 				B3019C572DCB6DB300C3F02A /* FirebaseFirestore in Frameworks */,
 			);
@@ -109,7 +109,7 @@
 				B35CF1732DCE722000FAD1FA /* GoogleSignIn */,
 				B35CF1752DCE722000FAD1FA /* GoogleSignInSwift */,
 				B3412B572DCF86B50059184D /* FirebaseFirestoreCombine-Community */,
-				892468D12DD95BA900C3BADF /* FirebaseStorage */,
+				821A3C632DD41BAB003BFB6C /* FirebaseStorage */,
 			);
 			productName = MyiApp;
 			productReference = B3019C252DCB69B300C3F02A /* MyiApp.app */;
@@ -308,6 +308,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MyiApp/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "아기의 사진을 찍어서 일지에 추가하기 위해 카메라에 접근합니다.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "아기의 울음 소리를 분석하기 위해 마이크 권한이 필요합니다.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "아기의 사진을 일지에 추가하기 위해 사진 라이브러리에 접근합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -340,6 +343,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MyiApp/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "아기의 사진을 찍어서 일지에 추가하기 위해 카메라에 접근합니다.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "아기의 울음 소리를 분석하기 위해 마이크 권한이 필요합니다.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "아기의 사진을 일지에 추가하기 위해 사진 라이브러리에 접근합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -402,7 +408,7 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		892468D12DD95BA900C3BADF /* FirebaseStorage */ = {
+		821A3C632DD41BAB003BFB6C /* FirebaseStorage */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B3019C512DCB6DB300C3F02A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
