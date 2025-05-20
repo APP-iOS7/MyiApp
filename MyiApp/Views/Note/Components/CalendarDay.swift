@@ -77,10 +77,10 @@ struct CalendarDayView: View {
                             .foregroundColor(
                                 isSelected ? .white :
                                     isBirthday ? .pink :
-                                    isSunday && day.isCurrentMonth ? .red :
-                                    isSaturday && day.isCurrentMonth ? .blue :
+                                    isSunday && day.isCurrentMonth ? .red.opacity(day.isCurrentMonth ? 1 : 0.5) :
+                                    isSaturday && day.isCurrentMonth ? .blue.opacity(day.isCurrentMonth ? 1 : 0.5) :
                                         day.isToday ? Color("sharkPrimaryDark") :
-                                            day.isCurrentMonth ? .black : .gray
+                                            day.isCurrentMonth ? .primary : .secondary
                             )
                     }
                 }
