@@ -20,7 +20,7 @@ struct ContentView: View {
                     Tab("육아 수첩", systemImage: "book.fill") { NavigationStack { NoteView() } }
                     Tab("울음 분석", systemImage: "waveform") { NavigationStack { VoiceRecordView() } }
                     Tab("통계", systemImage: "chart.bar.fill") { NavigationStack { StatisticView() } }
-                    Tab("더 보기", systemImage: "line.3.horizontal") { NavigationStack { SettingsView() } }
+                    Tab("더 보기", systemImage: "line.3.horizontal") { NavigationStack { NewSettingsView() } }
                 }
             } else {
                 ProgressView("케어기버및 아기 정보를 불러오는 중...")

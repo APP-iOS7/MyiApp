@@ -46,17 +46,17 @@ struct NewSettingsView: View {
                         Text("개인 설정")
                             .font(.headline)
                             .fontWeight(.bold)
-                            .foregroundColor(.black.opacity(0.8))
+                            .foregroundColor(.primary.opacity(0.8))
                             .padding()
                             .padding(.top, 15)
                         
                         NavigationLink(destination: Text("아이 정보 페이지")) {
                             HStack {
                                 Text("아이 정보")
-                                    .foregroundColor(.black.opacity(0.6))
+                                    .foregroundColor(.primary.opacity(0.6))
                                 Spacer()
                                 Image(systemName: "chevron.right")
-                                    .foregroundColor(.black.opacity(0.6))
+                                    .foregroundColor(.primary.opacity(0.6))
                             }
                             .padding()
                             .padding(.top, 10)
@@ -66,16 +66,16 @@ struct NewSettingsView: View {
                         NavigationLink(destination: Text("알림 설정 페이지")) {
                             HStack {
                                 Text("알림 설정")
-                                    .foregroundColor(.black.opacity(0.6))
+                                    .foregroundColor(.primary.opacity(0.6))
                                 Spacer()
                                 Image(systemName: "chevron.right")
-                                    .foregroundColor(.black.opacity(0.6))
+                                    .foregroundColor(.primary.opacity(0.6))
                             }
                             .padding()
                             .padding(.bottom, 15)
                         }
                     }
-                    .background(Color.white)
+                    .background(Color(UIColor.tertiarySystemBackground))
                     .cornerRadius(10)
                     .padding(.horizontal)
                     
@@ -83,17 +83,17 @@ struct NewSettingsView: View {
                         Text("개인 정보")
                             .font(.headline)
                             .fontWeight(.bold)
-                            .foregroundColor(.black.opacity(0.8))
+                            .foregroundColor(.primary.opacity(0.8))
                             .padding()
                             .padding(.top, 15)
                         
                         NavigationLink(destination: Text("개인 정보 처리 방침")) {
                             HStack {
                                 Text("이용 약관")
-                                    .foregroundColor(.black.opacity(0.6))
+                                    .foregroundColor(.primary.opacity(0.6))
                                 Spacer()
                                 Image(systemName: "chevron.right")
-                                    .foregroundColor(.black.opacity(0.6))
+                                    .foregroundColor(.primary.opacity(0.6))
                             }
                             .padding()
                             .padding(.top, 10)
@@ -103,16 +103,16 @@ struct NewSettingsView: View {
                         NavigationLink(destination: Text("알림 설정 페이지")) {
                             HStack {
                                 Text("알림 설정")
-                                    .foregroundColor(.black.opacity(0.6))
+                                    .foregroundColor(.primary.opacity(0.6))
                                 Spacer()
                                 Image(systemName: "chevron.right")
-                                    .foregroundColor(.black.opacity(0.6))
+                                    .foregroundColor(.primary.opacity(0.6))
                             }
                             .padding()
                             .padding(.bottom, 15)
                         }
                     }
-                    .background(Color.white)
+                    .background(Color(UIColor.tertiarySystemBackground))
                     .cornerRadius(10)
                     .padding(.horizontal)
                     
@@ -120,21 +120,21 @@ struct NewSettingsView: View {
                         Text("기타")
                             .font(.headline)
                             .fontWeight(.bold)
-                            .foregroundColor(.black.opacity(0.8))
+                            .foregroundColor(.primary.opacity(0.8))
                             .padding()
                             .padding(.top, 15)
                         
                         HStack {
                             Text("앱 버전")
-                                .foregroundColor(.black.opacity(0.6))
+                                .foregroundColor(.primary.opacity(0.6))
                             Spacer()
                             Text("\(appVersion)")
-                                .foregroundColor(.primary)
+                                .foregroundColor(.primary.opacity(0.6))
                         }
                         .padding()
                         .padding(.bottom, 15)
                     }
-                    .background(Color.white)
+                    .background(Color(UIColor.tertiarySystemBackground))
                     .cornerRadius(10)
                     .padding(.horizontal)
                     
@@ -147,7 +147,7 @@ struct NewSettingsView: View {
                         }
                         .padding()
                     }
-                    .background(Color.white)
+                    .background(Color(UIColor.tertiarySystemBackground))
                     .cornerRadius(10)
                     .padding(.horizontal)
                 }
