@@ -19,6 +19,7 @@ class CaregiverManager: ObservableObject {
             cancellables.removeAll()
             subscribeToRecords()
             subscribeToNotes()
+            subscribeToVoiceRecords()
         }
     }
     private let db = Firestore.firestore()
@@ -75,7 +76,7 @@ class CaregiverManager: ObservableObject {
     func subscribeToVoiceRecords() {
         guard let babyId = selectedBaby?.id else { return }
         Firestore.firestore()
-            .collection("babies").document(babyId.uuidString).collection("records")
+            .collection("babies").document(babyId.uuidString).collection("voiceRecords")
             .order(by: "createdAt", descending: true)
             .snapshotPublisher()
             .map { snapshot in

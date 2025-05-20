@@ -58,6 +58,15 @@ final class VoiceRecordViewModel: ObservableObject {
     // MARK: - Init
     init() {
         observeStep()
+        // CaregiverManager에서 초기 데이터 로드
+        recordResults = careGiverManager.voiceRecords
+        
+        // voiceRecords 배열의 변경사항 구독
+        careGiverManager.$voiceRecords
+            .sink { [weak self] records in
+                self?.recordResults = records
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Public Methods
@@ -147,14 +156,14 @@ final class VoiceRecordViewModel: ObservableObject {
             secondLabelConfidence: 0.0
         )
 
-        recordResults.insert(newResult, at: 0)
+        careGiverManager.voiceRecords.insert(newResult, at: 0)
         analysisCompleted = true
 
         Task {
             do {
                 try await saveAnalysisResult(newResult: newResult)
             } catch {
-                print("🔥 Firebase 저장 실패: \(error)")
+                print("Firebase 저장 실패: \(error)")
             }
         }
     }
