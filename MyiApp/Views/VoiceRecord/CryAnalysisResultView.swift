@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CryAnalysisResultView: View {
+    @ObservedObject var viewModel: VoiceRecordViewModel
     @Environment(\.dismiss) private var dismiss
     
     let emotionType: EmotionType
@@ -62,6 +63,8 @@ struct CryAnalysisResultView: View {
             Spacer()
 
             Button(action: {
+                viewModel.resetAnalysisState()
+                viewModel.dismissResultView()
                 dismiss()
             }) {
                 Text("닫기")
@@ -78,9 +81,11 @@ struct CryAnalysisResultView: View {
             Spacer(minLength: 20)
         }
         .padding(.top)
+        .navigationBarBackButtonHidden(true)
     }
 }
 
-#Preview {
-    CryAnalysisResultView(emotionType: .lonely, confidence: 0.81)
-}
+//#Preview {
+//    let mockViewModel = VoiceRecordViewModel()
+//    CryAnalysisResultView(emotionType: .lonely, confidence: 0.81, viewModel: mockViewModel)
+//}
