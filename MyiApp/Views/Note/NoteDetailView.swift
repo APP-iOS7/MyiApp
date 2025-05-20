@@ -37,6 +37,7 @@ struct NoteDetailView: View {
             }
             .padding(.bottom, 20)
         }
+        .background(Color("customBackgroundColor").ignoresSafeArea())
         .navigationTitle(event.category == .일지 ? "일지 상세" : "일정 상세")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -129,7 +130,7 @@ struct NoteDetailView: View {
             Spacer()
         }
         .padding()
-        .background(Color("sharkCardBackground"))
+        .background(Color(UIColor.tertiarySystemBackground))
     }
     
     private var contentSection: some View {
@@ -173,7 +174,7 @@ struct NoteDetailView: View {
                     }
                 }
                 .padding()
-                .background(Color("sharkCardBackground"))
+                .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(8)
             } else {
                 HStack {
@@ -200,18 +201,18 @@ struct NoteDetailView: View {
                     }
                 }
                 .padding()
-                .background(Color("sharkCardBackground"))
+                .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(8)
             }
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white)
+                .fill(Color(UIColor.tertiarySystemBackground))
                 .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         )
         .padding(.horizontal)
-        .id("\(hasNotification)-\(notificationTime ?? "none")-\(refreshTrigger)") // 강제 새로고침 처리
+        .id("\(hasNotification)-\(notificationTime ?? "none")-\(refreshTrigger)")
     }
     
     private func checkNotificationStatus() {
