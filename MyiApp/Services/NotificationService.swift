@@ -14,6 +14,8 @@ class NotificationService: ObservableObject {
     
     @Published var authorizationStatus: UNAuthorizationStatus = .notDetermined
     
+    private var notificationCache: [String: (date: Date, title: String)] = [:]
+    
     private init() {
         checkAuthorizationStatus()
     }
@@ -42,7 +44,7 @@ class NotificationService: ObservableObject {
     
     // 알림 예약
     @discardableResult
-    func scheduleNotification(for note: Note, minutesBefore: Int = 30) -> (success: Bool, time: Date?, message: String?) {
+    func scheduleNotification(for note: Note, minutesBefore: Int = 0) -> (success: Bool, time: Date?, message: String?) {
         print("알림 예약 시도: 노트 ID \(note.id.uuidString), \(minutesBefore)분 전")
         
         if authorizationStatus != .authorized {
@@ -52,13 +54,9 @@ class NotificationService: ObservableObject {
         
         cancelNotification(with: note.id.uuidString)
         
-        var minutes = minutesBefore
-        if minutes <= 0 {
-            minutes = 30
-            print("알림 시간 조정: \(minutes)분 전으로 설정")
-        }
-        
-        let triggerDate = note.date.addingTimeInterval(TimeInterval(-minutes * 60))
+        let triggerDate = minutesBefore == 0 ?
+            note.date :
+            note.date.addingTimeInterval(TimeInterval(-minutesBefore * 60))
         
         if triggerDate <= Date() {
             print("알림 시간이 현재보다 이전: \(triggerDate)")
@@ -91,7 +89,7 @@ class NotificationService: ObservableObject {
                 print("알림 예약 실패: \(error.localizedDescription)")
                 isSuccessful = false
             } else {
-                print("알림 예약 성공: \(minutes)분 전 (\(triggerDate)), ID: \(note.id.uuidString)")
+                print("알림 예약 성공: \(minutesBefore)분 전 (\(triggerDate)), ID: \(note.id.uuidString)")
             }
         }
         
@@ -100,6 +98,7 @@ class NotificationService: ObservableObject {
         printAllScheduledNotifications()
         
         if isSuccessful {
+            notificationCache[note.id.uuidString] = (triggerDate, note.title)
             return (true, triggerDate, nil)
         } else {
             return (false, nil, "알림 설정에 실패했습니다")
@@ -107,8 +106,11 @@ class NotificationService: ObservableObject {
     }
     
     func cancelNotification(with identifier: String) {
-        print("📅 알림 취소: ID \(identifier)")
+        print("알림 취소: ID \(identifier)")
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
+        
+        // 캐시에서도 제거
+        notificationCache.removeValue(forKey: identifier)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.printAllScheduledNotifications()
@@ -128,12 +130,22 @@ class NotificationService: ObservableObject {
     func findNotificationForNote(noteId: String, completion: @escaping (Bool, Date?, String?) -> Void) {
         print("노트 ID로 알림 찾기: \(noteId)")
         
+        if let cached = notificationCache[noteId] {
+            print("캐시에서 알림 정보 발견: \(noteId)")
+            DispatchQueue.main.async {
+                completion(true, cached.date, cached.title)
+            }
+            return
+        }
+        
         UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
             if let matchingRequest = requests.first(where: { $0.identifier == noteId }),
                let trigger = matchingRequest.trigger as? UNCalendarNotificationTrigger,
                let triggerDate = trigger.nextTriggerDate() {
                 
                 print("ID로 알림 발견: \(noteId)")
+                self.notificationCache[noteId] = (triggerDate, matchingRequest.content.title)
+                
                 DispatchQueue.main.async {
                     completion(true, triggerDate, matchingRequest.content.title)
                 }
@@ -147,6 +159,8 @@ class NotificationService: ObservableObject {
                    let triggerDate = trigger.nextTriggerDate() {
                     
                     print("userInfo에서 알림 발견: \(noteId)")
+                    self.notificationCache[noteId] = (triggerDate, request.content.title)
+                    
                     DispatchQueue.main.async {
                         completion(true, triggerDate, request.content.title)
                     }
@@ -179,6 +193,7 @@ class NotificationService: ObservableObject {
     
     func removeAllScheduledNotifications() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        notificationCache.removeAll()
         print("모든 예약된 알림이 삭제되었습니다.")
 
         printAllScheduledNotifications()

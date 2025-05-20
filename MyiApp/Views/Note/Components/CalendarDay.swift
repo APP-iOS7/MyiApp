@@ -73,14 +73,14 @@ struct CalendarDayView: View {
                         }
                         
                         Text(day.dayNumber)
-                            .font(.system(size: isSelected ? 18 : 16, weight: isSelected ? .bold : .regular))
+                            .font(.custom("Cafe24-Ohsquareair", size: 18))
                             .foregroundColor(
                                 isSelected ? .white :
                                     isBirthday ? .pink :
                                     isSunday && day.isCurrentMonth ? .red :
                                     isSaturday && day.isCurrentMonth ? .blue :
                                         day.isToday ? Color("sharkPrimaryDark") :
-                                            day.isCurrentMonth ? .primary : .gray
+                                            day.isCurrentMonth ? .black : .gray
                             )
                     }
                 }
