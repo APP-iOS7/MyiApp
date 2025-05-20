@@ -25,7 +25,7 @@ struct StatisticView: View {
     }
     
     var records: [Record] {
-        CaregiverManager.shared.records
+        caregiverManager.records
     }
     
     @State private var selectedDate = Date()
@@ -63,6 +63,7 @@ struct StatisticView: View {
             Color("customBackgroundColor")
                         .ignoresSafeArea()
             mainScrollView
+
         }
         .gesture(
             DragGesture()
