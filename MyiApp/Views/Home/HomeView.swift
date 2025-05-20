@@ -56,8 +56,8 @@ struct HomeView: View {
                                 .fill(Color.sharkPrimaryLight)
                                 .stroke(Color.sharksSadowTone, lineWidth: 2)
                         )
-                    Text("김죠스")
-                    Text("생년 월일")
+                    HStack { Text("김죠스"); Spacer() }
+                    HStack { Text("생년 월일"); Spacer() }
                     HStack(alignment: .top) {
                         VStack(alignment: .leading) {
                             Text("성별")
@@ -283,8 +283,7 @@ struct HomeView: View {
                         }
                 }
                 .sheet(item: $viewModel.recordToEdit) { record in
-                    AddRecordView(record: record)
-                        .presentationDetents([.medium, .large])
+                    EditRecordView(record: record)
                 }
             }
         }
