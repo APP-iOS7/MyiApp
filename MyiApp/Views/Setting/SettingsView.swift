@@ -1,159 +1,224 @@
 //
-//  SettingView.swift
+//  NewSettingsView.swift
 //  MyiApp
 //
-//  Created by 최범수 on 2025-05-08.
+//  Created by Yung Hak Lee on 5/19/25.
 //
 
 import SwiftUI
 
 struct SettingsView: View {
-    @StateObject private var viewModel = AccountSettingsViewModel.shared
+//    @StateObject private var viewModel = AccountSettingsViewModel.shared
+    @StateObject var caregiverManager = CaregiverManager.shared
     @State private var showingAlert = false
-    @State private var showSnackbar = false
-    @State private var snackbarMessage = ""
+    @State private var topExpanded: Bool = false
     
+    // 앱 버전 표시
+    private var appVersion: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+        return "\(version).\(build)"
+    }
     
     var body: some View {
-        NavigationStack {
-            Form {
-                // 프로필 섹션
-                Section(header: Text("사용자 프로필")) {
+        NavigationView {
+            ScrollView {
+                VStack {
                     HStack {
-                        if let profileImage = viewModel.profileImage {
-                            Image(uiImage: profileImage)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 60, height: 60)
-                                .clipShape(Circle())
-                        } else {
-                            Image(systemName: "person.crop.circle.fill")
-                                .resizable()
-                                .frame(width: 60, height: 60)
-                                .foregroundStyle(.gray)
+                        Image(systemName: "person.circle.fill")
+                            .resizable()
+                            .frame(width: 60, height: 60)
+                            .foregroundColor(.gray)
+                        VStack(alignment: .leading) {
+                            Text("이민서")
+                                .font(.headline)
+                                .foregroundColor(.primary.opacity(0.8))
+                            Text("")
                         }
-                        
-                        NavigationLink(destination: AccountSettingsView(viewModel: viewModel)) {
-                            Text(viewModel.name.isEmpty ? "이름 없음" : viewModel.name)
-                                .padding(.leading, 16)
-                                .font(.system(size: 20))
-                        }
-                        
+                        .padding(.leading, 10)
                         Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding(.trailing, 18)
                     }
-                }
-                Section(header: Text("계정 설정")) {
-                    NavigationLink(destination: BabyProfileView()) {
-                        HStack(spacing: 12) {
-                            Image("babyIcon")
-                                .resizable()
-                                .frame(width: 20, height: 20)
-                            Text("아기 정보")
+                    .padding()
+                    .padding(.horizontal, 15)
+                    
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("개인 설정")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding()
+                            .padding(.top, 15)
+                        
+                        DisclosureGroup(isExpanded: $topExpanded) {
+                            VStack(alignment: .leading, spacing: 10) {
+                                if caregiverManager.babies.isEmpty {
+                                    Text("아기 정보가 없습니다.")
+                                        .foregroundColor(.primary.opacity(0.6))
+                                        .padding()
+                                } else {
+                                    ForEach(caregiverManager.babies, id: \.id) { baby in
+                                        NavigationLink(destination: BabyProfileView(baby: baby)) {
+                                            Text(baby.name)
+                                                .foregroundColor(.primary.opacity(0.6))
+                                                .padding()
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.bottom, 10)
+                        } label: {
+                            HStack {
+                                Image("appVIcon")
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
+                                Text("아이 정보")
+                                    .foregroundColor(.primary.opacity(0.6))
+                                    .padding(.leading, 5)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .rotationEffect(.degrees(topExpanded ? 90 : 0))
+                                    .animation(.easeInOut(duration: 0.2), value: topExpanded)
+                                    .foregroundColor(.primary.opacity(0.6))
+                            }
+                            .contentShape(Rectangle())
+                            .padding()
+                            .padding(.top, 10)
+                            .padding(.bottom, 10)
+                        }
+                        .accentColor(.clear)
+                        
+                        NavigationLink(destination: NotificationSettingsView()) {
+                            HStack {
+                                Image ("appVIcon")
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
+                                Text("알림 설정")
+                                    .foregroundColor(.primary.opacity(0.6))
+                                    .padding(.leading, 5)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.primary.opacity(0.6))
+                                    .padding(.trailing, 18)
+                            }
+                            .padding()
+                            .padding(.bottom, 15)
                         }
                     }
-                    NavigationLink(destination: NotificationSettingsView()) {
-                        HStack(spacing: 12) {
-                            Image("notificationIcon")
-                                .resizable()
-                                .frame(width: 20, height: 20)
-                            Text("알림 설정")
+                    .background(Color(UIColor.tertiarySystemBackground))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                    
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("개인 정보")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding()
+                            .padding(.top, 15)
+                        
+                        NavigationLink(destination: PrivacyPolicyView()) {
+                            HStack {
+                                Image ("appVIcon")
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
+                                Text("개인 정보 처리 방침")
+                                    .foregroundColor(.primary.opacity(0.6))
+                                    .padding(.leading, 5)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.primary.opacity(0.6))
+                                    .padding(.trailing, 18)
+                            }
+                            .padding()
+                            .padding(.top, 10)
+                            .padding(.bottom, 10)
+                        }
+                        
+                        NavigationLink(destination: TermsOfServiceView()) {
+                            HStack {
+                                Image ("appVIcon")
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
+                                Text("이용 약관")
+                                    .foregroundColor(.primary.opacity(0.6))
+                                    .padding(.leading, 5)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.primary.opacity(0.6))
+                                    .padding(.trailing, 18)
+                            }
+                            .padding()
+                            .padding(.bottom, 15)
                         }
                     }
-                }
-                Section(header: Text("개인 정보")) {
-                    NavigationLink(destination: PrivacyPolicyView()) {
-                        HStack(spacing: 12) {
-                            Image("privacy")
-                                .resizable()
-                                .frame(width: 20, height: 20)
-                            Text("개인정보 처리 방침")
-                        }
-                    }
-                    NavigationLink(destination: TermsOfServiceView()) {
-                        HStack(spacing: 12) {
-                            Image("agreementsLicense")
-                                .resizable()
-                                .frame(width: 20, height: 20)
-                            Text("이용 약관")
-                        }
-                    }
-                }
-                Section(header: Text("기타")) {
-                    NavigationLink(destination: AppVersionView()) {
-                        HStack(spacing: 12) {
-                            Image("appVIcon")
+                    .background(Color(UIColor.tertiarySystemBackground))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                    
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("기타")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding()
+                            .padding(.top, 15)
+                        
+                        HStack {
+                            Image ("appVIcon")
                                 .resizable()
                                 .frame(width: 20, height: 20)
                             Text("앱 버전")
+                                .foregroundColor(.primary.opacity(0.6))
+                                .padding(.leading, 5)
+                            Spacer()
+                            Text("\(appVersion)")
+                                .foregroundColor(.primary.opacity(0.6))
+                                .padding(.trailing, 18)
                         }
+                        .padding()
+                        .padding(.bottom, 15)
                     }
-                }
-                Button(role: .destructive) {
-                    showingAlert = true
-                } label: {
-                    HStack {
-                        Image("logoutIcon")
-                            .resizable()
-                            .frame(width: 18, height: 18)
-                        Text("로그아웃")
-                    }
-                }
-            }
-            .navigationTitle("설정")
-            .alert("로그아웃", isPresented: $showingAlert) {
-                Button("취소", role: .cancel) {}
-                Button("로그아웃", role: .destructive) {
-                    AuthService.shared.signOut()
-                    CaregiverManager.shared.selectedBaby = nil
-                }
-            } message: {
-                Text("로그아웃 됩니다")
-            }
-            .overlay {
-                if showSnackbar {
-                    SnackbarView(message: snackbarMessage)
-                        .transition(.move(edge: .bottom))
-                }
-            }
-            .onChange(of: viewModel.isProfileSaved) { _, newValue in
-                if newValue {
-                    snackbarMessage = "프로필이 변경되었습니다"
-                    showSnackbar = true
-                    Task {
-                        try await Task.sleep(for: .seconds(2))
-                        withAnimation {
-                            showSnackbar = false
-                            viewModel.isProfileSaved = false
+                    .background(Color(UIColor.tertiarySystemBackground))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                    
+                    VStack {
+                        Button(role: .destructive) {
+                            showingAlert = true
+                        } label: {
+                            Text("로그아웃")
+                                .frame(maxWidth: .infinity)
                         }
+                        .padding()
                     }
+                    .background(Color(UIColor.tertiarySystemBackground))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
                 }
+            }
+            .background(Color("customBackgroundColor"))
+            .alert(isPresented: $showingAlert) {
+                Alert(
+                    title: Text("로그아웃"),
+                    message: Text("정말 로그아웃하시겠습니까?"),
+                    primaryButton: .destructive(Text("로그아웃")) {
+                        AuthService.shared.signOut()
+                    },
+                    secondaryButton: .cancel(Text("취소"))
+                )
+            }
+            .task {
+                await caregiverManager.loadCaregiverInfo()
             }
         }
     }
 }
 
-// 스낵바 뷰
-struct SnackbarView: View {
-    let message: String
-    
-    var body: some View {
-        VStack {
-            Spacer()
-            Text(message)
-                .padding(.vertical, 12)
-                .padding(.horizontal, 20)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(12)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 20)
-        }
-        .animation(.easeInOut, value: UUID())
-    }
-}
-
-#Preview {
-    NavigationStack {
+struct SettingsView_Previews: PreviewProvider {
+    static var previews: some View {
         SettingsView()
     }
 }
