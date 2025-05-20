@@ -88,6 +88,6 @@ class HomeViewModel: ObservableObject {
     
     func saveRecord(record: Record) {
         guard let baby else { return }
-        let result = Firestore.firestore().collection("babies").document(baby.id.uuidString).collection("records").document(record.id.uuidString).setData(from: record)
+        let _ = Firestore.firestore().collection("babies").document(baby.id.uuidString).collection("records").document(record.id.uuidString).setData(from: record)
     }
 }
