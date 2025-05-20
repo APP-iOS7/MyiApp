@@ -9,13 +9,10 @@ import SwiftUI
 
 struct DailyChartView: View {
     let baby: Baby
+    let records: [Record]
     
     var birthDate: Date {
         baby.birthDate
-    }
-    
-    var records: [Record] {
-        CaregiverManager.shared.records
     }
     let selectedDate: Date
     
@@ -29,7 +26,7 @@ struct DailyChartView: View {
             // 숫자 표기
             GeometryReader { geometry in
                 let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
-                let radius = geometry.size.width / 2 + 5
+                let radius = geometry.size.width / 2 + 15
                 
                 ZStack {
                     ForEach(0..<24) { hour in

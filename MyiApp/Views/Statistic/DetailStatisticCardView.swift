@@ -80,10 +80,8 @@ struct DetailStatisticCardView: View {
             .foregroundColor(.gray)
         }
         .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(color, lineWidth: 1)
-        )
+        .background(Color(.tertiarySystemBackground))
+        .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
     }
     func formattedTime(from minutes: Int?) -> String {
@@ -297,10 +295,8 @@ struct DetailPottyStatisticCardView: View {
             .foregroundColor(.gray)
         }
         .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color("potty"), lineWidth: 1)
-        )
+        .background(Color(.tertiarySystemBackground))
+        .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
     }
     func formattedTime(from minutes: Int?) -> String {
