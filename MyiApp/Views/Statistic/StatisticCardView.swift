@@ -21,9 +21,7 @@ struct StatisticCardView: View {
     
     let baby: Baby
     
-    var records: [Record] {
-        CaregiverManager.shared.records
-    }
+    let records: [Record]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -73,10 +71,8 @@ struct StatisticCardView: View {
             .foregroundColor(.gray)
         }
         .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(color, lineWidth: 1)
-        )
+        .background(Color(.tertiarySystemBackground))
+        .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
     }
     func formattedTime(from minutes: Int?) -> String {
@@ -97,9 +93,7 @@ struct PottyStatisticCardView: View {
     
     let baby: Baby
     
-    var records: [Record] {
-        CaregiverManager.shared.records
-    }
+    let records: [Record]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -130,10 +124,8 @@ struct PottyStatisticCardView: View {
             .foregroundColor(.gray)
         }
         .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color("potty"), lineWidth: 1)
-        )
+        .background(Color(.tertiarySystemBackground))
+        .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.03), radius: 3, x: 0, y: 1)
     }
 }
