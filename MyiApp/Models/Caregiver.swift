@@ -6,13 +6,9 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
 struct Caregiver: Codable, Identifiable {
     var id: String
-    var babies: [Baby]
-    
-    init(id: String, babies: [Baby]) {
-        self.id = id
-        self.babies = babies
-    }
+    var babies: [DocumentReference]
 }

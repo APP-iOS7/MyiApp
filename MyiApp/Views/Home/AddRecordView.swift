@@ -56,11 +56,11 @@ class AddRecordViewModel: ObservableObject {
     }
     
     func saveRecord() {
-        caregiverManager.saveRecord(record: record)
+//        caregiverManager.saveRecord(record: record)
     }
     
     func removeRecord() {
-        caregiverManager.deleteRecord(record: record)
+//        caregiverManager.deleteRecord(record: record)
     }
 }
 
@@ -68,33 +68,88 @@ struct AddRecordView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject var viewModel: AddRecordViewModel
     
+    @State private var selectedCategory = "분유"
+    @State private var amount = "50ml"
+    @State private var date = Date()
+    
     init(record: Record) {
         self._viewModel = StateObject(wrappedValue: AddRecordViewModel(record: record))
     }
     
     var body: some View {
-        VStack {
-            headerView
-            datePicker
-            content
-            buttonView
-        }
-        .padding(30)
+        NavigationView {
+                    Form {
+                        Section(header: Text("카테고리")) {
+                            Picker("카테고리", selection: $selectedCategory) {
+                                Text("모유 수유").tag("모유 수유")
+                                Text("유축 수유").tag("유축 수유")
+                                Text("분유").tag("분유")
+                                Text("이유식").tag("이유식")
+                            }
+                            .pickerStyle(.inline)
+                        }
+
+                        Section(header: Text("용량")) {
+                            TextField("용량", text: $amount)
+                                .keyboardType(.numberPad)
+                        }
+
+                        Section(header: Text("날짜 및 시간")) {
+                            DatePicker("날짜", selection: $date, displayedComponents: .date)
+                            DatePicker("시간", selection: $date, displayedComponents: .hourAndMinute)
+                        }
+
+                        Section {
+                            Button(role: .destructive) {
+                                // 삭제 로직
+                            } label: {
+                                Text("기록 삭제")
+                            }
+                        }
+                    }
+                    .navigationTitle("수유 기록")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("취소") {
+                                dismiss()
+                            }
+                        }
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("저장") {
+                                // 저장 로직
+                                dismiss()
+                            }
+                        }
+                    }
+                }
+        
+        
+//        NavigationStack {
+//            VStack {
+//                headerView
+//                datePicker
+//                content
+//                buttonView
+//            }
+//            .padding(30)
+//        }
+//        .navigationTitle(<#T##title: Text##Text#>)
     }
-    
-    private var headerView: some View {
-        var title: String {
-            switch viewModel.record.title {
-                case .formula, .babyFood, .pumpedMilk, .breastfeeding: return "수유/이유식 기록"
-                case .diaper: return "기저귀 기록"
-                case .sleep: return "수면 기록"
-                case .heightWeight: return "키/몸무게 기록"
-                case .bath: return "목욕 기록"
-                case .snack: return "간식 기록"
-                case .temperature, .medicine, .clinic: return "건강 관리 기록"
-                case .poop, .pee, .pottyAll: return "배변 기록"
-            }
+    var title: String {
+        switch viewModel.record.title {
+            case .formula, .babyFood, .pumpedMilk, .breastfeeding: return "수유/이유식 기록"
+            case .diaper: return "기저귀 기록"
+            case .sleep: return "수면 기록"
+            case .heightWeight: return "키/몸무게 기록"
+            case .bath: return "목욕 기록"
+            case .snack: return "간식 기록"
+            case .temperature, .medicine, .clinic: return "건강 관리 기록"
+            case .poop, .pee, .pottyAll: return "배변 기록"
         }
+    }
+    private var headerView: some View {
+        
         var titleImage: ImageResource {
             switch viewModel.record.title {
                 case .formula, .babyFood, .pumpedMilk, .breastfeeding: return .colorMeal
