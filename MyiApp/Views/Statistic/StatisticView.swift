@@ -304,7 +304,7 @@ struct IconItem: View {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 25, height: 25)
+                    .frame(width: 35, height: 35)
             }
             
             Text(title)
