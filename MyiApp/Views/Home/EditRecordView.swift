@@ -8,71 +8,67 @@
 import SwiftUI
 
 struct EditRecordView: View {
-    @State var record: Record
-    @State var isLeftMinutesPickerActionSheetPresent = false
-    @State var isRightMinutesPickerActionSheetPresent = false
-    @State var isMLPickerActionSheetPresent = false
-    @State var isTMPickerActionSheetPresent = false
+    @Environment(\.dismiss) var dismiss
+    @StateObject private var viewModel: EditRecordViewModel
+    
+    init(record: Record) {
+        _viewModel = StateObject(wrappedValue: EditRecordViewModel(record: record))
+    }
+    
     var body: some View {
         NavigationView {
             Form {
-                content(record: record)
+                content(record: viewModel.record)
                 recordTimeSection
                 deleteSection
             }
-            .navigationTitle(navigationTitle)
+            .navigationTitle(viewModel.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("취소", role: .cancel, action: {})
+                    Button("취소", role: .cancel, action: {
+                        dismiss()
+                    })
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("저장", action: {})
+                    Button("저장", action: {
+                        viewModel.saveRecord()
+                        dismiss()
+                    })
+                    
                 }
             }
             .background {
-                MinutesPickerActionSheet(isPresented: $isRightMinutesPickerActionSheetPresent, selectedAmount: $record.breastfeedingRightMinutes)
-                MinutesPickerActionSheet(isPresented: $isLeftMinutesPickerActionSheetPresent, selectedAmount: $record.breastfeedingLeftMinutes)
-                MLPickerActionSheet(isPresented: $isMLPickerActionSheetPresent, selectedAmount: $record.mlAmount)
-                TMPPickerActionSheet(isPresented: $isTMPickerActionSheetPresent, selectedTemperature: Binding(
-                    get: { record.temperature ?? 36.5 },
-                    set: { record.temperature = $0 }
-                ))
+                MinutesPickerActionSheet(isPresented: $viewModel.isRightMinutesPickerActionSheetPresent,
+                                         selectedAmount: $viewModel.record.breastfeedingRightMinutes)
+                MinutesPickerActionSheet(isPresented: $viewModel.isLeftMinutesPickerActionSheetPresent,
+                                         selectedAmount: $viewModel.record.breastfeedingLeftMinutes)
+                MLPickerActionSheet(isPresented: $viewModel.isMLPickerActionSheetPresent,
+                                    selectedAmount: $viewModel.record.mlAmount)
+                TMPPickerActionSheet(isPresented: $viewModel.isTMPickerActionSheetPresent,
+                                     selectedTemperature: Binding(
+                                        get: { viewModel.record.temperature ?? 36.5 },
+                                        set: { viewModel.record.temperature = $0 }
+                                     ))
             }
         }
-        
     }
     
-    private var navigationTitle: String {
-        switch record.title {
-            case .formula, .babyFood, .pumpedMilk, .breastfeeding:
-                "수유/이유식 기록"
-            case .diaper:
-                "기저귀 기록"
-            case .sleep:
-                "수면 기록"
-            case .heightWeight:
-                "키/몸무게 기록"
-            case .bath:
-                "목욕 기록"
-            case .snack:
-                "간식 기록"
-            case .temperature, .medicine, .clinic:
-                "건강 관리 기록"
-            case .poop, .pee, .pottyAll:
-                "배변 기록"
-        }
-    }
     private var recordTimeSection: some View {
         Section {
-            DatePicker("기록 시간", selection: $record.createdAt, displayedComponents: [.date, .hourAndMinute])
+            DatePicker("기록 시간", selection: $viewModel.record.createdAt, displayedComponents: [.date, .hourAndMinute])
         }
     }
+    
     private var deleteSection: some View {
         Section {
-            Button("기록 삭제", role: .destructive, action: {})
+            Button("기록 삭제", role: .destructive, action: {
+                viewModel.deleteRecord()
+                dismiss()
+            })
         }
     }
+    
     @ViewBuilder func content(record: Record) -> some View {
         switch record.title {
             case .formula, .babyFood, .pumpedMilk, .breastfeeding:
@@ -87,12 +83,7 @@ struct EditRecordView: View {
                         Text("모유수유")
                     }
                     .onTapGesture {
-                        self.record.title = .breastfeeding
-                        if record.title != .breastfeeding {
-                            self.record.mlAmount = 0
-                            self.record.breastfeedingLeftMinutes = 0
-                            self.record.breastfeedingRightMinutes = 0
-                        }
+                        viewModel.updateRecordTitle(.breastfeeding)
                     }
                     HStack {
                         Image(systemName: record.title == .pumpedMilk ? "circle.inset.filled" : "circle")
@@ -104,12 +95,7 @@ struct EditRecordView: View {
                         Text("유축수유")
                     }
                     .onTapGesture {
-                        self.record.title = .pumpedMilk
-                        if record.title != .pumpedMilk {
-                            self.record.mlAmount = 0
-                            self.record.breastfeedingLeftMinutes = 0
-                            self.record.breastfeedingRightMinutes = 0
-                        }
+                        viewModel.updateRecordTitle(.pumpedMilk)
                     }
                     HStack {
                         Image(systemName: record.title == .formula ? "circle.inset.filled" : "circle")
@@ -121,12 +107,7 @@ struct EditRecordView: View {
                         Text("분유")
                     }
                     .onTapGesture {
-                        self.record.title = .formula
-                        if record.title != .formula {
-                            self.record.mlAmount = 0
-                            self.record.breastfeedingLeftMinutes = 0
-                            self.record.breastfeedingRightMinutes = 0
-                        }
+                        viewModel.updateRecordTitle(.formula)
                     }
                     HStack {
                         Image(systemName: record.title == .babyFood ? "circle.inset.filled" : "circle")
@@ -138,24 +119,20 @@ struct EditRecordView: View {
                         Text("이유식")
                     }
                     .onTapGesture {
-                        self.record.title = .babyFood
-                        if record.title != .babyFood {
-                            self.record.mlAmount = 0
-                            self.record.breastfeedingLeftMinutes = 0
-                            self.record.breastfeedingRightMinutes = 0
-                        }
+                        viewModel.updateRecordTitle(.babyFood)
                     }
                 } header: { Text("카테고리") }
                     .listRowSeparator(.hidden)
+                
                 if record.title == .breastfeeding {
                     Section {
                         HStack {
                             Text("왼쪽")
                             Spacer()
                             Button {
-                                isLeftMinutesPickerActionSheetPresent = true
+                                viewModel.isLeftMinutesPickerActionSheetPresent = true
                             } label: {
-                                Text("\(self.record.breastfeedingLeftMinutes ?? 0) 분")
+                                Text("\(viewModel.record.breastfeedingLeftMinutes ?? 0) 분")
                                     .foregroundStyle(Color.primary)
                             }
                             .buttonStyle(.bordered)
@@ -165,9 +142,9 @@ struct EditRecordView: View {
                             Text("오른쪽")
                             Spacer()
                             Button {
-                                isRightMinutesPickerActionSheetPresent = true
+                                viewModel.isRightMinutesPickerActionSheetPresent = true
                             } label: {
-                                Text("\(self.record.breastfeedingRightMinutes ?? 0) 분")
+                                Text("\(viewModel.record.breastfeedingRightMinutes ?? 0) 분")
                                     .foregroundStyle(Color.primary)
                             }
                             .buttonStyle(.bordered)
@@ -179,12 +156,12 @@ struct EditRecordView: View {
                 } else {
                     Section {
                         HStack {
-                            Text("오른쪽")
+                            Text("용량")
                             Spacer()
                             Button {
-                                isMLPickerActionSheetPresent = true
+                                viewModel.isMLPickerActionSheetPresent = true
                             } label: {
-                                Text("\(self.record.mlAmount ?? 0) ml")
+                                Text("\(viewModel.record.mlAmount ?? 0) ml")
                                     .foregroundStyle(Color.primary)
                             }
                             .buttonStyle(.bordered)
@@ -197,16 +174,13 @@ struct EditRecordView: View {
             case .sleep:
                 Section {
                     DatePicker("시작", selection: Binding(
-                        get: {
-                            self.record.sleepStart ?? Date()
-                        },
-                        set: { self.record.sleepStart = $0 })
-                    )
+                        get: { viewModel.record.sleepStart ?? Date() },
+                        set: { viewModel.record.sleepStart = $0 }
+                    ))
                     DatePicker("종료", selection: Binding(
-                        get: {
-                            self.record.sleepEnd ?? Date()
-                        },
-                        set: { self.record.sleepEnd = $0 }))
+                        get: { viewModel.record.sleepEnd ?? Date() },
+                        set: { viewModel.record.sleepEnd = $0 }
+                    ))
                 } header: {
                     Text("수면 시간")
                 }
@@ -215,8 +189,8 @@ struct EditRecordView: View {
                     TextField(
                         "키를 입력해 주세요",
                         text: Binding(
-                            get: { record.height.map { String(format: "%.1f", $0) } ?? "" },
-                            set: { self.record.height = Double($0) }
+                            get: { viewModel.record.height.map { String(format: "%.1f", $0) } ?? "" },
+                            set: { viewModel.record.height = Double($0) }
                         )
                     )
                     .keyboardType(.decimalPad)
@@ -231,8 +205,8 @@ struct EditRecordView: View {
                     TextField(
                         "몸무게를 입력해 주세요",
                         text: Binding(
-                            get: { record.weight.map { String(format: "%.1f", $0) } ?? "" },
-                            set: { self.record.weight = Double($0) }
+                            get: { viewModel.record.weight.map { String(format: "%.1f", $0) } ?? "" },
+                            set: { viewModel.record.weight = Double($0) }
                         )
                     )
                     .keyboardType(.decimalPad)
@@ -251,8 +225,8 @@ struct EditRecordView: View {
                 Section {
                     TextField("간식을 입력해 주세요",
                               text: Binding(
-                                get: { self.record.content ?? "" },
-                                set: { self.record.content = $0 }
+                                get: { viewModel.record.content ?? "" },
+                                set: { viewModel.record.content = $0 }
                               )
                     )
                 } header: {
@@ -270,10 +244,7 @@ struct EditRecordView: View {
                         Text("체온")
                     }
                     .onTapGesture {
-                        self.record.title = .temperature
-                        if record.title != .temperature {
-                            self.record.content = nil
-                        }
+                        viewModel.updateRecordTitle(.temperature)
                     }
                     HStack {
                         Image(systemName: record.title == .medicine ? "circle.inset.filled" : "circle")
@@ -285,9 +256,7 @@ struct EditRecordView: View {
                         Text("투약")
                     }
                     .onTapGesture {
-                        self.record.title = .medicine
-                        self.record.content = nil
-                        self.record.temperature = nil
+                        viewModel.updateRecordTitle(.medicine)
                     }
                     HStack {
                         Image(systemName: record.title == .clinic ? "circle.inset.filled" : "circle")
@@ -299,23 +268,22 @@ struct EditRecordView: View {
                         Text("기타")
                     }
                     .onTapGesture {
-                        self.record.title = .clinic
-                        self.record.content = nil
-                        self.record.temperature = nil
+                        viewModel.updateRecordTitle(.clinic)
                     }
                 } header: {
                     Text("카테고리")
                 }
                 .listRowSeparator(.hidden)
+                
                 if record.title == .temperature {
                     Section {
                         HStack {
                             Text("체온")
                             Spacer()
                             Button {
-                                isTMPickerActionSheetPresent = true
+                                viewModel.isTMPickerActionSheetPresent = true
                             } label: {
-                                Text(String(format: "%.1f °C", record.temperature ?? 36.5))
+                                Text(String(format: "%.1f °C", viewModel.record.temperature ?? 36.5))
                                     .foregroundColor(.primary)
                             }
                             .buttonStyle(.bordered)
@@ -327,12 +295,12 @@ struct EditRecordView: View {
                     Section {
                         TextField("내용을 입력해 주세요",
                                   text: Binding(
-                                    get: { self.record.content ?? "" },
-                                    set: { self.record.content = $0 }
+                                    get: { viewModel.record.content ?? "" },
+                                    set: { viewModel.record.content = $0 }
                                   )
                         )
                     } header: {
-                        Text("내용을 입력해 주세요")
+                        Text("내용")
                     }
                 }
             case .poop, .pee, .pottyAll:
@@ -347,7 +315,7 @@ struct EditRecordView: View {
                         Text("소변")
                     }
                     .onTapGesture {
-                        self.record.title = .pee
+                        viewModel.updateRecordTitle(.pee)
                     }
                     HStack {
                         Image(systemName: record.title == .poop ? "circle.inset.filled" : "circle")
@@ -359,7 +327,7 @@ struct EditRecordView: View {
                         Text("대변")
                     }
                     .onTapGesture {
-                        self.record.title = .poop
+                        viewModel.updateRecordTitle(.poop)
                     }
                     HStack {
                         Image(systemName: record.title == .pottyAll ? "circle.inset.filled" : "circle")
@@ -371,7 +339,7 @@ struct EditRecordView: View {
                         Text("둘다")
                     }
                     .onTapGesture {
-                        self.record.title = .pottyAll
+                        viewModel.updateRecordTitle(.pottyAll)
                     }
                 }
                 .listRowSeparator(.hidden)
@@ -382,7 +350,6 @@ struct EditRecordView: View {
 }
 
 #Preview {
-    let record = Record.mockRecords[30]
-    EditRecordView(record: record)
-    Text(record.title.rawValue)
+    let record = Record.mockRecords[0]
+    return EditRecordView(record: record)
 }
