@@ -10,15 +10,23 @@ import SwiftUI
 struct CryAnalysisProcessingView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var viewModel: VoiceRecordViewModel
-    
+
+    @State private var showResultView = false
+    @State private var result: EmotionResult?
+
     var body: some View {
         ZStack {
-            // 각 상태에 따른 뷰를 표시
             switch viewModel.step {
-            case .processing, .recording:
-                ProcessingStateView(dismiss: dismiss, viewModel: viewModel)
-            case .result(let result):
-                CryAnalysisResultView(emotionType: result.type, confidence: Float(result.confidence))
+            case .recording, .processing:
+                ProcessingStateView(viewModel: viewModel, dismiss: dismiss)
+            case .result(let res):
+                Color.clear
+                    .onAppear {
+                        if self.result == nil {
+                            self.result = res
+                            self.showResultView = true
+                        }
+                    }
             case .error(let message):
                 ErrorStateView(message: message, dismiss: dismiss)
             default:
@@ -26,15 +34,30 @@ struct CryAnalysisProcessingView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .navigationDestination(isPresented: $showResultView) {
+            if let result {
+                CryAnalysisResultView(
+                    viewModel: viewModel,
+                    emotionType: result.type,
+                    confidence: Float(result.confidence)
+                )
+            }
+        }
+        .onChange(of: viewModel.shouldDismissResultView) { shouldDismiss in
+            if shouldDismiss {
+                showResultView = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    dismiss()
+                }
+            }
+        }
     }
 }
 
-// 처리 중 상태를 표시하는 하위 뷰
 private struct ProcessingStateView: View {
-    let dismiss: DismissAction
     @ObservedObject var viewModel: VoiceRecordViewModel
+    let dismiss: DismissAction
     @State private var dotCount: Int = 0
-    
     private let dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
     
     var body: some View {
@@ -53,16 +76,17 @@ private struct ProcessingStateView: View {
                 .frame(width: 180, height: 180)
             
             Spacer()
-
+            
             Text("아기의 상태를 분석하고 있어요" + String(repeating: ".", count: dotCount))
                 .font(.system(size: 20))
                 .bold()
                 .foregroundColor(.primary)
                 .padding(.top, 8)
-
+            
             Spacer()
-
+            
             Button(action: {
+                viewModel.cancel()
                 dismiss()
             }) {
                 Text("취소")
@@ -74,13 +98,13 @@ private struct ProcessingStateView: View {
                     .cornerRadius(12)
                     .padding(.horizontal, 24)
             }
-            .padding(.horizontal)
-
+            
             Spacer().frame(height: 16)
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
+                    viewModel.cancel()
                     dismiss()
                 }) {
                     Image(systemName: "chevron.left")
@@ -91,13 +115,9 @@ private struct ProcessingStateView: View {
         .onReceive(dotTimer) { _ in
             dotCount = (dotCount + 1) % 4
         }
-        .onAppear {
-            viewModel.startAnalysis()
-        }
     }
 }
 
-// 에러 상태를 표시하는 하위 뷰
 private struct ErrorStateView: View {
     let message: String
     let dismiss: DismissAction
@@ -110,7 +130,7 @@ private struct ErrorStateView: View {
             
             Spacer()
             
-            Image("CryAnalysisErrorShark") // 에러 상태의 이미지(없다면 기본 이미지 사용)
+            Image("CryAnalysisErrorShark")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 180, height: 180)
@@ -136,7 +156,6 @@ private struct ErrorStateView: View {
                     .cornerRadius(12)
                     .padding(.horizontal, 24)
             }
-            .padding(.horizontal)
             
             Spacer().frame(height: 16)
         }
@@ -152,7 +171,6 @@ private struct ErrorStateView: View {
         }
     }
 }
-
 #Preview {
     let mockViewModel = VoiceRecordViewModel()
     mockViewModel.step = .processing
