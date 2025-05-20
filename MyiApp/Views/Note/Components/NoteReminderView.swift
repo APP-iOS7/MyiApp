@@ -14,11 +14,12 @@ struct NoteReminderView: View {
     @State private var showTimePicker = false
     @State private var tempReminderTime: Date = Date()
     @State private var showInvalidTimeAlert = false
+    @State private var alertMessage = ""
     @ObservedObject var notificationService = NotificationService.shared
     
     var eventDate: Date
     
-    private let reminderOptions = [10, 15, 30, 60, 120, 1440]
+    private let reminderOptions = [0, 10, 15, 30, 60, 120, 1440]
     
     var body: some View {
         VStack(spacing: 16) {
@@ -30,19 +31,8 @@ struct NoteReminderView: View {
                         if granted {
                             print("알림 권한 획득 성공!")
                             isEnabled = true
-                            
-                            let now = Date()
-                            let minReminderTime = now.addingTimeInterval(5 * 60)
-                            
-                            if minReminderTime < eventDate {
-                                reminderMinutesBefore = 30
-                                reminderTime = max(
-                                    eventDate.addingTimeInterval(-30 * 60),
-                                    now.addingTimeInterval(5 * 60)
-                                )
-                            } else {
-                                isEnabled = false
-                            }
+                            reminderMinutesBefore = 0
+                            reminderTime = eventDate
                         } else {
                             print("알림 권한 획득 실패!")
                         }
@@ -56,29 +46,12 @@ struct NoteReminderView: View {
             print("NoteReminderView appeared: isEnabled=\(isEnabled), minutesBefore=\(reminderMinutesBefore)")
             print("알림 권한 상태: \(notificationService.authorizationStatus.rawValue)")
             
-            if isEnabled && reminderTime <= Date() {
-                adjustReminderTime()
+            if eventDate <= Date() {
+                isEnabled = false
             }
         }
-        .alert("알림 시간 오류", isPresented: $showInvalidTimeAlert) {
+        .alert(alertMessage, isPresented: $showInvalidTimeAlert) {
             Button("확인", role: .cancel) { }
-        } message: {
-            Text("알림 시간은 일정 시작 시간보다 이전이어야 합니다.\n다시 설정해주세요.")
-        }
-    }
-    
-    private func adjustReminderTime() {
-        let now = Date()
-        let minReminderTime = now.addingTimeInterval(5 * 60)
-        
-        if minReminderTime < eventDate {
-            reminderTime = minReminderTime
-            let diffMinutes = Int(eventDate.timeIntervalSince(minReminderTime) / 60)
-            reminderMinutesBefore = diffMinutes
-            print("알림 시간 자동 조정: \(reminderTime), \(reminderMinutesBefore)분 전")
-        } else {
-            isEnabled = false
-            print("일정 시간이 너무 가까워 알림 비활성화")
         }
     }
     
@@ -90,8 +63,9 @@ struct NoteReminderView: View {
                     print("알림 토글 변경: \(enabled)")
                     
                     if enabled {
-                        if reminderTime <= Date() {
-                            adjustReminderTime()
+                        if reminderTime <= Date() || reminderMinutesBefore < 0 {
+                            reminderMinutesBefore = 0
+                            reminderTime = eventDate
                         }
                     }
                 }
@@ -107,13 +81,19 @@ struct NoteReminderView: View {
                         Menu {
                             ForEach(reminderOptions, id: \.self) { minutes in
                                 Button(action: {
-                                    let newReminderTime = eventDate.addingTimeInterval(TimeInterval(-minutes * 60))
-                                    if newReminderTime > Date() {
-                                        reminderMinutesBefore = minutes
-                                        reminderTime = newReminderTime
-                                        print("알림 옵션 선택: \(minutes)분 전, 시간: \(reminderTime)")
+                                    if minutes == 0 {
+                                        reminderMinutesBefore = 0
+                                        reminderTime = eventDate
                                     } else {
-                                        adjustReminderTime()
+                                        let newReminderTime = eventDate.addingTimeInterval(TimeInterval(-minutes * 60))
+                                        if newReminderTime > Date() {
+                                            reminderMinutesBefore = minutes
+                                            reminderTime = newReminderTime
+                                            print("알림 옵션 선택: \(minutes)분 전, 시간: \(reminderTime)")
+                                        } else {
+                                            showInvalidTimeAlert = true
+                                            alertMessage = "선택한 시간이 현재보다 이전입니다. 다른 옵션을 선택해주세요."
+                                        }
                                     }
                                 }) {
                                     HStack {
@@ -192,9 +172,11 @@ struct NoteReminderView: View {
                                 Button("확인") {
                                     if tempReminderTime >= eventDate {
                                         showInvalidTimeAlert = true
+                                        alertMessage = "알림 시간은 일정 시작 시간보다 이전이어야 합니다."
                                         print("선택한 알림 시간이 일정보다 이후임: \(tempReminderTime) >= \(eventDate)")
                                     } else if tempReminderTime <= Date() {
                                         showInvalidTimeAlert = true
+                                        alertMessage = "알림 시간은 현재 시간보다 이후여야 합니다."
                                         print("선택한 알림 시간이 현재보다 이전임: \(tempReminderTime) <= \(Date())")
                                     } else {
                                         reminderTime = tempReminderTime
@@ -224,9 +206,19 @@ struct NoteReminderView: View {
                         .presentationDetents([.height(350)])
                     }
                     
-                    Text("일정이 시작되기 전 알림을 받습니다")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                    if reminderMinutesBefore == 0 {
+                        Text("일정 시작 시간에 알림을 받습니다")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    } else if reminderMinutesBefore > 0 {
+                        Text("일정이 시작되기 \(minutesToString(reminderMinutesBefore)) 알림을 받습니다")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    } else {
+                        Text("설정한 시간에 알림을 받습니다")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
                 }
             }
         }

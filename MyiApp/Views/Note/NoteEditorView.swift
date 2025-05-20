@@ -21,10 +21,9 @@ struct NoteEditorView: View {
     @State private var existingImageURLs: [String] = []
     @State private var isSaving = false
     
-    // 알림 관련 상태 변수
     @State private var isReminderEnabled: Bool = false
     @State private var reminderTime: Date
-    @State private var reminderMinutesBefore: Int = 30
+    @State private var reminderMinutesBefore: Int = 0
     @State private var showAlertMessage = false
     @State private var alertMessage = ""
     
@@ -32,38 +31,57 @@ struct NoteEditorView: View {
     let noteId: UUID?
     
     init(selectedDate: Date, note: Note? = nil) {
-        // 날짜 초기화 - 현재 시간보다 30분 후로 기본 설정
-        let futureDate = max(selectedDate, Date().addingTimeInterval(30 * 60))
-        _date = State(initialValue: futureDate)
-        
-        // 알림 시간은 일정 시간 30분 전으로 설정 (최소한 현재 시간 이후)
-        let defaultReminderTime = futureDate.addingTimeInterval(-30 * 60)
-        _reminderTime = State(initialValue: max(defaultReminderTime, Date().addingTimeInterval(60)))
+        let now = Date()
+        if let note = note {
+            _date = State(initialValue: note.date)
+            _reminderTime = State(initialValue: note.date)
+        } else {
+            let calendar = Calendar.current
+            
+            let selectedDateComponents = calendar.dateComponents([.year, .month, .day], from: selectedDate)
+            let currentTimeComponents = calendar.dateComponents([.hour, .minute], from: now)
+            
+            var combinedComponents = DateComponents()
+            combinedComponents.year = selectedDateComponents.year
+            combinedComponents.month = selectedDateComponents.month
+            combinedComponents.day = selectedDateComponents.day
+            combinedComponents.hour = currentTimeComponents.hour
+            combinedComponents.minute = currentTimeComponents.minute
+            
+            let combinedDate = calendar.date(from: combinedComponents) ?? now
+            _date = State(initialValue: combinedDate)
+            _reminderTime = State(initialValue: combinedDate)
+        }
         
         if let note = note {
             _title = State(initialValue: note.title)
             _description = State(initialValue: note.description)
-            _date = State(initialValue: note.date)
             _selectedCategory = State(initialValue: note.category)
             _existingImageURLs = State(initialValue: note.imageURLs)
             
-            // 알림 정보가 있으면 설정
             if let notificationEnabled = note.notificationEnabled,
-               notificationEnabled,
-               let notificationTime = note.notificationTime {
+               notificationEnabled {
                 _isReminderEnabled = State(initialValue: true)
-                _reminderTime = State(initialValue: notificationTime)
                 
-                // 시간 차이 계산
-                let diffMinutes = Int(note.date.timeIntervalSince(notificationTime) / 60)
-                if diffMinutes > 0 {
-                    _reminderMinutesBefore = State(initialValue: diffMinutes)
+                if let notificationTime = note.notificationTime {
+                    _reminderTime = State(initialValue: notificationTime)
+                    
+                    let diffMinutes = Int(note.date.timeIntervalSince(notificationTime) / 60)
+                    if diffMinutes > 0 {
+                        _reminderMinutesBefore = State(initialValue: diffMinutes)
+                    } else {
+                        _reminderMinutesBefore = State(initialValue: 0)
+                    }
                 }
+            } else {
+                _isReminderEnabled = State(initialValue: note.category == .일정)
             }
             
             self.isEditing = true
             self.noteId = note.id
         } else {
+            _isReminderEnabled = State(initialValue: false)
+            
             self.isEditing = false
             self.noteId = nil
         }
@@ -72,11 +90,10 @@ struct NoteEditorView: View {
     private func checkNotificationStatus() {
         guard let id = noteId, selectedCategory == .일정 else { return }
         
-        print("🔔 알림 상태 확인: \(id.uuidString)")
+        print("알림 상태 확인: \(id.uuidString)")
         // 모든 알림 출력 (디버깅)
         NotificationService.shared.printAllScheduledNotifications()
         
-        // 먼저 Note 객체의 저장된 알림 상태 확인
         if let note = viewModel.getNoteById(id),
            let enabled = note.notificationEnabled,
            enabled,
@@ -85,19 +102,22 @@ struct NoteEditorView: View {
             isReminderEnabled = true
             reminderTime = notificationTime
             
-            // 시간 차이 계산
-            let diffMinutes = Int(date.timeIntervalSince(notificationTime) / 60)
+            let diffSeconds = note.date.timeIntervalSince(notificationTime)
+            let diffMinutes = Int(diffSeconds / 60)
+            
             if diffMinutes > 0 {
                 reminderMinutesBefore = diffMinutes
+            } else {
+                reminderMinutesBefore = 0
             }
             
-            print("🔔 Note 객체에서 알림 정보 로드: time=\(notificationTime), \(reminderMinutesBefore)분 전")
+            print("Note 객체에서 알림 정보 로드: time=\(notificationTime), \(reminderMinutesBefore)분 전")
             return
         }
         
         // 실제 알림 시스템에서 확인
         NotificationService.shared.findNotificationForNote(noteId: id.uuidString) { exists, triggerDate, _ in
-            print("🔔 알림 시스템 확인 결과: 존재=\(exists), 시간=\(String(describing: triggerDate))")
+            print("알림 시스템 확인 결과: 존재=\(exists), 시간=\(String(describing: triggerDate))")
             
             DispatchQueue.main.async {
                 self.isReminderEnabled = exists
@@ -105,20 +125,18 @@ struct NoteEditorView: View {
                 if exists, let triggerDate = triggerDate {
                     self.reminderTime = triggerDate
                     
-                    // 시간 차이 계산
                     let diffMinutes = Int(self.date.timeIntervalSince(triggerDate) / 60)
                     
                     if diffMinutes > 0 {
-                        if [10, 15, 30, 60, 120, 1440].contains(diffMinutes) {
+                        if [0, 10, 15, 30, 60, 120, 1440].contains(diffMinutes) {
                             self.reminderMinutesBefore = diffMinutes
                         } else {
                             self.reminderMinutesBefore = diffMinutes
                         }
                     } else {
-                        self.reminderMinutesBefore = 30 // 기본값
+                        self.reminderMinutesBefore = 0
                     }
                     
-                    // Note 객체에 알림 정보 업데이트
                     if let id = self.noteId {
                         self.viewModel.updateNoteNotification(
                             noteId: id,
@@ -143,6 +161,7 @@ struct NoteEditorView: View {
                             isSelected: selectedCategory == .일지
                         ) {
                             selectedCategory = .일지
+                            isReminderEnabled = false
                         }
                         
                         RadioButtonRow(
@@ -152,6 +171,9 @@ struct NoteEditorView: View {
                             isSelected: selectedCategory == .일정
                         ) {
                             selectedCategory = .일정
+                            isReminderEnabled = true
+                            reminderTime = date
+                            reminderMinutesBefore = 0
                         }
                     }
                     .padding(.vertical, 4)
@@ -166,18 +188,18 @@ struct NoteEditorView: View {
                         .datePickerStyle(.compact)
                         .onChange(of: date) { _, newValue in
                             if isReminderEnabled {
-                                reminderTime = newValue.addingTimeInterval(TimeInterval(-reminderMinutesBefore * 60))
-                                
-                                if reminderTime < Date() {
-                                    let possibleTime = Date().addingTimeInterval(5 * 60)
-                                    if possibleTime < newValue {
-                                        reminderTime = possibleTime
-                                        let diffMinutes = Int(newValue.timeIntervalSince(possibleTime) / 60)
-                                        reminderMinutesBefore = diffMinutes
-                                    } else {
-                                        isReminderEnabled = false
-                                        showAlertMessage = true
-                                        alertMessage = "일정 시간이 너무 가까워 알림을 설정할 수 없습니다."
+                                if reminderMinutesBefore == 0 {
+                                    reminderTime = newValue
+                                } else {
+                                    reminderTime = newValue.addingTimeInterval(TimeInterval(-reminderMinutesBefore * 60))
+                                    
+                                    if reminderTime < Date() {
+                                        let possibleTime = Date().addingTimeInterval(5 * 60)
+                                        if possibleTime < newValue {
+                                            reminderTime = possibleTime
+                                            let diffMinutes = Int(newValue.timeIntervalSince(possibleTime) / 60)
+                                            reminderMinutesBefore = diffMinutes
+                                        }
                                     }
                                 }
                             }
@@ -320,7 +342,6 @@ struct NoteEditorView: View {
             }
         }
         
-        // 2. 기본 Note 객체 생성
         let note = Note(
             id: noteId,
             title: title,
@@ -332,16 +353,13 @@ struct NoteEditorView: View {
             notificationTime: notificationTime
         )
         
-        // 3. 노트 저장 처리 (이미지 유무에 따라)
         if !selectedImages.isEmpty && selectedCategory == .일지 {
-            // 이미지가 있는 노트
             if isEditing {
                 viewModel.updateNoteWithImages(note: note, newImages: selectedImages)
             } else {
                 viewModel.addNoteWithImages(note: note, images: selectedImages)
             }
             
-            // 이미지 업로드는 비동기 처리되므로 콜백에서 화면 닫기
             print("이미지 저장 처리 중...")
             
             setSuccessToastMessage(withNotification: notificationEnabled == true)
@@ -371,12 +389,12 @@ struct NoteEditorView: View {
     private func handleNotificationForEvent(noteId: UUID) -> (success: Bool, time: Date?, message: String?) {
         print("알림 처리: isEnabled=\(isReminderEnabled), noteId=\(noteId)")
         
-        if reminderTime <= Date() {
+        if reminderTime < Date() {
             print("알림 시간이 현재보다 이전: \(reminderTime)")
             return (false, nil, "알림 시간은 현재 시간 이후여야 합니다.")
         }
         
-        let timeDiff = max(1, Int(date.timeIntervalSince(reminderTime) / 60))
+        let timeDiff = reminderMinutesBefore == 0 ? 0 : max(1, Int(date.timeIntervalSince(reminderTime) / 60))
         
         let note = Note(
             id: noteId,
