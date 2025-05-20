@@ -196,7 +196,7 @@ struct StatisticView: View {
             if selectedMode == "주" {
                 WeeklyChartView(baby: baby, records: records,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(.horizontal)
+                    .padding(.trailing)
                     .padding(.vertical, 20)
                 
             } else if selectedMode == "일" {
