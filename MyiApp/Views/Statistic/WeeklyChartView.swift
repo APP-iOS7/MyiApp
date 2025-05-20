@@ -9,14 +9,12 @@ import SwiftUI
 
 struct WeeklyChartView: View {
     let baby: Baby
+    let records: [Record]
     
     var birthDate: Date {
         baby.birthDate
     }
     
-    var records: [Record] {
-        CaregiverManager.shared.records
-    }
     let selectedDate: Date
     
     private var weekDates: [Date] {
