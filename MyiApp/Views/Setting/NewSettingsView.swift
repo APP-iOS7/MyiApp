@@ -50,10 +50,14 @@ struct NewSettingsView: View {
                             .padding()
                             .padding(.top, 15)
                         
-                        NavigationLink(destination: Text("아이 정보 페이지")) {
+                        NavigationLink(destination: BabyProfileView()) {
                             HStack {
+                                Image ("appVIcon")
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
                                 Text("아이 정보")
                                     .foregroundColor(.primary.opacity(0.6))
+                                    .padding(.leading, 5)
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(.primary.opacity(0.6))
@@ -63,10 +67,14 @@ struct NewSettingsView: View {
                             .padding(.bottom, 10)
                         }
                         
-                        NavigationLink(destination: Text("알림 설정 페이지")) {
+                        NavigationLink(destination: NotificationSettingsView()) {
                             HStack {
+                                Image ("appVIcon")
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
                                 Text("알림 설정")
                                     .foregroundColor(.primary.opacity(0.6))
+                                    .padding(.leading, 5)
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(.primary.opacity(0.6))
@@ -87,10 +95,14 @@ struct NewSettingsView: View {
                             .padding()
                             .padding(.top, 15)
                         
-                        NavigationLink(destination: Text("개인 정보 처리 방침")) {
+                        NavigationLink(destination: PrivacyPolicyView()) {
                             HStack {
-                                Text("이용 약관")
+                                Image ("appVIcon")
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
+                                Text("개인 정보 처리 방침")
                                     .foregroundColor(.primary.opacity(0.6))
+                                    .padding(.leading, 5)
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(.primary.opacity(0.6))
@@ -100,10 +112,14 @@ struct NewSettingsView: View {
                             .padding(.bottom, 10)
                         }
                         
-                        NavigationLink(destination: Text("알림 설정 페이지")) {
+                        NavigationLink(destination: TermsOfServiceView()) {
                             HStack {
-                                Text("알림 설정")
+                                Image ("appVIcon")
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
+                                Text("이용 약관")
                                     .foregroundColor(.primary.opacity(0.6))
+                                    .padding(.leading, 5)
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(.primary.opacity(0.6))
@@ -125,8 +141,12 @@ struct NewSettingsView: View {
                             .padding(.top, 15)
                         
                         HStack {
+                            Image ("appVIcon")
+                                .resizable()
+                                .frame(width: 20, height: 20)
                             Text("앱 버전")
                                 .foregroundColor(.primary.opacity(0.6))
+                                .padding(.leading, 5)
                             Spacer()
                             Text("\(appVersion)")
                                 .foregroundColor(.primary.opacity(0.6))
