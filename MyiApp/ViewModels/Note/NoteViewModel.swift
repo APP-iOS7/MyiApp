@@ -2,7 +2,7 @@
 //  NoteViewModel.swift
 //  MyiApp
 //
-//  Created by 최범수 on 2025-05-08.
+//  Created by Saebyeok Jang on 5/20/25.
 //
 
 import SwiftUI
@@ -96,159 +96,86 @@ class NoteViewModel: ObservableObject {
         isLoading = true
         
         db.collection("babies").document(baby.id.uuidString)
-            .getDocument { [weak self] snapshot, error in
-                guard let self = self else { return }
-                
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    
-                    if let error = error {
-                        self.errorMessage = "노트를 가져오는데 실패했습니다: \(error.localizedDescription)"
-                        return
-                    }
-                    
-                    guard let document = snapshot, document.exists else { return }
-                    
-                    if let notesData = document.data()?["note"] as? [[String: Any]] {
-                        var newEvents: [Date: [Note]] = [:]
-                        
-                        let calendar = Calendar.current
-                        
-                        for noteData in notesData {
-                            do {
-                                if let note = try self.noteFromDictionary(noteData) {
-                                    let startOfDay = calendar.startOfDay(for: note.date)
-                                    
-                                    if var dayNotes = newEvents[startOfDay] {
-                                        dayNotes.append(note)
-                                        dayNotes.sort { $0.date < $1.date }
-                                        newEvents[startOfDay] = dayNotes
-                                    } else {
-                                        newEvents[startOfDay] = [note]
-                                    }
-                                }
-                            } catch {
-                                print("노트 파싱 오류: \(error.localizedDescription)")
-                            }
-                        }
-                        
-                        self.events = newEvents
-                    } else {
-                        self.events = [:]
-                    }
-                }
-            }
-    }
-    
-    private func noteFromDictionary(_ dict: [String: Any]) throws -> Note? {
-        guard let idString = dict["id"] as? String,
-              let id = UUID(uuidString: idString),
-              let title = dict["title"] as? String,
-              let description = dict["description"] as? String,
-              let categoryString = dict["category"] as? String,
-              let category = NoteCategory(rawValue: categoryString) else {
-            return nil
-        }
-        
-        var date: Date
-        
-        if let timestamp = dict["date"] as? Timestamp {
-            date = timestamp.dateValue()
-        } else if let dateDouble = dict["date"] as? Double {
-            date = Date(timeIntervalSince1970: dateDouble)
-        } else {
-            return nil
-        }
-        
-        let imageURLs = dict["imageURLs"] as? [String] ?? []
-        
-        let notificationEnabled = dict["notificationEnabled"] as? Bool
-        var notificationTime: Date? = nil
-        
-        if let timeStamp = dict["notificationTime"] as? Timestamp {
-            notificationTime = timeStamp.dateValue()
-        }
-        
-        return Note(
-            id: id,
-            title: title,
-            description: description,
-            date: date,
-            category: category,
-            imageURLs: imageURLs,
-            notificationEnabled: notificationEnabled,
-            notificationTime: notificationTime
-        )
-    }
-    
-    private func noteToDictionary(_ note: Note) -> [String: Any] {
-        var dict: [String: Any] = [
-            "id": note.id.uuidString,
-            "title": note.title,
-            "description": note.description,
-            "date": Timestamp(date: note.date),
-            "category": note.category.rawValue,
-            "imageURLs": note.imageURLs
-        ]
-        
-        if let enabled = note.notificationEnabled {
-            dict["notificationEnabled"] = enabled
-            
-            if enabled, let time = note.notificationTime {
-                dict["notificationTime"] = Timestamp(date: time)
-            }
-        }
-        
-        return dict
+          .collection("records")
+          .getDocuments { [weak self] snapshot, error in
+              guard let self = self else { return }
+              
+              DispatchQueue.main.async {
+                  self.isLoading = false
+                  
+                  if let error = error {
+                      self.errorMessage = "노트를 가져오는데 실패했습니다: \(error.localizedDescription)"
+                      return
+                  }
+                  
+                  guard let documents = snapshot?.documents else { return }
+                  
+                  var newEvents: [Date: [Note]] = [:]
+                  let calendar = Calendar.current
+                  
+                  for document in documents {
+                      do {
+                          let note = try document.data(as: Note.self)
+                          let startOfDay = calendar.startOfDay(for: note.date)
+                          
+                          if var dayNotes = newEvents[startOfDay] {
+                              dayNotes.append(note)
+                              dayNotes.sort { $0.date < $1.date }
+                              newEvents[startOfDay] = dayNotes
+                          } else {
+                              newEvents[startOfDay] = [note]
+                          }
+                      } catch {
+                          print("노트 파싱 오류: \(error.localizedDescription)")
+                      }
+                  }
+                  
+                  self.events = newEvents
+              }
+          }
     }
     
     // MARK: - 노트 추가
     func addNote(note: Note) {
         guard let baby = babyInfo else { return }
         
-        let babyRef = db.collection("babies").document(baby.id.uuidString)
+        isLoading = true
         
-        db.runTransaction({ (transaction, errorPointer) -> Any? in
-            let babyDocument: DocumentSnapshot
-            do {
-                try babyDocument = transaction.getDocument(babyRef)
-            } catch let fetchError as NSError {
-                errorPointer?.pointee = fetchError
-                return nil
-            }
+        let docRef = db.collection("babies").document(baby.id.uuidString)
+            .collection("records")
+            .document(note.id.uuidString)
+        
+        do {
+            let encoder = Firestore.Encoder()
+            let data = try encoder.encode(note)
             
-            var notes: [[String: Any]] = []
-            if let existingNotes = babyDocument.data()?["note"] as? [[String: Any]] {
-                notes = existingNotes
-            }
-            
-            let noteData = self.noteToDictionary(note)
-            notes.append(noteData)
-            
-            transaction.updateData(["note": notes], forDocument: babyRef)
-            
-            return notes
-        }) { [weak self] (_, error) in
-            guard let self = self else { return }
-            
-            if let error = error {
-                DispatchQueue.main.async {
-                    self.errorMessage = "노트 추가에 실패했습니다: \(error.localizedDescription)"
-                }
-                return
-            }
-            
-            DispatchQueue.main.async {
-                let calendar = Calendar.current
-                let startOfDay = calendar.startOfDay(for: note.date)
+            docRef.setData(data) { [weak self] error in
+                guard let self = self else { return }
                 
-                if var dayNotes = self.events[startOfDay] {
-                    dayNotes.append(note)
-                    dayNotes.sort { $0.date < $1.date }
-                    self.events[startOfDay] = dayNotes
-                } else {
-                    self.events[startOfDay] = [note]
+                DispatchQueue.main.async {
+                    self.isLoading = false
+                    
+                    if let error = error {
+                        self.errorMessage = "노트 추가에 실패했습니다: \(error.localizedDescription)"
+                        return
+                    }
+                    
+                    let calendar = Calendar.current
+                    let startOfDay = calendar.startOfDay(for: note.date)
+                    
+                    if var dayNotes = self.events[startOfDay] {
+                        dayNotes.append(note)
+                        dayNotes.sort { $0.date < $1.date }
+                        self.events[startOfDay] = dayNotes
+                    } else {
+                        self.events[startOfDay] = [note]
+                    }
                 }
+            }
+        } catch {
+            DispatchQueue.main.async {
+                self.isLoading = false
+                self.errorMessage = "노트 인코딩에 실패했습니다: \(error.localizedDescription)"
             }
         }
     }
@@ -257,64 +184,57 @@ class NoteViewModel: ObservableObject {
     func updateNote(note: Note) {
         guard let baby = babyInfo else { return }
         
-        let babyRef = db.collection("babies").document(baby.id.uuidString)
+        isLoading = true
         
-        db.runTransaction({ (transaction, errorPointer) -> Any? in
-            let babyDocument: DocumentSnapshot
-            do {
-                try babyDocument = transaction.getDocument(babyRef)
-            } catch let fetchError as NSError {
-                errorPointer?.pointee = fetchError
-                return nil
-            }
+        let docRef = db.collection("babies").document(baby.id.uuidString)
+            .collection("records")
+            .document(note.id.uuidString)
+        
+        do {
+            let encoder = Firestore.Encoder()
+            let data = try encoder.encode(note)
             
-            guard var notes = babyDocument.data()?["note"] as? [[String: Any]] else {
-                return nil
-            }
-            
-            if let index = notes.firstIndex(where: { ($0["id"] as? String) == note.id.uuidString }) {
-                let noteData = self.noteToDictionary(note)
-                notes[index] = noteData
+            docRef.setData(data, merge: true) { [weak self] error in
+                guard let self = self else { return }
                 
-                transaction.updateData(["note": notes], forDocument: babyRef)
-            }
-            
-            return notes
-        }) { [weak self] (_, error) in
-            guard let self = self else { return }
-            
-            if let error = error {
                 DispatchQueue.main.async {
-                    self.errorMessage = "노트 업데이트에 실패했습니다: \(error.localizedDescription)"
-                }
-                return
-            }
-            
-            DispatchQueue.main.async {
-                let calendar = Calendar.current
-                
-                for (day, notes) in self.events {
-                    if let index = notes.firstIndex(where: { $0.id == note.id }) {
-                        var updatedNotes = notes
-                        updatedNotes.remove(at: index)
-                        
-                        if updatedNotes.isEmpty {
-                            self.events.removeValue(forKey: day)
-                        } else {
-                            self.events[day] = updatedNotes
+                    self.isLoading = false
+                    
+                    if let error = error {
+                        self.errorMessage = "노트 업데이트에 실패했습니다: \(error.localizedDescription)"
+                        return
+                    }
+                    
+                    let calendar = Calendar.current
+                    
+                    for (day, notes) in self.events {
+                        if let index = notes.firstIndex(where: { $0.id == note.id }) {
+                            var updatedNotes = notes
+                            updatedNotes.remove(at: index)
+                            
+                            if updatedNotes.isEmpty {
+                                self.events.removeValue(forKey: day)
+                            } else {
+                                self.events[day] = updatedNotes
+                            }
+                            break
                         }
-                        break
+                    }
+                    
+                    let startOfDay = calendar.startOfDay(for: note.date)
+                    if var dayNotes = self.events[startOfDay] {
+                        dayNotes.append(note)
+                        dayNotes.sort { $0.date < $1.date }
+                        self.events[startOfDay] = dayNotes
+                    } else {
+                        self.events[startOfDay] = [note]
                     }
                 }
-                
-                let startOfDay = calendar.startOfDay(for: note.date)
-                if var dayNotes = self.events[startOfDay] {
-                    dayNotes.append(note)
-                    dayNotes.sort { $0.date < $1.date }
-                    self.events[startOfDay] = dayNotes
-                } else {
-                    self.events[startOfDay] = [note]
-                }
+            }
+        } catch {
+            DispatchQueue.main.async {
+                self.isLoading = false
+                self.errorMessage = "노트 인코딩에 실패했습니다: \(error.localizedDescription)"
             }
         }
     }
@@ -325,52 +245,37 @@ class NoteViewModel: ObservableObject {
         
         guard let baby = babyInfo else { return }
         
-        let babyRef = db.collection("babies").document(baby.id.uuidString)
+        isLoading = true
         
-        db.runTransaction({ (transaction, errorPointer) -> Any? in
-            let babyDocument: DocumentSnapshot
-            do {
-                try babyDocument = transaction.getDocument(babyRef)
-            } catch let fetchError as NSError {
-                errorPointer?.pointee = fetchError
-                return nil
-            }
-            
-            guard var notes = babyDocument.data()?["note"] as? [[String: Any]] else {
-                return nil
-            }
-            
-            notes.removeAll { ($0["id"] as? String) == note.id.uuidString }
-            
-            transaction.updateData(["note": notes], forDocument: babyRef)
-            
-            return notes
-        }) { [weak self] (_, error) in
-            guard let self = self else { return }
-            
-            if let error = error {
-                DispatchQueue.main.async {
-                    self.errorMessage = "노트 삭제에 실패했습니다: \(error.localizedDescription)"
-                }
-                return
-            }
-            
-            DispatchQueue.main.async {
-                let calendar = Calendar.current
-                let startOfDay = calendar.startOfDay(for: note.date)
+        db.collection("babies").document(baby.id.uuidString)
+            .collection("records")
+            .document(note.id.uuidString)
+            .delete { [weak self] error in
+                guard let self = self else { return }
                 
-                if var dayNotes = self.events[startOfDay] {
-                    dayNotes.removeAll { $0.id == note.id }
+                DispatchQueue.main.async {
+                    self.isLoading = false
                     
-                    if dayNotes.isEmpty {
-                        self.events.removeValue(forKey: startOfDay)
-                    } else {
-                        dayNotes.sort { $0.date < $1.date }
-                        self.events[startOfDay] = dayNotes
+                    if let error = error {
+                        self.errorMessage = "노트 삭제에 실패했습니다: \(error.localizedDescription)"
+                        return
+                    }
+                    
+                    let calendar = Calendar.current
+                    let startOfDay = calendar.startOfDay(for: note.date)
+                    
+                    if var dayNotes = self.events[startOfDay] {
+                        dayNotes.removeAll { $0.id == note.id }
+                        
+                        if dayNotes.isEmpty {
+                            self.events.removeValue(forKey: startOfDay)
+                        } else {
+                            dayNotes.sort { $0.date < $1.date }
+                            self.events[startOfDay] = dayNotes
+                        }
                     }
                 }
             }
-        }
     }
     
     // MARK: - 특정 날짜의 이벤트 가져오기
@@ -506,6 +411,7 @@ extension NoteViewModel {
     }
 }
 
+// 이미지 관련 확장
 extension NoteViewModel {
     func uploadImage(_ image: UIImage, completion: @escaping (Result<String, Error>) -> Void) {
         guard let imageData = image.jpegData(compressionQuality: 0.7) else {
@@ -541,6 +447,7 @@ extension NoteViewModel {
         }
     }
     
+    // 여러 이미지 업로드
     func uploadImages(_ images: [UIImage], completion: @escaping (Result<[String], Error>) -> Void) {
         var uploadedURLs: [String] = []
         let group = DispatchGroup()
@@ -570,6 +477,7 @@ extension NoteViewModel {
         }
     }
     
+    // ID로 노트 찾기
     func getNoteById(_ id: UUID) -> Note? {
         for (_, notes) in events {
             if let note = notes.first(where: { $0.id == id }) {
@@ -579,6 +487,7 @@ extension NoteViewModel {
         return nil
     }
 
+    // 알림 정보 업데이트
     func updateNoteNotification(noteId: UUID, enabled: Bool, time: Date?) {
         guard let note = getNoteById(noteId) else { return }
         
@@ -597,6 +506,7 @@ extension NoteViewModel {
         print("🔄 노트 알림 정보 업데이트: \(noteId.uuidString), enabled=\(enabled), time=\(String(describing: time))")
     }
     
+    // 이미지가 있는 노트 추가
     func addNoteWithImages(note: Note, images: [UIImage]) {
         self.isLoading = true
         
@@ -630,58 +540,7 @@ extension NoteViewModel {
         }
     }
     
-    func addNote(title: String, description: String, date: Date, category: NoteCategory, imageURLs: [String] = []) {
-        guard let baby = babyInfo else { return }
-        
-        let newNote = Note(id: UUID(), title: title, description: description, date: date, category: category, imageURLs: imageURLs)
-        
-        let babyRef = db.collection("babies").document(baby.id.uuidString)
-        
-        db.runTransaction({ (transaction, errorPointer) -> Any? in
-            let babyDocument: DocumentSnapshot
-            do {
-                try babyDocument = transaction.getDocument(babyRef)
-            } catch let fetchError as NSError {
-                errorPointer?.pointee = fetchError
-                return nil
-            }
-            
-            var notes: [[String: Any]] = []
-            if let existingNotes = babyDocument.data()?["note"] as? [[String: Any]] {
-                notes = existingNotes
-            }
-            
-            let noteData = self.noteToDictionary(newNote)
-            notes.append(noteData)
-            
-            transaction.updateData(["note": notes], forDocument: babyRef)
-            
-            return notes
-        }) { [weak self] (_, error) in
-            guard let self = self else { return }
-            
-            if let error = error {
-                DispatchQueue.main.async {
-                    self.errorMessage = "노트 추가에 실패했습니다: \(error.localizedDescription)"
-                }
-                return
-            }
-            
-            DispatchQueue.main.async {
-                let calendar = Calendar.current
-                let startOfDay = calendar.startOfDay(for: date)
-                
-                if var dayNotes = self.events[startOfDay] {
-                    dayNotes.append(newNote)
-                    dayNotes.sort { $0.date < $1.date }
-                    self.events[startOfDay] = dayNotes
-                } else {
-                    self.events[startOfDay] = [newNote]
-                }
-            }
-        }
-    }
-    
+    // 기존 노트에 이미지 추가 및 업데이트
     func updateNoteWithImages(note: Note, newImages: [UIImage]) {
         isLoading = true
         
@@ -713,6 +572,7 @@ extension NoteViewModel {
         }
     }
     
+    // 이미지 삭제
     func deleteImage(fromNote note: Note, at index: Int) {
         guard index < note.imageURLs.count else { return }
         
@@ -733,6 +593,7 @@ extension NoteViewModel {
     }
 }
 
+// 알림 관련 확장
 extension NoteViewModel {
     func scheduleNotificationForNote(_ note: Note, minutesBefore: Int) -> Bool {
         guard note.category == .일정 else { return false }
