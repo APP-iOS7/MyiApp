@@ -27,8 +27,8 @@ struct Record: Codable, Identifiable {
     // 텍스트 필드 내용
     var content: String?
     
-    init(createdAt: Date = Date(), title: TitleCategory, mlAmount: Int? = nil, breastfeedingLeftMinutes: Int? = nil, breastfeedingRightMinutes: Int? = nil, sleepStart: Date? = nil, sleepEnd: Date? = nil, height: Double? = nil, weight: Double? = nil, temperature: Double? = nil, content: String? = nil) {
-        self.id = UUID()
+    init(id: UUID = UUID() ,createdAt: Date = Date(), title: TitleCategory, mlAmount: Int? = nil, breastfeedingLeftMinutes: Int? = nil, breastfeedingRightMinutes: Int? = nil, sleepStart: Date? = nil, sleepEnd: Date? = nil, height: Double? = nil, weight: Double? = nil, temperature: Double? = nil, content: String? = nil) {
+        self.id = id
         self.createdAt = createdAt
         self.title = title
         self.mlAmount = mlAmount

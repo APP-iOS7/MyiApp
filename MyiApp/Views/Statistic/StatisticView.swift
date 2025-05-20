@@ -25,7 +25,7 @@ struct StatisticView: View {
     }
     
     var records: [Record] {
-        baby.records
+        CaregiverManager.shared.records
     }
     
     @State private var selectedDate = Date()
