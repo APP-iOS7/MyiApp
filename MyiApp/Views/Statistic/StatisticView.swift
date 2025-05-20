@@ -16,7 +16,15 @@ struct StatisticView: View {
     }
     
     var baby: Baby {
+<<<<<<< HEAD
         viewModel.baby
+=======
+<<<<<<< HEAD
+        caregiverManager.selectedBaby ?? Baby(name: "", birthDate: Date(), gender: .male, height: 0, weight: 0, bloodType: .A)
+=======
+        viewModel.baby
+>>>>>>> origin/dev
+>>>>>>> feature/RegisterBabyView
     }
         
     var birthDate: Date {
