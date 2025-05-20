@@ -19,7 +19,6 @@ struct NoteView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                // 아기 정보 섹션
                 if let babyInfo = viewModel.babyInfo {
                     BabyBirthdayInfoView(babyName: babyInfo.name, birthDate: babyInfo.birthDate)
                         .padding(.vertical, 8)
@@ -31,7 +30,6 @@ struct NoteView: View {
                         .padding(.vertical, 16)
                 }
                 
-                // 캘린더 섹션
                 VStack(spacing: 0) {
                     // 캘린더 헤더
                     calendarHeaderSection
@@ -40,17 +38,15 @@ struct NoteView: View {
                     calendarGridSection
                         .padding(.bottom, 8)
                 }
-                .background(Color(UIColor.tertiarySystemBackground)) // 섹션 카드 색상 변경
+                .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(10)
                 .padding(.horizontal)
                 .padding(.top, 8)
                 
-                // 선택된 날짜 이벤트 섹션 (필터와 통합)
+                // 선택된 날짜 이벤트 섹션
                 VStack(spacing: 0) {
-                    // 날짜 헤더와 추가 버튼
                     if let selectedDay = viewModel.selectedDay, let date = selectedDay.date {
                         VStack(spacing: 12) {
-                            // 날짜 헤더와 추가 버튼
                             HStack {
                                 Text("\(date.formattedFullKoreanDateString())")
                                     .font(.headline)
@@ -97,19 +93,18 @@ struct NoteView: View {
                             .padding(.top, 16)
                     }
                 }
-                .background(Color(UIColor.tertiarySystemBackground)) // 섹션 카드 색상 변경
+                .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(10)
                 .padding(.horizontal)
                 .padding(.top, 8)
                 .padding(.bottom, 16)
             }
         }
-        .background(Color("customBackgroundColor").ignoresSafeArea()) // 배경 색상 변경
+        .background(Color("customBackgroundColor").ignoresSafeArea())
         .navigationTitle("육아 수첩")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingNoteEditor, onDismiss: {
             if viewModel.toastMessage != nil {
-                // 토스트 메시지 처리
             }
         }) {
             NoteEditorView(selectedDate: viewModel.selectedDay?.date ?? Date())
