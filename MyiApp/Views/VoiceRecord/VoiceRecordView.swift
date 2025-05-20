@@ -8,51 +8,90 @@
 import SwiftUI
 
 struct VoiceRecordView: View {
-    @State private var isAnalyzing = false
     @StateObject private var viewModel = VoiceRecordViewModel()
+    @State private var isAnalyzing = false
     
     var body: some View {
-        VStack(spacing: 24) {
-            Text("울음 분석")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .padding(.top, 13)
-            
-            Spacer(minLength: 8)
-            
-            Image("cryingShark")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 240, height: 240)
-                .clipShape(Circle())
-            
-            Spacer()
-            
-            Text("시작 버튼을 누른 후 아이의 울음소리를 들려주세요")
-                .font(.system(size: 20))
-                .bold()
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
-            
-            Spacer()
-            
+        VStack {
+            // 헤더
+            HStack {
+                Text("울음분석")
+                    .font(.system(size: 28, weight: .bold))
+                Spacer()
+            }
+            .padding([.top, .horizontal])
+
+            // 결과 리스트
+            ScrollView {
+                VStack(spacing: 12) {
+                    ForEach(viewModel.recordResults) { result in
+                        HStack(alignment: .top, spacing: 12) {
+                            Image("cryingShark")
+                                .resizable()
+                                .frame(width: 48, height: 48)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("새로운 분석")
+                                    .font(.headline)
+                                    .bold()
+                                Text(result.firstLabel.displayName)
+                                    .foregroundColor(.gray)
+                                    .font(.subheadline)
+                                Text(dateString(from: result.createdAt))
+                                    .foregroundColor(.gray)
+                                    .font(.caption)
+                            }
+                            Spacer()
+                        }
+                        .padding()
+                        .background(Color.white)
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+                        .padding(.horizontal)
+                    }
+                }
+                .padding(.top, 8)
+            }
+
+            // 분석 시작 버튼
             Button(action: {
+                viewModel.resetAnalysisState()
                 viewModel.startAnalysis()
                 isAnalyzing = true
             }) {
                 Text("분석 시작")
-                    .font(.title2)
+                    .font(.title3)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color("sharkPrimaryColor"))
                     .cornerRadius(12)
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal)
             }
+            .padding(.bottom, 8)
         }
+        .background(Color(UIColor.systemGroupedBackground))
         .navigationDestination(isPresented: $isAnalyzing) {
-            CryAnalysisProcessingView(viewModel: viewModel)
-        }
+                 CryAnalysisProcessingView(viewModel: viewModel)
+             }
+             // 추가: viewModel의 step이 변경될 때 isAnalyzing 상태 업데이트
+             .onChange(of: viewModel.step) { newStep in
+                 switch newStep {
+                 case .recording, .processing:
+                     isAnalyzing = true
+                 case .start:
+                     isAnalyzing = false
+                 default:
+                     break
+                 }
+             }
+         }
+
+    private func dateString(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy. M. d a h:mm:ss"
+        formatter.locale = Locale(identifier: "ko_KR")
+        return formatter.string(from: date)
     }
 }
 
