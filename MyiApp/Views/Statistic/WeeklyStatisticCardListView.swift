@@ -10,14 +10,12 @@ import SwiftUI
 struct WeeklyStatisticCardListView: View {
     
     let baby: Baby
+    let records: [Record]
     
     var birthDate: Date {
         baby.birthDate
     }
     
-    var records: [Record] {
-        CaregiverManager.shared.records
-    }
     let selectedDate: Date
     var thisWeekRange: DateInterval {
         var calendar = Calendar.current
@@ -53,7 +51,8 @@ struct WeeklyStatisticCardListView: View {
                 time: totalBreastfeedingMinutes(in: records, within: thisWeekRange),
                 lasttime: totalBreastfeedingMinutes(in: records, within: lastWeekRange),
                 mode : "weekly",
-                baby: baby
+                baby: baby,
+                records: records
             )
             
             StatisticCardView(
@@ -67,7 +66,8 @@ struct WeeklyStatisticCardListView: View {
                 time: nil,
                 lasttime: nil,
                 mode : "weekly",
-                baby: baby
+                baby: baby,
+                records: records
             )
             PottyStatisticCardView(
                 small: pottyCount.small,
@@ -75,7 +75,8 @@ struct WeeklyStatisticCardListView: View {
                 big: pottyCount.big,
                 yesterdaybig: yesterdaypottyCount.big,
                 mode : "weekly",
-                baby: baby
+                baby: baby,
+                records: records
             )
             
             StatisticCardView(
@@ -89,7 +90,8 @@ struct WeeklyStatisticCardListView: View {
                 time: totalSleepMinutes(in: records, within: thisWeekRange),
                 lasttime: totalSleepMinutes(in: records, within: lastWeekRange),
                 mode : "weekly",
-                baby: baby
+                baby: baby,
+                records: records
             )
             
             StatisticCardView(
@@ -103,7 +105,8 @@ struct WeeklyStatisticCardListView: View {
                 time: nil,
                 lasttime: nil,
                 mode : "weekly",
-                baby: baby
+                baby: baby,
+                records: records
             )
             
             StatisticCardView(
@@ -117,10 +120,10 @@ struct WeeklyStatisticCardListView: View {
                 time: nil,
                 lasttime: nil,
                 mode : "weekly",
-                baby: baby
+                baby: baby,
+                records: records
             )
         }
-        .padding(.horizontal)
     }
     // 카테고리 받아서 횟수 셀리기
     func recordsCount(for title: TitleCategory, in records: [Record], within range: DateInterval) -> Int {
