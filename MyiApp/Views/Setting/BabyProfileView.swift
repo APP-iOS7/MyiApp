@@ -66,19 +66,19 @@ struct BabyProfileView: View {
                         Image(systemName: "chevron.right")
                             .foregroundColor(.primary.opacity(0.6))
                     }
-                    if let birthTime = baby.birthTime {
-                        HStack {
-                            Text("출생 시간")
-                                .foregroundColor(.primary.opacity(0.6))
-                                .padding(.leading, 5)
-                            Spacer()
-                            Text("\(formattedTime(birthTime))")
-                                .foregroundColor(.primary.opacity(0.6))
-                                .padding(.trailing, 5)
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.primary.opacity(0.6))
-                        }
-                    }
+//                    if let birthDate = baby.birthDate {
+//                        HStack {
+//                            Text("출생 시간")
+//                                .foregroundColor(.primary.opacity(0.6))
+//                                .padding(.leading, 5)
+//                            Spacer()
+//                            Text("\(formattedTime(birthTime))")
+//                                .foregroundColor(.primary.opacity(0.6))
+//                                .padding(.trailing, 5)
+//                            Image(systemName: "chevron.right")
+//                                .foregroundColor(.primary.opacity(0.6))
+//                        }
+//                    }
                     HStack {
                         Text("성별")
                             .foregroundColor(.primary.opacity(0.6))
@@ -158,7 +158,6 @@ struct BabyProfileView_Previews: PreviewProvider {
         let sampleBaby = Baby(
             name: "민서",
             birthDate: Date(),
-            birthTime: Date(),
             gender: .female,
             height: 50.5,
             weight: 3.2,
