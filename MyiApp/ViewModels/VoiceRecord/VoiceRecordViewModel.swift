@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import FirebaseFirestore
 
 enum CryAnalysisStep: Equatable {
     case start
@@ -35,6 +36,7 @@ enum CryAnalysisStep: Equatable {
 }
 
 final class VoiceRecordViewModel: ObservableObject {
+    let careGiverManager = CaregiverManager.shared
     
     // MARK: - Published State
     @Published var audioLevels: [Float] = Array(repeating: 0.0, count: 8)
@@ -59,7 +61,6 @@ final class VoiceRecordViewModel: ObservableObject {
     }
 
     // MARK: - Public Methods
-
     func startAnalysis() {
         guard !hasStarted else { return }
         hasStarted = true
@@ -132,6 +133,14 @@ final class VoiceRecordViewModel: ObservableObject {
             )
             recordResults.insert(newResult, at: 0)
             analysisCompleted = true
+
+            Task {
+                do {
+                    try await saveAnalysisResult(newResult: newResult)
+                } catch {
+                    print("🔥 Firebase 저장 실패: \(error)")
+                }
+            }
         }
     }
 
@@ -175,5 +184,13 @@ final class VoiceRecordViewModel: ObservableObject {
     
     func dismissResultView() {
         shouldDismissResultView = true
+    }
+    
+    func saveAnalysisResult(newResult: VoiceRecord) async throws {
+        guard let babyID = careGiverManager.selectedBaby?.id.uuidString else {
+            return
+        }
+        let db = Firestore.firestore()
+        let _ = db.collection("babies").document(babyID).collection("voiceRecords").document(newResult.id.uuidString).setData(from: newResult)
     }
 }

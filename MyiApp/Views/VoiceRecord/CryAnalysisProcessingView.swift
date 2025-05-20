@@ -43,7 +43,7 @@ struct CryAnalysisProcessingView: View {
                 )
             }
         }
-        .onChange(of: viewModel.shouldDismissResultView) { shouldDismiss in
+        .onChange(of: viewModel.shouldDismissResultView) { _, shouldDismiss in
             if shouldDismiss {
                 showResultView = false
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -171,8 +171,9 @@ private struct ErrorStateView: View {
         }
     }
 }
-#Preview {
-    let mockViewModel = VoiceRecordViewModel()
-    mockViewModel.step = .processing
-    return CryAnalysisProcessingView(viewModel: mockViewModel)
-}
+
+//#Preview {
+//    let mockViewModel = VoiceRecordViewModel()
+//    mockViewModel.step = .processing
+//    return CryAnalysisProcessingView(viewModel: mockViewModel)
+//}

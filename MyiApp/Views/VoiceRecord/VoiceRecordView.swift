@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct VoiceRecordView: View {
-    @StateObject private var viewModel = VoiceRecordViewModel()
+    @StateObject private var viewModel: VoiceRecordViewModel = .init()
     @State private var isAnalyzing = false
     
     var body: some View {
@@ -75,7 +75,7 @@ struct VoiceRecordView: View {
                  CryAnalysisProcessingView(viewModel: viewModel)
              }
              // 추가: viewModel의 step이 변경될 때 isAnalyzing 상태 업데이트
-             .onChange(of: viewModel.step) { newStep in
+             .onChange(of: viewModel.step) { _, newStep in
                  switch newStep {
                  case .recording, .processing:
                      isAnalyzing = true
@@ -95,8 +95,17 @@ struct VoiceRecordView: View {
     }
 }
 
-#Preview {
-    NavigationStack {
-        VoiceRecordView()
-    }
-}
+//#Preview {
+//    NavigationStack {
+//        VoiceRecordView(selectedBaby: Baby(
+//            id: UUID(),
+//            name: "Test Baby",
+//            birthDate: Date(),
+//            birthTime: nil,
+//            gender: .male,
+//            height: 50.0,
+//            weight: 3.5,
+//            bloodType: .a
+//        ))
+//    }
+//}
