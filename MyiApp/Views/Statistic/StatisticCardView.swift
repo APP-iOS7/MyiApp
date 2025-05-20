@@ -21,9 +21,7 @@ struct StatisticCardView: View {
     
     let baby: Baby
     
-    var records: [Record] {
-        CaregiverManager.shared.records
-    }
+    let records: [Record]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -95,9 +93,7 @@ struct PottyStatisticCardView: View {
     
     let baby: Baby
     
-    var records: [Record] {
-        CaregiverManager.shared.records
-    }
+    let records: [Record]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

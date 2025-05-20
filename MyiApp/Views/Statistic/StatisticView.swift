@@ -8,24 +8,23 @@
 import SwiftUI
 
 struct StatisticView: View {
-    
-    @ObservedObject var caregiverManager = CaregiverManager.shared
-    
+    @ObservedObject var viewModel = StatisticViewModel()
+
     struct CareCategory: Equatable {
         let name: String
         let image: UIImage
     }
     
     var baby: Baby {
-        caregiverManager.selectedBaby ?? Baby(name: "", birthDate: Date(), birthTime: Date(), gender: .male, height: 0, weight: 0, bloodType: .A)
+        viewModel.baby
     }
-    
+        
     var birthDate: Date {
-        baby.birthDate
+        viewModel.baby.birthDate
     }
     
     var records: [Record] {
-        caregiverManager.records
+        viewModel.records
     }
     
     @State private var selectedDate = Date()
@@ -168,7 +167,7 @@ struct StatisticView: View {
         
     }
     private var heightWeightButton: some View {
-        NavigationLink(destination: GrowthChartView(baby: baby)) {
+        NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
                 HStack {
                     Text("성장곡선")
                         .font(.subheadline)
@@ -187,14 +186,14 @@ struct StatisticView: View {
     private var chartView: some View {
         Group {
             if selectedMode == "주" {
-                WeeklyChartView(baby: baby,  selectedDate: selectedDate)
+                WeeklyChartView(baby: baby, records: records,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(.horizontal)
                     .padding(.vertical, 20)
                 
             } else if selectedMode == "일" {
                 Spacer()
-                DailyChartView(baby: baby,  selectedDate: selectedDate)
+                DailyChartView(baby: baby, records: records,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(.horizontal)
                     .padding(.vertical, 20)
@@ -243,11 +242,11 @@ struct StatisticView: View {
     private var statisticList: some View {
         Group {
             if selectedMode == "주" {
-                WeeklyStatisticCardListView(baby: baby,  selectedDate: selectedDate)
+                WeeklyStatisticCardListView(baby: baby, records: records,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
             } else if selectedMode == "일" {
-                DailyStatisticCardListView(baby: baby,  selectedDate: selectedDate)
+                DailyStatisticCardListView(baby: baby, records: records,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
