@@ -58,6 +58,7 @@ struct MyiApp: App {
     @StateObject var databaseService = DatabaseService.shared
     @State private var appState: AppState = .loading
     
+    
     var body: some Scene {
         WindowGroup {
             NavigationStack {

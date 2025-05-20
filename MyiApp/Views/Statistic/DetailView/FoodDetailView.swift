@@ -12,7 +12,7 @@ struct FoodDetailView: View {
     let baby: Baby
     
     var records: [Record] {
-        baby.records
+        CaregiverManager.shared.records
     }
     
     @State private var selectedDate = Date()
