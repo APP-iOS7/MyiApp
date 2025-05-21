@@ -24,17 +24,46 @@ class HomeViewModel: ObservableObject {
         baby?.gender.rawValue == 1 ? "남아" : "여아"
     }
     var displayBirthDate: String {
+        guard let baby else { return "알 수 없음" }
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy.MM.dd"
-        return formatter.string(from: baby?.birthDate ?? Date())
+        return formatter.string(from: baby.birthDate)
     }
-    var displayMonthDay: String {
-        let diff = Calendar.current.dateComponents([.month, .day], from: baby?.birthDate ?? Date(), to: Date())
-        return "\(diff.month ?? 0)개월 \(diff.day ?? 0)일"
+    var displayBloodType: String {
+        guard let baby else { return "알 수 없음" }
+        return "\(baby.bloodType.rawValue) 형"
+    }
+    var displayHeightWeight: String {
+        guard let baby else { return "알 수 없음" }
+        let heightText = String(format: "%.0f", baby.height)
+        let weightText = String(format: "%.1f", baby.weight)
+
+        return "\(heightText) cm / \(weightText) kg"
+    }
+    var displayDevelopmentalStage: String {
+        guard let birthDate = baby?.birthDate else { return "알 수 없음" }
+
+        let now = Date()
+        let components = Calendar.current.dateComponents([.month, .day], from: birthDate, to: now)
+
+        guard let months = components.month,
+              let days = components.day else {
+            return "알 수 없음"
+        }
+
+        if months == 0 && days < 30 {
+            return "신생아기"
+        } else if months < 12 {
+            return "영아기"
+        } else if months < 36 {
+            return "유아기"
+        } else {
+            return "아동기"
+        }
     }
     var displayDayCount: String {
         let days = Calendar.current.dateComponents([.day], from: baby?.birthDate ?? Date(), to: Date()).day ?? 0
-        return "\(days + 1)일"
+        return "+ \(days + 1)일"
     }
     var filteredRecords: [Record] {
         let calendar = Calendar.current
