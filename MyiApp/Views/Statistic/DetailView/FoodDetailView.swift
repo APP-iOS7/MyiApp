@@ -87,14 +87,13 @@ struct FoodDetailView: View {
     
     var mainScrollView: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: 15) {
                 VStack(spacing: 10) {
                     toggleMode
                     Spacer()
                     dateMove
                 }
                 .padding(.horizontal)
-                .padding(.vertical, 10)
                 if (selectedMode == "일") {
                     DailyFeedChartView(
                         weekDates: generateWeekDates(from: selectedDate),
@@ -219,9 +218,9 @@ struct DailyFeedChartView: View {
     }
     
     var body: some View {
-        VStack() {
+        VStack(spacing: 15) {
             ForEach(FeedingType.allCases, id: \.self) { type in
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading) {
                     HStack(spacing: 6) {
                         Image(uiImage: iconImage(for: type))
                             .resizable()
@@ -304,14 +303,7 @@ struct DailyFeedChartView: View {
             }
             .background(Color(.tertiarySystemBackground))
             .cornerRadius(12)
-            .padding(.vertical, 10)
-            
         }
-        
-        
-        
-        
-        
     }
     
     func iconImage(for type: FeedingType) -> UIImage {
@@ -443,9 +435,9 @@ struct WeeklyFeedChartView: View {
     }
     
     var body: some View {
-        VStack() {
+        VStack(spacing: 15) {
             ForEach(FeedingType.allCases, id: \.self) { type in
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading) {
                     HStack(spacing: 6) {
                         Image(uiImage: iconImage(for: type))
                             .resizable()
@@ -526,7 +518,6 @@ struct WeeklyFeedChartView: View {
             }
             .background(Color(.tertiarySystemBackground))
             .cornerRadius(12)
-            .padding(.vertical, 10)
         }
     }
     
@@ -664,9 +655,9 @@ struct MonthlyFeedChartView: View {
 
     
     var body: some View {
-        VStack {
+        VStack(spacing: 15) {
             ForEach(FeedingType.allCases, id: \.self) { type in
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading) {
                     HStack(spacing: 6) {
                         Image(uiImage: iconImage(for: type))
                             .resizable()
@@ -747,7 +738,6 @@ struct MonthlyFeedChartView: View {
             }
             .background(Color(.tertiarySystemBackground))
             .cornerRadius(12)
-            .padding(.vertical, 10)
 
         }
     }
