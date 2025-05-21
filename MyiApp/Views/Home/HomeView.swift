@@ -275,7 +275,7 @@ struct HomeView: View {
                         Image(uiImage: item.image)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .padding()
+                        //                            .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 20)
                                     .fill(Color.sharkCardBackground)

@@ -28,11 +28,11 @@ struct TimelineRow: View {
             case .babyFood: return .normalBabyMeal
             case .pumpedMilk: return .normalPumpedMilk
             case .breastfeeding: return .normalBreastFeeding
-            case .diaper: return .normalDiaper
-            case .sleep: return .normalSleep
-            case .heightWeight: return .normalHeightWeight
-            case .bath: return .normalBath
-            case .snack: return .normalSnack
+            case .diaper: return .colorDiaper
+            case .sleep: return .colorSleep
+            case .heightWeight: return .colorHeightWeight
+            case .bath: return .colorBath
+            case .snack: return .colorSnack
             case .temperature: return .normalTemperature
             case .medicine: return .normalMedicine
             case .clinic: return .normalClinic
