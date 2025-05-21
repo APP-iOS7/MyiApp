@@ -61,7 +61,37 @@ struct StatisticView: View {
         ZStack {
             Color("customBackgroundColor")
                         .ignoresSafeArea()
-            mainScrollView
+            VStack(spacing: 0) {
+                SafeAreaPaddingView()
+                    .frame(height: getTopSafeAreaHeight())
+                ScrollView {
+                    VStack(spacing: 20) {
+                        heightWeightButton
+                        
+                        VStack(spacing: 10) {
+                            toggleMode
+                            .padding(.vertical, 10)
+                            
+                            dateMove
+                                .padding(.vertical, 10)
+                            
+                            
+                            
+                            iconGrid
+                                .padding(.bottom, 20)
+                            
+                            chartView
+                            babyInfo
+                        }
+                        .padding()
+                        .background(Color(.tertiarySystemBackground))
+                        .cornerRadius(12)
+                        
+                        statisticList
+                    }
+                    .padding()
+                }
+            }
 
         }
         .gesture(
@@ -86,36 +116,6 @@ struct StatisticView: View {
             IconItem(title: "간식", image: .colorSnack)
         }
     }
-    var mainScrollView: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                heightWeightButton
-                
-                VStack(spacing: 10) {
-                    toggleMode
-                    .padding(.vertical, 10)
-                    
-                    dateMove
-                        .padding(.vertical, 10)
-                    
-                    
-                    
-                    iconGrid
-                        .padding(.bottom, 20)
-                    
-                    chartView
-                    babyInfo
-                }
-                .padding()
-                .background(Color(.tertiarySystemBackground))
-                .cornerRadius(12)
-                
-                statisticList
-            }
-            .padding()
-        }
-        
-    }
     private var toggleMode: some View {
         Picker("모드 선택", selection: $selectedMode) {
             ForEach(modes, id: \.self) { mode in
@@ -126,7 +126,15 @@ struct StatisticView: View {
         .padding()
         .frame(width: 200, height: 50)
     }
-
+    private func getTopSafeAreaHeight() -> CGFloat {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            return 0
+        }
+        
+        let height = window.safeAreaInsets.top
+        return height * 0.1
+    }
     private var dateMove: some View {
         ZStack {
             HStack {
@@ -188,7 +196,7 @@ struct StatisticView: View {
             if selectedMode == "주" {
                 WeeklyChartView(baby: baby, records: records,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(.horizontal)
+                    .padding(.trailing)
                     .padding(.vertical, 20)
                 
             } else if selectedMode == "일" {
@@ -274,7 +282,7 @@ struct StatisticView: View {
                             .aspectRatio(contentMode: .fit)
                             .padding()
                             .background(
-                                RoundedRectangle(cornerRadius: 20)
+                                RoundedRectangle(cornerRadius: 12)
                                     .fill(Color.blue.opacity(0.1))
                                     .frame(width: 70, height: 70)
                             )
@@ -296,7 +304,7 @@ struct IconItem: View {
     var body: some View {
         VStack(spacing: 8) {
             ZStack {
-                RoundedRectangle(cornerRadius: 18)
+                RoundedRectangle(cornerRadius: 12)
                     .fill(Color("customBackgroundColor"))
                     .frame(width: 40, height: 40)
                 
