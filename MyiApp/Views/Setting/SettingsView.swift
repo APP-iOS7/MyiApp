@@ -50,7 +50,7 @@ struct SettingsView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.primary.opacity(0.8))
                             .padding()
-                            .padding(.top, 15)
+                            .padding(.top, 10)
                         
                         DisclosureGroup(isExpanded: $topExpanded) {
                             VStack(alignment: .leading, spacing: 10) {
@@ -85,8 +85,8 @@ struct SettingsView: View {
                             }
                             .contentShape(Rectangle())
                             .padding()
-                            .padding(.top, 10)
-                            .padding(.bottom, 10)
+                            .padding(.top, 5)
+                            .padding(.bottom, 5)
                         }
                         .accentColor(.clear)
                         
@@ -104,7 +104,7 @@ struct SettingsView: View {
                                     .padding(.trailing, 18)
                             }
                             .padding()
-                            .padding(.bottom, 15)
+                            .padding(.bottom, 10)
                         }
                     }
                     .background(Color(UIColor.tertiarySystemBackground))
@@ -117,7 +117,7 @@ struct SettingsView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.primary.opacity(0.8))
                             .padding()
-                            .padding(.top, 15)
+                            .padding(.top, 10)
                         
                         NavigationLink(destination: PrivacyPolicyView()) {
                             HStack {
@@ -133,8 +133,8 @@ struct SettingsView: View {
                                     .padding(.trailing, 18)
                             }
                             .padding()
-                            .padding(.top, 10)
-                            .padding(.bottom, 10)
+                            .padding(.top, 5)
+                            .padding(.bottom, 5)
                         }
                         
                         NavigationLink(destination: TermsOfServiceView()) {
@@ -151,7 +151,7 @@ struct SettingsView: View {
                                     .padding(.trailing, 18)
                             }
                             .padding()
-                            .padding(.bottom, 15)
+                            .padding(.bottom, 10)
                         }
                     }
                     .background(Color(UIColor.tertiarySystemBackground))
@@ -164,7 +164,7 @@ struct SettingsView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.primary.opacity(0.8))
                             .padding()
-                            .padding(.top, 15)
+                            .padding(.top, 10)
                         
                         HStack {
                             Image ("appVIcon")
@@ -179,7 +179,7 @@ struct SettingsView: View {
                                 .padding(.trailing, 18)
                         }
                         .padding()
-                        .padding(.bottom, 15)
+                        .padding(.bottom, 10)
                     }
                     .background(Color(UIColor.tertiarySystemBackground))
                     .cornerRadius(10)
