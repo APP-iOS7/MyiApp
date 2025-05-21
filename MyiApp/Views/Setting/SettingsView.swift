@@ -23,7 +23,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 20) {
+                VStack(spacing: 15) {
                     HStack {
                         Image(systemName: "person.circle.fill")
                             .resizable()
