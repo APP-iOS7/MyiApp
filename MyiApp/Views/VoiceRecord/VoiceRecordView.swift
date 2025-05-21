@@ -72,10 +72,10 @@ struct VoiceRecordView: View {
                     navigationPath.append(CryRoute.processing())
                 }) {
                     Text("분석 시작")
-                        .font(.title3)
+                        .font(.system(size: 30, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .padding()
+                        .frame(height: 60)
                         .background(Color("buttonColor"))
                         .cornerRadius(12)
                         .padding(.horizontal)
@@ -90,7 +90,7 @@ struct VoiceRecordView: View {
                         navigationPath.removeLast()
                         navigationPath.append(CryRoute.result(emotion: result, id: UUID()))
                     }
-                    .id(id)  // 👈 SwiftUI가 매번 새로운 뷰로 인식하게 만듦
+                    .id(id)
 
                 case .result(let emotion, _):
                     CryAnalysisResultView(
@@ -112,7 +112,7 @@ private struct VoiceRecordResultCard: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Image("cryingShark")
+            Image(result.firstLabel.rawImageName)
                 .resizable()
                 .frame(width: 48, height: 48)
 
