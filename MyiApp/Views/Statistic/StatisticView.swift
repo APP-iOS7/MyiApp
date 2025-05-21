@@ -282,7 +282,7 @@ struct StatisticView: View {
                             .aspectRatio(contentMode: .fit)
                             .padding()
                             .background(
-                                RoundedRectangle(cornerRadius: 20)
+                                RoundedRectangle(cornerRadius: 12)
                                     .fill(Color.blue.opacity(0.1))
                                     .frame(width: 70, height: 70)
                             )
@@ -304,7 +304,7 @@ struct IconItem: View {
     var body: some View {
         VStack(spacing: 8) {
             ZStack {
-                RoundedRectangle(cornerRadius: 18)
+                RoundedRectangle(cornerRadius: 12)
                     .fill(Color("customBackgroundColor"))
                     .frame(width: 40, height: 40)
                 
