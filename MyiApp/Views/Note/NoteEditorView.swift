@@ -90,9 +90,6 @@ struct NoteEditorView: View {
     private func checkNotificationStatus() {
         guard let id = noteId, selectedCategory == .일정 else { return }
         
-        // 모든 알림 출력 (디버깅)
-        NotificationService.shared.printAllScheduledNotifications()
-        
         if let note = viewModel.getNoteById(id),
            let enabled = note.notificationEnabled,
            enabled,

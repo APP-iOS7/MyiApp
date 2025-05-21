@@ -360,10 +360,12 @@ struct NoteView: View {
             } else {
                 return AnyView(
                     VStack(spacing: 10) {
-                        ForEach(filteredEvents) { event in
+                        ForEach(filteredEvents, id: \.id) { event in
                             NoteEventRow(event: event) {
                                 selectedEvent = event
                             }
+                            .environmentObject(viewModel)
+                            .id(event.id)
                         }
                     }
                 )
@@ -388,96 +390,5 @@ struct NoteView: View {
         .frame(maxWidth: .infinity)
         .frame(height: 97)
         .padding(.vertical, 8)
-    }
-}
-
-struct NoteEventRow: View {
-    var event: Note
-    var onTap: (() -> Void)? = nil
-    
-    var body: some View {
-        Button {
-            onTap?()
-        } label: {
-            HStack(spacing: 12) {
-                if event.category == .일지 && !event.imageURLs.isEmpty {
-                    CustomAsyncImageView(imageUrlString: event.imageURLs[0])
-                        .frame(width: 40, height: 40)
-                        .clipShape(Circle())
-                        .overlay(
-                            Circle()
-                                .stroke(categoryColor(for: event.category).opacity(0.3), lineWidth: 2)
-                        )
-                } else {
-                    Image(systemName: categoryIcon(for: event.category))
-                        .foregroundColor(categoryColor(for: event.category))
-                        .font(.system(size: 24))
-                        .frame(width: 40, height: 40)
-                        .background(
-                            Circle()
-                                .fill(categoryColor(for: event.category).opacity(0.2))
-                        )
-                }
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(event.title)
-                        .font(.headline)
-                        .fontWeight(.medium)
-                    
-                    Text(event.description)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .lineLimit(2)
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text(event.timeString)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    if event.category == .일지 && event.imageURLs.count > 0 {
-                        HStack(spacing: 4) {
-                            Image(systemName: "photo")
-                                .font(.system(size: 10))
-                            Text("\(event.imageURLs.count)")
-                                .font(.system(size: 10))
-                        }
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(
-                            Capsule()
-                                .fill(Color(UIColor.systemGray6))
-                        )
-                    }
-                }
-            }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color(UIColor.tertiarySystemBackground))
-            )
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-    
-    private func categoryColor(for category: NoteCategory) -> Color {
-        switch category {
-        case .일지:
-            return Color("sharkPrimaryColor")
-        case .일정:
-            return Color.orange
-        }
-    }
-    
-    private func categoryIcon(for category: NoteCategory) -> String {
-        switch category {
-        case .일지:
-            return "note.text"
-        case .일정:
-            return "calendar"
-        }
     }
 }
