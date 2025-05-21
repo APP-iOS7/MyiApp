@@ -108,7 +108,7 @@ struct NoteDetailView: View {
                     
                     Text(event.category.rawValue)
                         .font(.subheadline)
-                        .fontWeight(.medium)
+                        .fontWeight(.semibold)
                         .foregroundColor(categoryColor(for: event.category))
                 }
                 .padding(.horizontal, 12)
@@ -302,7 +302,7 @@ struct NoteDetailView: View {
     private func categoryColor(for category: NoteCategory) -> Color {
         switch category {
         case .일지:
-            return Color("sharkPrimaryColor")
+            return Color.blue
         case .일정:
             return Color.orange
         }
