@@ -29,7 +29,6 @@ struct NoteReminderView: View {
                 NotificationPermissionView {
                     notificationService.requestAuthorization { granted in
                         if granted {
-                            print("알림 권한 획득 성공!")
                             isEnabled = true
                             reminderMinutesBefore = 0
                             reminderTime = eventDate
@@ -43,8 +42,6 @@ struct NoteReminderView: View {
         .animation(.easeInOut, value: notificationService.authorizationStatus)
         .onAppear {
             notificationService.checkAuthorizationStatus()
-            print("NoteReminderView appeared: isEnabled=\(isEnabled), minutesBefore=\(reminderMinutesBefore)")
-            print("알림 권한 상태: \(notificationService.authorizationStatus.rawValue)")
             
             if eventDate <= Date() {
                 isEnabled = false
@@ -60,7 +57,6 @@ struct NoteReminderView: View {
             Toggle("일정 알림", isOn: $isEnabled)
                 .tint(Color("sharkPrimaryColor"))
                 .onChange(of: isEnabled) { _, enabled in
-                    print("알림 토글 변경: \(enabled)")
                     
                     if enabled {
                         if reminderTime <= Date() || reminderMinutesBefore < 0 {
@@ -89,7 +85,6 @@ struct NoteReminderView: View {
                                         if newReminderTime > Date() {
                                             reminderMinutesBefore = minutes
                                             reminderTime = newReminderTime
-                                            print("알림 옵션 선택: \(minutes)분 전, 시간: \(reminderTime)")
                                         } else {
                                             showInvalidTimeAlert = true
                                             alertMessage = "선택한 시간이 현재보다 이전입니다. 다른 옵션을 선택해주세요."
@@ -108,7 +103,6 @@ struct NoteReminderView: View {
                             Button(action: {
                                 tempReminderTime = reminderTime
                                 showTimePicker = true
-                                print("직접 설정 시작")
                             }) {
                                 HStack {
                                     Text("직접 설정")
@@ -173,17 +167,14 @@ struct NoteReminderView: View {
                                     if tempReminderTime >= eventDate {
                                         showInvalidTimeAlert = true
                                         alertMessage = "알림 시간은 일정 시작 시간보다 이전이어야 합니다."
-                                        print("선택한 알림 시간이 일정보다 이후임: \(tempReminderTime) >= \(eventDate)")
                                     } else if tempReminderTime <= Date() {
                                         showInvalidTimeAlert = true
                                         alertMessage = "알림 시간은 현재 시간보다 이후여야 합니다."
-                                        print("선택한 알림 시간이 현재보다 이전임: \(tempReminderTime) <= \(Date())")
                                     } else {
                                         reminderTime = tempReminderTime
                                         
                                         let diffSeconds = eventDate.timeIntervalSince(tempReminderTime)
                                         let diffMinutes = Int(diffSeconds / 60)
-                                        print("알림 시간 차이: \(diffMinutes)분")
                                         
                                         if reminderOptions.contains(diffMinutes) {
                                             reminderMinutesBefore = diffMinutes
@@ -191,7 +182,6 @@ struct NoteReminderView: View {
                                             reminderMinutesBefore = -1
                                         }
                                         
-                                        print("알림 시간 설정 완료: \(reminderTime), \(reminderMinutesBefore)분 전")
                                         showTimePicker = false
                                     }
                                 }

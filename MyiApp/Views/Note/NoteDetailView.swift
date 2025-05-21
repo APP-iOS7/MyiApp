@@ -87,7 +87,6 @@ struct NoteDetailView: View {
                     "이 일정은 영구적으로 삭제되며,\n복구할 수 없습니다.")
         }
         .onAppear {
-            print("NoteDetailView appeared for: \(event.id), category: \(event.category.rawValue)")
             if event.category == .일정 {
                 checkNotificationStatus()
             }
@@ -216,7 +215,6 @@ struct NoteDetailView: View {
     }
     
     private func checkNotificationStatus() {
-        print("알림 상태 확인 시작: \(event.id.uuidString)")
         
         if let enabled = event.notificationEnabled,
            enabled,
@@ -224,12 +222,10 @@ struct NoteDetailView: View {
             
             hasNotification = true
             setNotificationTimeText(triggerDate: time)
-            print("Note 객체에서 알림 정보 발견: \(time)")
             return
         }
         
         NotificationService.shared.findNotificationForNote(noteId: event.id.uuidString) { exists, triggerDate, title in
-            print("알림 상태 결과: 존재=\(exists), 시간=\(String(describing: triggerDate)), 제목=\(String(describing: title))")
             
             DispatchQueue.main.async {
                 self.hasNotification = exists
@@ -288,7 +284,6 @@ struct NoteDetailView: View {
     
     private func deleteNote() {
         if event.category == .일정 {
-            print("노트 삭제 시 알림 취소: \(event.id.uuidString)")
             NotificationService.shared.cancelNotification(with: event.id.uuidString)
         }
         
