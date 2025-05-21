@@ -37,7 +37,7 @@ enum CryAnalysisStep: Equatable {
 
 final class VoiceRecordViewModel: ObservableObject {
     let careGiverManager = CaregiverManager.shared
-    
+
     // MARK: - Published State
     @Published var audioLevels: [Float] = Array(repeating: 0.0, count: 8)
     @Published var recordingProgress: Double = 0.0
@@ -45,19 +45,28 @@ final class VoiceRecordViewModel: ObservableObject {
     @Published var recordResults: [VoiceRecord] = []
     @Published var analysisCompleted: Bool = false
     @Published var shouldDismissResultView: Bool = false
-    
+
     // MARK: - Private
     private let audioService = AudioEngineService()
     private let analyzer = CryAnalyzer()
     private var cancellables = Set<AnyCancellable>()
-    
+
     private var recordingBuffer: [Float] = []
     private var analysisTimer: Timer?
     private var hasStarted = false
-    
+
     // MARK: - Init
     init() {
         observeStep()
+        // CaregiverManager에서 초기 데이터 로드
+        recordResults = careGiverManager.voiceRecords
+        
+        // voiceRecords 배열의 변경사항 구독
+        careGiverManager.$voiceRecords
+            .sink { [weak self] records in
+                self?.recordResults = records
+            }
+            .store(in: &cancellables)
     }
 
     // MARK: - Public Methods
@@ -68,19 +77,18 @@ final class VoiceRecordViewModel: ObservableObject {
         recordingProgress = 0.0
         recordingBuffer.removeAll()
         shouldDismissResultView = false
-        
+
+        audioService.audioLevelsHandler = { [weak self] levels in
+            self?.audioLevels = levels
+        }
+
+        audioService.bufferHandler = { [weak self] samples in
+            self?.recordingBuffer.append(contentsOf: samples)
+        }
+
         do {
-            audioService.audioLevelsHandler = { [weak self] levels in
-                self?.audioLevels = levels
-            }
-
-            audioService.bufferHandler = { [weak self] samples in
-                self?.recordingBuffer.append(contentsOf: samples)
-            }
-
             try audioService.startRecording()
             startRecordingTimer()
-            
         } catch {
             step = .error("오디오 녹음을 시작할 수 없습니다.")
         }
@@ -88,7 +96,7 @@ final class VoiceRecordViewModel: ObservableObject {
 
     func cancel() {
         stop()
-        step = .start
+        resetAnalysisState()
     }
 
     func resetAnalysisState() {
@@ -103,10 +111,25 @@ final class VoiceRecordViewModel: ObservableObject {
         analysisCompleted = false
     }
 
-    var analysisCompletedPublisher: AnyPublisher<Bool, Never> {
-        $analysisCompleted
-            .removeDuplicates()
-            .eraseToAnyPublisher()
+    var analysisCompletedPublisher: some Publisher<Bool, Never> {
+        $analysisCompleted.removeDuplicates()
+    }
+
+    func dismissResultView() {
+        shouldDismissResultView = true
+    }
+
+    func saveAnalysisResult(newResult: VoiceRecord) async throws {
+        guard let babyID = careGiverManager.selectedBaby?.id.uuidString else {
+            return
+        }
+
+        let db = Firestore.firestore()
+        _ = db.collection("babies")
+            .document(babyID)
+            .collection("voiceRecords")
+            .document(newResult.id.uuidString)
+            .setData(from: newResult)
     }
 
     // MARK: - Private Methods
@@ -121,25 +144,26 @@ final class VoiceRecordViewModel: ObservableObject {
     }
 
     private func handleStepChange(_ newStep: CryAnalysisStep) {
-        if case let .result(emotion) = newStep, !analysisCompleted {
-            let newResult = VoiceRecord(
-                id: UUID(),
-                createdAt: Date(),
-                recordReference: "",
-                firstLabel: emotion.type,
-                firstLabelConfidence: emotion.confidence,
-                secondLabel: .unknown,
-                secondLabelConfidence: 0.0
-            )
-            recordResults.insert(newResult, at: 0)
-            analysisCompleted = true
+        guard case let .result(emotion) = newStep, !analysisCompleted else { return }
 
-            Task {
-                do {
-                    try await saveAnalysisResult(newResult: newResult)
-                } catch {
-                    print("🔥 Firebase 저장 실패: \(error)")
-                }
+        let newResult = VoiceRecord(
+            id: UUID(),
+            createdAt: Date(),
+            recordReference: "",
+            firstLabel: emotion.type,
+            firstLabelConfidence: emotion.confidence,
+            secondLabel: .unknown,
+            secondLabelConfidence: 0.0
+        )
+
+        careGiverManager.voiceRecords.insert(newResult, at: 0)
+        analysisCompleted = true
+
+        Task {
+            do {
+                try await saveAnalysisResult(newResult: newResult)
+            } catch {
+                print("Firebase 저장 실패: \(error)")
             }
         }
     }
@@ -152,7 +176,7 @@ final class VoiceRecordViewModel: ObservableObject {
 
     private func startRecordingTimer() {
         analysisTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] timer in
-            guard let self = self else {
+            guard let self else {
                 timer.invalidate()
                 return
             }
@@ -172,25 +196,9 @@ final class VoiceRecordViewModel: ObservableObject {
 
         analyzer.analyze(from: recordingBuffer) { [weak self] result in
             DispatchQueue.main.async {
-                guard let self = self else { return }
-                if let result = result {
-                    self.step = .result(result)
-                } else {
-                    self.step = .error("분석 실패")
-                }
+                guard let self else { return }
+                self.step = result.map { .result($0) } ?? .error("분석 실패")
             }
         }
-    }
-    
-    func dismissResultView() {
-        shouldDismissResultView = true
-    }
-    
-    func saveAnalysisResult(newResult: VoiceRecord) async throws {
-        guard let babyID = careGiverManager.selectedBaby?.id.uuidString else {
-            return
-        }
-        let db = Firestore.firestore()
-        let _ = db.collection("babies").document(babyID).collection("voiceRecords").document(newResult.id.uuidString).setData(from: newResult)
     }
 }
