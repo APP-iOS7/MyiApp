@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreML
+import Accelerate
 
 final class CryAnalyzer {
     
@@ -30,7 +31,7 @@ final class CryAnalyzer {
 
         let processedSamples = prepareSamples(samples)
         guard let inputArray = createMLMultiArray(from: processedSamples) else {
-            print("MLMultiArray 생성 실패")
+            print("[CryAnalyzer] MLMultiArray 생성 실패")
             completion(nil)
             return
         }
@@ -47,11 +48,11 @@ final class CryAnalyzer {
                 type: EmotionType(rawValue: label) ?? .unknown,
                 confidence: confidence
             )
-            print("🎯 분석 결과: \(label) (\(confidence))")
+            print("[CryAnalyzer] 분석 결과: \(label) (\(confidence))")
             completion(result)
 
         } catch {
-            print("❌ 모델 추론 실패: \(error.localizedDescription)")
+            print("모델 추론 실패: \(error.localizedDescription)")
             completion(nil)
         }
     }

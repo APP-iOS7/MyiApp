@@ -159,6 +159,10 @@ final class VoiceRecordViewModel: ObservableObject {
         careGiverManager.voiceRecords.insert(newResult, at: 0)
         analysisCompleted = true
 
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.resetAnalysisState()
+        }
+
         Task {
             do {
                 try await saveAnalysisResult(newResult: newResult)
@@ -193,8 +197,10 @@ final class VoiceRecordViewModel: ObservableObject {
     private func finishRecording() {
         stop()
         step = .processing
+        print("[ViewModel] finishRecording() 호출됨, 버퍼 길이: \(recordingBuffer.count)")
 
         analyzer.analyze(from: recordingBuffer) { [weak self] result in
+            print("[ViewModel] 분석 결과 수신: \(String(describing: result))")
             DispatchQueue.main.async {
                 guard let self else { return }
                 self.step = result.map { .result($0) } ?? .error("분석 실패")
