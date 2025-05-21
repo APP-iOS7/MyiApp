@@ -27,6 +27,7 @@ final class CryAnalyzer {
     // MARK: - Public Method
     
     func analyze(from samples: [Float], completion: @escaping (EmotionResult?) -> Void) {
+        print("[CryAnalyzer] 분석 시작") 
         print("[CryAnalyzer] 분석 시작: 입력 샘플 수 = \(samples.count)")
 
         let processedSamples = prepareSamples(samples)
