@@ -114,7 +114,7 @@ struct CryAnalysisResultView: View {
     // MARK: - View Body
     var body: some View {
         VStack(spacing: Constants.contentSpacing) {
-            Text(NSLocalizedString("result_title", comment: ""))
+            Text(NSLocalizedString("결과", comment: ""))
                 .font(.system(size: Constants.titleFontSize, weight: .heavy))
                 .padding(.top)
                 .accessibilityAddTraits(.isHeader)
@@ -135,8 +135,8 @@ struct CryAnalysisResultView: View {
             }
 
             VStack(alignment: .leading, spacing: Constants.tipsSpacing) {
-                Text(NSLocalizedString("tips_intro", comment: ""))
-                    .font(.system(size: Constants.tipsFontSize))
+                Text(NSLocalizedString("추천 행동", comment: ""))
+                    .font(.system(size: Constants.tipsFontSize, weight: .bold))
                 
                 ForEach(localizedTips, id: \.self) { tip in
                     HStack(alignment: .top, spacing: 4) {
@@ -156,7 +156,7 @@ struct CryAnalysisResultView: View {
             Button(action: {
                 onDismiss()
             }) {
-                Text(NSLocalizedString("close_button", comment: ""))
+                Text(NSLocalizedString("닫기", comment: ""))
                     .font(.system(size: 30, weight: .bold))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
@@ -166,7 +166,6 @@ struct CryAnalysisResultView: View {
                     .padding(.horizontal)
             }
             .padding(.horizontal)
-            .accessibilityHint(NSLocalizedString("close_button_hint", comment: ""))
 
             Spacer(minLength: 20)
         }
@@ -180,7 +179,7 @@ struct CryAnalysisResultView: View {
     // 접근성 팁 레이블 생성
     private var accessibilityTipsLabel: String {
         let tipsJoined = localizedTips.joined(separator: ", ")
-        return "\(NSLocalizedString("tips_intro", comment: "")), \(tipsJoined)"
+        return "\(NSLocalizedString("추천 행동", comment: "")), \(tipsJoined)"
     }
     
     // MARK: - Methods
