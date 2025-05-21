@@ -86,8 +86,10 @@ struct StatisticView: View {
                         .padding()
                         .background(Color(.tertiarySystemBackground))
                         .cornerRadius(12)
-                        
-                        statisticList
+                        VStack(spacing: 8) {
+                            
+                            statisticList
+                        }
                     }
                     .padding()
                 }
@@ -107,8 +109,8 @@ struct StatisticView: View {
         )
     }
     var iconGrid: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 20) {
-            IconItem(title: "밥", image: .colorMeal)
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 20) {
+            IconItem(title: "수유/이유식", image: .colorMeal)
             IconItem(title: "기저귀", image: .colorDiaper)
             IconItem(title: "배변", image: .colorPotty)
             IconItem(title: "수면", image: .colorSleep)
