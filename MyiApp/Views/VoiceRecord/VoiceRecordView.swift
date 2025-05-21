@@ -56,7 +56,7 @@ struct VoiceRecordView: View {
 
                 // 결과 리스트
                 ScrollView {
-                    VStack(spacing: 12) {
+                    VStack(spacing: 8) {
                         ForEach(viewModel.recordResults) { result in
                             VoiceRecordResultCard(result: result)
                         }
@@ -76,7 +76,7 @@ struct VoiceRecordView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color("sharkPrimaryColor"))
+                        .background(Color("buttonColor"))
                         .cornerRadius(12)
                         .padding(.horizontal)
                 }
