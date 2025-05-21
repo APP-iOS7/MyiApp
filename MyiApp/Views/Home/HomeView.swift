@@ -28,58 +28,10 @@ struct HomeView: View {
                 .padding()
                 
             }
-            .background(Color(uiColor: .systemGroupedBackground), ignoresSafeAreaEdges: .top)
+            .background(Color.customBackground)
             .blur(radius: isPresented ? 10 : 0)
             .id(isPresented ? "blurred" : "normal")
-            
-            if isPresented {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation {
-                            isPresented = false
-                        }
-                    }
-                
-                VStack {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "square.and.pencil")
-                    }
-                    .padding(.trailing)
-                    Image(.sharkChild)
-                        .resizable()
-                        .frame(width: 150, height: 150)
-                        .padding(8)
-                        .background(
-                            Circle()
-                                .fill(Color.sharkPrimaryLight)
-                                .stroke(Color.sharksSadowTone, lineWidth: 2)
-                        )
-                    HStack { Text("김죠스"); Spacer() }
-                    HStack { Text("생년 월일"); Spacer() }
-                    HStack(alignment: .top) {
-                        VStack(alignment: .leading) {
-                            Text("성별")
-                            Text("여아")
-                            Text("성장 단계")
-                            Text("영아기")
-                        }
-                        .padding(.leading)
-                        Spacer()
-                        VStack(alignment: .leading) {
-                            Text("키 / 몸무게")
-                            Text("30 / 10킬로")
-                            Text("혈액형")
-                            Text("A횽")
-                        }
-                        Spacer()
-                    }
-                }
-                .frame(width: 300, height: 400)
-                .background(RoundedRectangle(cornerRadius: 20).fill(Color(uiColor: .systemBackground)))
-                .padding()
-            }
+            if isPresented { babyFullScreenCard }
         }
     }
     
@@ -96,9 +48,15 @@ struct HomeView: View {
                 )
                 .padding(8)
                 .padding(.leading)
-            VStack {
-                Text("Name")
-                Text("+ 39일")
+            VStack(alignment: .leading, spacing: 3) {
+                Text(viewModel.displayName)
+                    .font(.headline)
+                HStack(spacing: 0) {
+                    Image(.homeCalendar)
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                    Text(viewModel.displayDayCount)
+                }
             }
             Spacer()
             Button(action: {isPresented = true}) {
@@ -113,6 +71,78 @@ struct HomeView: View {
         }
         .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
         .frame(height: 80)
+    }
+    private var babyFullScreenCard: some View {
+        Group {
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+                .onTapGesture { isPresented = false }
+            VStack {
+                HStack {
+                    Spacer()
+                    Image(systemName: "square.and.pencil")
+                }
+                .padding([.top, .trailing])
+                Image(.sharkChild)
+                    .resizable()
+                    .frame(width: 130, height: 130)
+                    .padding(8)
+                    .background(
+                        Circle()
+                            .fill(Color.sharkPrimaryLight)
+                            .stroke(Color.sharksSadowTone, lineWidth: 2)
+                    )
+                VStack {
+                    HStack {
+                        Text(viewModel.displayName)
+                            .font(.title)
+                            .bold()
+                        Spacer()
+                    }
+                    HStack {
+                        Text(viewModel.displayBirthDate)
+                            .font(.body)
+                        Spacer()
+                    }
+                }
+                .padding()
+                .padding(.leading)
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading) {
+                        Text("성별")
+                            .fontWeight(.semibold)
+                        Text(viewModel.displayGender)
+                            .font(.footnote)
+                            .padding(.bottom)
+                        Text("성장 단계")
+                            .fontWeight(.semibold)
+                        Text(viewModel.displayDevelopmentalStage)
+                            .font(.footnote)
+
+                    }
+                    .padding(.leading)
+                    Spacer()
+                    VStack(alignment: .leading) {
+                        Text("키 / 몸무게")
+                            .fontWeight(.semibold)
+                        Text(viewModel.displayHeightWeight)
+                            .font(.footnote)
+                            .padding(.bottom)
+                        Text("혈액형")
+                            .fontWeight(.semibold)
+                        Text(viewModel.displayBloodType)
+                            .font(.footnote)
+                    }
+                    Spacer()
+                }
+                .padding([.leading, .bottom])
+            }
+            .frame(width: 300, height: 430)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color(uiColor: .tertiarySystemBackground))
+            )
+        }
     }
     private var dateSection: some View {
         ZStack {
