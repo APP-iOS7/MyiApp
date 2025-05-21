@@ -60,22 +60,42 @@ private struct ProcessingStateView: View {
     @State private var dotCount: Int = 0
     private let dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
     
+    @State private var progress: Double = 0.0
+    @State private var startTime: Date? = nil
+    private let totalDuration: Double = 7.0
+    private let updateInterval: Double = 0.05
+    private let progressTimer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+    
     var body: some View {
         VStack(spacing: 24) {
-            Text("분석 중")
-                .font(.system(size: 32, weight: .heavy))
-                .padding(.top)
+            ZStack {
+                Text("분석 중")
+                    .font(.system(size: 20, weight: .semibold))
 
+                HStack {
+                    Button(action: {
+                        viewModel.cancel()
+                        dismiss()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.blue)
+                    }
+                    Spacer()
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top, 16)
+            
+            Spacer()
             EqualizerView()
                 .padding(.horizontal, 24)
                 .frame(height: 140)
+            
 
             Image("CryAnalysisProcessingShark")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 180, height: 180)
-            
-            Spacer()
             
             Text("아기의 상태를 분석하고 있어요" + String(repeating: ".", count: dotCount))
                 .font(.system(size: 20))
@@ -83,37 +103,33 @@ private struct ProcessingStateView: View {
                 .foregroundColor(.primary)
                 .padding(.top, 8)
             
+            Text("소음이 심한 경우 정확도가 \n 떨어질 수 있어요")
+                .font(.system(size: 14))
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+            
             Spacer()
             
-            Button(action: {
-                viewModel.cancel()
-                dismiss()
-            }) {
-                Text("취소")
-                    .font(.system(size: 30, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
-                    .background(Color("sharkPrimaryColor"))
-                    .cornerRadius(12)
-                    .padding(.horizontal, 24)
-            }
+            ProgressView(value: progress)
+                .progressViewStyle(LinearProgressViewStyle())
+                .padding(.horizontal, 24)
+
+            Text("\(Int(progress * 100))%")
+                .font(.system(size: 18, weight: .medium))
+                .foregroundColor(.gray)
             
-            Spacer().frame(height: 16)
-        }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    viewModel.cancel()
-                    dismiss()
-                }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.blue)
-                }
-            }
+            Spacer()
         }
         .onReceive(dotTimer) { _ in
             dotCount = (dotCount + 1) % 4
+        }
+        .onAppear {
+            startTime = Date()
+        }
+        .onReceive(progressTimer) { _ in
+            guard let start = startTime else { return }
+            let elapsed = Date().timeIntervalSince(start)
+            progress = min(elapsed / totalDuration, 1.0)
         }
     }
 }
@@ -130,7 +146,7 @@ private struct ErrorStateView: View {
             
             Spacer()
             
-            Image("CryAnalysisErrorShark")
+            Image("sharkUnknown")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 180, height: 180)
@@ -143,21 +159,6 @@ private struct ErrorStateView: View {
                 .padding(.horizontal)
             
             Spacer()
-            
-            Button(action: {
-                dismiss()
-            }) {
-                Text("닫기")
-                    .font(.system(size: 30, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
-                    .background(Color("sharkPrimaryColor"))
-                    .cornerRadius(12)
-                    .padding(.horizontal, 24)
-            }
-            
-            Spacer().frame(height: 16)
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -172,8 +173,8 @@ private struct ErrorStateView: View {
     }
 }
 
-//#Preview {
-//    let mockViewModel = VoiceRecordViewModel()
-//    mockViewModel.step = .processing
-//    return CryAnalysisProcessingView(viewModel: mockViewModel)
-//}
+#Preview {
+    let mockViewModel = VoiceRecordViewModel()
+    mockViewModel.step = .processing
+    return CryAnalysisProcessingView(viewModel: mockViewModel)
+}
