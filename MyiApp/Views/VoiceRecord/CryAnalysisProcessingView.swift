@@ -130,7 +130,7 @@ private struct ErrorStateView: View {
             
             Spacer()
             
-            Image("CryAnalysisErrorShark")
+            Image("sharkUnknown")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 180, height: 180)
