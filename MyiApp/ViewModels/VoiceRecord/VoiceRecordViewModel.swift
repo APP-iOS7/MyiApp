@@ -41,7 +41,11 @@ final class VoiceRecordViewModel: ObservableObject {
     // MARK: - Published State
     @Published var audioLevels: [Float] = Array(repeating: 0.0, count: 8)
     @Published var recordingProgress: Double = 0.0
-    @Published var step: CryAnalysisStep = .start
+    @Published var step: CryAnalysisStep = .start {
+        didSet {
+            print("[ViewModel] step 변경됨 → \(step)")
+        }
+    }
     @Published var recordResults: [VoiceRecord] = []
     @Published var analysisCompleted: Bool = false
     @Published var shouldDismissResultView: Bool = false
@@ -54,6 +58,7 @@ final class VoiceRecordViewModel: ObservableObject {
     private var recordingBuffer: [Float] = []
     private var analysisTimer: Timer?
     private var hasStarted = false
+    private var isProcessingResult = false
 
     // MARK: - Init
     init() {
@@ -71,12 +76,14 @@ final class VoiceRecordViewModel: ObservableObject {
 
     // MARK: - Public Methods
     func startAnalysis() {
-        guard !hasStarted else { return }
+        print("[ViewModel] startAnalysis() called — step: \(step)")
         hasStarted = true
         step = .recording
         recordingProgress = 0.0
         recordingBuffer.removeAll()
         shouldDismissResultView = false
+        analysisCompleted = false
+        isProcessingResult = false
 
         audioService.audioLevelsHandler = { [weak self] levels in
             self?.audioLevels = levels
@@ -100,11 +107,18 @@ final class VoiceRecordViewModel: ObservableObject {
     }
 
     func resetAnalysisState() {
+        // 결과 처리 중이면 바로 초기화하지 않음
+        if isProcessingResult {
+            return
+        }
+
         step = .start
+        shouldDismissResultView = false
         analysisCompleted = false
         hasStarted = false
         recordingProgress = 0.0
         recordingBuffer.removeAll()
+        print("[ViewModel] resetAnalysisState() 완료 — step: \(step)")
     }
 
     func resetAnalysisCompleted() {
@@ -117,6 +131,11 @@ final class VoiceRecordViewModel: ObservableObject {
 
     func dismissResultView() {
         shouldDismissResultView = true
+        
+        // 결과 화면이 닫히면 상태 초기화
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            self.resetAnalysisState()
+        }
     }
 
     func saveAnalysisResult(newResult: VoiceRecord) async throws {
@@ -137,6 +156,7 @@ final class VoiceRecordViewModel: ObservableObject {
     private func observeStep() {
         $step
             .receive(on: DispatchQueue.main)
+            .removeDuplicates()
             .sink { [weak self] newStep in
                 self?.handleStepChange(newStep)
             }
@@ -144,8 +164,12 @@ final class VoiceRecordViewModel: ObservableObject {
     }
 
     private func handleStepChange(_ newStep: CryAnalysisStep) {
-        guard case let .result(emotion) = newStep, !analysisCompleted else { return }
+        guard case let .result(emotion) = newStep, !analysisCompleted, !isProcessingResult else {
+            return
+        }
 
+        isProcessingResult = true
+        
         let newResult = VoiceRecord(
             id: UUID(),
             createdAt: Date(),
@@ -158,10 +182,6 @@ final class VoiceRecordViewModel: ObservableObject {
 
         careGiverManager.voiceRecords.insert(newResult, at: 0)
         analysisCompleted = true
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.resetAnalysisState()
-        }
 
         Task {
             do {
@@ -202,7 +222,7 @@ final class VoiceRecordViewModel: ObservableObject {
         analyzer.analyze(from: recordingBuffer) { [weak self] result in
             print("[ViewModel] 분석 결과 수신: \(String(describing: result))")
             DispatchQueue.main.async {
-                guard let self else { return }
+                guard let self = self else { return }
                 self.step = result.map { .result($0) } ?? .error("분석 실패")
             }
         }

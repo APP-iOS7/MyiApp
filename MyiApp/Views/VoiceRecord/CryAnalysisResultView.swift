@@ -89,9 +89,10 @@ struct CryAnalysisResultView: View {
     @ObservedObject var viewModel: VoiceRecordViewModel
     @Environment(\.dismiss) private var dismiss
     @Environment(\.locale) private var locale
-    
+
     let emotionType: EmotionType
     let confidence: Float
+    let onDismiss: () -> Void
     
     // MARK: - Computed Properties
     private var resultImageName: String {
@@ -165,9 +166,7 @@ struct CryAnalysisResultView: View {
             Spacer()
 
             Button(action: {
-                viewModel.resetAnalysisState()
-                viewModel.dismissResultView()
-                dismiss()
+                onDismiss()
             }) {
                 Text(LocalizedStrings.closeButton)
                     .font(.system(size: Constants.buttonFontSize, weight: .bold))
@@ -185,6 +184,10 @@ struct CryAnalysisResultView: View {
         }
         .padding(.top)
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            // 결과 화면이 표시되면 저장 완료
+            print("[ResultView] 결과 화면 표시됨: \(emotionType.rawValue)")
+        }
     }
     
     // 접근성 팁 레이블 생성
@@ -238,7 +241,7 @@ struct LocalizedStrings {
     static let defaultTip = "아기를 관찰하고 추가 반응을 살펴보세요."
 }
 
-#Preview {
-    let mockViewModel = VoiceRecordViewModel()
-    CryAnalysisResultView(viewModel: mockViewModel, emotionType: .lonely, confidence: 0.81)
-}
+//#Preview {
+//    let mockViewModel = VoiceRecordViewModel()
+//    CryAnalysisResultView(viewModel: mockViewModel, emotionType: .lonely, confidence: 0.81)
+//}

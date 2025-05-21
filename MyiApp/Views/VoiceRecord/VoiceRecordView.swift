@@ -7,51 +7,103 @@
 
 import SwiftUI
 
-struct VoiceRecordView: View {
-    @StateObject private var viewModel: VoiceRecordViewModel = .init()
-    
-    var body: some View {
-        VStack {
-            // 헤더
-            HStack {
-                Text("울음분석")
-                    .font(.system(size: 28, weight: .bold))
-                Spacer()
-            }
-            .padding([.top, .horizontal])
+enum CryRoute {
+    case processing(id: UUID = UUID())
+    case result(emotion: EmotionResult, id: UUID = UUID())
+}
 
-            // 결과 리스트
-            ScrollView {
-                VStack(spacing: 12) {
-                    ForEach(viewModel.recordResults) { result in
-                        VoiceRecordResultCard(result: result)
-                    }
-                }
-                .padding(.top, 8)
-            }
-
-            // 분석 시작 버튼
-            Button(action: startAnalysis) {
-                Text("분석 시작")
-                    .font(.title3)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color("sharkPrimaryColor"))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-            }
-            .padding(.bottom, 8)
-        }
-        .background(Color(UIColor.systemGroupedBackground))
-        .navigationDestination(isPresented: .constant(viewModel.step == .recording || viewModel.step == .processing)) {
-            CryAnalysisProcessingView(viewModel: viewModel)
+extension CryRoute: Hashable {
+    func hash(into hasher: inout Hasher) {
+        switch self {
+        case .processing:
+            hasher.combine("processing")
+        case .result(let emotion, let id):
+            hasher.combine("result")
+            hasher.combine(emotion.type)
+            hasher.combine(emotion.confidence)
+            hasher.combine(id)
         }
     }
+}
+
+extension CryRoute: Equatable {
+    static func == (lhs: CryRoute, rhs: CryRoute) -> Bool {
+        switch (lhs, rhs) {
+        case (.processing, .processing):
+            return true
+        case (.result(let a, let lhsID), .result(let b, let rhsID)):
+            return a.type == b.type && a.confidence == b.confidence && lhsID == rhsID
+        default:
+            return false
+        }
+    }
+}
+
+struct VoiceRecordView: View {
+    @StateObject private var viewModel: VoiceRecordViewModel = .init()
+    @State private var navigationPath = NavigationPath()
     
-    private func startAnalysis() {
-        viewModel.resetAnalysisState()
-        viewModel.startAnalysis()
+    var body: some View {
+        NavigationStack(path: $navigationPath) {
+            VStack {
+                // 헤더
+                HStack {
+                    Text("울음분석")
+                        .font(.system(size: 28, weight: .bold))
+                    Spacer()
+                }
+                .padding([.top, .horizontal])
+
+                // 결과 리스트
+                ScrollView {
+                    VStack(spacing: 12) {
+                        ForEach(viewModel.recordResults) { result in
+                            VoiceRecordResultCard(result: result)
+                        }
+                    }
+                    .padding(.top, 8)
+                }
+
+                // 분석 시작 버튼
+                Button(action: {
+                    viewModel.resetAnalysisState()
+                    viewModel.startAnalysis()
+                    navigationPath = NavigationPath()
+                    navigationPath.append(CryRoute.processing())
+                }) {
+                    Text("분석 시작")
+                        .font(.title3)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color("sharkPrimaryColor"))
+                        .cornerRadius(12)
+                        .padding(.horizontal)
+                }
+                .padding(.bottom, 8)
+            }
+            .background(Color(UIColor.systemGroupedBackground))
+            .navigationDestination(for: CryRoute.self) { route in
+                switch route {
+                case .processing(let id):  // UUID 꺼냄
+                    CryAnalysisProcessingView(viewModel: viewModel) { result in
+                        navigationPath.removeLast()
+                        navigationPath.append(CryRoute.result(emotion: result, id: UUID()))
+                    }
+                    .id(id)  // 👈 SwiftUI가 매번 새로운 뷰로 인식하게 만듦
+
+                case .result(let emotion, _):
+                    CryAnalysisResultView(
+                        viewModel: viewModel,
+                        emotionType: emotion.type,
+                        confidence: Float(emotion.confidence),
+                        onDismiss: {
+                            navigationPath = NavigationPath()
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 
