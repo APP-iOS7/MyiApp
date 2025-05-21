@@ -36,16 +36,12 @@ class EditRecordViewModel: ObservableObject {
 
     func updateRecordTitle(_ title: TitleCategory) {
         record.title = title
-        if title != .breastfeeding && title != .pumpedMilk && title != .formula && title != .babyFood {
-            record.mlAmount = 0
-            record.breastfeedingLeftMinutes = 0
-            record.breastfeedingRightMinutes = 0
-        }
-        
-        if title == .medicine || title == .clinic {
-            record.content = nil
-            record.temperature = nil
-        }
+        record.content = nil
+        record.mlAmount = nil
+        record.breastfeedingLeftMinutes = nil
+        record.temperature = nil
+        record.weight = nil
+        record.height = nil
     }
     
     func saveRecord() {

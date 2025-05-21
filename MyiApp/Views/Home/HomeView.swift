@@ -26,7 +26,6 @@ struct HomeView: View {
                     .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
                 }
                 .padding()
-                
             }
             .background(Color.customBackground)
             .blur(radius: isPresented ? 10 : 0)
@@ -51,6 +50,7 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(viewModel.displayName)
                     .font(.headline)
+                    .padding(.leading, 4)
                 HStack(spacing: 0) {
                     Image(.homeCalendar)
                         .resizable()
@@ -118,7 +118,7 @@ struct HomeView: View {
                             .fontWeight(.semibold)
                         Text(viewModel.displayDevelopmentalStage)
                             .font(.footnote)
-
+                        
                     }
                     .padding(.leading)
                     Spacer()
@@ -305,15 +305,30 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 50)
             } else {
-                ForEach(viewModel.filteredRecords) { record in
-                    TimelineRow(record: record)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            viewModel.recordToEdit = record
-                        }
+                ForEach(viewModel.filteredRecords.indices, id: \.self) { index in
+                    let record = viewModel.filteredRecords[index]
+                    TimelineRow(
+                        record: record,
+                        index: index,
+                        totalCount: viewModel.filteredRecords.count
+                    )
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        viewModel.recordToEdit = record
+                    }
                 }
                 .sheet(item: $viewModel.recordToEdit) { record in
+                    let detents: Set<PresentationDetent> = {
+                        switch record.title {
+                            case .babyFood, .formula, .breastfeeding, .pumpedMilk, .clinic, .temperature, .medicine:
+                                [.large]
+                            default:
+                                [.medium]
+                        }
+                    }()
                     EditRecordView(record: record)
+                        .presentationDetents(detents)
                 }
             }
         }
