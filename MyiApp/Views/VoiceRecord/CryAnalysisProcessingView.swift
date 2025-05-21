@@ -10,8 +10,7 @@ import SwiftUI
 struct CryAnalysisProcessingView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var viewModel: VoiceRecordViewModel
-
-    @State private var showResultView = false
+    let onComplete: (EmotionResult) -> Void
     @State private var result: EmotionResult?
 
     var body: some View {
@@ -22,9 +21,13 @@ struct CryAnalysisProcessingView: View {
             case .result(let res):
                 Color.clear
                     .onAppear {
-                        if self.result == nil {
+                        print("[ProcessingView] result onAppear — 새 result 도착: \(res.type) / \(res.confidence)") // ✅ 여기에 쓰는 게 맞음
+
+                        if result?.type != res.type || result?.confidence != res.confidence {
                             self.result = res
-                            self.showResultView = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                onComplete(res)
+                            }
                         }
                     }
             case .error(let message):
@@ -34,22 +37,8 @@ struct CryAnalysisProcessingView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        .navigationDestination(isPresented: $showResultView) {
-            if let result {
-                CryAnalysisResultView(
-                    viewModel: viewModel,
-                    emotionType: result.type,
-                    confidence: Float(result.confidence)
-                )
-            }
-        }
-        .onChange(of: viewModel.shouldDismissResultView) { _, shouldDismiss in
-            if shouldDismiss {
-                showResultView = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    dismiss()
-                }
-            }
+        .onDisappear {
+            result = nil
         }
     }
 }
@@ -125,6 +114,7 @@ private struct ProcessingStateView: View {
         }
         .onAppear {
             startTime = Date()
+            
         }
         .onReceive(progressTimer) { _ in
             guard let start = startTime else { return }
@@ -173,8 +163,8 @@ private struct ErrorStateView: View {
     }
 }
 
-#Preview {
-    let mockViewModel = VoiceRecordViewModel()
-    mockViewModel.step = .processing
-    return CryAnalysisProcessingView(viewModel: mockViewModel)
-}
+//#Preview {
+//    let mockViewModel = VoiceRecordViewModel()
+//    mockViewModel.step = .processing
+//    CryAnalysisProcessingView(viewModel: mockViewModel, onComplete: { _ in })
+//}
