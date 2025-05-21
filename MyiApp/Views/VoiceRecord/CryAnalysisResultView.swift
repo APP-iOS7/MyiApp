@@ -12,7 +12,7 @@ private enum Constants {
     static let ringBackgroundOpacity: Double = 0.3
     static let confidenceAnimationDuration: Double = 0.8
     static let iconSize: CGFloat = 140
-    static let ringSize: CGFloat = 200
+    static let ringSize: CGFloat = 230
     static let percentageFontSize: CGFloat = 24
     static let percentageOffset: CGFloat = 90
     
@@ -46,7 +46,7 @@ struct ConfidenceRingView: View {
             Circle()
                 .trim(from: 0, to: CGFloat(confidence))
                 .stroke(
-                    Color.blue,
+                    Color("buttonColor"),
                     style: StrokeStyle(
                         lineWidth: Constants.ringStrokeWidth,
                         lineCap: .round
@@ -58,7 +58,7 @@ struct ConfidenceRingView: View {
                     value: confidence
                 )
 
-            VStack(spacing: 8) {
+            VStack(spacing: 4) {
                 Image(imageName)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -70,7 +70,6 @@ struct ConfidenceRingView: View {
 
                 Text(percentageText)
                     .font(.system(size: Constants.percentageFontSize, weight: .bold))
-                    .foregroundColor(.blue)
                     .accessibilityLabel("확률 \(percentageText)")
             }
         }
@@ -173,7 +172,7 @@ struct CryAnalysisResultView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: Constants.buttonHeight)
-                    .background(Color("sharkPrimaryColor"))
+                    .background(Color("buttonColor"))
                     .cornerRadius(Constants.cornerRadius)
                     .padding(.horizontal, 24)
             }
@@ -241,7 +240,7 @@ struct LocalizedStrings {
     static let defaultTip = "아기를 관찰하고 추가 반응을 살펴보세요."
 }
 
-//#Preview {
-//    let mockViewModel = VoiceRecordViewModel()
-//    CryAnalysisResultView(viewModel: mockViewModel, emotionType: .lonely, confidence: 0.81)
-//}
+#Preview {
+    let mockViewModel = VoiceRecordViewModel()
+    CryAnalysisResultView(viewModel: mockViewModel, emotionType: .lonely, confidence: 0.81, onDismiss: {})
+}
