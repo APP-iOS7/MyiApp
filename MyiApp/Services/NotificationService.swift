@@ -34,7 +34,7 @@ class NotificationService: ObservableObject {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             DispatchQueue.main.async {
                 self.authorizationStatus = granted ? .authorized : .denied
-                if let error = error {
+                if error != nil {
                 }
                 completion(granted)
             }
@@ -81,7 +81,7 @@ class NotificationService: ObservableObject {
         UNUserNotificationCenter.current().add(request) { error in
             defer { semaphore.signal() }
             
-            if let error = error {
+            if error != nil {
                 isSuccessful = false
             } else {
             }
@@ -89,7 +89,6 @@ class NotificationService: ObservableObject {
         
         _ = semaphore.wait(timeout: .now() + 1.0)
         
-        printAllScheduledNotifications()
         
         if isSuccessful {
             notificationCache[note.id.uuidString] = (triggerDate, note.title)
@@ -101,13 +100,8 @@ class NotificationService: ObservableObject {
     
     func cancelNotification(with identifier: String) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
-        
-        // 캐시에서도 제거
+
         notificationCache.removeValue(forKey: identifier)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.printAllScheduledNotifications()
-        }
     }
     
     func getNotificationTimeText(for date: Date) -> String {
@@ -161,27 +155,6 @@ class NotificationService: ObservableObject {
                 completion(false, nil, nil)
             }
         }
-    }
-    
-    func printAllScheduledNotifications() {
-        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
-            for request in requests {
-                if let trigger = request.trigger as? UNCalendarNotificationTrigger,
-                   let date = trigger.nextTriggerDate() {
-                    
-                    if let noteId = request.content.userInfo["noteId"] as? String {
-                        print("노트 ID(userInfo): \(noteId)")
-                    }
-                }
-            }
-        }
-    }
-    
-    func removeAllScheduledNotifications() {
-        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-        notificationCache.removeAll()
-
-        printAllScheduledNotifications()
     }
     
     // 설정 앱의 알림 설정 화면 열기
