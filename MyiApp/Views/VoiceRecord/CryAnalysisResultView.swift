@@ -21,7 +21,7 @@ struct CryAnalysisResultView: View {
         case .scared:
             return "sharkScared"
         case .tired:
-            return "sharkSleepy"
+            return "sharkTired"
         case .lonely:
             return "sharkLonely"
         case .burping:
