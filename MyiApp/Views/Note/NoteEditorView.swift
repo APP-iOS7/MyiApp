@@ -90,7 +90,6 @@ struct NoteEditorView: View {
     private func checkNotificationStatus() {
         guard let id = noteId, selectedCategory == .일정 else { return }
         
-        print("알림 상태 확인: \(id.uuidString)")
         // 모든 알림 출력 (디버깅)
         NotificationService.shared.printAllScheduledNotifications()
         
@@ -111,13 +110,11 @@ struct NoteEditorView: View {
                 reminderMinutesBefore = 0
             }
             
-            print("Note 객체에서 알림 정보 로드: time=\(notificationTime), \(reminderMinutesBefore)분 전")
             return
         }
         
         // 실제 알림 시스템에서 확인
         NotificationService.shared.findNotificationForNote(noteId: id.uuidString) { exists, triggerDate, _ in
-            print("알림 시스템 확인 결과: 존재=\(exists), 시간=\(String(describing: triggerDate))")
             
             DispatchQueue.main.async {
                 self.isReminderEnabled = exists
@@ -301,7 +298,6 @@ struct NoteEditorView: View {
                 Text(alertMessage)
             }
             .onAppear {
-                print("🔔 NoteEditorView appeared for \(isEditing ? "editing" : "new") \(selectedCategory.rawValue)")
                 checkNotificationStatus()
             }
         }
@@ -310,11 +306,25 @@ struct NoteEditorView: View {
     private func saveNote() {
         if title.isEmpty { return }
         
+        // 일정인 경우 알림 설정 유효성 검사
+        if selectedCategory == .일정 && isReminderEnabled {
+            // 알림 시간 유효성 검사
+            if reminderTime < Date() {
+                alertMessage = "알림 시간은 현재 시간보다 이후여야 합니다."
+                showAlertMessage = true
+                return // 저장 프로세스 중단
+            }
+            
+            if reminderTime >= date {
+                alertMessage = "알림 시간은 일정 시작 시간보다 이전이어야 합니다."
+                showAlertMessage = true
+                return // 저장 프로세스 중단
+            }
+        }
+        
         isSaving = true
-        print("노트 저장 시작: \(selectedCategory.rawValue)")
         
         let noteId = self.noteId ?? UUID()
-        print("노트 ID: \(noteId.uuidString)")
         
         var notificationEnabled: Bool? = nil
         var notificationTime: Date? = nil
@@ -332,6 +342,8 @@ struct NoteEditorView: View {
                     if !result.success {
                         alertMessage = result.message ?? "알림 설정에 실패했습니다."
                         showAlertMessage = true
+                        isSaving = false
+                        return
                     }
                 }
             } else {
@@ -360,8 +372,6 @@ struct NoteEditorView: View {
                 viewModel.addNoteWithImages(note: note, images: selectedImages)
             }
             
-            print("이미지 저장 처리 중...")
-            
             setSuccessToastMessage(withNotification: notificationEnabled == true)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
@@ -377,8 +387,7 @@ struct NoteEditorView: View {
             }
             
             setSuccessToastMessage(withNotification: notificationEnabled == true)
-            
-            print("노트 저장 완료 - 화면 닫기")
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 isSaving = false
                 dismiss()
@@ -388,10 +397,13 @@ struct NoteEditorView: View {
     
     private func handleNotificationForEvent(noteId: UUID) -> (success: Bool, time: Date?, message: String?) {
         print("알림 처리: isEnabled=\(isReminderEnabled), noteId=\(noteId)")
-        
+
         if reminderTime < Date() {
-            print("알림 시간이 현재보다 이전: \(reminderTime)")
             return (false, nil, "알림 시간은 현재 시간 이후여야 합니다.")
+        }
+        
+        if reminderTime >= date {
+            return (false, nil, "알림 시간은 일정 시작 시간보다 이전이어야 합니다.")
         }
         
         let timeDiff = reminderMinutesBefore == 0 ? 0 : max(1, Int(date.timeIntervalSince(reminderTime) / 60))

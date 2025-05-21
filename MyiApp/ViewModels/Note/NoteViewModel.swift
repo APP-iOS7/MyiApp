@@ -82,7 +82,6 @@ class NoteViewModel: ObservableObject {
                     } catch {
                         DispatchQueue.main.async {
                             self.errorMessage = "아기 정보 변환에 실패했습니다: \(error.localizedDescription)"
-                            print("아기 정보 변환 오류: \(error)")
                         }
                     }
                 }
@@ -460,7 +459,7 @@ extension NoteViewModel {
                 case .success(let url):
                     uploadedURLs.append(url)
                 case .failure(let error):
-                    print("이미지 업로드 실패: \(error.localizedDescription)")
+                    print("이미지 업로드 실패")
                 }
                 group.leave()
             }
@@ -503,7 +502,7 @@ extension NoteViewModel {
         )
         
         updateNote(note: updatedNote)
-        print("🔄 노트 알림 정보 업데이트: \(noteId.uuidString), enabled=\(enabled), time=\(String(describing: time))")
+        print("노트 알림 정보 업데이트: \(noteId.uuidString), enabled=\(enabled), time=\(String(describing: time))")
     }
     
     // 이미지가 있는 노트 추가
@@ -586,7 +585,7 @@ extension NoteViewModel {
             let storageRef = Storage.storage().reference().child(path)
             storageRef.delete { error in
                 if let error = error {
-                    print("Firebase Storage에서 이미지 삭제 실패: \(error.localizedDescription)")
+                    print("Firebase Storage에서 이미지 삭제 실패")
                 }
             }
         }
