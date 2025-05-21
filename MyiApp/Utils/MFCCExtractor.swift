@@ -20,78 +20,99 @@ struct MFCCExtractor {
     func extract(from signal: [Float]) -> [[Float]] {
         guard signal.count >= frameLength else { return [] }
 
-        let numFrames = (signal.count - frameLength) / hopLength + 1
-        print("🎯 입력 길이: \(signal.count)")
+        // Pre-emphasis 필터 적용: y[n] = x[n] - alpha * x[n-1]
+        let alpha: Float = 0.97
+        var emphasizedSignal = signal
+        for i in stride(from: emphasizedSignal.count - 1, to: 0, by: -1) {
+            emphasizedSignal[i] -= alpha * emphasizedSignal[i - 1]
+        }
+
+        let numFrames = (emphasizedSignal.count - frameLength) / hopLength + 1
+        print("🎯 입력 길이: \(emphasizedSignal.count)")
         print("📐 프레임 수: \(numFrames)")
-        print("🛠️ 프레임 길이: \(frameLength), 홉 길이: \(hopLength)")
 
+        let hannWindow = createHannWindow()
         var mfccs: [[Float]] = []
-
-        // 1. Hann Window 생성 (프레임 경계의 급격한 변화 완화용)
-        var window = [Float](repeating: 0.0, count: frameLength)
-        vDSP_hann_window(&window, vDSP_Length(frameLength), Int32(vDSP_HANN_NORM))
 
         for frameIndex in 0..<numFrames {
             let start = frameIndex * hopLength
-            let end = start + frameLength
-            let frame = Array(signal[start..<end])
-            let avgAmplitude = frame.reduce(0, +) / Float(frame.count)
-            print("📊 \(frameIndex)번째 프레임 평균: \(avgAmplitude)")
+            let frame = Array(emphasizedSignal[start..<start + frameLength])
 
-            // 2. Window 적용
-            var windowed = [Float](repeating: 0.0, count: frameLength)
-            vDSP_vmul(frame, 1, window, 1, &windowed, 1, vDSP_Length(frameLength))
+            let windowed = applyWindow(to: frame, with: hannWindow)
+            let (real, imag) = performFFT(on: windowed)
+            let powerSpectrum = computePowerSpectrum(real: real, imag: imag)
+            let melEnergies = applyMelFilterBank(to: powerSpectrum)
 
-            // 3. FFT (실수 신호를 복소수 주파수 영역으로 변환)
-            var realp = [Float](repeating: 0.0, count: frameLength / 2)
-            var imagp = [Float](repeating: 0.0, count: frameLength / 2)
-            realp.withUnsafeMutableBufferPointer { realBuf in
-                imagp.withUnsafeMutableBufferPointer { imagBuf in
-                    windowed.withUnsafeBufferPointer { inputBuf in
-                        var complexBuffer = DSPSplitComplex(realp: realBuf.baseAddress!, imagp: imagBuf.baseAddress!)
-                        inputBuf.baseAddress!.withMemoryRebound(to: DSPComplex.self, capacity: frameLength / 2) { complexPtr in
-                            let log2n = vDSP_Length(log2(Float(frameLength)))
-                            if let fftSetup = vDSP_create_fftsetup(log2n, FFTRadix(kFFTRadix2)) {
-                                vDSP_ctoz(complexPtr, 2, &complexBuffer, 1, vDSP_Length(frameLength / 2))
-                                vDSP_fft_zrip(fftSetup, &complexBuffer, 1, log2n, FFTDirection(FFT_FORWARD))
-                                vDSP_destroy_fftsetup(fftSetup)
-                            }
-                        }
-                    }
-                }
-            }
-
-            // 4. 파워 스펙트럼 계산 (각 주파수의 에너지 크기 계산)
-            var magnitudes = [Float](repeating: 0.0, count: frameLength / 2)
-            realp.withUnsafeMutableBufferPointer { realBuf in
-                imagp.withUnsafeMutableBufferPointer { imagBuf in
-                    var splitComplex = DSPSplitComplex(realp: realBuf.baseAddress!, imagp: imagBuf.baseAddress!)
-                    vDSP_zvmags(&splitComplex, 1, &magnitudes, 1, vDSP_Length(frameLength / 2))
-                }
-            }
-
-            // 5. Mel 필터뱅그 적용 (아직 간단하게 구현된 버전이라 더 정교한 로직 필요)
-            let melEnergies = Array(magnitudes.prefix(numMelBands))
-
-            // 6. Log 압축 (에너지 값의 크기 차이가 커서 Log로 스케일 조정)
-            let epsilon: Float = 1e-6 // log(0) 방지
+            let epsilon: Float = 1e-6
             let logMel = melEnergies.map { log($0 + epsilon) }
-            print("🔍 로그 Mel 에너지 (프레임 \(frameIndex)): \(logMel)")
-            
-            // NaN 또는 무한값 검출 (안정성 확보)
+
             if logMel.contains(where: { $0.isNaN || $0.isInfinite }) {
                 print("🚫 로그 Mel 에너지에 NaN 또는 무한값 있음 → 프레임 \(frameIndex) 스킵")
                 continue
             }
-            
-            // 7. DCT 적용 -> MFCC 추출
+
             let mfcc = computeDCT(logMel, outputCount: numCoefficients)
-            print("🎼 MFCC 결과 (프레임 \(frameIndex)): \(mfcc)")
             mfccs.append(mfcc)
         }
-        
+
         print("✅ 최종 MFCC 개수: \(mfccs.count)")
         return mfccs
+    }
+    
+    private func createHannWindow() -> [Float] {
+        var window = [Float](repeating: 0.0, count: frameLength)
+        vDSP_hann_window(&window, vDSP_Length(frameLength), Int32(vDSP_HANN_NORM))
+        return window
+    }
+
+    private func applyWindow(to frame: [Float], with window: [Float]) -> [Float] {
+        var result = [Float](repeating: 0.0, count: frameLength)
+        vDSP_vmul(frame, 1, window, 1, &result, 1, vDSP_Length(frameLength))
+        return result
+    }
+
+    private func performFFT(on windowed: [Float]) -> ([Float], [Float]) {
+        var realp = [Float](repeating: 0.0, count: frameLength / 2)
+        var imagp = [Float](repeating: 0.0, count: frameLength / 2)
+
+        let log2n = vDSP_Length(log2(Float(frameLength)))
+        guard let fftSetup = vDSP_create_fftsetup(log2n, FFTRadix(kFFTRadix2)) else {
+            print("❌ FFT setup 생성 실패")
+            return (realp, imagp)
+        }
+        defer { vDSP_destroy_fftsetup(fftSetup) }
+
+        realp.withUnsafeMutableBufferPointer { realBuf in
+            imagp.withUnsafeMutableBufferPointer { imagBuf in
+                windowed.withUnsafeBufferPointer { inputBuf in
+                    var splitComplex = DSPSplitComplex(realp: realBuf.baseAddress!, imagp: imagBuf.baseAddress!)
+                    inputBuf.baseAddress?.withMemoryRebound(to: DSPComplex.self, capacity: frameLength / 2) { complexPtr in
+                        vDSP_ctoz(complexPtr, 2, &splitComplex, 1, vDSP_Length(frameLength / 2))
+                        vDSP_fft_zrip(fftSetup, &splitComplex, 1, log2n, FFTDirection(FFT_FORWARD))
+                    }
+                }
+            }
+        }
+
+        return (realp, imagp)
+    }
+
+    private func computePowerSpectrum(real: [Float], imag: [Float]) -> [Float] {
+        var power = [Float](repeating: 0.0, count: real.count)
+
+        real.withUnsafeBufferPointer { realBuf in
+            imag.withUnsafeBufferPointer { imagBuf in
+                guard let realPtr = realBuf.baseAddress, let imagPtr = imagBuf.baseAddress else {
+                    print("❌ DSPSplitComplex 포인터 생성 실패")
+                    return
+                }
+                var splitComplex = DSPSplitComplex(realp: UnsafeMutablePointer(mutating: realPtr),
+                                                   imagp: UnsafeMutablePointer(mutating: imagPtr))
+                vDSP_zvmags(&splitComplex, 1, &power, 1, vDSP_Length(real.count))
+            }
+        }
+
+        return power
     }
     
     // DCT 수행 -> 저주파 정보 추출
@@ -107,6 +128,47 @@ struct MFCCExtractor {
             result[k] = sum
         }
 
+        // DCT 결과 정규화
+        let scale = sqrt(2.0 / Float(N))
+        for i in 0..<outputCount {
+            result[i] *= scale
+        }
+        result[0] *= 1.0 / sqrt(2.0)
         return result
+    }
+    
+    private func applyMelFilterBank(to spectrum: [Float]) -> [Float] {
+        let melMin = 0.0
+        let melMax = 2595.0 * log10(1.0 + Double(sampleRate / 2.0) / 700.0)
+        let melPoints = (0...(numMelBands + 2)).map {
+            melMin + (melMax - melMin) * Double($0) / Double(numMelBands + 2)
+        }
+        let hzPoints = melPoints.map { 700.0 * (pow(10.0, $0 / 2595.0) - 1.0) }
+        let binPoints = hzPoints.map { floor(Double(frameLength) * $0 / Double(sampleRate)) }
+
+        var filterBank = [[Float]](repeating: [Float](repeating: 0.0, count: spectrum.count), count: numMelBands)
+
+        for m in 1...numMelBands {
+            let f_m_minus = Int(binPoints[m - 1])
+            let f_m = Int(binPoints[m])
+            let f_m_plus = Int(binPoints[m + 1])
+
+            for k in f_m_minus..<f_m {
+                if k >= 0 && k < spectrum.count {
+                    filterBank[m - 1][k] = Float(k - f_m_minus) / Float(f_m - f_m_minus)
+                }
+            }
+            for k in f_m..<f_m_plus {
+                if k >= 0 && k < spectrum.count {
+                    filterBank[m - 1][k] = Float(f_m_plus - k) / Float(f_m_plus - f_m)
+                }
+            }
+        }
+
+        var melEnergies = [Float](repeating: 0.0, count: numMelBands)
+        for (i, filter) in filterBank.enumerated() {
+            melEnergies[i] = zip(spectrum, filter).map(*).reduce(0, +)
+        }
+        return melEnergies
     }
 }

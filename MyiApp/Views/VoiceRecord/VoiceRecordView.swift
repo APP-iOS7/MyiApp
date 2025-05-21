@@ -9,7 +9,6 @@ import SwiftUI
 
 struct VoiceRecordView: View {
     @StateObject private var viewModel: VoiceRecordViewModel = .init()
-    @State private var isAnalyzing = false
     
     var body: some View {
         VStack {
@@ -25,40 +24,14 @@ struct VoiceRecordView: View {
             ScrollView {
                 VStack(spacing: 12) {
                     ForEach(viewModel.recordResults) { result in
-                        HStack(alignment: .top, spacing: 12) {
-                            Image("cryingShark")
-                                .resizable()
-                                .frame(width: 48, height: 48)
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("새로운 분석")
-                                    .font(.headline)
-                                    .bold()
-                                Text(result.firstLabel.displayName)
-                                    .foregroundColor(.gray)
-                                    .font(.subheadline)
-                                Text(dateString(from: result.createdAt))
-                                    .foregroundColor(.gray)
-                                    .font(.caption)
-                            }
-                            Spacer()
-                        }
-                        .padding()
-                        .background(Color.white)
-                        .cornerRadius(16)
-                        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
-                        .padding(.horizontal)
+                        VoiceRecordResultCard(result: result)
                     }
                 }
                 .padding(.top, 8)
             }
 
             // 분석 시작 버튼
-            Button(action: {
-                viewModel.resetAnalysisState()
-                viewModel.startAnalysis()
-                isAnalyzing = true
-            }) {
+            Button(action: startAnalysis) {
                 Text("분석 시작")
                     .font(.title3)
                     .foregroundColor(.white)
@@ -71,21 +44,45 @@ struct VoiceRecordView: View {
             .padding(.bottom, 8)
         }
         .background(Color(UIColor.systemGroupedBackground))
-        .navigationDestination(isPresented: $isAnalyzing) {
-                 CryAnalysisProcessingView(viewModel: viewModel)
-             }
-             // 추가: viewModel의 step이 변경될 때 isAnalyzing 상태 업데이트
-             .onChange(of: viewModel.step) { _, newStep in
-                 switch newStep {
-                 case .recording, .processing:
-                     isAnalyzing = true
-                 case .start:
-                     isAnalyzing = false
-                 default:
-                     break
-                 }
-             }
-         }
+        .navigationDestination(isPresented: .constant(viewModel.step == .recording || viewModel.step == .processing)) {
+            CryAnalysisProcessingView(viewModel: viewModel)
+        }
+    }
+    
+    private func startAnalysis() {
+        viewModel.resetAnalysisState()
+        viewModel.startAnalysis()
+    }
+}
+
+private struct VoiceRecordResultCard: View {
+    let result: VoiceRecord
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image("cryingShark")
+                .resizable()
+                .frame(width: 48, height: 48)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("새로운 분석")
+                    .font(.headline)
+                    .bold()
+                Text(result.firstLabel.displayName)
+                    .foregroundColor(.gray)
+                    .font(.subheadline)
+                Text(dateString(from: result.createdAt))
+                    .foregroundColor(.gray)
+                    .font(.caption)
+            }
+            Spacer()
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        .padding(.horizontal)
+    }
 
     private func dateString(from date: Date) -> String {
         let formatter = DateFormatter()
