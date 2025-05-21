@@ -14,15 +14,10 @@ private enum Constants {
     static let iconSize: CGFloat = 140
     static let ringSize: CGFloat = 230
     static let percentageFontSize: CGFloat = 24
-    static let percentageOffset: CGFloat = 90
-    
     static let titleFontSize: CGFloat = 32
     static let emotionTypeFontSize: CGFloat = 40
     static let tipsFontSize: CGFloat = 16
-    static let buttonFontSize: CGFloat = 30
-    static let buttonHeight: CGFloat = 60
     static let cornerRadius: CGFloat = 12
-    
     static let contentSpacing: CGFloat = 24
     static let tipsSpacing: CGFloat = 8
 }
@@ -43,20 +38,32 @@ struct ConfidenceRingView: View {
                     Color.gray.opacity(Constants.ringBackgroundOpacity),
                     lineWidth: Constants.ringStrokeWidth
                 )
-            Circle()
-                .trim(from: 0, to: CGFloat(confidence))
-                .stroke(
-                    Color("buttonColor"),
-                    style: StrokeStyle(
-                        lineWidth: Constants.ringStrokeWidth,
-                        lineCap: .round
+
+            if imageName.contains("Unknown") {
+                Circle()
+                    .stroke(
+                        Color("buttonColor"),
+                        style: StrokeStyle(
+                            lineWidth: Constants.ringStrokeWidth,
+                            lineCap: .round
+                        )
                     )
-                )
-                .rotationEffect(.degrees(-90))
-                .animation(
-                    .easeOut(duration: Constants.confidenceAnimationDuration),
-                    value: confidence
-                )
+            } else {
+                Circle()
+                    .trim(from: 0, to: CGFloat(confidence))
+                    .stroke(
+                        Color("buttonColor"),
+                        style: StrokeStyle(
+                            lineWidth: Constants.ringStrokeWidth,
+                            lineCap: .round
+                        )
+                    )
+                    .rotationEffect(.degrees(-90))
+                    .animation(
+                        .easeOut(duration: Constants.confidenceAnimationDuration),
+                        value: confidence
+                    )
+            }
 
             VStack(spacing: 4) {
                 Image(imageName)
@@ -68,9 +75,11 @@ struct ConfidenceRingView: View {
                     )
                     .accessibilityLabel(getAccessibilityLabel(for: imageName))
 
-                Text(percentageText)
-                    .font(.system(size: Constants.percentageFontSize, weight: .bold))
-                    .accessibilityLabel("확률 \(percentageText)")
+                if !imageName.contains("Unknown") {
+                    Text(percentageText)
+                        .font(.system(size: Constants.percentageFontSize, weight: .bold))
+                        .accessibilityLabel("확률 \(percentageText)")
+                }
             }
         }
         .frame(width: Constants.ringSize, height: Constants.ringSize)
@@ -95,7 +104,7 @@ struct CryAnalysisResultView: View {
     
     // MARK: - Computed Properties
     private var resultImageName: String {
-        return "shark\(emotionType.rawImageName)"
+        return emotionType.rawImageName
     }
 
     private var localizedTips: [String] {
@@ -168,13 +177,13 @@ struct CryAnalysisResultView: View {
                 onDismiss()
             }) {
                 Text(LocalizedStrings.closeButton)
-                    .font(.system(size: Constants.buttonFontSize, weight: .bold))
+                    .font(.system(size: 30, weight: .bold))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .frame(height: Constants.buttonHeight)
+                    .padding()
                     .background(Color("buttonColor"))
                     .cornerRadius(Constants.cornerRadius)
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal)
             }
             .padding(.horizontal)
             .accessibilityHint(LocalizedStrings.closeButtonHint)
@@ -184,7 +193,6 @@ struct CryAnalysisResultView: View {
         .padding(.top)
         .navigationBarBackButtonHidden(true)
         .onAppear {
-            // 결과 화면이 표시되면 저장 완료
             print("[ResultView] 결과 화면 표시됨: \(emotionType.rawValue)")
         }
     }
@@ -196,35 +204,35 @@ struct CryAnalysisResultView: View {
     }
 }
 
-// MARK: - Extension for EmotionType
+// MARK: - Extension EmotionType
 extension EmotionType {
     var rawImageName: String {
         switch self {
         case .hungry:
-            return "Hungry"
+            return "sharkHungry"
         case .scared:
-            return "Scared"
+            return "sharkScared"
         case .tired:
-            return "Tired"
+            return "sharkTired"
         case .lonely:
-            return "Lonely"
+            return "sharkLonely"
         case .burping:
-            return "Burping"
+            return "sharkBurping"
         case .bellyPain:
-            return "Belly"
+            return "sharkBellyPain"
         case .coldHot:
-            return "Temp"
+            return "sharkColdHot"
         case .discomfort:
-            return "Discomfort"
+            return "sharkDiscomfort"
         case .unknown:
-            return "Unknown"
+            return "sharkUnknown"
         }
     }
 }
 
 // MARK: - Localized Strings
 struct LocalizedStrings {
-    // 실제 구현에서는 NSLocalizedString 또는 SwiftUI의 LocalizedStringKey로 대체 필요
+    // 실제 구현에서는 NSLocalizedString 또는 SwiftUI의 LocalizedStringKey로 대체
     static let resultTitle = "결과"
     static let tipsIntro = "진정하도록 기다려야 합니다. "
     static let closeButton = "닫기"
@@ -242,5 +250,5 @@ struct LocalizedStrings {
 
 #Preview {
     let mockViewModel = VoiceRecordViewModel()
-    CryAnalysisResultView(viewModel: mockViewModel, emotionType: .lonely, confidence: 0.81, onDismiss: {})
+    CryAnalysisResultView(viewModel: mockViewModel, emotionType: .unknown, confidence: 0.81, onDismiss: {})
 }
