@@ -13,19 +13,25 @@ struct HomeView: View {
     
     var body: some View {
         ZStack {
-            ScrollView {
-                VStack(spacing: 10) {
-                    babyInfoCard
-                    VStack {
-                        dateSection
-                        gridItems
-                        Divider()
-                            .padding(.horizontal)
-                        timeline
+            VStack(spacing: 0) {
+                SafeAreaPaddingView()
+                    .frame(height: getTopSafeAreaHeight())
+                    .background(Color.customBackground)
+                ScrollView {
+                    VStack(spacing: 20) {
+                        header
+                        babyInfoCard
+                        VStack {
+                            dateSection
+                            gridItems
+                            Divider()
+                                .padding(.horizontal)
+                            timeline
+                        }
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
                     }
-                    .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
+                    .padding()
                 }
-                .padding()
             }
             .background(Color.customBackground)
             .blur(radius: isPresented ? 10 : 0)
@@ -34,6 +40,44 @@ struct HomeView: View {
         }
     }
     
+    
+    private var header: some View {
+        HStack {
+            Menu {
+                ForEach(viewModel.caregiverManager.babies) { baby in
+                    Button {
+                        viewModel.babyChangeButtonDidTap(baby: baby)
+                    } label: {
+                        Text(baby.name)
+                            .foregroundStyle(.primary)
+                    }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text(viewModel.baby?.name ?? "아기 선택")
+                        .font(.headline)
+                    Image(systemName: "chevron.down")
+                        .font(.subheadline)
+                }
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.gray.opacity(0.15))
+                )
+            }
+
+            Spacer()
+
+            Button {
+                // TODO: 알림 상황일 때.
+            } label: {
+                Image(systemName: "bell.fill")
+                    .font(.title)
+                    .foregroundColor(.gray)
+                    .padding(10)
+            }
+        }
+        .padding(.horizontal)
+    }
     private var babyInfoCard: some View {
         HStack {
             Image(.sharkChild)
@@ -275,10 +319,10 @@ struct HomeView: View {
                         Image(uiImage: item.image)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                        //                            .padding()
+                            .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color.sharkCardBackground)
+                                    .fill(Color.customBackground)
                                     .frame(width: 70, height: 70)
                             )
                         Text(item.name)
@@ -333,6 +377,15 @@ struct HomeView: View {
             }
         }
         .padding(.horizontal)
+    }
+    private func getTopSafeAreaHeight() -> CGFloat {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            return 0
+        }
+        
+        let height = window.safeAreaInsets.top
+        return height * 0.1
     }
 }
 
