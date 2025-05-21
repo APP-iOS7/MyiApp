@@ -16,6 +16,7 @@ class HomeViewModel: ObservableObject {
     @Published var selectedDate: Date = Date()
     @Published var selectedCategory: GridItemCategory?
     @Published var recordToEdit: Record?
+    let caregiverManager = CaregiverManager.shared
     private var cancellables = Set<AnyCancellable>()
     var displayName: String {
         baby?.name ?? "loading..."
@@ -118,5 +119,9 @@ class HomeViewModel: ObservableObject {
     func saveRecord(record: Record) {
         guard let baby else { return }
         let _ = Firestore.firestore().collection("babies").document(baby.id.uuidString).collection("records").document(record.id.uuidString).setData(from: record)
+    }
+    
+    func babyChangeButtonDidTap(baby: Baby) {
+        
     }
 }
