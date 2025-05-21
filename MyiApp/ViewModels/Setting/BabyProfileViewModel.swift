@@ -7,6 +7,8 @@
 
 import SwiftUI
 import PhotosUI
+import FirebaseFirestore
+
 
 @MainActor
 class BabyProfileViewModel: ObservableObject {
@@ -24,7 +26,7 @@ class BabyProfileViewModel: ObservableObject {
         self.baby = baby
     }
     
-    // 초기 프로필 데이터 로드
+    // 초기 프로필 이미지 데이터 로드
     func loadBabyProfileImage() async {
         guard !isLoading else { return }
         isLoading = true
@@ -74,7 +76,6 @@ class BabyProfileViewModel: ObservableObject {
             if let data = try await selectedImage.loadTransferable(type: Data.self),
                let image = UIImage(data: data) {
                 self.babyImage = image
-                await saveBabyImage()
             }
         } catch {
             self.errorMessage = "이미지 처리 실패: \(error.localizedDescription)"
@@ -116,5 +117,37 @@ class BabyProfileViewModel: ObservableObject {
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "a h시 mm분"
         return formatter.string(from: date)
+    }
+    
+    // 프로필 변경
+    func saveProfileEdits() async {
+            isLoading = true
+            defer { isLoading = false }
+            
+            let babyID = baby.id.uuidString
+            let babyData: [String: Any] = [
+                "name": baby.name,
+                "birth_date": Timestamp(date: baby.birthDate),
+                "gender": baby.gender.rawValue,
+                "height": baby.height,
+                "weight": baby.weight,
+                "blood_type": baby.bloodType.rawValue,
+            ]
+            
+            do {
+                try await Firestore.firestore().collection("babies").document(babyID).setData(babyData, merge: true)
+                self.errorMessage = nil
+                self.isProfileSaved = true
+            } catch {
+                self.errorMessage = "프로필 저장 실패: \(error.localizedDescription)"
+                self.isProfileSaved = false
+            }
+        }
+    
+    // 프로필 편집 취소 기능
+    func resetChanges() {
+        babyImage = nil
+        selectedImage = nil
+        Task { await loadBabyProfileImage() }
     }
 }
