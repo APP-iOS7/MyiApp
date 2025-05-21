@@ -39,6 +39,7 @@ struct EditRecordView: View {
                 }
             }
             .background {
+                Color.customBackground
                 MinutesPickerActionSheet(isPresented: $viewModel.isRightMinutesPickerActionSheetPresent,
                                          selectedAmount: $viewModel.record.breastfeedingRightMinutes)
                 MinutesPickerActionSheet(isPresented: $viewModel.isLeftMinutesPickerActionSheetPresent,
@@ -75,6 +76,7 @@ struct EditRecordView: View {
                 Section {
                     HStack {
                         Image(systemName: record.title == .breastfeeding ? "circle.inset.filled" : "circle")
+                            .tint(Color.sharkPrimary)
                         Image(.normalBreastFeeding)
                             .resizable()
                             .scaledToFit()
