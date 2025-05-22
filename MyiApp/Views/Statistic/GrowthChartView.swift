@@ -72,7 +72,7 @@ struct GrowthChartView: View {
                     dismiss()
                 }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.blue)
+                        .foregroundColor(.primary.opacity(0.8))
                 }
             }
         }
@@ -145,12 +145,29 @@ struct GrowthChartView: View {
         .frame(width: 200, height: 50)
     }
 }
+struct HeightEntry: Identifiable, Equatable {
+    let index: Int
+    let date: Date
+    let height: Double
+    var id: String {
+            "\(date.timeIntervalSince1970)-\(height)-\(index)"
+        }
+}
+struct WeightEntry: Identifiable, Equatable {
+    let index: Int
+    let date: Date
+    let weight: Double
+    var id: String {
+            "\(date.timeIntervalSince1970)-\(weight)-\(index)"
+        }
+}
+
 struct HeightChartView: View {
     let data: [(date: Date, height: Double)]
     let startDate: Date
     let endDate: Date
     
-    @State private var selectedEntry: (id: UUID, date: Date, height: Double)? = nil
+    @State private var selectedEntry: HeightEntry? = nil
 
     var body: some View {
         GeometryReader { geometry in
@@ -168,12 +185,12 @@ struct HeightChartView: View {
                     startDate.addingTimeInterval(Double($0) * intervalStep)
                 }
 
-                let cappedData: [(id: UUID, date: Date, height: Double)] = desiredDates.compactMap { targetDate in
+                let cappedData: [HeightEntry] = desiredDates.enumerated().compactMap { (idx, targetDate) in
                     sortedData.min(by: {
                         //절댓값
                         abs($0.date.timeIntervalSince(targetDate)) < abs($1.date.timeIntervalSince(targetDate))
                     }).map { entry in
-                        (UUID(), entry.date, entry.height)
+                        HeightEntry(index: idx, date: entry.date, height: entry.height)
                     }
                 }
 
@@ -210,15 +227,6 @@ struct HeightChartView: View {
                                 let height = geo.size.height
 
                                 ZStack {
-                                    // 전체 흐릿한 선
-                                    Path { path in
-                                        for (index, entry) in sortedData.enumerated() {
-                                            let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
-                                            let y = height - ((CGFloat(entry.height - minHeight) / CGFloat(heightRange)) * height)
-                                            index == 0 ? path.move(to: CGPoint(x: x, y: y)) : path.addLine(to: CGPoint(x: x, y: y))
-                                        }
-                                    }
-                                    .stroke(Color("sharkPrimaryColor").opacity(0.3), lineWidth: 1)
 
                                     // 강조된 선
                                     Path { path in
@@ -235,7 +243,7 @@ struct HeightChartView: View {
                                         let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                                         let y = height - ((CGFloat(entry.height - minHeight) / CGFloat(heightRange)) * height)
                                         Circle()
-                                            .fill(selectedEntry?.id == entry.id ? Color("food") : Color("sharkPrimaryColor"))
+                                            .fill(selectedEntry?.id == entry.id ? Color("buttonColor") : Color("sharkPrimaryColor"))
                                             .frame(width: 10, height: 10)
                                             .position(x: x, y: y)
                                             .onTapGesture {
@@ -245,36 +253,33 @@ struct HeightChartView: View {
                                                     selectedEntry = entry
                                                 }
                                             }
+                                        
                                     }
-                                    ForEach(cappedData, id: \.id) { entry in
-                                        if let entry = selectedEntry {
-                                            let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
-                                            let y = height - ((CGFloat(entry.height - minHeight) / CGFloat(heightRange)) * height)
-                                            let yOffset: CGFloat = y > height / 2 ? -50 : 50
-                                            
-                                            let toStart = abs(entry.date.timeIntervalSince(startDate))
-                                            let toEnd = abs(entry.date.timeIntervalSince(endDate))
-                                            let xOffset: CGFloat = toStart < toEnd ? 30 : -30
-                                            VStack(alignment: .leading) {
-                                                Text("날짜 : \(longDate(entry.date))")
-                                                    .font(.footnote)
-                                                Text("키 : \(String(format: "%.1f", entry.height))cm")
-                                                    .font(.footnote)
-                                            }
-                                            .padding(6)
-                                            .frame(minWidth: 150, minHeight: 80)
-                                            .background(Color.white.opacity(0.1))
-                                            .cornerRadius(12)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 12)
-                                                    .stroke(Color("sharkPrimaryColor"), lineWidth: 1)
-                                            )
-                                            .position(x: x + xOffset, y: y + yOffset)
-                                            
+                                    if let entry = selectedEntry {
+                                        let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
+                                        let y = height - ((CGFloat(entry.height - minHeight) / CGFloat(heightRange)) * height)
+                                        let yOffset: CGFloat = y > height / 2 ? -50 : 50
+                                        
+                                        let toStart = abs(entry.date.timeIntervalSince(startDate))
+                                        let toEnd = abs(entry.date.timeIntervalSince(endDate))
+                                        let xOffset: CGFloat = toStart < toEnd ? 50 : -50
+                                        VStack(alignment: .leading) {
+                                            Text("날짜 : \(longDate(entry.date))")
+                                                .font(.footnote)
+                                            Text("키 : \(String(format: "%.1f", entry.height))cm")
+                                                .font(.footnote)
                                         }
+                                        .padding(6)
+                                        .frame(minWidth: 150, minHeight: 80)
+                                        .background(Color.white.opacity(0.1))
+                                        .cornerRadius(12)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(Color("sharkPrimaryColor"), lineWidth: 1)
+                                        )
+                                        .position(x: x + xOffset, y: y + yOffset)
+                                        
                                     }
-                                    
-                                    
                                 }
                             }
                         }
@@ -330,7 +335,7 @@ struct WeightChartView: View {
     let startDate: Date
     let endDate: Date
     
-    @State private var selectedEntry: (id: UUID, date: Date, weight: Double)? = nil
+    @State private var selectedEntry: WeightEntry? = nil
 
     var body: some View {
         GeometryReader { geometry in
@@ -348,12 +353,12 @@ struct WeightChartView: View {
                     startDate.addingTimeInterval(Double($0) * intervalStep)
                 }
 
-                let cappedData: [(id: UUID, date: Date, weight: Double)] = desiredDates.compactMap { targetDate in
+                let cappedData: [WeightEntry] = desiredDates.enumerated().compactMap { (idx, targetDate) in
                     sortedData.min(by: {
                         //절댓값
                         abs($0.date.timeIntervalSince(targetDate)) < abs($1.date.timeIntervalSince(targetDate))
                     }).map { entry in
-                        (UUID(), entry.date, entry.weight)
+                        WeightEntry(index: idx, date: entry.date, weight: entry.weight)
                     }
                 }
 
@@ -390,15 +395,6 @@ struct WeightChartView: View {
                                 let height = geo.size.height
 
                                 ZStack {
-                                    // 전체 흐릿한 선
-                                    Path { path in
-                                        for (index, entry) in sortedData.enumerated() {
-                                            let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
-                                            let y = height - ((CGFloat(entry.weight - minWeight) / CGFloat(weightRange)) * height)
-                                            index == 0 ? path.move(to: CGPoint(x: x, y: y)) : path.addLine(to: CGPoint(x: x, y: y))
-                                        }
-                                    }
-                                    .stroke(Color("sharkPrimaryColor").opacity(0.3), lineWidth: 1)
 
                                     // 강조된 선
                                     Path { path in
@@ -426,36 +422,31 @@ struct WeightChartView: View {
                                                 }
                                             }
                                     }
-                                    ForEach(cappedData, id: \.id) { entry in
-                                        if let entry = selectedEntry {
-                                            let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
-                                            let y = height - ((CGFloat(entry.weight - minWeight) / CGFloat(weightRange)) * height)
-                                            let yOffset: CGFloat = y > height / 2 ? -50 : 50
-                                            
-                                            let toStart = abs(entry.date.timeIntervalSince(startDate))
-                                            let toEnd = abs(entry.date.timeIntervalSince(endDate))
-                                            let xOffset: CGFloat = toStart < toEnd ? 30 : -30
-                                            VStack(alignment: .leading) {
-                                                Text("날짜 : \(longDate(entry.date))")
-                                                    .font(.footnote)
-                                                Text("몸무게 : \(String(format: "%.1f", entry.weight))kg")
-                                                    .font(.footnote)
-                                            }
-                                            .padding(6)
-                                            .frame(minWidth: 150, minHeight: 80)
-                                            .background(Color.white.opacity(0.1))
-                                            .cornerRadius(12)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 12)
-                                                    .stroke(Color("sharkPrimaryColor"), lineWidth: 1)
-                                            )
-                                            .position(x: x + xOffset, y: y + yOffset)
-                                            
+                                    if let entry = selectedEntry {
+                                        let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
+                                        let y = height - ((CGFloat(entry.weight - minWeight) / CGFloat(weightRange)) * height)
+                                        let yOffset: CGFloat = y > height / 2 ? -50 : 50
+                                        
+                                        let toStart = abs(entry.date.timeIntervalSince(startDate))
+                                        let toEnd = abs(entry.date.timeIntervalSince(endDate))
+                                        let xOffset: CGFloat = toStart < toEnd ? 30 : -30
+                                        VStack(alignment: .leading) {
+                                            Text("날짜 : \(longDate(entry.date))")
+                                                .font(.footnote)
+                                            Text("몸무게 : \(String(format: "%.1f", entry.weight))kg")
+                                                .font(.footnote)
                                         }
+                                        .padding(6)
+                                        .frame(minWidth: 150, minHeight: 80)
+                                        .background(Color.white.opacity(0.1))
+                                        .cornerRadius(12)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(Color("sharkPrimaryColor"), lineWidth: 1)
+                                        )
+                                        .position(x: x + xOffset, y: y + yOffset)
+                                        
                                     }
-                                    
-
-                                    
                                 }
                             }
                         }
