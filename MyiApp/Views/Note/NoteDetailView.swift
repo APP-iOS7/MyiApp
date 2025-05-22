@@ -16,46 +16,46 @@ struct NoteDetailView: View {
     @State private var hasNotification = false
     @State private var notificationTime: String?
     @State private var refreshTrigger = false
+    @State private var currentImageIndex = 0
     
+    // MARK: - 바디
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 8) {
+
                 headerSection
                 
                 if event.category == .일지 && !event.imageURLs.isEmpty {
-                    ImageGallery(imageURLs: event.imageURLs)
-                        .padding(.top, 0)
+                    imageGallery
                 }
                 
                 contentSection
-                    .padding(.top, 16)
                 
                 if event.category == .일정 {
                     reminderSection
-                        .padding(.top, 16)
                 }
             }
-            .padding(.bottom, 20)
+            .padding(.vertical, 8)
         }
         .background(Color("customBackgroundColor").ignoresSafeArea())
         .navigationTitle(event.category == .일지 ? "일지 상세" : "일정 상세")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Menu {
+                HStack(spacing: 16) {
                     Button(action: {
                         showingEditSheet = true
                     }) {
-                        Label("수정", systemImage: "pencil")
+                        Image(systemName: "pencil")
+                            .foregroundColor(Color.button)
                     }
                     
                     Button(action: {
                         showingDeleteAlert = true
                     }) {
-                        Label("삭제", systemImage: "trash")
+                        Image(systemName: "trash")
+                            .foregroundColor(.red)
                     }
-                } label: {
-                    Image(systemName: "ellipsis")
                 }
             }
         }
@@ -87,7 +87,6 @@ struct NoteDetailView: View {
                     "이 일정은 영구적으로 삭제되며,\n복구할 수 없습니다.")
         }
         .onAppear {
-            print("NoteDetailView appeared for: \(event.id), category: \(event.category.rawValue)")
             if event.category == .일정 {
                 checkNotificationStatus()
             }
@@ -99,59 +98,129 @@ struct NoteDetailView: View {
         }
     }
     
+    // MARK: - 헤더 섹션
     private var headerSection: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 5) {
-                HStack {
+        VStack(alignment: .leading) {
+            HStack(spacing: 12) {
+                HStack(spacing: 6) {
                     Image(systemName: categoryIcon(for: event.category))
-                        .foregroundColor(categoryColor(for: event.category))
+                        .font(.system(size: 14, weight: .semibold))
                     
                     Text(event.category.rawValue)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(categoryColor(for: event.category))
+                        .font(.system(size: 14, weight: .semibold))
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
                 .background(
                     Capsule()
-                        .fill(categoryColor(for: event.category).opacity(0.2))
+                        .fill(categoryColor(for: event.category).opacity(0.15))
                 )
+                .foregroundColor(categoryColor(for: event.category))
                 
-                Text(event.title)
-                    .font(.title)
-                    .fontWeight(.bold)
+                Spacer()
                 
                 Text(event.date.formattedFullKoreanDateString())
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
+            .padding(.top, 16)
             
-            Spacer()
+            Text(event.title)
+                .font(.title2)
+                .fontWeight(.bold)
+                .padding(.vertical, 8)
         }
-        .padding()
-        .background(Color(UIColor.tertiarySystemBackground))
+        .padding(.horizontal, 16)
+        .padding(.bottom, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(UIColor.tertiarySystemBackground))
+        )
+        .padding(.horizontal)
     }
     
+    // MARK: - 이미지 갤러리
+    private var imageGallery: some View {
+        ZStack(alignment: .bottom) {
+            TabView(selection: $currentImageIndex) {
+                ForEach(0..<event.imageURLs.count, id: \.self) { index in
+                    CustomAsyncImageView(imageUrlString: event.imageURLs[index])
+                        .scaledToFill()
+                        .tag(index)
+                }
+            }
+            .frame(height: UIScreen.main.bounds.width * 0.8)
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            
+            if event.imageURLs.count > 1 {
+                HStack(spacing: 6) {
+                    ForEach(0..<event.imageURLs.count, id: \.self) { index in
+                        Circle()
+                            .fill(currentImageIndex == index ?
+                                  Color("sharkPrimaryColor") : Color.gray.opacity(0.3))
+                            .frame(width: 6, height: 6)
+                    }
+                }
+                .padding(.bottom, 8)
+            }
+        }
+        .cornerRadius(10)
+        .padding(.horizontal)
+    }
+    
+    // MARK: - 내용 섹션
     private var contentSection: some View {
-        Text(event.description)
-            .lineLimit(nil)
-            .multilineTextAlignment(.leading)
-            .fixedSize(horizontal: false, vertical: true)
-        
-            .padding(.horizontal)
+        VStack(alignment: .leading) {
+            if event.description.isEmpty {
+                Text("내용이 없습니다.")
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 40)
+            } else {
+                Text(event.description)
+                    .font(.body)
+                    .foregroundColor(.primary)
+                    .lineSpacing(6)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 16)
+                    .padding(.bottom, 16)
+            }
+        }
+        .frame(minHeight: 120, alignment: .top)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(UIColor.tertiarySystemBackground))
+        )
+        .padding(.horizontal)
     }
     
-    // 일정 알림 섹션
+    // MARK: - 알림 섹션
     private var reminderSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading) {
+            // 알림 섹션 제목
             Text("알림 정보")
                 .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary.opacity(0.8))
+                .padding(.top, 16)
+            
+            Divider()
+                .padding(.vertical, 8)
             
             if hasNotification, let notificationTime = notificationTime {
-                HStack {
-                    Image(systemName: "bell.fill")
-                        .foregroundColor(.orange)
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.orange.opacity(0.15))
+                            .frame(width: 36, height: 36)
+                        
+                        Image(systemName: "bell.fill")
+                            .font(.system(size: 18))
+                            .foregroundColor(.orange)
+                    }
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text("알림 예정")
@@ -170,20 +239,33 @@ struct NoteDetailView: View {
                     }) {
                         Text("변경")
                             .font(.caption)
-                            .foregroundColor(.blue)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                Capsule()
+                                    .fill(Color.orange)
+                            )
                     }
                 }
-                .padding()
-                .background(Color(UIColor.tertiarySystemBackground))
-                .cornerRadius(8)
+                .padding(.bottom, 16)
             } else {
-                HStack {
-                    Image(systemName: "bell.slash")
-                        .foregroundColor(.gray)
+                HStack(spacing: 12) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.gray.opacity(0.15))
+                            .frame(width: 36, height: 36)
+                        
+                        Image(systemName: "bell.slash")
+                            .font(.system(size: 18))
+                            .foregroundColor(.gray)
+                    }
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text("알림 없음")
                             .font(.subheadline)
+                            .fontWeight(.medium)
                         
                         Text("이 일정에는 알림이 설정되어 있지 않습니다.")
                             .font(.caption)
@@ -197,40 +279,40 @@ struct NoteDetailView: View {
                     }) {
                         Text("설정")
                             .font(.caption)
-                            .foregroundColor(.blue)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                Capsule()
+                                    .fill(Color.button)
+                            )
                     }
                 }
-                .padding()
-                .background(Color(UIColor.tertiarySystemBackground))
-                .cornerRadius(8)
+                .padding(.bottom, 16)
             }
         }
-        .padding()
+        .padding(.horizontal, 16)
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 10)
                 .fill(Color(UIColor.tertiarySystemBackground))
-                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         )
         .padding(.horizontal)
         .id("\(hasNotification)-\(notificationTime ?? "none")-\(refreshTrigger)")
     }
     
+    // MARK: - 함수
     private func checkNotificationStatus() {
-        print("알림 상태 확인 시작: \(event.id.uuidString)")
-        
         if let enabled = event.notificationEnabled,
            enabled,
            let time = event.notificationTime {
             
             hasNotification = true
             setNotificationTimeText(triggerDate: time)
-            print("Note 객체에서 알림 정보 발견: \(time)")
             return
         }
         
         NotificationService.shared.findNotificationForNote(noteId: event.id.uuidString) { exists, triggerDate, title in
-            print("알림 상태 결과: 존재=\(exists), 시간=\(String(describing: triggerDate)), 제목=\(String(describing: title))")
-            
             DispatchQueue.main.async {
                 self.hasNotification = exists
                 
@@ -288,7 +370,6 @@ struct NoteDetailView: View {
     
     private func deleteNote() {
         if event.category == .일정 {
-            print("노트 삭제 시 알림 취소: \(event.id.uuidString)")
             NotificationService.shared.cancelNotification(with: event.id.uuidString)
         }
         
@@ -302,7 +383,7 @@ struct NoteDetailView: View {
     private func categoryColor(for category: NoteCategory) -> Color {
         switch category {
         case .일지:
-            return Color("sharkPrimaryColor")
+            return Color.blue
         case .일정:
             return Color.orange
         }
