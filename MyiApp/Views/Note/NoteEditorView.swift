@@ -545,25 +545,33 @@ struct DeletedImagePreviewGrid: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 10) {
-                ForEach(deletedImages, id: \.0) { originalIndex, _ in
+                ForEach(deletedImages, id: \.0) { originalIndex, url in
                     ZStack {
+                        CustomAsyncImageView(imageUrlString: url)
+                            .frame(width: 100, height: 100)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .opacity(0.3)
+                        
                         RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.red.opacity(0.1))
+                            .fill(Color.red.opacity(0.4))
                             .frame(width: 100, height: 100)
                             .overlay(
                                 VStack(spacing: 4) {
                                     Image(systemName: "trash.fill")
                                         .font(.title2)
-                                        .foregroundColor(.red)
+                                        .foregroundColor(.white)
+                                        .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                                     
                                     Text("삭제됨")
                                         .font(.caption2)
-                                        .foregroundColor(.red)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                        .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
                                 }
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.red.opacity(0.5), lineWidth: 2)
+                                    .stroke(Color.red.opacity(0.8), lineWidth: 2)
                             )
                         
                         VStack {
@@ -574,16 +582,17 @@ struct DeletedImagePreviewGrid: View {
                             }) {
                                 HStack(spacing: 4) {
                                     Image(systemName: "arrow.counterclockwise")
-                                        .font(.system(size: 10))
+                                        .font(.system(size: 10, weight: .semibold))
                                     Text("복원")
-                                        .font(.system(size: 10))
+                                        .font(.system(size: 10, weight: .semibold))
                                 }
                                 .foregroundColor(.white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
                                 .background(
                                     Capsule()
                                         .fill(Color.blue)
+                                        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
                                 )
                             }
                             .padding(.bottom, 8)
