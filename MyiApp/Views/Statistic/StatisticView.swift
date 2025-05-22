@@ -61,7 +61,39 @@ struct StatisticView: View {
         ZStack {
             Color("customBackgroundColor")
                         .ignoresSafeArea()
-            mainScrollView
+            VStack(spacing: 0) {
+                SafeAreaPaddingView()
+                    .frame(height: getTopSafeAreaHeight())
+                ScrollView {
+                    VStack(spacing: 15) {
+                        heightWeightButton
+                        
+                        VStack(spacing: 10) {
+                            toggleMode
+                            .padding(.vertical, 10)
+                            
+                            dateMove
+                                .padding(.vertical, 10)
+                            
+                            
+                            
+                            iconGrid
+                                .padding(.bottom, 20)
+                            
+                            chartView
+                            babyInfo
+                        }
+                        .padding()
+                        .background(Color(.tertiarySystemBackground))
+                        .cornerRadius(12)
+                        VStack(spacing: 15) {
+                            
+                            statisticList
+                        }
+                    }
+                    .padding()
+                }
+            }
 
         }
         .gesture(
@@ -77,44 +109,14 @@ struct StatisticView: View {
         )
     }
     var iconGrid: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 6), spacing: 20) {
-            IconItem(title: "밥", image: .colorMeal)
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 20) {
+            IconItem(title: "수유/이유식", image: .colorMeal)
             IconItem(title: "기저귀", image: .colorDiaper)
             IconItem(title: "배변", image: .colorPotty)
             IconItem(title: "수면", image: .colorSleep)
             IconItem(title: "목욕", image: .colorBath)
             IconItem(title: "간식", image: .colorSnack)
         }
-    }
-    var mainScrollView: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                heightWeightButton
-                
-                VStack(spacing: 10) {
-                    toggleMode
-                    .padding(.vertical, 10)
-                    
-                    dateMove
-                        .padding(.vertical, 10)
-                    
-                    
-                    
-                    iconGrid
-                        .padding(.bottom, 20)
-                    
-                    chartView
-                    babyInfo
-                }
-                .padding()
-                .background(Color(.tertiarySystemBackground))
-                .cornerRadius(12)
-                
-                statisticList
-            }
-            .padding()
-        }
-        
     }
     private var toggleMode: some View {
         Picker("모드 선택", selection: $selectedMode) {
@@ -126,7 +128,15 @@ struct StatisticView: View {
         .padding()
         .frame(width: 200, height: 50)
     }
-
+    private func getTopSafeAreaHeight() -> CGFloat {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            return 0
+        }
+        
+        let height = window.safeAreaInsets.top
+        return height * 0.1
+    }
     private var dateMove: some View {
         ZStack {
             HStack {
@@ -188,7 +198,7 @@ struct StatisticView: View {
             if selectedMode == "주" {
                 WeeklyChartView(baby: baby, records: records,  selectedDate: selectedDate)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(.horizontal)
+                    .padding(.trailing)
                     .padding(.vertical, 20)
                 
             } else if selectedMode == "일" {
@@ -274,7 +284,7 @@ struct StatisticView: View {
                             .aspectRatio(contentMode: .fit)
                             .padding()
                             .background(
-                                RoundedRectangle(cornerRadius: 20)
+                                RoundedRectangle(cornerRadius: 12)
                                     .fill(Color.blue.opacity(0.1))
                                     .frame(width: 70, height: 70)
                             )
@@ -296,7 +306,7 @@ struct IconItem: View {
     var body: some View {
         VStack(spacing: 8) {
             ZStack {
-                RoundedRectangle(cornerRadius: 18)
+                RoundedRectangle(cornerRadius: 12)
                     .fill(Color("customBackgroundColor"))
                     .frame(width: 40, height: 40)
                 

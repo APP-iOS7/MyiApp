@@ -88,14 +88,13 @@ struct BathDetailView: View {
     
     var mainScrollView: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: 15) {
                 VStack(spacing: 10) {
                     toggleMode
-                    .padding(.vertical, 10)
-                    
+                    Spacer()
                     dateMove
-                        .padding(.vertical, 10)
                 }
+                .padding(.horizontal)
                 
                 if (selectedMode == "일") {
                     DailyBathChartView(

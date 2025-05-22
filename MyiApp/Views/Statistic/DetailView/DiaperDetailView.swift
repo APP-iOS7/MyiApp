@@ -87,14 +87,13 @@ struct DiaperDetailView: View {
     
     var mainScrollView: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: 15) {
                 VStack(spacing: 10) {
                     toggleMode
                     Spacer()
                     dateMove
                 }
                 .padding(.horizontal)
-                .padding(.vertical, 10)
                 
                 if (selectedMode == "일") {
                     DailyDiaperChartView(

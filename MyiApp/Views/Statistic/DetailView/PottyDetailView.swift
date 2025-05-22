@@ -87,14 +87,13 @@ struct PottyDetailView: View {
     
     var mainScrollView: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: 15) {
                 VStack(spacing: 10) {
                     toggleMode
                     Spacer()
                     dateMove
                 }
                 .padding(.horizontal)
-                .padding(.vertical, 10)
                 
                 if (selectedMode == "일") {
                     DailyPottyChartView(
@@ -212,9 +211,9 @@ struct DailyPottyChartView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 15) {
             ForEach(PottyType.allCases, id: \.self) { type in
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading) {
                     HStack(spacing: 6) {
                         Image(uiImage: iconImage(for: type))
                             .resizable()
@@ -295,7 +294,6 @@ struct DailyPottyChartView: View {
             }
             .background(Color(.tertiarySystemBackground))
             .cornerRadius(12)
-            .padding(.vertical, 10)
         }
     }
     
@@ -402,9 +400,9 @@ struct WeeklyPottyChartView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 15) {
             ForEach(PottyType.allCases, id: \.self) { type in
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading) {
                     HStack(spacing: 6) {
                         Image(uiImage: iconImage(for: type))
                             .resizable()
@@ -485,7 +483,6 @@ struct WeeklyPottyChartView: View {
             }
             .background(Color(.tertiarySystemBackground))
             .cornerRadius(12)
-            .padding(.vertical, 10)
         }
         
     }
@@ -598,9 +595,9 @@ struct MonthlyPottyChartView: View {
 
     
     var body: some View {
-        VStack {
+        VStack(spacing: 15) {
             ForEach(PottyType.allCases, id: \.self) { type in
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading) {
                     HStack(spacing: 6) {
                         Image(uiImage: iconImage(for: type))
                             .resizable()
@@ -681,7 +678,6 @@ struct MonthlyPottyChartView: View {
             }
             .background(Color(.tertiarySystemBackground))
             .cornerRadius(12)
-            .padding(.vertical, 10)
         }
         
     }
