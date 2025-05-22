@@ -69,7 +69,7 @@ struct BabyProfileView: View {
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
-                        .font(.system(size: 10))
+                        .font(.system(size: 12))
                 }
                 .padding()
                 HStack {
@@ -84,7 +84,7 @@ struct BabyProfileView: View {
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
-                        .font(.system(size: 10))
+                        .font(.system(size: 12))
                 }
                 .padding()
                 let components = Calendar.current.dateComponents([.hour, .minute], from: viewModel.baby.birthDate)
@@ -97,11 +97,11 @@ struct BabyProfileView: View {
                     
                     Spacer()
                     
-                    Text("설정하러 가기")
+                    Text("없음")
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
-                        .font(.system(size: 10))
+                        .font(.system(size: 12))
                 }
                 .padding()
             } else {
@@ -117,7 +117,7 @@ struct BabyProfileView: View {
                             .foregroundColor(.primary.opacity(0.6))
                         Image(systemName: "chevron.right")
                             .foregroundColor(.primary.opacity(0.6))
-                            .font(.system(size: 10))
+                            .font(.system(size: 12))
                     }
                     .padding()
                 }
@@ -133,7 +133,7 @@ struct BabyProfileView: View {
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
-                        .font(.system(size: 10))
+                        .font(.system(size: 12))
                 }
                 .padding()
                 HStack {
@@ -148,7 +148,7 @@ struct BabyProfileView: View {
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
-                        .font(.system(size: 10))
+                        .font(.system(size: 12))
                 }
                 .padding()
                 HStack {
@@ -163,7 +163,7 @@ struct BabyProfileView: View {
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
-                        .font(.system(size: 10))
+                        .font(.system(size: 12))
                 }
                 .padding()
                 HStack {
@@ -178,7 +178,7 @@ struct BabyProfileView: View {
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
-                        .font(.system(size: 10))
+                        .font(.system(size: 12))
                 }
                 .padding()
             }
