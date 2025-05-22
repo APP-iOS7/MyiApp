@@ -38,7 +38,8 @@ struct SettingsView: View {
                         Spacer()
                         Image(systemName: "chevron.right")
                             .foregroundColor(.primary.opacity(0.8))
-                            .padding(.trailing, 18)
+                            .font(.system(size: 12))
+                            .padding(.trailing, 8)
                     }
                     .padding()
                     .padding(.horizontal, 15)
@@ -81,6 +82,7 @@ struct SettingsView: View {
                                     .rotationEffect(.degrees(topExpanded ? 90 : 0))
                                     .animation(.easeInOut(duration: 0.2), value: topExpanded)
                                     .foregroundColor(.primary.opacity(0.6))
+                                    .font(.system(size: 12))
                             }
                             .contentShape(Rectangle())
                             .padding(.leading, 16)
@@ -101,6 +103,7 @@ struct SettingsView: View {
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(.primary.opacity(0.6))
+                                    .font(.system(size: 12))
                                     .padding(.trailing, 8)
                             }
                             .padding()
@@ -130,6 +133,7 @@ struct SettingsView: View {
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(.primary.opacity(0.6))
+                                    .font(.system(size: 12))
                                     .padding(.trailing, 8)
                             }
                             .padding()
@@ -148,6 +152,7 @@ struct SettingsView: View {
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(.primary.opacity(0.6))
+                                    .font(.system(size: 12))
                                     .padding(.trailing, 8)
                             }
                             .padding()

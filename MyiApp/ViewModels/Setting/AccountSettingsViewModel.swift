@@ -9,7 +9,7 @@ import SwiftUI
 import PhotosUI
 
 @MainActor
-final class AccountSettingsViewModel: ObservableObject {
+class AccountSettingsViewModel: ObservableObject {
     @Published var name: String = ""
     @Published var profileImage: UIImage?
     @Published var selectedPhoto: PhotosPickerItem?
