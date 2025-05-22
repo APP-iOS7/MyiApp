@@ -84,6 +84,9 @@ struct BabyProfileView: View {
                                 .font(.system(size: 17))
                                 .padding(.trailing, 5)
                         }
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding(.trailing, 18)
                     }
                     HStack {
                         Text("생년월일")
@@ -102,6 +105,9 @@ struct BabyProfileView: View {
                                 .frame(width: 150, alignment: .trailing)
                                 .padding(.trailing, 5)
                         }
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding(.trailing, 18)
                     }
                     let components = Calendar.current.dateComponents([.hour, .minute], from: viewModel.baby.birthDate)
                     if components.hour != 0 || components.minute != 0 {
@@ -122,6 +128,9 @@ struct BabyProfileView: View {
                                     .frame(width: 150, alignment: .trailing)
                                     .padding(.trailing, 5)
                             }
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.primary.opacity(0.8))
+                                .padding(.trailing, 18)
                         }
                     }
                     HStack {
@@ -145,6 +154,9 @@ struct BabyProfileView: View {
                                 .frame(width: 100, alignment: .trailing)
                                 .padding(.trailing, 5)
                         }
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding(.trailing, 18)
                     }
                     HStack {
                         Text("키")
@@ -167,6 +179,9 @@ struct BabyProfileView: View {
                                 .frame(width: 100, alignment: .trailing)
                                 .padding(.trailing, 5)
                         }
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding(.trailing, 18)
                     }
                     HStack {
                         Text("몸무게")
@@ -189,6 +204,9 @@ struct BabyProfileView: View {
                                 .frame(width: 100, alignment: .trailing)
                                 .padding(.trailing, 5)
                         }
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding(.trailing, 18)
                     }
                     HStack {
                         Text("혈액형")
@@ -210,6 +228,9 @@ struct BabyProfileView: View {
                                 .foregroundColor(.primary.opacity(0.6))
                                 .padding(.trailing, 5)
                         }
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding(.trailing, 18)
                     }
                 }
                 .padding(.horizontal)

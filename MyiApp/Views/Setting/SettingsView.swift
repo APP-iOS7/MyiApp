@@ -21,7 +21,6 @@ struct SettingsView: View {
     }
     
     var body: some View {
-        NavigationView {
             ScrollView {
                 VStack(spacing: 15) {
                     HStack {
@@ -60,7 +59,7 @@ struct SettingsView: View {
                                         .padding()
                                 } else {
                                     ForEach(caregiverManager.babies, id: \.id) { baby in
-                                        NavigationLink(destination: NewBabyProfileView(baby: baby)) {
+                                        NavigationLink(destination: BabyProfileVieww(baby: baby)) {
                                             Text(baby.name)
                                                 .foregroundColor(.primary.opacity(0.6))
                                                 .padding()
@@ -213,7 +212,6 @@ struct SettingsView: View {
             .task {
                 await caregiverManager.loadCaregiverInfo()
             }
-        }
     }
 }
 
