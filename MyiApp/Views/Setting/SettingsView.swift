@@ -21,7 +21,6 @@ struct SettingsView: View {
     }
     
     var body: some View {
-        NavigationView {
             ScrollView {
                 VStack(spacing: 15) {
                     HStack {
@@ -213,7 +212,7 @@ struct SettingsView: View {
             .task {
                 await caregiverManager.loadCaregiverInfo()
             }
-        }
+        
     }
 }
 
