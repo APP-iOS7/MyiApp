@@ -19,11 +19,13 @@ class BabyProfileViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isProfileSaved: Bool = false
     
+    private let originalBaby: Baby
     private let databaseService = DatabaseService.shared
     private let imageCache = NSCache<NSString, UIImage>()
     
     init(baby: Baby) {
         self.baby = baby
+        self.originalBaby = baby
     }
     
     // 초기 프로필 이미지 데이터 로드
@@ -146,6 +148,7 @@ class BabyProfileViewModel: ObservableObject {
     
     // 프로필 편집 취소 기능
     func resetChanges() {
+        baby = originalBaby
         babyImage = nil
         selectedImage = nil
         Task { await loadBabyProfileImage() }
