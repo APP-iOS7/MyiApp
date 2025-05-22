@@ -19,7 +19,8 @@ struct BabyProfileView: View {
     @State private var showPhotoActionSheet = false
     @State private var showPhotoPicker = false
     @State private var uploadError: String?
-    @State private var showAlert = false
+    @State private var showAlert: Bool = false
+    @State private var showDeleteConfirmation = false
     @Environment(\.dismiss) private var dismiss
     
     let baby: Baby
@@ -68,6 +69,7 @@ struct BabyProfileView: View {
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
+                        .font(.system(size: 10))
                 }
                 .padding()
                 HStack {
@@ -82,10 +84,27 @@ struct BabyProfileView: View {
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
+                        .font(.system(size: 10))
                 }
                 .padding()
                 let components = Calendar.current.dateComponents([.hour, .minute], from: viewModel.baby.birthDate)
-                if components.hour != 0 || components.minute != 0 {
+            if components.hour == 0 && components.minute == 0 {
+                HStack {
+                    Text("출생 시간")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary.opacity(0.8))
+                    
+                    Spacer()
+                    
+                    Text("설정하러 가기")
+                        .foregroundColor(.primary.opacity(0.6))
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.primary.opacity(0.6))
+                        .font(.system(size: 10))
+                }
+                .padding()
+            } else {
                     HStack {
                         Text("출생 시간")
                             .font(.headline)
@@ -98,6 +117,7 @@ struct BabyProfileView: View {
                             .foregroundColor(.primary.opacity(0.6))
                         Image(systemName: "chevron.right")
                             .foregroundColor(.primary.opacity(0.6))
+                            .font(.system(size: 10))
                     }
                     .padding()
                 }
@@ -113,6 +133,7 @@ struct BabyProfileView: View {
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
+                        .font(.system(size: 10))
                 }
                 .padding()
                 HStack {
@@ -127,6 +148,7 @@ struct BabyProfileView: View {
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
+                        .font(.system(size: 10))
                 }
                 .padding()
                 HStack {
@@ -141,6 +163,7 @@ struct BabyProfileView: View {
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
+                        .font(.system(size: 10))
                 }
                 .padding()
                 HStack {
@@ -155,6 +178,7 @@ struct BabyProfileView: View {
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
+                        .font(.system(size: 10))
                 }
                 .padding()
             }
@@ -174,7 +198,7 @@ struct BabyProfileView: View {
                             dismiss()
                         }) {
                             Image(systemName: "chevron.left")
-                                .foregroundColor(.blue)
+                                .foregroundColor(.primary.opacity(0.8))
                         }
                     }
                 }
@@ -183,6 +207,7 @@ struct BabyProfileView: View {
         }
         .onChange(of: viewModel.selectedImage) {
             Task {
+                
                 await viewModel.loadSelectedBabyImage()
             }
         }
@@ -191,14 +216,22 @@ struct BabyProfileView: View {
                 showPhotoPicker = true
             }
             Button("프로필 사진 삭제", role: .destructive) {
-                Task {
-                    viewModel.babyImage = nil
-                    viewModel.selectedImage = nil
-                }
+                showDeleteConfirmation = true
             }
             Button("닫기", role: .cancel) {
                 showPhotoActionSheet = false
             }
+        }
+        .alert("정말 프로필 사진을 삭제하시겠습니까?", isPresented: $showDeleteConfirmation) {
+            Button("삭제", role: .destructive) {
+                Task {
+                    viewModel.babyImage = nil
+                    viewModel.selectedImage = nil
+                    await viewModel.saveBabyImage()
+                    showAlert = true
+                }
+            }
+            Button("취소", role: .cancel) {}
         }
         .photosPicker(isPresented: $showPhotoPicker, selection: $viewModel.selectedImage, matching: .images)
     }
