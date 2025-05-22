@@ -61,6 +61,7 @@ struct NoteView: View {
                         .cornerRadius(10)
                         .padding(.horizontal)
                         .padding(.top, 8)
+                        .padding(.bottom, 15)
                         
                         // 선택된 날짜 이벤트 섹션
                         VStack(spacing: 0) {
