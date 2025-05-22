@@ -17,9 +17,5 @@
 	</array>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>일정 알림을 보내기 위해 알림 권한이 필요합니다.</string>
-	<key>UIAppFonts</key>
-	<array>
-		<string></string>
-	</array>
 </dict>
 </plist>
