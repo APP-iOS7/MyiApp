@@ -30,7 +30,8 @@ struct NoteView: View {
     
     var body: some View {
         ZStack {
-            Color("customBackgroundColor").ignoresSafeArea()
+            Color("customBackgroundColor").ignoresSafeArea(.container, edges: .top)
+
             
             VStack(spacing: 0) {
                 SafeAreaPaddingView()
