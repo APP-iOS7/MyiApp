@@ -200,6 +200,7 @@ struct NoteView: View {
                             .foregroundColor(.white)
                             .background(Capsule().fill(Color("sharkPrimaryColor")))
                     }
+                    .padding(.trailing, 10)
                     
                     HStack(spacing: 18) {
                         Button(action: {
