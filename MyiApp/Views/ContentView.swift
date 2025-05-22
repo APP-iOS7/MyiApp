@@ -30,7 +30,10 @@ struct ContentView: View {
                     Tab("통계", systemImage: "chart.bar.fill") { NavigationStack { StatisticView() } }
                     Tab("더 보기", systemImage: "line.3.horizontal") { NavigationStack { SettingsView() } }
                 }
+                .tabViewStyle(DefaultTabViewStyle())
+                .edgesIgnoringSafeArea(.bottom)
                 .tint(Color.button)
+              
             } else {
                 ProgressView("케어기버및 아기 정보를 불러오는 중...")
             }
