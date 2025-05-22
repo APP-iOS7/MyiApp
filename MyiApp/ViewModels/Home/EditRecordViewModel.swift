@@ -42,6 +42,9 @@ class EditRecordViewModel: ObservableObject {
         record.temperature = nil
         record.weight = nil
         record.height = nil
+        if record.title == .temperature {
+            record.temperature = 36.5
+        }
     }
     
     func saveRecord() {
