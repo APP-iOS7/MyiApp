@@ -128,7 +128,7 @@ struct NoteReminderView: View {
                     }) {
                         HStack {
                             Image(systemName: "bell.fill")
-                                .foregroundColor(Color("sharkPrimaryColor"))
+                                .foregroundColor(.button)
                             
                             Text(formattedReminderTime)
                                 .foregroundColor(.primary)
