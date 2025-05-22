@@ -7,82 +7,82 @@
 
 import SwiftUI
 
+/*
+ 헤더 사이즈 줄이기.
+ 돋보기
+ */
+
 struct HomeView: View {
     @StateObject var viewModel: HomeViewModel = .init()
     @State private var isPresented = false
     
     var body: some View {
         ZStack {
-            ScrollView {
-                VStack(spacing: 10) {
-                    babyInfoCard
-                    VStack {
-                        dateSection
-                        gridItems
-                        Divider()
-                            .padding(.horizontal)
-                        timeline
+            VStack(spacing: 0) {
+                SafeAreaPaddingView()
+                    .frame(height: getTopSafeAreaHeight())
+                    .background(Color.customBackground)
+                ScrollView {
+                    VStack(spacing: 15) {
+//                        header
+                        babyInfoCard
+                        VStack {
+                            dateSection
+                            gridItems
+                            Divider()
+                                .padding(.horizontal)
+                            timeline
+                        }
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
                     }
-                    .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
+                    .padding()
                 }
-                .padding()
-                
             }
-            .background(Color(uiColor: .systemGroupedBackground), ignoresSafeAreaEdges: .top)
+            .background(Color.customBackground)
             .blur(radius: isPresented ? 10 : 0)
             .id(isPresented ? "blurred" : "normal")
-            
-            if isPresented {
-                Color.black.opacity(0.3)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        withAnimation {
-                            isPresented = false
-                        }
-                    }
-                
-                VStack {
-                    HStack {
-                        Spacer()
-                        Image(systemName: "square.and.pencil")
-                    }
-                    .padding(.trailing)
-                    Image(.sharkChild)
-                        .resizable()
-                        .frame(width: 150, height: 150)
-                        .padding(8)
-                        .background(
-                            Circle()
-                                .fill(Color.sharkPrimaryLight)
-                                .stroke(Color.sharksSadowTone, lineWidth: 2)
-                        )
-                    Text("김죠스")
-                    Text("생년 월일")
-                    HStack(alignment: .top) {
-                        VStack(alignment: .leading) {
-                            Text("성별")
-                            Text("여아")
-                            Text("성장 단계")
-                            Text("영아기")
-                        }
-                        .padding(.leading)
-                        Spacer()
-                        VStack(alignment: .leading) {
-                            Text("키 / 몸무게")
-                            Text("30 / 10킬로")
-                            Text("혈액형")
-                            Text("A횽")
-                        }
-                        Spacer()
-                    }
-                }
-                .frame(width: 300, height: 400)
-                .background(RoundedRectangle(cornerRadius: 20).fill(Color(uiColor: .systemBackground)))
-                .padding()
-            }
+            if isPresented { babyFullScreenCard }
         }
     }
     
+    
+    private var header: some View {
+        HStack {
+            Menu {
+                ForEach(viewModel.caregiverManager.babies) { baby in
+                    Button {
+                        viewModel.babyChangeButtonDidTap(baby: baby)
+                    } label: {
+                        Text(baby.name)
+                            .foregroundStyle(.primary)
+                    }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text(viewModel.baby?.name ?? "아기 선택")
+                        .font(.headline)
+                    Image(systemName: "chevron.down")
+                        .font(.subheadline)
+                }
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.gray.opacity(0.15))
+                )
+            }
+
+            Spacer()
+
+            Button {
+                // TODO: 알림 상황일 때.
+            } label: {
+                Image(systemName: "bell.fill")
+                    .font(.body)
+                    .foregroundColor(.gray)
+                    .padding(10)
+            }
+        }
+        .padding(.horizontal)
+    }
     private var babyInfoCard: some View {
         HStack {
             Image(.sharkChild)
@@ -94,11 +94,18 @@ struct HomeView: View {
                         .fill(Color.sharkPrimaryLight)
                         .stroke(Color.sharksSadowTone, lineWidth: 2)
                 )
-                .padding(8)
-                .padding(.leading)
-            VStack {
-                Text("Name")
-                Text("+ 39일")
+                .padding(15)
+                .padding(.leading, 5)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(viewModel.displayName)
+                    .font(.headline)
+                    .padding(.leading, 4)
+                HStack(spacing: 0) {
+                    Image(.homeCalendar)
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                    Text(viewModel.displayDayCount)
+                }
             }
             Spacer()
             Button(action: {isPresented = true}) {
@@ -112,7 +119,79 @@ struct HomeView: View {
             .padding(.trailing)
         }
         .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
-        .frame(height: 80)
+        .frame(height: 95)
+    }
+    private var babyFullScreenCard: some View {
+        Group {
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+                .onTapGesture { isPresented = false }
+            VStack {
+                HStack {
+                    Spacer()
+                    Image(systemName: "square.and.pencil")
+                }
+                .padding([.top, .trailing])
+                Image(.sharkChild)
+                    .resizable()
+                    .frame(width: 130, height: 130)
+                    .padding(8)
+                    .background(
+                        Circle()
+                            .fill(Color.sharkPrimaryLight)
+                            .stroke(Color.sharksSadowTone, lineWidth: 2)
+                    )
+                VStack {
+                    HStack {
+                        Text(viewModel.displayName)
+                            .font(.title)
+                            .bold()
+                        Spacer()
+                    }
+                    HStack {
+                        Text(viewModel.displayBirthDate)
+                            .font(.body)
+                        Spacer()
+                    }
+                }
+                .padding()
+                .padding(.leading)
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading) {
+                        Text("성별")
+                            .fontWeight(.semibold)
+                        Text(viewModel.displayGender)
+                            .font(.footnote)
+                            .padding(.bottom)
+                        Text("성장 단계")
+                            .fontWeight(.semibold)
+                        Text(viewModel.displayDevelopmentalStage)
+                            .font(.footnote)
+                        
+                    }
+                    .padding(.leading)
+                    Spacer()
+                    VStack(alignment: .leading) {
+                        Text("키 / 몸무게")
+                            .fontWeight(.semibold)
+                        Text(viewModel.displayHeightWeight)
+                            .font(.footnote)
+                            .padding(.bottom)
+                        Text("혈액형")
+                            .fontWeight(.semibold)
+                        Text(viewModel.displayBloodType)
+                            .font(.footnote)
+                    }
+                    Spacer()
+                }
+                .padding([.leading, .bottom])
+            }
+            .frame(width: 300, height: 430)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color(uiColor: .tertiarySystemBackground))
+            )
+        }
     }
     private var dateSection: some View {
         ZStack {
@@ -248,7 +327,7 @@ struct HomeView: View {
                             .padding()
                             .background(
                                 RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color.sharkCardBackground)
+                                    .fill(Color.customBackground)
                                     .frame(width: 70, height: 70)
                             )
                         Text(item.name)
@@ -275,20 +354,43 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 50)
             } else {
-                ForEach(viewModel.filteredRecords) { record in
-                    TimelineRow(record: record)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            viewModel.recordToEdit = record
-                        }
+                ForEach(viewModel.filteredRecords.indices, id: \.self) { index in
+                    let record = viewModel.filteredRecords[index]
+                    TimelineRow(
+                        record: record,
+                        index: index,
+                        totalCount: viewModel.filteredRecords.count
+                    )
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        viewModel.recordToEdit = record
+                    }
                 }
                 .sheet(item: $viewModel.recordToEdit) { record in
-                    AddRecordView(record: record)
-                        .presentationDetents([.medium, .large])
+                    let detents: Set<PresentationDetent> = {
+                        switch record.title {
+                            case .babyFood, .formula, .breastfeeding, .pumpedMilk, .clinic, .temperature, .medicine:
+                                [.large]
+                            default:
+                                [.medium]
+                        }
+                    }()
+                    EditRecordView(record: record)
+                        .presentationDetents(detents)
                 }
             }
         }
         .padding(.horizontal)
+    }
+    private func getTopSafeAreaHeight() -> CGFloat {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            return 0
+        }
+        
+        let height = window.safeAreaInsets.top
+        return height * 0.1
     }
 }
 
