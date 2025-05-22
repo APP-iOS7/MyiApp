@@ -411,7 +411,7 @@ struct WeightChartView: View {
                                         let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                                         let y = height - ((CGFloat(entry.weight - minWeight) / CGFloat(weightRange)) * height)
                                         Circle()
-                                            .fill(selectedEntry?.id == entry.id ? Color("food") : Color("sharkPrimaryColor"))
+                                            .fill(selectedEntry?.id == entry.id ? Color("buttonColor") : Color("sharkPrimaryColor"))
                                             .frame(width: 10, height: 10)
                                             .position(x: x, y: y)
                                             .onTapGesture {
@@ -429,7 +429,7 @@ struct WeightChartView: View {
                                         
                                         let toStart = abs(entry.date.timeIntervalSince(startDate))
                                         let toEnd = abs(entry.date.timeIntervalSince(endDate))
-                                        let xOffset: CGFloat = toStart < toEnd ? 30 : -30
+                                        let xOffset: CGFloat = toStart < toEnd ? 50 : -50
                                         VStack(alignment: .leading) {
                                             Text("날짜 : \(longDate(entry.date))")
                                                 .font(.footnote)
