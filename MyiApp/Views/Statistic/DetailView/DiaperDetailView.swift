@@ -79,7 +79,7 @@ struct DiaperDetailView: View {
                     dismiss()
                 }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.blue)
+                        .foregroundColor(.primary.opacity(0.8))
                 }
             }
         }

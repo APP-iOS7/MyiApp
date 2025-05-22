@@ -81,6 +81,7 @@ struct StatisticView: View {
                                 .padding(.bottom, 20)
                             
                             chartView
+                                .padding(.bottom, 20)
                             babyInfo
                         }
                         .padding()
@@ -218,7 +219,11 @@ struct StatisticView: View {
         let ageComponents = Calendar.current.dateComponents([.year, .month, .day], from: baby.birthDate, to: Date())
         
         let months = Calendar.current.dateComponents([.month, .day], from: baby.birthDate, to: Date()).month ?? 0
-        let days = Calendar.current.dateComponents([.day], from: Calendar.current.date(byAdding: .month, value: months, to: baby.birthDate) ?? Date(), to: Date()).day ?? 0
+        let days = (Calendar.current.dateComponents(
+            [.day],
+            from: Calendar.current.date(byAdding: .month, value: months, to: baby.birthDate) ?? Date(),
+            to: Date()
+        ).day ?? 0) + 1
         
         let ageInYears = (ageComponents.year ?? 0) + 1
         let fullAge = getFullAge(from: baby.birthDate)
