@@ -28,6 +28,7 @@ class AuthService: ObservableObject {
         try? auth.signOut()
         self.user = nil
         DatabaseService.shared.hasBabyInfo = false
+        CaregiverManager.shared.logout()
     }
     
     // 구글 로그인

@@ -94,7 +94,7 @@ class DatabaseService: ObservableObject {
         return (name, nil)
     }
     
-    // 프로필 사진 업로드
+    // 사용자 프로필 사진 업로드
     func uploadProfileImage(_ image: UIImage) async throws -> String {
         guard let uid = auth.user?.uid else {
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
@@ -102,20 +102,45 @@ class DatabaseService: ObservableObject {
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to compress image"])
         }
-        
         let storageRef = storage.reference().child("profile_images/\(uid).jpg")
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
-        
         _ = try await storageRef.putDataAsync(imageData, metadata: metadata)
         let downloadUrl = try await storageRef.downloadURL()
         return downloadUrl.absoluteString
     }
     
-//    // 프로필 사진 삭제
-//    func deleteProfileImage() async throws {
-//        guard let uid = auth.user?.uid else { return }
-//        let storageRef = storage.reference().child("profile_images/\(uid).jpg")
-//        try await storageRef.delete()
-//    }
+    // 아기 프로필 사진 업로드
+    func uploadBabyImage(babyID: String, image: UIImage) async throws -> String {
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to compress image"])
+        }
+        let ref = storage.reference().child("babyImages/\(babyID).jpg")
+        let metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
+        _ = try await ref.putDataAsync(imageData, metadata: metadata)
+        let url = try await ref.downloadURL()
+        try await db.collection("babies").document(babyID).updateData(["photoURL": url.absoluteString])
+        return url.absoluteString
+    }
+    
+    // 아기 프로필 사진 가져오기
+    func fetchBabyImage(babyID: String) async throws -> String? {
+        let docRef = Firestore.firestore().collection("babies").document(babyID)
+        let snapshot = try await docRef.getDocument()
+        
+        guard let data = snapshot.data(),
+                  let photoURL = data["photoURL"] as? String else {
+                return nil
+            }
+        return photoURL
+    }
+    
+    // 아기 프로필 사진 삭제
+    func deleteBabyImage(babyID: String) async throws {
+        let docRef = Firestore.firestore().collection("babies").document(babyID)
+        try await docRef.updateData([
+            "photoURL": FieldValue.delete()
+        ])
+    }
 }

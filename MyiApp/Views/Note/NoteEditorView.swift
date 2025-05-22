@@ -21,6 +21,8 @@ struct NoteEditorView: View {
     @State private var existingImageURLs: [String] = []
     @State private var isSaving = false
     
+    @State private var imagesToDelete: Set<Int> = []
+    
     @State private var isReminderEnabled: Bool = false
     @State private var reminderTime: Date
     @State private var reminderMinutesBefore: Int = 0
@@ -35,37 +37,15 @@ struct NoteEditorView: View {
         if let note = note {
             _date = State(initialValue: note.date)
             _reminderTime = State(initialValue: note.date)
-        } else {
-            let calendar = Calendar.current
-            
-            let selectedDateComponents = calendar.dateComponents([.year, .month, .day], from: selectedDate)
-            let currentTimeComponents = calendar.dateComponents([.hour, .minute], from: now)
-            
-            var combinedComponents = DateComponents()
-            combinedComponents.year = selectedDateComponents.year
-            combinedComponents.month = selectedDateComponents.month
-            combinedComponents.day = selectedDateComponents.day
-            combinedComponents.hour = currentTimeComponents.hour
-            combinedComponents.minute = currentTimeComponents.minute
-            
-            let combinedDate = calendar.date(from: combinedComponents) ?? now
-            _date = State(initialValue: combinedDate)
-            _reminderTime = State(initialValue: combinedDate)
-        }
-        
-        if let note = note {
             _title = State(initialValue: note.title)
             _description = State(initialValue: note.description)
             _selectedCategory = State(initialValue: note.category)
             _existingImageURLs = State(initialValue: note.imageURLs)
             
-            if let notificationEnabled = note.notificationEnabled,
-               notificationEnabled {
+            if let notificationEnabled = note.notificationEnabled, notificationEnabled {
                 _isReminderEnabled = State(initialValue: true)
-                
                 if let notificationTime = note.notificationTime {
                     _reminderTime = State(initialValue: notificationTime)
-                    
                     let diffMinutes = Int(note.date.timeIntervalSince(notificationTime) / 60)
                     if diffMinutes > 0 {
                         _reminderMinutesBefore = State(initialValue: diffMinutes)
@@ -80,6 +60,20 @@ struct NoteEditorView: View {
             self.isEditing = true
             self.noteId = note.id
         } else {
+            let calendar = Calendar.current
+            let selectedDateComponents = calendar.dateComponents([.year, .month, .day], from: selectedDate)
+            let currentTimeComponents = calendar.dateComponents([.hour, .minute], from: now)
+            
+            var combinedComponents = DateComponents()
+            combinedComponents.year = selectedDateComponents.year
+            combinedComponents.month = selectedDateComponents.month
+            combinedComponents.day = selectedDateComponents.day
+            combinedComponents.hour = currentTimeComponents.hour
+            combinedComponents.minute = currentTimeComponents.minute
+            
+            let combinedDate = calendar.date(from: combinedComponents) ?? now
+            _date = State(initialValue: combinedDate)
+            _reminderTime = State(initialValue: combinedDate)
             _isReminderEnabled = State(initialValue: false)
             
             self.isEditing = false
@@ -87,182 +81,35 @@ struct NoteEditorView: View {
         }
     }
     
-    private func checkNotificationStatus() {
-        guard let id = noteId, selectedCategory == .일정 else { return }
-        
-        print("알림 상태 확인: \(id.uuidString)")
-        // 모든 알림 출력 (디버깅)
-        NotificationService.shared.printAllScheduledNotifications()
-        
-        if let note = viewModel.getNoteById(id),
-           let enabled = note.notificationEnabled,
-           enabled,
-           let notificationTime = note.notificationTime {
-            
-            isReminderEnabled = true
-            reminderTime = notificationTime
-            
-            let diffSeconds = note.date.timeIntervalSince(notificationTime)
-            let diffMinutes = Int(diffSeconds / 60)
-            
-            if diffMinutes > 0 {
-                reminderMinutesBefore = diffMinutes
-            } else {
-                reminderMinutesBefore = 0
-            }
-            
-            print("Note 객체에서 알림 정보 로드: time=\(notificationTime), \(reminderMinutesBefore)분 전")
-            return
+    private var activeImages: [(Int, String)] {
+        existingImageURLs.enumerated().compactMap { index, url in
+            imagesToDelete.contains(index) ? nil : (index, url)
         }
-        
-        // 실제 알림 시스템에서 확인
-        NotificationService.shared.findNotificationForNote(noteId: id.uuidString) { exists, triggerDate, _ in
-            print("알림 시스템 확인 결과: 존재=\(exists), 시간=\(String(describing: triggerDate))")
-            
-            DispatchQueue.main.async {
-                self.isReminderEnabled = exists
-                
-                if exists, let triggerDate = triggerDate {
-                    self.reminderTime = triggerDate
-                    
-                    let diffMinutes = Int(self.date.timeIntervalSince(triggerDate) / 60)
-                    
-                    if diffMinutes > 0 {
-                        if [0, 10, 15, 30, 60, 120, 1440].contains(diffMinutes) {
-                            self.reminderMinutesBefore = diffMinutes
-                        } else {
-                            self.reminderMinutesBefore = diffMinutes
-                        }
-                    } else {
-                        self.reminderMinutesBefore = 0
-                    }
-                    
-                    if let id = self.noteId {
-                        self.viewModel.updateNoteNotification(
-                            noteId: id,
-                            enabled: true,
-                            time: triggerDate
-                        )
-                    }
-                }
-            }
+    }
+    
+    private var deletedImages: [(Int, String)] {
+        existingImageURLs.enumerated().compactMap { index, url in
+            imagesToDelete.contains(index) ? (index, url) : nil
         }
     }
     
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("카테고리")) {
-                    VStack(spacing: 8) {
-                        RadioButtonRow(
-                            title: "일지",
-                            icon: "note.text",
-                            color: Color("sharkPrimaryColor"),
-                            isSelected: selectedCategory == .일지
-                        ) {
-                            selectedCategory = .일지
-                            isReminderEnabled = false
-                        }
-                        
-                        RadioButtonRow(
-                            title: "일정",
-                            icon: "calendar",
-                            color: Color.orange,
-                            isSelected: selectedCategory == .일정
-                        ) {
-                            selectedCategory = .일정
-                            isReminderEnabled = true
-                            reminderTime = date
-                            reminderMinutesBefore = 0
-                        }
-                    }
-                    .padding(.vertical, 4)
-                }
+                categorySection
                 
-                Section(header: Text("제목")) {
-                    TextField("제목을 입력하세요", text: $title)
-                }
+                titleSection
                 
-                Section(header: Text("날짜 및 시간")) {
-                    DatePicker("날짜 및 시간", selection: $date)
-                        .datePickerStyle(.compact)
-                        .onChange(of: date) { _, newValue in
-                            if isReminderEnabled {
-                                if reminderMinutesBefore == 0 {
-                                    reminderTime = newValue
-                                } else {
-                                    reminderTime = newValue.addingTimeInterval(TimeInterval(-reminderMinutesBefore * 60))
-                                    
-                                    if reminderTime < Date() {
-                                        let possibleTime = Date().addingTimeInterval(5 * 60)
-                                        if possibleTime < newValue {
-                                            reminderTime = possibleTime
-                                            let diffMinutes = Int(newValue.timeIntervalSince(possibleTime) / 60)
-                                            reminderMinutesBefore = diffMinutes
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                }
+                dateSection
                 
-                Section(header: Text("내용")) {
-                    TextEditor(text: $description)
-                        .frame(minHeight: 150)
-                }
+                contentSection
                 
                 if selectedCategory == .일지 {
-                    Section(header: Text("이미지")) {
-                        if !existingImageURLs.isEmpty {
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("기존 이미지")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                
-                                URLImagePreviewGrid(imageURLs: existingImageURLs) { index in
-                                    if let id = noteId, let note = viewModel.events.values.flatMap({ $0 }).first(where: { $0.id == id }) {
-                                        viewModel.deleteImage(fromNote: note, at: index)
-                                        existingImageURLs.remove(at: index)
-                                    }
-                                }
-                            }
-                        }
-                        
-                        if !selectedImages.isEmpty {
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("추가할 이미지")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                
-                                ImagePreviewGrid(images: $selectedImages) { index in
-                                    selectedImages.remove(at: index)
-                                }
-                            }
-                        }
-                        
-                        Button(action: {
-                            showingPhotoPicker = true
-                        }) {
-                            HStack {
-                                Image(systemName: "photo.on.rectangle.angled")
-                                Text("이미지 추가")
-                            }
-                        }
-                        .sheet(isPresented: $showingPhotoPicker) {
-                            PhotoPicker(selectedImages: $selectedImages, selectionLimit: 10)
-                        }
-                    }
+                    imageSection
                 }
                 
                 if selectedCategory == .일정 {
-                    Section(header: Text("알림")) {
-                        NoteReminderView(
-                            isEnabled: $isReminderEnabled,
-                            reminderTime: $reminderTime,
-                            reminderMinutesBefore: $reminderMinutesBefore,
-                            eventDate: date
-                        )
-                    }
+                    reminderSection
                 }
             }
             .navigationTitle(isEditing ? "내용 수정" : "새 \(selectedCategory.rawValue) 작성")
@@ -270,6 +117,7 @@ struct NoteEditorView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("취소") {
+                        imagesToDelete.removeAll()
                         dismiss()
                     }
                     .disabled(isSaving)
@@ -282,27 +130,189 @@ struct NoteEditorView: View {
                     .disabled(title.isEmpty || isSaving)
                 }
             }
-            .overlay {
-                if isSaving {
-                    Color.black.opacity(0.4)
-                        .ignoresSafeArea()
-                        .overlay(
-                            CleanLoadingOverlay(
-                                message: isEditing ? "수정 중..." : "저장 중...",
-                                imageNames: ["sharkNewBorn", "sharkInfant", "sharkToddler"],
-                                frameInterval: 0.5
-                            )
-                        )
-                }
-            }
+            .overlay(loadingOverlay)
             .alert("알림", isPresented: $showAlertMessage) {
                 Button("확인", role: .cancel) {}
             } message: {
                 Text(alertMessage)
             }
-            .onAppear {
-                print("🔔 NoteEditorView appeared for \(isEditing ? "editing" : "new") \(selectedCategory.rawValue)")
-                checkNotificationStatus()
+        }
+    }
+    
+    // MARK: - View Sections
+    private var categorySection: some View {
+        Section(header: Text("카테고리")) {
+            VStack(spacing: 8) {
+                RadioButtonRow(
+                    title: "일지",
+                    icon: "note.text",
+                    color: Color("sharkPrimaryColor"),
+                    isSelected: selectedCategory == .일지
+                ) {
+                    selectedCategory = .일지
+                    isReminderEnabled = false
+                }
+                
+                RadioButtonRow(
+                    title: "일정",
+                    icon: "calendar",
+                    color: Color.orange,
+                    isSelected: selectedCategory == .일정
+                ) {
+                    selectedCategory = .일정
+                    isReminderEnabled = true
+                    reminderTime = date
+                    reminderMinutesBefore = 0
+                }
+            }
+            .padding(.vertical, 4)
+        }
+    }
+    
+    private var titleSection: some View {
+        Section(header: Text("제목")) {
+            TextField("제목을 입력하세요", text: $title)
+        }
+    }
+    
+    private var dateSection: some View {
+        Section(header: Text("날짜 및 시간")) {
+            DatePicker("날짜 및 시간", selection: $date)
+                .datePickerStyle(.compact)
+                .onChange(of: date) { _, newValue in
+                    updateReminderTime(for: newValue)
+                }
+        }
+    }
+    
+    private var contentSection: some View {
+        Section(header: Text("내용")) {
+            TextEditor(text: $description)
+                .frame(minHeight: 150)
+        }
+    }
+    
+    private var imageSection: some View {
+        Section(header: Text("이미지")) {
+            VStack(alignment: .leading, spacing: 16) {
+                if !activeImages.isEmpty {
+                    activeImagesView
+                }
+                
+                if !deletedImages.isEmpty {
+                    deletedImagesView
+                }
+                
+                if !selectedImages.isEmpty {
+                    newImagesView
+                }
+                
+                addImageButton
+            }
+        }
+    }
+    
+    private var activeImagesView: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("기존 이미지")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            
+            ActiveImagePreviewGrid(
+                activeImages: activeImages,
+                onDelete: { originalIndex in
+                    _ = withAnimation(.easeInOut(duration: 0.3)) {
+                        imagesToDelete.insert(originalIndex)
+                    }
+                }
+            )
+        }
+    }
+    
+    private var deletedImagesView: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("삭제 예정 이미지")
+                .font(.subheadline)
+                .foregroundColor(.red)
+            
+            DeletedImagePreviewGrid(
+                deletedImages: deletedImages,
+                onRestore: { originalIndex in
+                    _ = withAnimation(.easeInOut(duration: 0.3)) {
+                        imagesToDelete.remove(originalIndex)
+                    }
+                }
+            )
+        }
+    }
+    
+    private var newImagesView: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("추가할 이미지")
+                .font(.subheadline)
+                .foregroundColor(.green)
+            
+            ImagePreviewGrid(images: $selectedImages) { index in
+                selectedImages.remove(at: index)
+            }
+        }
+    }
+    
+    private var addImageButton: some View {
+        Button(action: {
+            showingPhotoPicker = true
+        }) {
+            HStack {
+                Image(systemName: "photo.on.rectangle.angled")
+                Text("이미지 추가")
+            }
+        }
+        .sheet(isPresented: $showingPhotoPicker) {
+            PhotoPicker(selectedImages: $selectedImages, selectionLimit: 10)
+        }
+    }
+    
+    private var reminderSection: some View {
+        Section(header: Text("알림")) {
+            NoteReminderView(
+                isEnabled: $isReminderEnabled,
+                reminderTime: $reminderTime,
+                reminderMinutesBefore: $reminderMinutesBefore,
+                eventDate: date
+            )
+        }
+    }
+    
+    @ViewBuilder
+    private var loadingOverlay: some View {
+        if isSaving {
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+                .overlay(
+                    CleanLoadingOverlay(
+                        message: isEditing ? "수정 중..." : "저장 중...",
+                        imageNames: ["sharkNewBorn", "sharkInfant", "sharkToddler"],
+                        frameInterval: 0.5
+                    )
+                )
+        }
+    }
+    
+    private func updateReminderTime(for newValue: Date) {
+        if isReminderEnabled {
+            if reminderMinutesBefore == 0 {
+                reminderTime = newValue
+            } else {
+                reminderTime = newValue.addingTimeInterval(TimeInterval(-reminderMinutesBefore * 60))
+                
+                if reminderTime < Date() {
+                    let possibleTime = Date().addingTimeInterval(5 * 60)
+                    if possibleTime < newValue {
+                        reminderTime = possibleTime
+                        let diffMinutes = Int(newValue.timeIntervalSince(possibleTime) / 60)
+                        reminderMinutesBefore = diffMinutes
+                    }
+                }
             }
         }
     }
@@ -310,11 +320,23 @@ struct NoteEditorView: View {
     private func saveNote() {
         if title.isEmpty { return }
         
+        if selectedCategory == .일정 && isReminderEnabled {
+            if reminderTime < Date() {
+                alertMessage = "알림 시간은 현재 시간보다 이후여야 합니다."
+                showAlertMessage = true
+                return
+            }
+            
+            if reminderTime >= date {
+                alertMessage = "알림 시간은 일정 시작 시간보다 이전이어야 합니다."
+                showAlertMessage = true
+                return
+            }
+        }
+        
         isSaving = true
-        print("노트 저장 시작: \(selectedCategory.rawValue)")
         
         let noteId = self.noteId ?? UUID()
-        print("노트 ID: \(noteId.uuidString)")
         
         var notificationEnabled: Bool? = nil
         var notificationTime: Date? = nil
@@ -332,6 +354,8 @@ struct NoteEditorView: View {
                     if !result.success {
                         alertMessage = result.message ?? "알림 설정에 실패했습니다."
                         showAlertMessage = true
+                        isSaving = false
+                        return
                     }
                 }
             } else {
@@ -342,56 +366,63 @@ struct NoteEditorView: View {
             }
         }
         
+        let finalImageURLs = existingImageURLs.enumerated().compactMap { index, url in
+            imagesToDelete.contains(index) ? nil : url
+        }
+        
         let note = Note(
             id: noteId,
             title: title,
             description: description,
             date: date,
             category: selectedCategory,
-            imageURLs: existingImageURLs,
+            imageURLs: finalImageURLs,
             notificationEnabled: notificationEnabled,
             notificationTime: notificationTime
         )
         
+        processNoteWithImages(note: note)
+    }
+    
+    private func processNoteWithImages(note: Note) {
         if !selectedImages.isEmpty && selectedCategory == .일지 {
             if isEditing {
-                viewModel.updateNoteWithImages(note: note, newImages: selectedImages)
+                let imagesToDeleteURLs = Array(imagesToDelete).map { existingImageURLs[$0] }
+                viewModel.updateNoteWithImagesAndDeletions(
+                    note: note,
+                    newImages: selectedImages,
+                    imagesToDelete: imagesToDeleteURLs
+                )
             } else {
                 viewModel.addNoteWithImages(note: note, images: selectedImages)
             }
-            
-            print("이미지 저장 처리 중...")
-            
-            setSuccessToastMessage(withNotification: notificationEnabled == true)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                isSaving = false
-                dismiss()
-            }
-            
         } else {
             if isEditing {
-                viewModel.updateNote(note: note)
+                let imagesToDeleteURLs = Array(imagesToDelete).map { existingImageURLs[$0] }
+                viewModel.updateNoteWithDeletions(
+                    note: note,
+                    imagesToDelete: imagesToDeleteURLs
+                )
             } else {
                 viewModel.addNote(note: note)
             }
-            
-            setSuccessToastMessage(withNotification: notificationEnabled == true)
-            
-            print("노트 저장 완료 - 화면 닫기")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                isSaving = false
-                dismiss()
-            }
+        }
+        
+        setSuccessToastMessage(withNotification: note.notificationEnabled == true)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            isSaving = false
+            dismiss()
         }
     }
     
     private func handleNotificationForEvent(noteId: UUID) -> (success: Bool, time: Date?, message: String?) {
-        print("알림 처리: isEnabled=\(isReminderEnabled), noteId=\(noteId)")
-        
         if reminderTime < Date() {
-            print("알림 시간이 현재보다 이전: \(reminderTime)")
             return (false, nil, "알림 시간은 현재 시간 이후여야 합니다.")
+        }
+        
+        if reminderTime >= date {
+            return (false, nil, "알림 시간은 일정 시작 시간보다 이전이어야 합니다.")
         }
         
         let timeDiff = reminderMinutesBefore == 0 ? 0 : max(1, Int(date.timeIntervalSince(reminderTime) / 60))
@@ -409,7 +440,6 @@ struct NoteEditorView: View {
             minutesBefore: timeDiff
         )
         
-        print("알림 예약 결과: \(result)")
         return result
     }
     
@@ -466,5 +496,112 @@ struct RadioButtonRow: View {
             .padding(.horizontal, 12)
         }
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+struct ActiveImagePreviewGrid: View {
+    let activeImages: [(Int, String)]
+    let onDelete: (Int) -> Void
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 10) {
+                ForEach(activeImages, id: \.0) { originalIndex, url in
+                    ZStack(alignment: .topTrailing) {
+                        CustomAsyncImageView(imageUrlString: url)
+                            .frame(width: 100, height: 100)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                            )
+                        
+                        Button(action: {
+                            onDelete(originalIndex)
+                        }) {
+                            Circle()
+                                .fill(Color.red.opacity(0.9))
+                                .frame(width: 24, height: 24)
+                                .overlay(
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundColor(.white)
+                                )
+                        }
+                        .padding(5)
+                    }
+                }
+            }
+            .padding(.horizontal)
+        }
+        .frame(height: 120)
+    }
+}
+
+struct DeletedImagePreviewGrid: View {
+    let deletedImages: [(Int, String)]
+    let onRestore: (Int) -> Void
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 10) {
+                ForEach(deletedImages, id: \.0) { originalIndex, url in
+                    ZStack {
+                        CustomAsyncImageView(imageUrlString: url)
+                            .frame(width: 100, height: 100)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .opacity(0.3)
+                        
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.red.opacity(0.4))
+                            .frame(width: 100, height: 100)
+                            .overlay(
+                                VStack(spacing: 4) {
+                                    Image(systemName: "trash.fill")
+                                        .font(.title2)
+                                        .foregroundColor(.white)
+                                        .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
+                                    
+                                    Text("삭제됨")
+                                        .font(.caption2)
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(.white)
+                                        .shadow(color: .black.opacity(0.3), radius: 1, x: 0, y: 1)
+                                }
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.red.opacity(0.8), lineWidth: 2)
+                            )
+                        
+                        VStack {
+                            Spacer()
+                            
+                            Button(action: {
+                                onRestore(originalIndex)
+                            }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "arrow.counterclockwise")
+                                        .font(.system(size: 10, weight: .semibold))
+                                    Text("복원")
+                                        .font(.system(size: 10, weight: .semibold))
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(
+                                    Capsule()
+                                        .fill(Color.blue)
+                                        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 1)
+                                )
+                            }
+                            .padding(.bottom, 8)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal)
+        }
+        .frame(height: 120)
     }
 }
