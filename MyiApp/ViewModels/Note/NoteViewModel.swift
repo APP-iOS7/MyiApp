@@ -511,3 +511,67 @@ extension NoteViewModel {
         }
     }
 }
+
+extension NoteViewModel {
+    
+    func updateNoteWithImagesAndDeletions(note: Note, newImages: [UIImage], imagesToDelete: [String]) {
+        isLoading = true
+        
+        uploadImages(newImages) { [weak self] result in
+            guard let self = self else { return }
+            
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let newImageURLs):
+                    var updatedNote = note
+                    updatedNote.imageURLs.append(contentsOf: newImageURLs)
+                    
+                    self.updateNote(note: updatedNote)
+                    
+                    self.deleteImagesFromStorage(imageURLs: imagesToDelete)
+                    
+                    self.isLoading = false
+                    self.toastMessage = ToastMessage(message: "일지가 수정되었습니다.", type: .success)
+                    
+                case .failure(let error):
+                    self.isLoading = false
+                    self.errorMessage = "이미지 업로드 실패: \(error.localizedDescription)"
+                    
+                    self.updateNote(note: note)
+                    self.deleteImagesFromStorage(imageURLs: imagesToDelete)
+                    
+                    self.toastMessage = ToastMessage(message: "이미지 업로드 실패, 내용은 수정되었습니다.", type: .error)
+                }
+            }
+        }
+    }
+    
+    func updateNoteWithDeletions(note: Note, imagesToDelete: [String]) {
+        isLoading = true
+        
+        updateNote(note: note)
+        
+        deleteImagesFromStorage(imageURLs: imagesToDelete)
+        
+        DispatchQueue.main.async {
+            self.isLoading = false
+            self.toastMessage = ToastMessage(message: "일지가 수정되었습니다.", type: .success)
+        }
+    }
+    
+    private func deleteImagesFromStorage(imageURLs: [String]) {
+        for imageURL in imageURLs {
+            if let url = URL(string: imageURL),
+               let path = url.path.components(separatedBy: "o/").last?.removingPercentEncoding?.components(separatedBy: "?").first {
+                let storageRef = Storage.storage().reference().child(path)
+                storageRef.delete { error in
+                    if let error = error {
+                        print("Firebase Storage에서 이미지 삭제 실패: \(error.localizedDescription)")
+                    } else {
+                        print("이미지 삭제 성공: \(imageURL)")
+                    }
+                }
+            }
+        }
+    }
+}
