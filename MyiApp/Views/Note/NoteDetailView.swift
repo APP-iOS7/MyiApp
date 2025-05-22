@@ -37,7 +37,7 @@ struct NoteDetailView: View {
             }
             .padding(.vertical, 8)
         }
-        .background(Color("customBackgroundColor").ignoresSafeArea())
+        .background(Color("customBackgroundColor"))
         .navigationTitle(event.category == .일지 ? "일지 상세" : "일정 상세")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
