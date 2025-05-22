@@ -32,62 +32,62 @@ struct BabyProfileView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-                VStack {
-                    // 아기 사진
-                    if let image = viewModel.babyImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .onTapGesture {
-                                showPhotoActionSheet = true
-                            }
-                    } else {
-                        Image("sharkToddler")
-                            .resizable()
-                            .frame(width: 100, height: 100)
-                            .foregroundStyle(.gray)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .onTapGesture {
-                                showPhotoActionSheet = true
-                            }
-                    }
+            VStack {
+                // 아기 사진
+                if let image = viewModel.babyImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 100, height: 100)
+                        .clipShape(Circle())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .onTapGesture {
+                            showPhotoActionSheet = true
+                        }
+                } else {
+                    Image("sharkToddler")
+                        .resizable()
+                        .frame(width: 100, height: 100)
+                        .foregroundStyle(.gray)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .onTapGesture {
+                            showPhotoActionSheet = true
+                        }
                 }
-                .padding(.bottom, 20)
-                // 아기 정보
-                HStack {
-                    Text("이름")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary.opacity(0.8))
-                    
-                    Spacer()
-                    
-                    Text("\(viewModel.baby.name)")
-                        .foregroundColor(.primary.opacity(0.6))
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.primary.opacity(0.6))
-                        .font(.system(size: 12))
-                }
-                .padding()
-                HStack {
-                    Text("생년월일")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary.opacity(0.8))
-                    
-                    Spacer()
-                    
-                    Text("\(viewModel.formattedDate(viewModel.baby.birthDate))")
-                        .foregroundColor(.primary.opacity(0.6))
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.primary.opacity(0.6))
-                        .font(.system(size: 12))
-                }
-                .padding()
-                let components = Calendar.current.dateComponents([.hour, .minute], from: viewModel.baby.birthDate)
+            }
+            .padding(.bottom, 20)
+            // 아기 정보
+            HStack {
+                Text("이름")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary.opacity(0.8))
+                
+                Spacer()
+                
+                Text("\(viewModel.baby.name)")
+                    .foregroundColor(.primary.opacity(0.6))
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.primary.opacity(0.6))
+                    .font(.system(size: 12))
+            }
+            .padding()
+            HStack {
+                Text("생년월일")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary.opacity(0.8))
+                
+                Spacer()
+                
+                Text("\(viewModel.formattedDate(viewModel.baby.birthDate))")
+                    .foregroundColor(.primary.opacity(0.6))
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.primary.opacity(0.6))
+                    .font(.system(size: 12))
+            }
+            .padding()
+            let components = Calendar.current.dateComponents([.hour, .minute], from: viewModel.baby.birthDate)
             if components.hour == 0 && components.minute == 0 {
                 HStack {
                     Text("출생 시간")
@@ -105,76 +105,15 @@ struct BabyProfileView: View {
                 }
                 .padding()
             } else {
-                    HStack {
-                        Text("출생 시간")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.primary.opacity(0.8))
-                        
-                        Spacer()
-                        
-                        Text(viewModel.formattedTime(viewModel.baby.birthDate))
-                            .foregroundColor(.primary.opacity(0.6))
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.primary.opacity(0.6))
-                            .font(.system(size: 12))
-                    }
-                    .padding()
-                }
                 HStack {
-                    Text("성별")
+                    Text("출생 시간")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary.opacity(0.8))
                     
                     Spacer()
                     
-                    Text("\(viewModel.baby.gender == .male ? "남" : "여")")
-                        .foregroundColor(.primary.opacity(0.6))
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.primary.opacity(0.6))
-                        .font(.system(size: 12))
-                }
-                .padding()
-                HStack {
-                    Text("키")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary.opacity(0.8))
-                    
-                    Spacer()
-                    
-                    Text("\(String(format: "%.1f", viewModel.baby.height)) cm")
-                        .foregroundColor(.primary.opacity(0.6))
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.primary.opacity(0.6))
-                        .font(.system(size: 12))
-                }
-                .padding()
-                HStack {
-                    Text("몸무게")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary.opacity(0.8))
-                    
-                    Spacer()
-                    
-                    Text("\(String(format: "%.1f", viewModel.baby.weight)) kg")
-                        .foregroundColor(.primary.opacity(0.6))
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.primary.opacity(0.6))
-                        .font(.system(size: 12))
-                }
-                .padding()
-                HStack {
-                    Text("혈액형")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary.opacity(0.8))
-                    
-                    Spacer()
-                    
-                    Text("\(viewModel.baby.bloodType.rawValue)")
+                    Text(viewModel.formattedTime(viewModel.baby.birthDate))
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
@@ -182,26 +121,84 @@ struct BabyProfileView: View {
                 }
                 .padding()
             }
-            .padding(.horizontal)
-            .padding(.vertical, 30)
-            .cornerRadius(10)
-            
-            Spacer()
-        
+            HStack {
+                Text("성별")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary.opacity(0.8))
+                
+                Spacer()
+                
+                Text("\(viewModel.baby.gender == .male ? "남" : "여")")
+                    .foregroundColor(.primary.opacity(0.6))
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.primary.opacity(0.6))
+                    .font(.system(size: 12))
+            }
+            .padding()
+            HStack {
+                Text("키")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary.opacity(0.8))
+                
+                Spacer()
+                
+                Text("\(String(format: "%.1f", viewModel.baby.height)) cm")
+                    .foregroundColor(.primary.opacity(0.6))
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.primary.opacity(0.6))
+                    .font(.system(size: 12))
+            }
+            .padding()
+            HStack {
+                Text("몸무게")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary.opacity(0.8))
+                
+                Spacer()
+                
+                Text("\(String(format: "%.1f", viewModel.baby.weight)) kg")
+                    .foregroundColor(.primary.opacity(0.6))
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.primary.opacity(0.6))
+                    .font(.system(size: 12))
+            }
+            .padding()
+            HStack {
+                Text("혈액형")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary.opacity(0.8))
+                
+                Spacer()
+                
+                Text("\(viewModel.baby.bloodType.rawValue)")
+                    .foregroundColor(.primary.opacity(0.6))
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.primary.opacity(0.6))
+                    .font(.system(size: 12))
+            }
+            .padding()
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 30)
+        .cornerRadius(10)
         .background(Color(UIColor.tertiarySystemBackground))
         .navigationTitle("\(viewModel.baby.name)님의 정보")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            Image(systemName: "chevron.left")
-                                .foregroundColor(.primary.opacity(0.8))
-                        }
-                    }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.primary.opacity(0.8))
                 }
+            }
+        }
         .task {
             await viewModel.loadBabyProfileImage()
         }
