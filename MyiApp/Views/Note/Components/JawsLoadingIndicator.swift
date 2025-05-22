@@ -39,7 +39,6 @@ struct CleanLoadingOverlay: View {
         ZStack {
             Color.black.opacity(0.5)
                 .ignoresSafeArea()
-            
             VStack(spacing: 20) {
                 CleanCharacterLoadingIndicator(
                     imageNames: imageNames,
