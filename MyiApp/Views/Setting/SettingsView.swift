@@ -202,6 +202,7 @@ struct SettingsView: View {
                     .background(Color(UIColor.tertiarySystemBackground))
                     .cornerRadius(10)
                     .padding(.horizontal)
+                    .padding(.bottom)
                 }
             }
             .background(Color("customBackgroundColor"))
