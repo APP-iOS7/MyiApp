@@ -116,9 +116,91 @@ class HomeViewModel: ObservableObject {
             .assign(to: &$records)
     }
     
+    func gridItemDidTap(title: TitleCategory) {
+        switch title {
+                                case .breastfeeding:
+                                    if let recentMeal {
+                                        let newRecord = Record(
+                                            id: UUID(),
+                                            createdAt: selectedDate,
+                                            title: recentMeal.title,
+                                            mlAmount: recentMeal.mlAmount,
+                                            breastfeedingLeftMinutes: recentMeal.breastfeedingLeftMinutes,
+                                            breastfeedingRightMinutes: recentMeal.breastfeedingRightMinutes
+                                        )
+                                        saveRecord(record: newRecord)
+                                    } else {
+                                        saveRecord(record: Record(title: .breastfeeding))
+                                    }
+                                case .diaper: return
+                                    saveRecord(record: Record(title: .diaper))
+                                case .pee:
+                                    if let recentPotty = recentPotty {
+                                        let newRecord = Record(
+                                            id: UUID(),
+                                            createdAt: selectedDate,
+                                            title: recentPotty.title
+                                        )
+                                        saveRecord(record: newRecord)
+                                    } else {
+                                        saveRecord(record: Record(title: .pee))
+                                    }
+                                case .sleep: return
+                                    saveRecord(record: Record(title: .sleep))
+                                case .heightWeight:
+                                    if let recentHeightWeight = recentHeightWeight {
+                                        let newRecord = Record(
+                                            id: UUID(),
+                                            createdAt: selectedDate,
+                                            title: recentHeightWeight.title,
+                                            height: recentHeightWeight.height,
+                                            weight: recentHeightWeight.weight
+                                        )
+                                        saveRecord(record: newRecord)
+                                    } else {
+                                        saveRecord(record: Record(title: .heightWeight))
+                                    }
+                                case .bath: return
+                                    saveRecord(record: Record(title: .bath))
+                                case .snack:
+                                    if let recentSnack = recentSnack {
+                                        let newRecord = Record(
+                                            id: UUID(),
+                                            createdAt: selectedDate,
+                                            title: recentSnack.title,
+                                            content: recentSnack.content
+                                        )
+                                        saveRecord(record: newRecord)
+                                    } else {
+                                        saveRecord(record: Record(title: .snack))
+                                    }
+                                case .temperature:
+                                    if let recentHealth = recentHealth {
+                                        let newRecord = Record(
+                                            id: UUID(),
+                                            createdAt: selectedDate,
+                                            title: recentHealth.title,
+                                            temperature: recentHealth.temperature,
+                                            content: recentHealth.content
+                                        )
+                                        saveRecord(record: newRecord)
+                                    } else {
+                                        saveRecord(record: Record(title: .temperature, temperature: 36.5))
+                                    }
+                                default:
+                                    print(title)
+                            }
+
+    }
+    
     func saveRecord(record: Record) {
-        guard let baby else { return }
-        let _ = Firestore.firestore().collection("babies").document(baby.id.uuidString).collection("records").document(record.id.uuidString).setData(from: record)
+                guard let baby else { return }
+        var recordToSave = record
+        recordToSave.createdAt = selectedDate
+        let _ = Firestore.firestore().collection("babies").document(baby.id.uuidString).collection("records").document(record.id.uuidString).setData(from: recordToSave)
+        if record.title == .heightWeight {
+            
+        }
     }
     
     func babyChangeButtonDidTap(baby: Baby) {
