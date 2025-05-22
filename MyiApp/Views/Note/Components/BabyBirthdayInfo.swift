@@ -48,11 +48,10 @@ struct BabyBirthdayInfoView: View {
                 
                 HStack(alignment: .lastTextBaseline, spacing: 2) {
                     Text("\(daysSinceBirth)")
-                        .font(.custom("Cafe24-Ohsquareair", size: 48))
+                        .font(.system(size: 48))
                     
                     Text("일")
                         .font(.system(size: 24, weight: .medium))
-                        .offset(y: 5)
                 }
             }
             .padding(.trailing, 16)

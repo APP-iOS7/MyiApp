@@ -177,37 +177,17 @@ struct NoteView: View {
         VStack(spacing: 0) {
             ZStack {
                 HStack {
-                    Button(action: {
-                        viewModel.changeMonth(by: -1)
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .font(.title3)
-                            .foregroundColor(.primary)
-                    }
-                    
-                    Spacer()
-                    
                     HStack {
-                        Image(systemName: "calendar")
-                            .foregroundColor(.primary)
-                        
                         Text(viewModel.currentMonth)
-                            .font(.custom("Cafe24-Ohsquareair", size: 24))
+                            .font(.system(size: 24))
                             .fontWeight(.bold)
                             .foregroundStyle(.button)
+                        
+                        Image(systemName: "chevron.down")
+                            .font(.caption)
+                            .foregroundColor(.button)
                     }
                     
-                    Spacer()
-                    
-                    Button(action: {
-                        viewModel.changeMonth(by: 1)
-                    }) {
-                        Image(systemName: "chevron.right")
-                            .font(.title3)
-                            .foregroundColor(.primary)
-                    }
-                    
-                    Spacer()
                     Spacer()
                     
                     Button(action: {
@@ -219,6 +199,24 @@ struct NoteView: View {
                             .padding(.vertical, 5)
                             .foregroundColor(.white)
                             .background(Capsule().fill(Color("sharkPrimaryColor")))
+                    }
+                    
+                    HStack(spacing: 18) {
+                        Button(action: {
+                            viewModel.changeMonth(by: -1)
+                        }) {
+                            Image(systemName: "chevron.left")
+                                .font(.title3)
+                                .foregroundColor(.primary)
+                        }
+                        
+                        Button(action: {
+                            viewModel.changeMonth(by: 1)
+                        }) {
+                            Image(systemName: "chevron.right")
+                                .font(.title3)
+                                .foregroundColor(.primary)
+                        }
                     }
                 }
                 
