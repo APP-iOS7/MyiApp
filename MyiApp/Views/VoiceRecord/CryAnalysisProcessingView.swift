@@ -67,7 +67,7 @@ private struct ProcessingStateView: View {
                         dismiss()
                     }) {
                         Image(systemName: "chevron.left")
-                            .foregroundColor(.blue)
+                            .foregroundColor(.primary.opacity(0.8))
                     }
                     Spacer()
                 }
@@ -156,7 +156,7 @@ private struct ErrorStateView: View {
                     dismiss()
                 }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.blue)
+                        .foregroundColor(.primary.opacity(0.8))
                 }
             }
         }
