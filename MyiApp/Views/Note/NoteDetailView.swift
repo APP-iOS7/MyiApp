@@ -22,7 +22,7 @@ struct NoteDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 8) {
-
+                
                 headerSection
                 
                 if event.category == .일지 && !event.imageURLs.isEmpty {
@@ -40,7 +40,17 @@ struct NoteDetailView: View {
         .background(Color("customBackgroundColor").ignoresSafeArea())
         .navigationTitle(event.category == .일지 ? "일지 상세" : "일정 상세")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.blue)
+                }
+            }
+            
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: 16) {
                     Button(action: {

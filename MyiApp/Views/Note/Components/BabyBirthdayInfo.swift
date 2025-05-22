@@ -73,9 +73,10 @@ struct BabyBirthdayInfoView: View {
         let calendar = Calendar.current
         let now = Date()
         
-        let ageComponents = calendar.dateComponents([.month, .day], from: birthDate, to: now)
-        let months = ageComponents.month ?? 0
-        let days = ageComponents.day ?? 0
+        let totalDays = (calendar.dateComponents([.day], from: calendar.startOfDay(for: birthDate), to: calendar.startOfDay(for: now)).day ?? 0) + 1
+        
+        let months = totalDays / 30
+        let days = totalDays % 30
         
         return "\(months)개월 \(days)일"
     }
@@ -85,7 +86,7 @@ struct BabyBirthdayInfoView: View {
         let now = Date()
         
         let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: birthDate), to: calendar.startOfDay(for: now)).day ?? 0
-        return days
+        return days + 1
     }
 }
 
