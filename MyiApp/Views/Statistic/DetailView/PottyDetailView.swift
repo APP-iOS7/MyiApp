@@ -52,7 +52,7 @@ struct PottyDetailView: View {
     var body: some View {
         ZStack {
             Color("customBackgroundColor")
-                        .ignoresSafeArea()
+                .ignoresSafeArea(.container, edges: .top)
             mainScrollView
         }
         .gesture(
