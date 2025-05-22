@@ -83,7 +83,8 @@ struct SettingsView: View {
                                     .foregroundColor(.primary.opacity(0.6))
                             }
                             .contentShape(Rectangle())
-                            .padding()
+                            .padding(.leading, 16)
+                            .padding(.trailing, 6)
                             .padding(.top, 5)
                             .padding(.bottom, 5)
                         }
@@ -100,7 +101,7 @@ struct SettingsView: View {
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(.primary.opacity(0.6))
-                                    .padding(.trailing, 18)
+                                    .padding(.trailing, 8)
                             }
                             .padding()
                             .padding(.bottom, 10)
@@ -129,7 +130,7 @@ struct SettingsView: View {
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(.primary.opacity(0.6))
-                                    .padding(.trailing, 18)
+                                    .padding(.trailing, 8)
                             }
                             .padding()
                             .padding(.top, 5)
@@ -147,7 +148,7 @@ struct SettingsView: View {
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(.primary.opacity(0.6))
-                                    .padding(.trailing, 18)
+                                    .padding(.trailing, 8)
                             }
                             .padding()
                             .padding(.bottom, 10)
@@ -175,7 +176,7 @@ struct SettingsView: View {
                             Spacer()
                             Text("\(appVersion)")
                                 .foregroundColor(.primary.opacity(0.6))
-                                .padding(.trailing, 18)
+                                .padding(.trailing, 8)
                         }
                         .padding()
                         .padding(.bottom, 10)
@@ -212,6 +213,7 @@ struct SettingsView: View {
             .task {
                 await caregiverManager.loadCaregiverInfo()
             }
+        
     }
 }
 
