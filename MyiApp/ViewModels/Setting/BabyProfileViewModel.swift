@@ -79,6 +79,7 @@ class BabyProfileViewModel: ObservableObject {
                let image = UIImage(data: data) {
                 self.babyImage = image
             }
+            await saveBabyImage()
         } catch {
             self.errorMessage = "이미지 처리 실패: \(error.localizedDescription)"
         }
