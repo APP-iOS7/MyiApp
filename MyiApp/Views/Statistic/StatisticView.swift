@@ -65,7 +65,7 @@ struct StatisticView: View {
                 SafeAreaPaddingView()
                     .frame(height: getTopSafeAreaHeight())
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 15) {
                         heightWeightButton
                         
                         VStack(spacing: 10) {
@@ -86,7 +86,7 @@ struct StatisticView: View {
                         .padding()
                         .background(Color(.tertiarySystemBackground))
                         .cornerRadius(12)
-                        VStack(spacing: 8) {
+                        VStack(spacing: 15) {
                             
                             statisticList
                         }

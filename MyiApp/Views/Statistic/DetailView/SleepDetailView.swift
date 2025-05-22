@@ -87,14 +87,13 @@ struct SleepDetailView: View {
     
     var mainScrollView: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: 15) {
                 VStack(spacing: 10) {
                     toggleMode
                     Spacer()
                     dateMove
                 }
                 .padding(.horizontal)
-                .padding(.vertical, 10)
                 
                 if (selectedMode == "일") {
                     DailySleepChartView(
@@ -212,9 +211,9 @@ struct DailySleepChartView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 15) {
             ForEach(SleepType.allCases, id: \.self) { type in
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading) {
                     HStack(spacing: 6) {
                         Image(uiImage: UIImage(named: "normalSleep") ?? UIImage())
                             .resizable()
@@ -295,7 +294,6 @@ struct DailySleepChartView: View {
             }
             .background(Color(.tertiarySystemBackground))
             .cornerRadius(12)
-            .padding(.vertical, 10)
         }
     }
     
@@ -412,9 +410,9 @@ struct WeeklySleepChartView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 15) {
             ForEach(SleepType.allCases, id: \.self) { type in
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading) {
                     HStack(spacing: 6) {
                         Image(uiImage: UIImage(named: "normalSleep") ?? UIImage())
                             .resizable()
@@ -495,7 +493,6 @@ struct WeeklySleepChartView: View {
             }
             .background(Color(.tertiarySystemBackground))
             .cornerRadius(12)
-            .padding(.vertical, 10)
         }
     }
     
@@ -620,9 +617,9 @@ struct MonthlySleepChartView: View {
     
     
     var body: some View {
-        VStack {
+        VStack(spacing: 15) {
             ForEach(SleepType.allCases, id: \.self) { type in
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading) {
                     HStack(spacing: 6) {
                         Image(uiImage: UIImage(named: "normalSleep") ?? UIImage())
                             .resizable()
@@ -703,7 +700,6 @@ struct MonthlySleepChartView: View {
             }
             .background(Color(.tertiarySystemBackground))
             .cornerRadius(12)
-            .padding(.vertical, 10)
         }
     }
     
