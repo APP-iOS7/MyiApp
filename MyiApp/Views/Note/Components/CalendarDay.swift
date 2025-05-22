@@ -73,7 +73,7 @@ struct CalendarDayView: View {
                         }
                         
                         Text(day.dayNumber)
-                            .font(.custom("Cafe24-Ohsquareair", size: 18))
+                            .font(.system(size: 18))
                             .foregroundColor(
                                 isSelected ? .white :
                                     isBirthday ? .pink :
