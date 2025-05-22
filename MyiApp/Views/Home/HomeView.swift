@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+/*
+ 헤더 사이즈 줄이기.
+ 돋보기
+ */
+
 struct HomeView: View {
     @StateObject var viewModel: HomeViewModel = .init()
     @State private var isPresented = false
@@ -18,8 +23,8 @@ struct HomeView: View {
                     .frame(height: getTopSafeAreaHeight())
                     .background(Color.customBackground)
                 ScrollView {
-                    VStack(spacing: 20) {
-                        header
+                    VStack(spacing: 15) {
+//                        header
                         babyInfoCard
                         VStack {
                             dateSection
@@ -71,7 +76,7 @@ struct HomeView: View {
                 // TODO: 알림 상황일 때.
             } label: {
                 Image(systemName: "bell.fill")
-                    .font(.title)
+                    .font(.body)
                     .foregroundColor(.gray)
                     .padding(10)
             }
@@ -89,8 +94,8 @@ struct HomeView: View {
                         .fill(Color.sharkPrimaryLight)
                         .stroke(Color.sharksSadowTone, lineWidth: 2)
                 )
-                .padding(8)
-                .padding(.leading)
+                .padding(15)
+                .padding(.leading, 5)
             VStack(alignment: .leading, spacing: 3) {
                 Text(viewModel.displayName)
                     .font(.headline)
@@ -114,7 +119,7 @@ struct HomeView: View {
             .padding(.trailing)
         }
         .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
-        .frame(height: 80)
+        .frame(height: 95)
     }
     private var babyFullScreenCard: some View {
         Group {
