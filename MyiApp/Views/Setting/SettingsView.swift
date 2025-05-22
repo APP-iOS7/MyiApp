@@ -59,7 +59,7 @@ struct SettingsView: View {
                                         .padding()
                                 } else {
                                     ForEach(caregiverManager.babies, id: \.id) { baby in
-                                        NavigationLink(destination: BabyProfileVieww(baby: baby)) {
+                                        NavigationLink(destination: BabyProfileView(baby: baby)) {
                                             Text(baby.name)
                                                 .foregroundColor(.primary.opacity(0.6))
                                                 .padding()
