@@ -15,6 +15,11 @@
 import SwiftUI
 
 struct BabyProfileView: View {
+    enum EditField: String, Identifiable {
+        case name, birthDate, birthTime, gender, height, weight, bloodType
+        var id: String { self.rawValue }
+    }
+    @State private var editField: EditField?
     @StateObject private var viewModel: BabyProfileViewModel
     @State private var showPhotoActionSheet = false
     @State private var showPhotoPicker = false
@@ -32,48 +37,51 @@ struct BabyProfileView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-                VStack {
-                    // 아기 사진
-                    if let image = viewModel.babyImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .onTapGesture {
-                                showPhotoActionSheet = true
-                            }
-                    } else {
-                        Image("sharkToddler")
-                            .resizable()
-                            .frame(width: 100, height: 100)
-                            .foregroundStyle(.gray)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .onTapGesture {
-                                showPhotoActionSheet = true
-                            }
-                    }
+            VStack {
+                // 아기 사진
+                if let image = viewModel.babyImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 100, height: 100)
+                        .clipShape(Circle())
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .onTapGesture {
+                            showPhotoActionSheet = true
+                        }
+                } else {
+                    Image("sharkToddler")
+                        .resizable()
+                        .frame(width: 100, height: 100)
+                        .foregroundStyle(.gray)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .onTapGesture {
+                            showPhotoActionSheet = true
+                        }
                 }
-                .padding(.bottom, 20)
-                // 아기 정보
+            }
+            .padding(.bottom, 20)
+            // 아기 정보
+            NavigationLink(destination: BabyNameEditView(viewModel: viewModel)) {
+            HStack {
+                Text("이름")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary.opacity(0.8))
+                
+                Spacer()
+                
+                Text("\(viewModel.baby.name)")
+                    .foregroundColor(.primary.opacity(0.6))
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.primary.opacity(0.6))
+                    .font(.system(size: 12))
+            }
+            .padding()
+        }
+            NavigationLink(destination: BabyBirthDayEditView(viewModel: viewModel)) {
                 HStack {
-                    Text("이름")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary.opacity(0.8))
-                    
-                    Spacer()
-                    
-                    Text("\(viewModel.baby.name)")
-                        .foregroundColor(.primary.opacity(0.6))
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.primary.opacity(0.6))
-                        .font(.system(size: 12))
-                }
-                .padding()
-                HStack {
-                    Text("생년월일")
+                    Text("출생일")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary.opacity(0.8))
@@ -87,6 +95,7 @@ struct BabyProfileView: View {
                         .font(.system(size: 12))
                 }
                 .padding()
+            }
                 let components = Calendar.current.dateComponents([.hour, .minute], from: viewModel.baby.birthDate)
             if components.hour == 0 && components.minute == 0 {
                 HStack {
@@ -136,6 +145,7 @@ struct BabyProfileView: View {
                         .font(.system(size: 12))
                 }
                 .padding()
+            NavigationLink(destination: BabyHeightEditView(viewModel: viewModel)) {
                 HStack {
                     Text("키")
                         .font(.headline)
@@ -151,6 +161,8 @@ struct BabyProfileView: View {
                         .font(.system(size: 12))
                 }
                 .padding()
+            }
+            NavigationLink(destination: BabyWeightEditView(viewModel: viewModel)) {
                 HStack {
                     Text("몸무게")
                         .font(.headline)
@@ -166,6 +178,8 @@ struct BabyProfileView: View {
                         .font(.system(size: 12))
                 }
                 .padding()
+            }
+            
                 HStack {
                     Text("혈액형")
                         .font(.headline)
