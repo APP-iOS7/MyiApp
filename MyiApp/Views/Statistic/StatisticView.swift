@@ -60,7 +60,7 @@ struct StatisticView: View {
     var body: some View {
         ZStack {
             Color("customBackgroundColor")
-                        .ignoresSafeArea()
+                .ignoresSafeArea(.container, edges: .top)
             VStack(spacing: 0) {
                 SafeAreaPaddingView()
                     .frame(height: getTopSafeAreaHeight())
