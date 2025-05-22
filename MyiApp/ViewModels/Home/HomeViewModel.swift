@@ -122,7 +122,7 @@ class HomeViewModel: ObservableObject {
                                     if let recentMeal {
                                         let newRecord = Record(
                                             id: UUID(),
-                                            createdAt: selectedDate,
+                                            createdAt: Date(),
                                             title: recentMeal.title,
                                             mlAmount: recentMeal.mlAmount,
                                             breastfeedingLeftMinutes: recentMeal.breastfeedingLeftMinutes,
@@ -138,7 +138,7 @@ class HomeViewModel: ObservableObject {
                                     if let recentPotty = recentPotty {
                                         let newRecord = Record(
                                             id: UUID(),
-                                            createdAt: selectedDate,
+                                            createdAt: Date(),
                                             title: recentPotty.title
                                         )
                                         saveRecord(record: newRecord)
@@ -151,7 +151,7 @@ class HomeViewModel: ObservableObject {
                                     if let recentHeightWeight = recentHeightWeight {
                                         let newRecord = Record(
                                             id: UUID(),
-                                            createdAt: selectedDate,
+                                            createdAt: Date(),
                                             title: recentHeightWeight.title,
                                             height: recentHeightWeight.height,
                                             weight: recentHeightWeight.weight
@@ -166,7 +166,7 @@ class HomeViewModel: ObservableObject {
                                     if let recentSnack = recentSnack {
                                         let newRecord = Record(
                                             id: UUID(),
-                                            createdAt: selectedDate,
+                                            createdAt: Date(),
                                             title: recentSnack.title,
                                             content: recentSnack.content
                                         )
@@ -178,7 +178,7 @@ class HomeViewModel: ObservableObject {
                                     if let recentHealth = recentHealth {
                                         let newRecord = Record(
                                             id: UUID(),
-                                            createdAt: selectedDate,
+                                            createdAt: Date(),
                                             title: recentHealth.title,
                                             temperature: recentHealth.temperature,
                                             content: recentHealth.content
@@ -196,7 +196,7 @@ class HomeViewModel: ObservableObject {
     func saveRecord(record: Record) {
                 guard let baby else { return }
         var recordToSave = record
-        recordToSave.createdAt = selectedDate
+        recordToSave.createdAt = Date().replacingDate(with: selectedDate)
         let _ = Firestore.firestore().collection("babies").document(baby.id.uuidString).collection("records").document(record.id.uuidString).setData(from: recordToSave)
         if record.title == .heightWeight {
             
@@ -205,5 +205,23 @@ class HomeViewModel: ObservableObject {
     
     func babyChangeButtonDidTap(baby: Baby) {
         
+    }
+}
+
+extension Date {
+    func replacingDate(with date: Date) -> Date {
+        let calendar = Calendar.current
+        let timeComponents = calendar.dateComponents([.hour, .minute, .second], from: self)
+        let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+        
+        var newComponents = DateComponents()
+        newComponents.year = dateComponents.year
+        newComponents.month = dateComponents.month
+        newComponents.day = dateComponents.day
+        newComponents.hour = timeComponents.hour
+        newComponents.minute = timeComponents.minute
+        newComponents.second = timeComponents.second
+
+        return calendar.date(from: newComponents) ?? self
     }
 }
