@@ -84,9 +84,9 @@ struct NoteEventList: View {
                 
                 Text(filteredCategory == nil ?
                      "이 날의 기록이 없습니다." :
-                     "해당 카테고리의 기록이 없습니다.")
-                    .font(.headline)
-                    .foregroundColor(.gray)
+                        "해당 카테고리의 기록이 없습니다.")
+                .font(.headline)
+                .foregroundColor(.gray)
                 
                 Text("새로운 일지를 작성해보세요.")
                     .font(.subheadline)
@@ -134,14 +134,17 @@ struct NoteEventRow: View {
             
             // 메인 콘텐츠
             HStack(spacing: 12) {
-                if event.category == .일지 && !event.imageURLs.isEmpty {
-                    CustomAsyncImageView(imageUrlString: event.imageURLs[0])
-                        .frame(width: 40, height: 40)
-                        .clipShape(Circle())
-                        .overlay(
-                            Circle()
-                                .stroke(categoryColor(for: event.category).opacity(0.3), lineWidth: 2)
-                        )
+                if event.category == .일지 && (!event.imageURLs.isEmpty || event.localImages?.isEmpty == false) {
+                    if let localImages = event.localImages, !localImages.isEmpty {
+                        Image(uiImage: localImages[0])
+                            .resizable()
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                    } else {
+                        CustomAsyncImageView(imageUrlString: event.imageURLs[0])
+                            .frame(width: 40, height: 40)
+                            .clipShape(Circle())
+                    }
                 } else {
                     Image(systemName: categoryIcon(for: event.category))
                         .foregroundColor(categoryColor(for: event.category))

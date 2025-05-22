@@ -86,7 +86,9 @@ struct NoteDetailView: View {
             NoteEditorView(selectedDate: event.date, note: event)
                 .environmentObject(viewModel)
         }
-        .alert("삭제 시 되돌릴 수 없습니다", isPresented: $showingDeleteAlert) {
+        .alert(Text(event.category == .일지 ?
+                    "일지를 삭제합니다" :
+                        "일정을 삭제합니다"), isPresented: $showingDeleteAlert) {
             Button("취소", role: .cancel) { }
             Button("삭제", role: .destructive) {
                 deleteNote()
