@@ -21,9 +21,8 @@ struct SettingsView: View {
     }
     
     var body: some View {
-        NavigationView {
             ScrollView {
-                VStack {
+                VStack(spacing: 15) {
                     HStack {
                         Image(systemName: "person.circle.fill")
                             .resizable()
@@ -39,7 +38,8 @@ struct SettingsView: View {
                         Spacer()
                         Image(systemName: "chevron.right")
                             .foregroundColor(.primary.opacity(0.8))
-                            .padding(.trailing, 18)
+                            .font(.system(size: 12))
+                            .padding(.trailing, 8)
                     }
                     .padding()
                     .padding(.horizontal, 15)
@@ -50,7 +50,7 @@ struct SettingsView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.primary.opacity(0.8))
                             .padding()
-                            .padding(.top, 15)
+                            .padding(.top, 10)
                         
                         DisclosureGroup(isExpanded: $topExpanded) {
                             VStack(alignment: .leading, spacing: 10) {
@@ -82,11 +82,13 @@ struct SettingsView: View {
                                     .rotationEffect(.degrees(topExpanded ? 90 : 0))
                                     .animation(.easeInOut(duration: 0.2), value: topExpanded)
                                     .foregroundColor(.primary.opacity(0.6))
+                                    .font(.system(size: 12))
                             }
                             .contentShape(Rectangle())
-                            .padding()
-                            .padding(.top, 10)
-                            .padding(.bottom, 10)
+                            .padding(.leading, 16)
+                            .padding(.trailing, 6)
+                            .padding(.top, 5)
+                            .padding(.bottom, 5)
                         }
                         .accentColor(.clear)
                         
@@ -101,10 +103,11 @@ struct SettingsView: View {
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(.primary.opacity(0.6))
-                                    .padding(.trailing, 18)
+                                    .font(.system(size: 12))
+                                    .padding(.trailing, 8)
                             }
                             .padding()
-                            .padding(.bottom, 15)
+                            .padding(.bottom, 10)
                         }
                     }
                     .background(Color(UIColor.tertiarySystemBackground))
@@ -117,7 +120,7 @@ struct SettingsView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.primary.opacity(0.8))
                             .padding()
-                            .padding(.top, 15)
+                            .padding(.top, 10)
                         
                         NavigationLink(destination: PrivacyPolicyView()) {
                             HStack {
@@ -130,11 +133,12 @@ struct SettingsView: View {
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(.primary.opacity(0.6))
-                                    .padding(.trailing, 18)
+                                    .font(.system(size: 12))
+                                    .padding(.trailing, 8)
                             }
                             .padding()
-                            .padding(.top, 10)
-                            .padding(.bottom, 10)
+                            .padding(.top, 5)
+                            .padding(.bottom, 5)
                         }
                         
                         NavigationLink(destination: TermsOfServiceView()) {
@@ -148,10 +152,11 @@ struct SettingsView: View {
                                 Spacer()
                                 Image(systemName: "chevron.right")
                                     .foregroundColor(.primary.opacity(0.6))
-                                    .padding(.trailing, 18)
+                                    .font(.system(size: 12))
+                                    .padding(.trailing, 8)
                             }
                             .padding()
-                            .padding(.bottom, 15)
+                            .padding(.bottom, 10)
                         }
                     }
                     .background(Color(UIColor.tertiarySystemBackground))
@@ -164,7 +169,7 @@ struct SettingsView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.primary.opacity(0.8))
                             .padding()
-                            .padding(.top, 15)
+                            .padding(.top, 10)
                         
                         HStack {
                             Image ("appVIcon")
@@ -176,10 +181,10 @@ struct SettingsView: View {
                             Spacer()
                             Text("\(appVersion)")
                                 .foregroundColor(.primary.opacity(0.6))
-                                .padding(.trailing, 18)
+                                .padding(.trailing, 8)
                         }
                         .padding()
-                        .padding(.bottom, 15)
+                        .padding(.bottom, 10)
                     }
                     .background(Color(UIColor.tertiarySystemBackground))
                     .cornerRadius(10)
@@ -213,7 +218,7 @@ struct SettingsView: View {
             .task {
                 await caregiverManager.loadCaregiverInfo()
             }
-        }
+        
     }
 }
 
