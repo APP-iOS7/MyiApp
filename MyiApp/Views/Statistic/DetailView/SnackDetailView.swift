@@ -52,7 +52,7 @@ struct SnackDetailView: View {
     var body: some View {
         ZStack {
             Color("customBackgroundColor")
-                        .ignoresSafeArea()
+                .ignoresSafeArea(.container, edges: .top)
             mainScrollView
         }
         .gesture(
@@ -79,7 +79,7 @@ struct SnackDetailView: View {
                     dismiss()
                 }) {
                     Image(systemName: "chevron.left")
-                        .foregroundColor(.blue)
+                        .foregroundColor(.primary.opacity(0.8))
                 }
             }
         }
