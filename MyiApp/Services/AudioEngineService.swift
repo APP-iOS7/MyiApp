@@ -26,10 +26,37 @@ final class AudioEngineService {
     
     // MARK: - Public Methods
     
-    func startRecording() throws {
-        try configureAudioSession()
-        try configureEngine()
-        try engine?.start()
+    func startRecording(onPermissionResult: @escaping (Bool) -> Void) {
+        if #available(iOS 17.0, *) {
+            AVAudioApplication.requestRecordPermission { granted in
+                DispatchQueue.main.async {
+                    self.handlePermissionResult(granted, onPermissionResult: onPermissionResult)
+                }
+            }
+        } else {
+            AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                DispatchQueue.main.async {
+                    self.handlePermissionResult(granted, onPermissionResult: onPermissionResult)
+                }
+            }
+        }
+    }
+
+    private func handlePermissionResult(_ granted: Bool, onPermissionResult: @escaping (Bool) -> Void) {
+        if granted {
+            do {
+                try self.configureAudioSession()
+                try self.configureEngine()
+                try self.engine?.start()
+                onPermissionResult(true)
+            } catch {
+                print("Failed to start recording: \(error)")
+                onPermissionResult(false)
+            }
+        } else {
+            print("Microphone permission denied.")
+            onPermissionResult(false)
+        }
     }
 
     func stopRecording() {
@@ -60,6 +87,9 @@ final class AudioEngineService {
         converter = AVAudioConverter(from: inputFormat, to: outputFormat)
         
         inputNode!.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] buffer, _ in
+            let samples = Array(UnsafeBufferPointer(start: buffer.floatChannelData![0], count: Int(buffer.frameLength)))
+            let avg = samples.reduce(0, +) / Float(samples.count)
+            print("[AudioService] 버퍼 수신: \(samples.count)개, 평균값: \(avg)")
             self?.processBuffer(buffer, inputFormat: inputFormat, outputFormat: outputFormat)
         }
     }

@@ -43,6 +43,11 @@ final class CryAnalyzer {
             let input = DeepInfant_V2Input(audioSamples: inputArray)
             let output = try model.prediction(input: input)
 
+            print("[CryAnalyzer] 전체 예측 확률:")
+            for (label, prob) in output.targetProbability {
+                print(" - \(label): \(prob)")
+            }
+
             let label = output.target
             let confidence = output.targetProbability[label] ?? 0.0
             let result = EmotionResult(
