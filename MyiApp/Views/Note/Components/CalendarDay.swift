@@ -40,7 +40,7 @@ struct CalendarDayView: View {
     var day: CalendarDay
     @Binding var selectedDate: Date?
     var events: [Note]
-    var isBirthday: Bool
+    var anniversaryType: AnniversaryType?
     
     var body: some View {
         VStack(spacing: 2) {
@@ -59,15 +59,15 @@ struct CalendarDayView: View {
                         Circle()
                             .stroke(Color("sharkPrimaryDark"), lineWidth: 1.5)
                             .frame(width: 36, height: 36)
-                    } else if isBirthday {
+                    } else if anniversaryType != nil {
                         Circle()
-                            .stroke(Color.pink, lineWidth: 1.5)
+                            .stroke(anniversaryType!.color, lineWidth: 1.5)
                             .frame(width: 36, height: 36)
                     }
                     
                     VStack(spacing: 0) {
-                        if isBirthday && !isSelected {
-                            Text("🎂")
+                        if let anniversary = anniversaryType, !isSelected {
+                            Text(anniversary.emoji)
                                 .font(.system(size: 8))
                                 .padding(.bottom, 1)
                         }
@@ -76,7 +76,7 @@ struct CalendarDayView: View {
                             .font(.title3)
                             .foregroundColor(
                                 isSelected ? .white :
-                                    isBirthday ? .pink :
+                                    anniversaryType != nil ? anniversaryType!.color :
                                     isSunday && day.isCurrentMonth ? .red.opacity(day.isCurrentMonth ? 1 : 0.5) :
                                     isSaturday && day.isCurrentMonth ? .blue.opacity(day.isCurrentMonth ? 1 : 0.5) :
                                     day.isToday ? Color("sharkPrimaryDark") :
@@ -88,14 +88,12 @@ struct CalendarDayView: View {
                 
                 // MARK: - 이벤트 도트
                 HStack(spacing: 2) {
-                    // 일지 도트
                     if events.contains(where: { $0.category == .일지 }) {
                         Circle()
                             .fill(.button)
                             .frame(width: 5, height: 5)
                     }
                     
-                    // 일정 도트
                     if events.contains(where: { $0.category == .일정 }) {
                         Circle()
                             .fill(Color.orange)
