@@ -72,16 +72,15 @@ struct NoteView: View {
                                         Text("\(date.formattedFullKoreanDateString())")
                                             .font(.headline)
                                         
-                                        if viewModel.isBirthday(date) {
-                                            Text("🎂 생일")
+                                        if let anniversary = viewModel.getAnniversaryType(date) {
+                                            Text("\(anniversary.emoji) \(anniversary.text)")
                                                 .font(.subheadline)
                                                 .fontWeight(.medium)
-                                                .foregroundColor(.pink)
+                                                .foregroundColor(anniversary.color)
                                                 .padding(.horizontal, 8)
-                                                .padding(.vertical, 2)
                                                 .background(
                                                     Capsule()
-                                                        .fill(Color.pink.opacity(0.1))
+                                                        .fill(anniversary.color.opacity(0.1))
                                                 )
                                         }
                                         
@@ -275,7 +274,7 @@ struct NoteView: View {
                     day: day,
                     selectedDate: $selectedDate,
                     events: viewModel.getEventsForDay(day),
-                    isBirthday: viewModel.isBirthday(day.date)
+                    anniversaryType: viewModel.getAnniversaryType(day.date)
                 )
                 .onTapGesture {
                     if day.date != nil {
