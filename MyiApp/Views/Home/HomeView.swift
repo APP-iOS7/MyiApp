@@ -123,7 +123,7 @@ struct HomeView: View {
     private var babyFullScreenCard: some View {
         Group {
             Color.black.opacity(0.3)
-                .ignoresSafeArea(.container, edges: .top)
+                .ignoresSafeArea()
                 .onTapGesture { isPresented = false }
             VStack {
                 HStack {
