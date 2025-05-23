@@ -34,25 +34,47 @@ struct BabyProfileView: View {
         VStack(spacing: 20) {
             VStack {
                 // 아기 사진
-                if let image = viewModel.babyImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .onTapGesture {
-                            showPhotoActionSheet = true
-                        }
-                } else {
-                    Image("sharkToddler")
-                        .resizable()
-                        .frame(width: 100, height: 100)
-                        .foregroundStyle(.gray)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .onTapGesture {
-                            showPhotoActionSheet = true
-                        }
+                ZStack(alignment: .bottom) {
+                    if let image = viewModel.babyImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                            .padding(5)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.gray, lineWidth: 3)
+                            )
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .onTapGesture {
+                                showPhotoActionSheet = true
+                            }
+                    } else {
+                        Image("sharkToddler")
+                            .resizable()
+                            .frame(width: 100, height: 100)
+                            .foregroundStyle(.gray)
+                            .clipShape(Circle())
+                            .padding(5)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.gray, lineWidth: 3)
+                            )
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .onTapGesture {
+                                showPhotoActionSheet = true
+                            }
+                    }
+                    Image(systemName: "plus.circle.fill")
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .foregroundColor(.gray)
+                                .background(Circle().fill(Color.white).frame(width: 24, height: 24))
+                                .offset(x: 40, y: -7)
+                                .onTapGesture {
+                                    showPhotoActionSheet = true
+                                }
                 }
             }
             .padding(.bottom, 20)

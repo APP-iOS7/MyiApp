@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AVFAudio
 
 enum CryRoute {
     case processing(id: UUID = UUID())
@@ -103,6 +104,15 @@ struct VoiceRecordView: View {
                     )
                 }
             }
+            .onAppear {
+                AVAudioApplication.requestRecordPermission { granted in
+                    if !granted {
+                        DispatchQueue.main.async {
+                            viewModel.step = .error("마이크 권한이 거부되어 녹음을 시작할 수 없어요.")
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -130,7 +140,7 @@ private struct VoiceRecordResultCard: View {
             Spacer()
         }
         .padding()
-        .background(Color.white)
+        .background(Color(.tertiarySystemBackground))
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
         .padding(.horizontal)

@@ -127,14 +127,17 @@ private struct ProcessingStateView: View {
 private struct ErrorStateView: View {
     let message: String
     let dismiss: DismissAction
+    @State private var showPermissionAlert = false
     
     var body: some View {
         VStack(spacing: 24) {
-            Text("오류 발생")
-                .font(.system(size: 32, weight: .heavy))
-                .padding(.top)
-            
-            Spacer()
+            ZStack {
+                Text("분석 중")
+                    .font(.system(size: 20, weight: .semibold))
+                
+                Spacer()
+            }
+            .padding([.top, .horizontal])
             
             Image("sharkUnknown")
                 .resizable()
@@ -150,15 +153,30 @@ private struct ErrorStateView: View {
             
             Spacer()
         }
+        .alert("마이크 접근 권한이 필요합니다.", isPresented: $showPermissionAlert) {
+            Button("설정으로 이동", action: {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            })
+            Button("취소", role: .cancel) {
+                dismiss()
+            }
+        } message: {
+            Text("앱에서 울음소리를 분석하려면 마이크 권한이 필요해요.")
+        }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button(action: {
-                    dismiss()
+                    showPermissionAlert = true
                 }) {
                     Image(systemName: "chevron.left")
                         .foregroundColor(.primary.opacity(0.8))
                 }
             }
+        }
+        .onAppear {
+            showPermissionAlert = true
         }
     }
 }
