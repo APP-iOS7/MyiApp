@@ -16,8 +16,8 @@ struct SettingsView: View {
     // 앱 버전 표시
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
-        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
-        return "\(version).\(build)"
+//        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+        return "\(version)"
     }
     
     var body: some View {
@@ -51,6 +51,7 @@ struct SettingsView: View {
                         .foregroundColor(.primary.opacity(0.8))
                         .padding()
                         .padding(.top, 10)
+                        .padding(.bottom, 10)
                     
                     DisclosureGroup(isExpanded: $topExpanded) {
                         VStack(alignment: .leading, spacing: 10) {
@@ -64,6 +65,9 @@ struct SettingsView: View {
                                         Text(baby.name)
                                             .foregroundColor(.primary.opacity(0.6))
                                             .padding()
+                                            .padding(.leading, 44)
+                                        
+                                        Spacer()
                                     }
                                 }
                             }
@@ -87,28 +91,27 @@ struct SettingsView: View {
                         .contentShape(Rectangle())
                         .padding(.leading, 16)
                         .padding(.trailing, 6)
-                        .padding(.top, 5)
-                        .padding(.bottom, 5)
+                        .padding(.bottom, 20)
                     }
                     .tint(.clear)
                     
-                    NavigationLink(destination: NotificationSettingsView()) {
-                        HStack {
-                            Image ("notificationIcon")
-                                .resizable()
-                                .frame(width: 30, height: 30)
-                            Text("알림 설정")
-                                .foregroundColor(.primary.opacity(0.6))
-                                .padding(.leading, 5)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.primary.opacity(0.6))
-                                .font(.system(size: 12))
-                                .padding(.trailing, 8)
-                        }
-                        .padding()
-                        .padding(.bottom, 10)
-                    }
+//                    NavigationLink(destination: NotificationSettingsView()) {
+//                        HStack {
+//                            Image ("notificationIcon")
+//                                .resizable()
+//                                .frame(width: 30, height: 30)
+//                            Text("알림 설정")
+//                                .foregroundColor(.primary.opacity(0.6))
+//                                .padding(.leading, 5)
+//                            Spacer()
+//                            Image(systemName: "chevron.right")
+//                                .foregroundColor(.primary.opacity(0.6))
+//                                .font(.system(size: 12))
+//                                .padding(.trailing, 8)
+//                        }
+//                        .padding()
+//                        .padding(.bottom, 10)
+//                    }
                 }
                 .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(10)
