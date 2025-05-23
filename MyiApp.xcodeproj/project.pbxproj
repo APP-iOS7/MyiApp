@@ -311,6 +311,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MyiApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "My i";
 				INFOPLIST_KEY_LSApplicationCategoryType = "Fonts provided by application";
 				INFOPLIST_KEY_NSCameraUsageDescription = "아기의 사진을 찍어서 일지에 추가하기 위해 카메라에 접근합니다.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "아기의 울음 소리를 분석하기 위해 마이크 권한이 필요합니다.";
@@ -347,6 +348,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MyiApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "My i";
 				INFOPLIST_KEY_LSApplicationCategoryType = "Fonts provided by application";
 				INFOPLIST_KEY_NSCameraUsageDescription = "아기의 사진을 찍어서 일지에 추가하기 위해 카메라에 접근합니다.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "아기의 울음 소리를 분석하기 위해 마이크 권한이 필요합니다.";
