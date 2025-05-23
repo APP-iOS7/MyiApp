@@ -305,6 +305,42 @@ class NoteViewModel: ObservableObject {
         return birthDay == day && birthMonth == month
     }
     
+    func is100Days(_ date: Date?) -> Bool {
+        guard let date = date, let birthDate = babyInfo?.birthDate else { return false }
+        
+        let calendar = Calendar.current
+        if let hundredDaysDate = calendar.date(byAdding: .day, value: 99, to: birthDate) {
+            return calendar.isDate(date, inSameDayAs: hundredDaysDate)
+        }
+        return false
+    }
+    
+    func isFirstBirthday(_ date: Date?) -> Bool {
+        guard let date = date, let birthDate = babyInfo?.birthDate else { return false }
+        
+        let calendar = Calendar.current
+        if let firstBirthdayDate = calendar.date(byAdding: .year, value: 1, to: birthDate) {
+            return calendar.isDate(date, inSameDayAs: firstBirthdayDate)
+        }
+        return false
+    }
+    
+    func getAnniversaryType(_ date: Date?) -> AnniversaryType? {
+        guard let date = date else { return nil }
+        
+        if isFirstBirthday(date) {
+            return .firstBirthday
+        }
+        else if is100Days(date) {
+            return .hundredDays
+        }
+        else if isBirthday(date) {
+            return .birthday
+        }
+        
+        return nil
+    }
+    
     func selectToday() {
         selectedMonth = Date()
         
