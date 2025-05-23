@@ -108,10 +108,10 @@ struct HomeView: View {
             }
             Spacer()
             Button(action: {isPresented = true}) {
-                Image(systemName: "person.crop.badge.magnifyingglass")
+                Image(systemName: "list.bullet.rectangle.portrait.fill")
                     .resizable()
-                    .frame(width: 25, height: 25)
-                    .padding(7)
+                    .frame(width: 15, height: 20)
+                    .padding(10)
                     .background(Circle().fill(Color.sharkPrimaryDark))
                     .tint(.white)
             }
