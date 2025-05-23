@@ -40,14 +40,14 @@ struct NoteView: View {
                     VStack(spacing: 0) {
                         if let babyInfo = viewModel.babyInfo {
                             BabyBirthdayInfoView(babyName: babyInfo.name, birthDate: babyInfo.birthDate)
-                                .padding(.horizontal) // 좌우 패딩 추가
+                                .padding(.horizontal)
                         } else {
                             Text("아기 정보를 불러오는 중...")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .padding(.vertical, 16)
-                                .padding(.horizontal) // 좌우 패딩 추가
+                                .padding(.horizontal)
                         }
                         
                         VStack(spacing: 0) {
@@ -167,7 +167,7 @@ struct NoteView: View {
             viewModel.fetchCalendarDays()
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now()) {
             if let todayDay = viewModel.days.first(where: { $0.isToday }) {
                 viewModel.selectedDay = todayDay
             }
@@ -248,27 +248,28 @@ struct NoteView: View {
             }
             .padding(.horizontal)
             .padding(.top, 12)
-            .padding(.bottom, 16)
+            .padding(.bottom, 8)
             
             HStack(spacing: 0) {
                 ForEach(viewModel.weekdays, id: \.self) { day in
                     Text(day)
-                        .font(.callout)
+                        .font(.title3)
                         .fontWeight(.semibold)
                         .foregroundColor(day == "일" ? .red : day == "토" ? .blue : .primary)
                         .frame(maxWidth: .infinity)
                 }
             }
+            .padding(.horizontal)
             .padding(.vertical, 8)
-            .padding(.top, 4)
         }
     }
     
     // MARK: - 캘린더 그리드
     private var calendarGridSection: some View {
         let days = viewModel.days
+        let columns = Array(repeating: GridItem(.flexible(), spacing: 0), count: 7)
         
-        return LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 8) {
+        return LazyVGrid(columns: columns, spacing: 8) {
             ForEach(days) { day in
                 CalendarDayView(
                     day: day,

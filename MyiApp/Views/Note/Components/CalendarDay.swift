@@ -43,7 +43,7 @@ struct CalendarDayView: View {
     var isBirthday: Bool
     
     var body: some View {
-        VStack(spacing: 3) {
+        VStack(spacing: 2) {
             if let date = day.date {
                 let isSelected = selectedDate.map { Calendar.current.isDate($0, inSameDayAs: date) } ?? false
                 let weekday = Calendar.current.component(.weekday, from: date)
@@ -54,21 +54,21 @@ struct CalendarDayView: View {
                     if isSelected {
                         Circle()
                             .fill(Color.button)
-                            .frame(width: 32, height: 32)
+                            .frame(width: 36, height: 36)
                     } else if day.isToday {
                         Circle()
                             .stroke(Color("sharkPrimaryDark"), lineWidth: 1.5)
-                            .frame(width: 32, height: 32)
+                            .frame(width: 36, height: 36)
                     } else if isBirthday {
                         Circle()
                             .stroke(Color.pink, lineWidth: 1.5)
-                            .frame(width: 32, height: 32)
+                            .frame(width: 36, height: 36)
                     }
                     
                     VStack(spacing: 0) {
                         if isBirthday && !isSelected {
                             Text("🎂")
-                                .font(.system(size: 7))
+                                .font(.system(size: 8))
                                 .padding(.bottom, 1)
                         }
                         
@@ -84,7 +84,7 @@ struct CalendarDayView: View {
                             )
                     }
                 }
-                .frame(width: 32, height: 32)
+                .frame(width: 36, height: 36)
                 
                 // MARK: - 이벤트 도트
                 HStack(spacing: 2) {
@@ -102,18 +102,21 @@ struct CalendarDayView: View {
                             .frame(width: 5, height: 5)
                     }
                 }
-                .frame(height: 8)
+                .frame(height: 6)
                 .opacity(day.isCurrentMonth ? 1 : 0.5)
             } else {
-                Text("")
-                    .frame(width: 32, height: 32)
-                
-                Rectangle()
-                    .fill(Color.clear)
-                    .frame(height: 8)
+                VStack(spacing: 2) {
+                    Text("")
+                        .frame(width: 36, height: 36)
+                    
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(height: 6)
+                }
             }
         }
-        .frame(height: 45)
+        .frame(maxWidth: .infinity)
+        .frame(height: 50)
         .contentShape(Rectangle())
     }
 }
