@@ -53,7 +53,7 @@ struct CalendarDayView: View {
                 ZStack {
                     if isSelected {
                         Circle()
-                            .fill(Color("sharkPrimaryColor"))
+                            .fill(Color.button)
                             .frame(width: 35, height: 35)
                     } else if day.isToday {
                         Circle()
@@ -91,7 +91,7 @@ struct CalendarDayView: View {
                     // 일지 도트
                     if events.contains(where: { $0.category == .일지 }) {
                         Circle()
-                            .fill(Color("sharkPrimaryColor"))
+                            .fill(.button)
                             .frame(width: 6, height: 6)
                     }
                     
