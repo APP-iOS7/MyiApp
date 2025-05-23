@@ -40,10 +40,10 @@ struct CalendarDayView: View {
     var day: CalendarDay
     @Binding var selectedDate: Date?
     var events: [Note]
-    var isBirthday: Bool
+    var anniversaryType: AnniversaryType?
     
     var body: some View {
-        VStack(spacing: 3) {
+        VStack(spacing: 2) {
             if let date = day.date {
                 let isSelected = selectedDate.map { Calendar.current.isDate($0, inSameDayAs: date) } ?? false
                 let weekday = Calendar.current.component(.weekday, from: date)
@@ -54,21 +54,21 @@ struct CalendarDayView: View {
                     if isSelected {
                         Circle()
                             .fill(Color.button)
-                            .frame(width: 32, height: 32)
+                            .frame(width: 36, height: 36)
                     } else if day.isToday {
                         Circle()
                             .stroke(Color("sharkPrimaryDark"), lineWidth: 1.5)
-                            .frame(width: 32, height: 32)
-                    } else if isBirthday {
+                            .frame(width: 36, height: 36)
+                    } else if anniversaryType != nil {
                         Circle()
-                            .stroke(Color.pink, lineWidth: 1.5)
-                            .frame(width: 32, height: 32)
+                            .stroke(anniversaryType!.color, lineWidth: 1.5)
+                            .frame(width: 36, height: 36)
                     }
                     
                     VStack(spacing: 0) {
-                        if isBirthday && !isSelected {
-                            Text("🎂")
-                                .font(.system(size: 7))
+                        if let anniversary = anniversaryType, !isSelected {
+                            Text(anniversary.emoji)
+                                .font(.system(size: 8))
                                 .padding(.bottom, 1)
                         }
                         
@@ -76,7 +76,7 @@ struct CalendarDayView: View {
                             .font(.title3)
                             .foregroundColor(
                                 isSelected ? .white :
-                                    isBirthday ? .pink :
+                                    anniversaryType != nil ? anniversaryType!.color :
                                     isSunday && day.isCurrentMonth ? .red.opacity(day.isCurrentMonth ? 1 : 0.5) :
                                     isSaturday && day.isCurrentMonth ? .blue.opacity(day.isCurrentMonth ? 1 : 0.5) :
                                     day.isToday ? Color("sharkPrimaryDark") :
@@ -84,36 +84,37 @@ struct CalendarDayView: View {
                             )
                     }
                 }
-                .frame(width: 32, height: 32)
+                .frame(width: 36, height: 36)
                 
                 // MARK: - 이벤트 도트
                 HStack(spacing: 2) {
-                    // 일지 도트
                     if events.contains(where: { $0.category == .일지 }) {
                         Circle()
                             .fill(.button)
                             .frame(width: 5, height: 5)
                     }
                     
-                    // 일정 도트
                     if events.contains(where: { $0.category == .일정 }) {
                         Circle()
                             .fill(Color.orange)
                             .frame(width: 5, height: 5)
                     }
                 }
-                .frame(height: 8)
+                .frame(height: 6)
                 .opacity(day.isCurrentMonth ? 1 : 0.5)
             } else {
-                Text("")
-                    .frame(width: 32, height: 32)
-                
-                Rectangle()
-                    .fill(Color.clear)
-                    .frame(height: 8)
+                VStack(spacing: 2) {
+                    Text("")
+                        .frame(width: 36, height: 36)
+                    
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(height: 6)
+                }
             }
         }
-        .frame(height: 45)
+        .frame(maxWidth: .infinity)
+        .frame(height: 50)
         .contentShape(Rectangle())
     }
 }
