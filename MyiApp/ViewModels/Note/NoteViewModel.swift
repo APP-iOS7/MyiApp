@@ -51,7 +51,6 @@ class NoteViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
-    // MARK: - 노트 데이터 처리
     private func processNotes(_ notes: [Note]) {
         var newEvents: [Date: [Note]] = [:]
         let calendar = Calendar.current
@@ -71,45 +70,81 @@ class NoteViewModel: ObservableObject {
         self.isLoading = false
     }
     
-    // MARK: - 아기 정보 가져오기
     private func fetchBabyInfo() {
         self.babyInfo = caregiverManager.selectedBaby
     }
     
-    // MARK: - 노트 추가
-    func addNote(note: Note) {
-        guard let baby = babyInfo else { return }
+    func addNoteLocallyWithImages(_ note: Note, localImages: [UIImage]) {
+        var noteWithLocalImages = note
+        noteWithLocalImages.localImages = localImages
         
-        isLoading = true
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: note.date)
+        
+        if var dayNotes = events[startOfDay] {
+            dayNotes.append(noteWithLocalImages)
+            dayNotes.sort { $0.date < $1.date }
+            events[startOfDay] = dayNotes
+        } else {
+            events[startOfDay] = [noteWithLocalImages]
+        }
+    }
+    
+    func removeNoteLocally(_ noteId: UUID) {
+        for (date, notes) in events {
+            let filteredNotes = notes.filter { $0.id != noteId }
+            if filteredNotes.count != notes.count {
+                events[date] = filteredNotes.isEmpty ? nil : filteredNotes
+                break
+            }
+        }
+    }
+    
+    func saveNoteOptimistically(_ note: Note, images: [UIImage] = [], isEditing: Bool = false, imagesToDelete: [String] = []) async throws {
+        if !images.isEmpty && note.category == .일지 {
+            if isEditing {
+                updateNoteWithImagesAndDeletions(
+                    note: note,
+                    newImages: images,
+                    imagesToDelete: imagesToDelete
+                )
+            } else {
+                let uploadedURLs = try await uploadImagesAsync(images)
+                var updatedNote = note
+                updatedNote.imageURLs = uploadedURLs
+                try await saveNoteToFirestoreOnly(updatedNote)
+            }
+        } else {
+            if isEditing {
+                updateNoteWithDeletions(note: note, imagesToDelete: imagesToDelete)
+            } else {
+                try await saveNoteToFirestoreOnly(note)
+            }
+        }
+    }
+    
+    func saveNoteToFirestoreOnly(_ note: Note) async throws {
+        guard let baby = babyInfo else {
+            throw NSError(domain: "BabyInfo", code: 0, userInfo: [NSLocalizedDescriptionKey: "아기 정보가 없습니다"])
+        }
         
         let docRef = db.collection("babies").document(baby.id.uuidString)
             .collection("notes")
             .document(note.id.uuidString)
         
-        do {
-            let encoder = Firestore.Encoder()
-            let data = try encoder.encode(note)
-            
-            docRef.setData(data) { [weak self] error in
-                guard let self = self else { return }
-                
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    
-                    if error != nil {
-                        self.errorMessage = "노트 추가 실패"
-                    }
-                }
-            }
-        } catch {
-            DispatchQueue.main.async {
-                self.isLoading = false
-                self.errorMessage = "노트 인코딩 실패"
+        let encoder = Firestore.Encoder()
+        let data = try encoder.encode(note)
+        try await docRef.setData(data)
+    }
+    
+    private func uploadImagesAsync(_ images: [UIImage]) async throws -> [String] {
+        return try await withCheckedThrowingContinuation { continuation in
+            uploadImages(images) { result in
+                continuation.resume(with: result)
             }
         }
     }
     
-    // MARK: - 노트 업데이트
     func updateNote(note: Note) {
         guard let baby = babyInfo else { return }
         
@@ -142,7 +177,6 @@ class NoteViewModel: ObservableObject {
         }
     }
     
-    // MARK: - 노트 삭제
     func deleteNote(note: Note) {
         cancelNotificationForNote(note)
         
@@ -166,14 +200,12 @@ class NoteViewModel: ObservableObject {
             }
     }
     
-    // MARK: - 특정 날짜의 이벤트 가져오기
     func getEventsForDay(_ day: CalendarDay) -> [Note] {
         guard let date = day.date else { return [] }
         let startOfDay = Calendar.current.startOfDay(for: date)
         return (events[startOfDay] ?? []).sorted { $0.date < $1.date }
     }
     
-    // MARK: - 캘린더 관련 메서드
     func setupListeners() {
         databaseService.$hasBabyInfo
             .sink { [weak self] hasBabyInfoOptional in
@@ -254,7 +286,6 @@ class NoteViewModel: ObservableObject {
             selectedMonth = newMonth
             fetchCalendarDays()
             
-            _ = Calendar.current.dateComponents([.year, .month], from: newMonth)
             if let firstDay = days.first(where: { $0.isCurrentMonth && Calendar.current.component(.day, from: $0.date!) == 1 }) {
                 selectedDay = firstDay
             }
@@ -274,7 +305,42 @@ class NoteViewModel: ObservableObject {
         return birthDay == day && birthMonth == month
     }
     
-    // MARK: - 유틸리티 메서드
+    func is100Days(_ date: Date?) -> Bool {
+        guard let date = date, let birthDate = babyInfo?.birthDate else { return false }
+        
+        let calendar = Calendar.current
+        if let hundredDaysDate = calendar.date(byAdding: .day, value: 99, to: birthDate) {
+            return calendar.isDate(date, inSameDayAs: hundredDaysDate)
+        }
+        return false
+    }
+    
+    func isFirstBirthday(_ date: Date?) -> Bool {
+        guard let date = date, let birthDate = babyInfo?.birthDate else { return false }
+        
+        let calendar = Calendar.current
+        if let firstBirthdayDate = calendar.date(byAdding: .year, value: 1, to: birthDate) {
+            return calendar.isDate(date, inSameDayAs: firstBirthdayDate)
+        }
+        return false
+    }
+    
+    func getAnniversaryType(_ date: Date?) -> AnniversaryType? {
+        guard let date = date else { return nil }
+        
+        if isFirstBirthday(date) {
+            return .firstBirthday
+        }
+        else if is100Days(date) {
+            return .hundredDays
+        }
+        else if isBirthday(date) {
+            return .birthday
+        }
+        
+        return nil
+    }
+    
     func selectToday() {
         selectedMonth = Date()
         
@@ -289,13 +355,11 @@ class NoteViewModel: ObservableObject {
         }
     }
     
-    // MARK: - 리프레시
     func refreshData() {
         fetchBabyInfo()
         selectToday()
     }
     
-    // MARK: - ID로 노트 찾기
     func getNoteById(_ id: UUID) -> Note? {
         for (_, notes) in events {
             if let note = notes.first(where: { $0.id == id }) {
@@ -304,8 +368,7 @@ class NoteViewModel: ObservableObject {
         }
         return nil
     }
-
-    // MARK: - 알림 정보 업데이트
+    
     func updateNoteNotification(noteId: UUID, enabled: Bool, time: Date?) {
         guard let note = getNoteById(noteId) else { return }
         
@@ -324,7 +387,6 @@ class NoteViewModel: ObservableObject {
     }
 }
 
-// MARK: - 이미지 관련 확장
 extension NoteViewModel {
     func uploadImage(_ image: UIImage, completion: @escaping (Result<String, Error>) -> Void) {
         guard let imageData = image.jpegData(compressionQuality: 0.7) else {
@@ -360,7 +422,6 @@ extension NoteViewModel {
         }
     }
     
-    // 여러 이미지 업로드
     func uploadImages(_ images: [UIImage], completion: @escaping (Result<[String], Error>) -> Void) {
         var uploadedURLs: [String] = []
         let group = DispatchGroup()
@@ -389,130 +450,6 @@ extension NoteViewModel {
             }
         }
     }
-    
-    // 이미지가 있는 노트 추가
-    func addNoteWithImages(note: Note, images: [UIImage]) {
-        self.isLoading = true
-        
-        uploadImages(images) { [weak self] result in
-            guard let self = self else { return }
-            
-            DispatchQueue.main.async {
-                self.isLoading = false
-                
-                switch result {
-                case .success(let imageURLs):
-                    // 이미지 URL과 함께 노트 추가
-                    var updatedNote = note
-                    updatedNote.imageURLs = imageURLs
-                    self.addNote(note: updatedNote)
-                    
-                    if note.category == .일지 {
-                        self.toastMessage = ToastMessage(message: "이미지와 함께 새 일지가 저장되었습니다.", type: .success)
-                    } else {
-                        self.toastMessage = ToastMessage(message: "새 일정이 저장되었습니다.", type: .success)
-                    }
-                    
-                case .failure(let error):
-                    // 이미지 업로드 실패 처리
-                    self.errorMessage = "이미지 업로드 실패: \(error.localizedDescription)"
-                    // 이미지 없이 노트만 추가
-                    self.addNote(note: note)
-                    self.toastMessage = ToastMessage(message: "이미지 업로드 실패, 내용은 저장되었습니다.", type: .error)
-                }
-            }
-        }
-    }
-    
-    // 기존 노트에 이미지 추가 및 업데이트
-    func updateNoteWithImages(note: Note, newImages: [UIImage]) {
-        isLoading = true
-        
-        uploadImages(newImages) { [weak self] result in
-            guard let self = self else { return }
-            
-            DispatchQueue.main.async {
-                self.isLoading = false
-                
-                switch result {
-                case .success(let newImageURLs):
-                    var updatedNote = note
-                    updatedNote.imageURLs.append(contentsOf: newImageURLs)
-                    
-                    self.updateNote(note: updatedNote)
-                    
-                    if note.category == .일지 {
-                        self.toastMessage = ToastMessage(message: "일지가 수정되었습니다.", type: .success)
-                    } else {
-                        self.toastMessage = ToastMessage(message: "일정이 수정되었습니다.", type: .success)
-                    }
-                    
-                case .failure(let error):
-                    self.errorMessage = "이미지 업로드 실패: \(error.localizedDescription)"
-                    self.updateNote(note: note)
-                    self.toastMessage = ToastMessage(message: "이미지 업로드 실패, 내용은 수정되었습니다.", type: .error)
-                }
-            }
-        }
-    }
-    
-    // 이미지 삭제
-    func deleteImage(fromNote note: Note, at index: Int) {
-        guard index < note.imageURLs.count else { return }
-        
-        var updatedNote = note
-        let imageToDelete = note.imageURLs[index]
-        updatedNote.imageURLs.remove(at: index)
-        
-        updateNote(note: updatedNote)
-        
-        if let url = URL(string: imageToDelete), let path = url.path.components(separatedBy: "o/").last?.removingPercentEncoding?.components(separatedBy: "?").first {
-            let storageRef = Storage.storage().reference().child(path)
-            storageRef.delete { error in
-                if error != nil {
-                    print("Firebase Storage에서 이미지 삭제 실패")
-                }
-            }
-        }
-    }
-}
-
-// MARK: - 알림 관련 확장
-extension NoteViewModel {
-    func scheduleNotificationForNote(_ note: Note, minutesBefore: Int) -> Bool {
-        guard note.category == .일정 else { return false }
-        
-        if NotificationService.shared.authorizationStatus == .authorized {
-            let notificationResult = NotificationService.shared.scheduleNotification(
-                for: note,
-                minutesBefore: minutesBefore
-            )
-            
-            if notificationResult.success == false {
-                self.toastMessage = ToastMessage(
-                    message: notificationResult.message ?? "알림 설정에 실패했습니다.",
-                    type: .error
-                )
-                return false
-            }
-            return true
-        } else {
-            self.toastMessage = ToastMessage(
-                message: "알림 권한이 필요합니다. 설정에서 권한을 허용해주세요.",
-                type: .error
-            )
-            return false
-        }
-    }
-    
-    func cancelNotificationForNote(_ note: Note) {
-        if note.category == .일정 {
-            NotificationService.shared.cancelNotification(with: note.id.uuidString)
-        }
-    }
-}
-
-extension NoteViewModel {
     
     func updateNoteWithImagesAndDeletions(note: Note, newImages: [UIImage], imagesToDelete: [String]) {
         isLoading = true
@@ -572,6 +509,40 @@ extension NoteViewModel {
                     }
                 }
             }
+        }
+    }
+}
+
+extension NoteViewModel {
+    func scheduleNotificationForNote(_ note: Note, minutesBefore: Int) -> Bool {
+        guard note.category == .일정 else { return false }
+        
+        if NotificationService.shared.authorizationStatus == .authorized {
+            let notificationResult = NotificationService.shared.scheduleNotification(
+                for: note,
+                minutesBefore: minutesBefore
+            )
+            
+            if notificationResult.success == false {
+                self.toastMessage = ToastMessage(
+                    message: notificationResult.message ?? "알림 설정에 실패했습니다.",
+                    type: .error
+                )
+                return false
+            }
+            return true
+        } else {
+            self.toastMessage = ToastMessage(
+                message: "알림 권한이 필요합니다. 설정에서 권한을 허용해주세요.",
+                type: .error
+            )
+            return false
+        }
+    }
+    
+    func cancelNotificationForNote(_ note: Note) {
+        if note.category == .일정 {
+            NotificationService.shared.cancelNotification(with: note.id.uuidString)
         }
     }
 }

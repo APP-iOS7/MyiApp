@@ -23,6 +23,7 @@ struct Note: Identifiable, Hashable, Codable {
     var date: Date
     var category: NoteCategory
     var imageURLs: [String]
+    var localImages: [UIImage]? = nil
     var notificationEnabled: Bool?
     var notificationTime: Date?
     var createdAt: Date

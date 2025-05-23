@@ -9,7 +9,8 @@ import SwiftUI
 
 struct StatisticView: View {
     @ObservedObject var viewModel = StatisticViewModel()
-
+    @State private var selectedCategories: [String] = ["수유\n이유식", "기저귀", "배변", "수면", "목욕", "간식"]
+    
     struct CareCategory: Equatable {
         let name: String
         let image: UIImage
@@ -18,7 +19,7 @@ struct StatisticView: View {
     var baby: Baby {
         viewModel.baby
     }
-        
+    
     var birthDate: Date {
         viewModel.baby.birthDate
     }
@@ -35,7 +36,11 @@ struct StatisticView: View {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
         if selectedMode == "일" {
-            formatter.dateFormat = "MM월 dd일"
+            if Calendar.current.isDateInToday(selectedDate) {
+                formatter.dateFormat = "MM월 dd일 '(오늘)'"
+            } else {
+                formatter.dateFormat = "MM월 dd일 (E)"
+            }
             return formatter.string(from: selectedDate)
         } else {
             let calendar = Calendar(identifier: .gregorian)
@@ -70,7 +75,7 @@ struct StatisticView: View {
                         
                         VStack(spacing: 10) {
                             toggleMode
-                            .padding(.vertical, 10)
+                                .padding(.vertical, 10)
                             
                             dateMove
                                 .padding(.vertical, 10)
@@ -95,7 +100,7 @@ struct StatisticView: View {
                     .padding()
                 }
             }
-
+            
         }
         .gesture(
             DragGesture()
@@ -110,13 +115,33 @@ struct StatisticView: View {
         )
     }
     var iconGrid: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 20) {
-            IconItem(title: "수유/이유식", image: .colorMeal)
-            IconItem(title: "기저귀", image: .colorDiaper)
-            IconItem(title: "배변", image: .colorPotty)
-            IconItem(title: "수면", image: .colorSleep)
-            IconItem(title: "목욕", image: .colorBath)
-            IconItem(title: "간식", image: .colorSnack)
+        let categories = [
+            ("수유\n이유식", UIImage.colorMeal, Color("food")),
+            ("기저귀", UIImage.colorDiaper, Color("diaper")),
+            ("배변", UIImage.colorPotty, Color("potty")),
+            ("수면", UIImage.colorSleep, Color("sleep")),
+            ("목욕", UIImage.colorBath, Color("bath")),
+            ("간식", UIImage.colorSnack, Color("snack"))
+        ]
+        return LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 8) {
+            ForEach(categories, id: \.0) { category in
+                let isSelected = selectedCategories.contains(category.0)
+                
+                Button(action: {
+                    if isSelected {
+                        selectedCategories.removeAll { $0 == category.0 }
+                    } else {
+                        selectedCategories.append(category.0)
+                    }
+                }) {
+                    IconItem(
+                        title: category.0,
+                        image: category.1,
+                        isSelected: isSelected,
+                        selectedColor: category.2
+                    )
+                }
+            }
         }
     }
     private var toggleMode: some View {
@@ -179,32 +204,32 @@ struct StatisticView: View {
     }
     private var heightWeightButton: some View {
         NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
-                HStack {
-                    Text("성장곡선")
-                        .font(.subheadline)
-                        .foregroundColor(.primary)
-                    
-                    Spacer()
-                    
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.primary)
-                }
-                .padding()
-                .background(Color(.tertiarySystemBackground))
-                .cornerRadius(12)
+            HStack {
+                Text("성장곡선")
+                    .font(.subheadline)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.primary)
             }
+            .padding()
+            .background(Color(.tertiarySystemBackground))
+            .cornerRadius(12)
+        }
     }
     private var chartView: some View {
         Group {
             if selectedMode == "주" {
-                WeeklyChartView(baby: baby, records: records,  selectedDate: selectedDate)
+                WeeklyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: selectedCategories)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(.trailing)
                     .padding(.vertical, 20)
                 
             } else if selectedMode == "일" {
                 Spacer()
-                DailyChartView(baby: baby, records: records,  selectedDate: selectedDate)
+                DailyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: selectedCategories)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(.horizontal)
                     .padding(.vertical, 20)
@@ -267,64 +292,62 @@ struct StatisticView: View {
         }
         
     }
-    
-    private var gridItems: some View {
-        let careItems: [CareCategory] = [
-            .init(name: "수유/이유식", image: .colorBabyFood),
-            .init(name: "기저귀", image: .colorBabyFood),
-            .init(name: "배변", image: .colorBabyFood),
-            .init(name: "수면", image: .colorBabyFood),
-            .init(name: "키/몸무게", image: .colorBabyFood),
-            .init(name: "목욕", image: .colorBabyFood),
-            .init(name: "간식", image: .colorBabyFood),
-            .init(name: "건강 관리", image: .colorBabyFood)
-        ]
-        let columns = Array(repeating: GridItem(.flexible()), count: 4)
-        return LazyVGrid(columns: columns) {
-            ForEach(careItems, id: \.name) { item in
-                Button(action: {print(item)}) {
-                    VStack(spacing: 0) {
-                        Image(uiImage: item.image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.blue.opacity(0.1))
-                                    .frame(width: 70, height: 70)
-                            )
-                        Text(item.name)
-                            .font(.system(size: 12))
-                    }
-                }
-                
-            }
-        }
-        .padding(.horizontal)
-    }
 }
 
 struct IconItem: View {
     let title: String
     let image: UIImage
+    let isSelected: Bool
+    let selectedColor: Color
     
     var body: some View {
-        VStack(spacing: 8) {
+        HStack(spacing: 8) {
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color("customBackgroundColor"))
-                    .frame(width: 40, height: 40)
+                    .fill((Color(.tertiarySystemBackground)))
+                    .frame(width: 35, height: 35)
                 
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 35, height: 35)
+                    .frame(width: 30, height: 30)
             }
             
             Text(title)
                 .font(.caption)
+                .fontWeight(.bold)
                 .foregroundColor(.primary)
                 .multilineTextAlignment(.center)
+            Spacer()
+        }
+        .padding(.leading, 10)
+        .frame(width: 105, height: 60)
+        .background(isSelected ? selectedColor.opacity(0.5) : Color.gray.opacity(0.1))
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(isSelected ? selectedColor : Color(.tertiarySystemBackground), lineWidth: 2)
+        )
+        
+    }
+}
+extension TitleCategory {
+    var displayName: String {
+        switch self {
+        case .formula, .babyFood, .pumpedMilk, .breastfeeding:
+            return "수유\n이유식"
+        case .diaper:
+            return "기저귀"
+        case .poop, .pee, .pottyAll:
+            return "배변"
+        case .sleep:
+            return "수면"
+        case .bath:
+            return "목욕"
+        case .snack:
+            return "간식"
+        default:
+            return ""
         }
     }
 }

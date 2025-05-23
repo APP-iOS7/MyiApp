@@ -25,7 +25,11 @@ struct BathDetailView: View {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
         if selectedMode == "일" {
-            formatter.dateFormat = "MM월 dd일"
+            if Calendar.current.isDateInToday(selectedDate) {
+                formatter.dateFormat = "MM월 dd일 '(오늘)'"
+            } else {
+                formatter.dateFormat = "MM월 dd일 (E)"
+            }
             return formatter.string(from: selectedDate)
         } else if selectedMode == "주" {
             let calendar = Calendar(identifier: .gregorian)
@@ -252,7 +256,7 @@ struct DailyBathChartView: View {
                             Text("평균 \(String(format: "%.2f", avgAmount))회")
                                 .font(.caption2)
                                 .foregroundColor(.red)
-                                .offset(x: -20, y: 105 - avgY),
+                                .offset(x: -20, y: 85 - avgY),
                             alignment: .topTrailing
                         )
                     HStack(alignment: .bottom, spacing: 10) {
@@ -400,7 +404,7 @@ struct WeeklyBathChartView: View {
                             Text("평균 \(String(format: "%.2f", avgAmount))회")
                                 .font(.caption2)
                                 .foregroundColor(.red)
-                                .offset(x: -20, y: 105 - avgY),
+                                .offset(x: -20, y: 85 - avgY),
                             alignment: .topTrailing
                         )
                     HStack(alignment: .bottom, spacing: 10) {
@@ -557,7 +561,7 @@ struct MonthlyBathChartView: View {
                             Text("평균 \(String(format: "%.2f", avgAmount))회")
                                 .font(.caption2)
                                 .foregroundColor(.red)
-                                .offset(x: -20, y: 105 - avgY),
+                                .offset(x: -20, y: 85 - avgY),
                             alignment: .topTrailing
                         )
                     HStack(alignment: .bottom, spacing: 10) {

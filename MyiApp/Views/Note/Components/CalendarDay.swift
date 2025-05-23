@@ -20,8 +20,8 @@ extension View {
                     }
                 }
             }
-            .frame(height: 10)
-            .padding(.top, 2),
+                .frame(height: 10)
+                .padding(.top, 2),
             alignment: .bottom
         )
     }
@@ -40,10 +40,10 @@ struct CalendarDayView: View {
     var day: CalendarDay
     @Binding var selectedDate: Date?
     var events: [Note]
-    var isBirthday: Bool
+    var anniversaryType: AnniversaryType?
     
     var body: some View {
-        VStack(spacing: 3) {
+        VStack(spacing: 2) {
             if let date = day.date {
                 let isSelected = selectedDate.map { Calendar.current.isDate($0, inSameDayAs: date) } ?? false
                 let weekday = Calendar.current.component(.weekday, from: date)
@@ -53,116 +53,68 @@ struct CalendarDayView: View {
                 ZStack {
                     if isSelected {
                         Circle()
-                            .fill(Color("sharkPrimaryColor"))
-                            .frame(width: 35, height: 35)
+                            .fill(Color.button)
+                            .frame(width: 36, height: 36)
                     } else if day.isToday {
                         Circle()
                             .stroke(Color("sharkPrimaryDark"), lineWidth: 1.5)
-                            .frame(width: 35, height: 35)
-                    } else if isBirthday {
+                            .frame(width: 36, height: 36)
+                    } else if anniversaryType != nil {
                         Circle()
-                            .stroke(Color.pink, lineWidth: 1.5)
-                            .frame(width: 35, height: 35)
+                            .stroke(anniversaryType!.color, lineWidth: 1.5)
+                            .frame(width: 36, height: 36)
                     }
                     
                     VStack(spacing: 0) {
-                        if isBirthday && !isSelected {
-                            Text("🎂")
+                        if let anniversary = anniversaryType, !isSelected {
+                            Text(anniversary.emoji)
                                 .font(.system(size: 8))
                                 .padding(.bottom, 1)
                         }
                         
                         Text(day.dayNumber)
-                            .font(.custom("Cafe24-Ohsquareair", size: 18))
+                            .font(.title3)
                             .foregroundColor(
                                 isSelected ? .white :
-                                    isBirthday ? .pink :
+                                    anniversaryType != nil ? anniversaryType!.color :
                                     isSunday && day.isCurrentMonth ? .red.opacity(day.isCurrentMonth ? 1 : 0.5) :
                                     isSaturday && day.isCurrentMonth ? .blue.opacity(day.isCurrentMonth ? 1 : 0.5) :
-                                        day.isToday ? Color("sharkPrimaryDark") :
-                                            day.isCurrentMonth ? .primary : .secondary
+                                    day.isToday ? Color("sharkPrimaryDark") :
+                                    day.isCurrentMonth ? .primary : .secondary
                             )
                     }
                 }
-                .frame(width: 35, height: 35)
+                .frame(width: 36, height: 36)
                 
-                // 이벤트 도트
-                HStack(spacing: 4) {
-                    // 일지 도트
+                // MARK: - 이벤트 도트
+                HStack(spacing: 2) {
                     if events.contains(where: { $0.category == .일지 }) {
                         Circle()
-                            .fill(Color("sharkPrimaryColor"))
-                            .frame(width: 6, height: 6)
+                            .fill(.button)
+                            .frame(width: 5, height: 5)
                     }
                     
-                    // 일정 도트
                     if events.contains(where: { $0.category == .일정 }) {
                         Circle()
                             .fill(Color.orange)
-                            .frame(width: 6, height: 6)
+                            .frame(width: 5, height: 5)
                     }
                 }
-                .frame(height: 10)
+                .frame(height: 6)
                 .opacity(day.isCurrentMonth ? 1 : 0.5)
             } else {
-                Text("")
-                    .frame(width: 35, height: 35)
-                
-                Rectangle()
-                    .fill(Color.clear)
-                    .frame(height: 10)
+                VStack(spacing: 2) {
+                    Text("")
+                        .frame(width: 36, height: 36)
+                    
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(height: 6)
+                }
             }
         }
+        .frame(maxWidth: .infinity)
         .frame(height: 50)
         .contentShape(Rectangle())
     }
-}
-
-#Preview {
-    HStack {
-        // 일반 날짜
-        CalendarDayView(
-            day: CalendarDay(id: UUID(), date: Date(), dayNumber: "15", isToday: false, isCurrentMonth: true),
-            selectedDate: .constant(nil),
-            events: [],
-            isBirthday: false
-        )
-        
-        // 오늘
-        CalendarDayView(
-            day: CalendarDay(id: UUID(), date: Date(), dayNumber: "12", isToday: true, isCurrentMonth: true),
-            selectedDate: .constant(nil),
-            events: [],
-            isBirthday: false
-        )
-        
-        // 선택된 날짜
-        CalendarDayView(
-            day: CalendarDay(id: UUID(), date: Date(), dayNumber: "10", isToday: false, isCurrentMonth: true),
-            selectedDate: .constant(Date()),
-            events: [],
-            isBirthday: false
-        )
-        
-        // 이벤트가 있는 날짜
-        CalendarDayView(
-            day: CalendarDay(id: UUID(), date: Date().addingTimeInterval(86400), dayNumber: "16", isToday: false, isCurrentMonth: true),
-            selectedDate: .constant(nil),
-            events: [
-                Note(id: UUID(), title: "테스트", description: "설명", date: Date(), category: .일지),
-                Note(id: UUID(), title: "테스트2", description: "설명2", date: Date(), category: .일정)
-            ],
-            isBirthday: false
-        )
-        
-        // 생일
-        CalendarDayView(
-            day: CalendarDay(id: UUID(), date: Date().addingTimeInterval(172800), dayNumber: "19", isToday: false, isCurrentMonth: true),
-            selectedDate: .constant(nil),
-            events: [],
-            isBirthday: true
-        )
-    }
-    .padding()
-    .background(Color.gray.opacity(0.1))
 }

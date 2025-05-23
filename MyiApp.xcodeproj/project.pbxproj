@@ -131,11 +131,12 @@
 				};
 			};
 			buildConfigurationList = B3019C202DCB69B300C3F02A /* Build configuration list for PBXProject "MyiApp" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				ko,
 			);
 			mainGroup = B3019C1C2DCB69B300C3F02A;
 			minimizedProjectReferenceProxies = 1;
@@ -179,6 +180,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -243,6 +245,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -308,6 +311,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MyiApp/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "Fonts provided by application";
 				INFOPLIST_KEY_NSCameraUsageDescription = "아기의 사진을 찍어서 일지에 추가하기 위해 카메라에 접근합니다.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "아기의 울음 소리를 분석하기 위해 마이크 권한이 필요합니다.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "아기의 사진을 일지에 추가하기 위해 사진 라이브러리에 접근합니다.";
@@ -321,7 +325,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kr.co.codegroove.MyiApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -343,6 +347,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MyiApp/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "Fonts provided by application";
 				INFOPLIST_KEY_NSCameraUsageDescription = "아기의 사진을 찍어서 일지에 추가하기 위해 카메라에 접근합니다.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "아기의 울음 소리를 분석하기 위해 마이크 권한이 필요합니다.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "아기의 사진을 일지에 추가하기 위해 사진 라이브러리에 접근합니다.";
@@ -356,7 +361,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kr.co.codegroove.MyiApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
