@@ -251,7 +251,7 @@ struct DailySnackChartView: View {
                             Text("평균 \(String(format: "%.2f", avgAmount))회")
                                 .font(.caption2)
                                 .foregroundColor(.red)
-                                .offset(x: -20, y: 105 - avgY),
+                                .offset(x: -20, y: 85 - avgY),
                             alignment: .topTrailing
                         )
                     HStack(alignment: .bottom, spacing: 10) {
@@ -400,7 +400,7 @@ struct WeeklySnackChartView: View {
                             Text("평균 \(String(format: "%.2f", avgAmount))회")
                                 .font(.caption2)
                                 .foregroundColor(.red)
-                                .offset(x: -20, y: 105 - avgY),
+                                .offset(x: -20, y: 85 - avgY),
                             alignment: .topTrailing
                         )
                     HStack(alignment: .bottom, spacing: 10) {
@@ -557,7 +557,7 @@ struct MonthlySnackChartView: View {
                             Text("평균 \(String(format: "%.2f", avgAmount))회")
                                 .font(.caption2)
                                 .foregroundColor(.red)
-                                .offset(x: -20, y: 105 - avgY),
+                                .offset(x: -20, y: 85 - avgY),
                             alignment: .topTrailing
                         )
                     HStack(alignment: .bottom, spacing: 10) {
