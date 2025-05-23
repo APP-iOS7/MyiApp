@@ -24,18 +24,7 @@ struct BabyGenderEditView: View {
                 .fontWeight(.bold)
                 .foregroundColor(.primary.opacity(0.8))
                 .padding()
-                .padding(.top, 10)
-            
-//            HStack {
-//                Picker("성별", selection: $selectedGender) {
-//                    Text("남").tag(Gender.male)
-//                    Text("여").tag(Gender.female)
-//                }
-//                .pickerStyle(.segmented)
-//                .padding()
-//            }
-//            .padding()
-//            .foregroundColor(.primary.opacity(0.6))
+                .padding(.top, 10)ㅅ
             
             VStack {
                 HStack {

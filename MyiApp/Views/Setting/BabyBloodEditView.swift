@@ -26,18 +26,6 @@ struct BabyBloodEditView: View {
                 .padding()
                 .padding(.top, 10)
             
-//            HStack {
-//                Picker("", selection: $selectedBloodType) {
-//                    Text(BloodType.A.rawValue).tag(BloodType.A)
-//                    Text(BloodType.B.rawValue).tag(BloodType.B)
-//                    Text(BloodType.AB.rawValue).tag(BloodType.AB)
-//                    Text(BloodType.O.rawValue).tag(BloodType.O)
-//                }
-//                .pickerStyle(.segmented)
-//                .padding()
-//            }
-//            .padding()
-//            .foregroundColor(.primary.opacity(0.6))
             VStack {
                 HStack {
                     Text("A 형")
