@@ -24,13 +24,13 @@ struct NoteView: View {
     @State private var showingNoteEditor = false
     @State private var selectedFilterCategory: NoteCategory? = nil
     @State private var selectedEvent: Note? = nil
-    @State private var showMonthYearPicker = false
     @State private var selectedDate: Date? = nil
     @State private var isFirstAppear = true
     
     var body: some View {
         ZStack {
-            Color("customBackgroundColor").ignoresSafeArea()
+            Color("customBackgroundColor").ignoresSafeArea(.container, edges: .top)
+            
             
             VStack(spacing: 0) {
                 SafeAreaPaddingView()
@@ -40,13 +40,14 @@ struct NoteView: View {
                     VStack(spacing: 0) {
                         if let babyInfo = viewModel.babyInfo {
                             BabyBirthdayInfoView(babyName: babyInfo.name, birthDate: babyInfo.birthDate)
-                                .padding(.vertical, 8)
+                                .padding(.horizontal) // 좌우 패딩 추가
                         } else {
                             Text("아기 정보를 불러오는 중...")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .padding(.vertical, 16)
+                                .padding(.horizontal) // 좌우 패딩 추가
                         }
                         
                         VStack(spacing: 0) {
@@ -58,7 +59,7 @@ struct NoteView: View {
                                 .padding(.bottom, 8)
                         }
                         .background(Color(UIColor.tertiarySystemBackground))
-                        .cornerRadius(10)
+                        .cornerRadius(12)
                         .padding(.horizontal)
                         .padding(.top, 8)
                         .padding(.bottom, 15)
@@ -104,7 +105,6 @@ struct NoteView: View {
                                     
                                     // 이벤트 목록
                                     eventsListView(for: date)
-                                        .padding(.horizontal)
                                         .padding(.top, 8)
                                         .padding(.bottom, 16)
                                 }
@@ -114,7 +114,7 @@ struct NoteView: View {
                             }
                         }
                         .background(Color(UIColor.tertiarySystemBackground))
-                        .cornerRadius(10)
+                        .cornerRadius(12)
                         .padding(.horizontal)
                         .padding(.top, 8)
                         .padding(.bottom, 16)
@@ -131,28 +131,6 @@ struct NoteView: View {
         .navigationDestination(item: $selectedEvent) { event in
             NoteDetailView(event: event)
                 .environmentObject(viewModel)
-        }
-        .sheet(isPresented: $showMonthYearPicker) {
-            VStack {
-                HStack {
-                    Button("취소") {
-                        showMonthYearPicker = false
-                    }
-                    Spacer()
-                    Button("확인") {
-                        showMonthYearPicker = false
-                    }
-                }
-                .padding()
-                
-                DatePicker("", selection: $viewModel.selectedMonth, displayedComponents: [.date])
-                    .datePickerStyle(WheelDatePickerStyle())
-                    .labelsHidden()
-                    .onChange(of: viewModel.selectedMonth) {
-                        viewModel.fetchCalendarDays()
-                    }
-                    .padding()
-            }
         }
         .onAppear {
             if isFirstAppear {
@@ -199,35 +177,8 @@ struct NoteView: View {
     // MARK: - 캘린더 헤더 섹션
     private var calendarHeaderSection: some View {
         VStack(spacing: 0) {
-            HStack {
-                Button(action: {
-                    showMonthYearPicker = true
-                }) {
-                    HStack {
-                        Text(viewModel.currentMonth)
-                            .font(.custom("Cafe24-Ohsquareair", size: 24))
-                            .fontWeight(.bold)
-                            .foregroundStyle(.button)
-                        
-                        Image(systemName: "chevron.down")
-                            .font(.caption)
-                    }
-                }
-                
-                Spacer()
-                
-                Button(action: {
-                    selectToday()
-                }) {
-                    Text("오늘")
-                        .font(.subheadline)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 5)
-                        .foregroundColor(.white)
-                        .background(Capsule().fill(Color("sharkPrimaryColor")))
-                }
-                
-                HStack(spacing: 16) {
+            ZStack {
+                HStack {
                     Button(action: {
                         viewModel.changeMonth(by: -1)
                     }) {
@@ -236,6 +187,19 @@ struct NoteView: View {
                             .foregroundColor(.primary)
                     }
                     
+                    Spacer()
+                    
+                    HStack {
+                        Image(systemName: "calendar")
+                            .foregroundColor(.primary)
+                        
+                        Text(viewModel.currentMonth)
+                            .font(.title)
+                            .foregroundColor(.primary)
+                    }
+                    
+                    Spacer()
+                    
                     Button(action: {
                         viewModel.changeMonth(by: 1)
                     }) {
@@ -243,23 +207,60 @@ struct NoteView: View {
                             .font(.title3)
                             .foregroundColor(.primary)
                     }
+                    
+                    Spacer()
+                    Spacer()
+                    
+                    VStack {
+                        if viewModel.selectedDay?.date != nil &&
+                            !Calendar.current.isDateInToday(viewModel.selectedDay?.date ?? Date()) {
+                            Button(action: {
+                                selectToday()
+                            }) {
+                                Text("오늘")
+                                    .font(.subheadline)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .foregroundColor(.primary)
+                                    .background(
+                                        Capsule().stroke(Color.primary, lineWidth: 1)
+                                    )
+                            }
+                        } else {
+                            Text("")
+                        }
+                    }
+                    .frame(width: 60)
                 }
-                .padding(.leading, 8)
+                
+                DatePicker(
+                    "",
+                    selection: $viewModel.selectedMonth,
+                    displayedComponents: [.date]
+                )
+                .datePickerStyle(.compact)
+                .labelsHidden()
+                .frame(width: 200, height: 30)
+                .blendMode(.destinationOver)
+                .onChange(of: viewModel.selectedMonth) {
+                    viewModel.fetchCalendarDays()
+                }
             }
             .padding(.horizontal)
             .padding(.top, 12)
-            .padding(.bottom, 8)
+            .padding(.bottom, 16)
             
             HStack(spacing: 0) {
                 ForEach(viewModel.weekdays, id: \.self) { day in
                     Text(day)
-                        .font(.caption)
+                        .font(.callout)
                         .fontWeight(.semibold)
                         .foregroundColor(day == "일" ? .red : day == "토" ? .blue : .primary)
                         .frame(maxWidth: .infinity)
                 }
             }
             .padding(.vertical, 8)
+            .padding(.top, 4)
         }
     }
     
@@ -303,7 +304,7 @@ struct NoteView: View {
                         .padding(.vertical, 6)
                         .background(
                             Capsule()
-                                .fill(selectedFilterCategory == nil ? Color("sharkPrimaryColor") : Color.gray.opacity(0.1))
+                                .fill(selectedFilterCategory == nil ? Color.button : Color.gray.opacity(0.1))
                         )
                         .foregroundColor(selectedFilterCategory == nil ? .white : .primary)
                 }
@@ -319,7 +320,7 @@ struct NoteView: View {
                             .padding(.vertical, 6)
                             .background(
                                 Capsule()
-                                    .fill(selectedFilterCategory == category ? Color("sharkPrimaryColor") : Color.gray.opacity(0.1))
+                                    .fill(selectedFilterCategory == category ? Color.button : Color.gray.opacity(0.1))
                             )
                             .foregroundColor(selectedFilterCategory == category ? .white : .primary)
                     }
@@ -380,7 +381,7 @@ struct NoteView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 50, height: 50)
-                .foregroundColor(Color("sharkPrimaryLight"))
+                .foregroundColor(.gray)
                 .padding(.top, 4)
             
             Text("기록된 일지가 없습니다.")

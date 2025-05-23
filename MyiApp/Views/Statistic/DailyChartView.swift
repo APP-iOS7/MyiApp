@@ -15,6 +15,7 @@ struct DailyChartView: View {
         baby.birthDate
     }
     let selectedDate: Date
+    let selectedCategories: [String]
     
     var body: some View {
         ZStack {
@@ -60,7 +61,11 @@ struct DailyChartView: View {
             
             //가운데 정보
             let months = Calendar.current.dateComponents([.month, .day], from: baby.birthDate, to: Date()).month ?? 0
-            let days = Calendar.current.dateComponents([.day], from: Calendar.current.date(byAdding: .month, value: months, to: baby.birthDate) ?? Date(), to: selectedDate).day ?? 0
+            let days = (Calendar.current.dateComponents(
+                [.day],
+                from: Calendar.current.date(byAdding: .month, value: months, to: baby.birthDate) ?? Date(),
+                to: Date()
+            ).day ?? 0) + 1
             
             Text("\(months)개월 \(days)일")
                 .font(.headline)
@@ -75,6 +80,10 @@ struct DailyChartView: View {
         let filteredRecords = records.filter { record in
             // 몸무게/키와 건강관리는 제외
             guard record.title != .heightWeight && record.title != .temperature && record.title != .medicine && record.title != .clinic else { return false }
+            
+            guard selectedCategories.contains(record.title.displayName) else {
+                return false
+            }
 
             if record.title == .sleep, let start = record.sleepStart, let end = record.sleepEnd {
                 return calendar.isDate(start, inSameDayAs: selectedDate)
@@ -83,6 +92,7 @@ struct DailyChartView: View {
                 return calendar.isDate(record.createdAt, inSameDayAs: selectedDate)
             }
         }
+    
 
         
         return filteredRecords.flatMap { record in

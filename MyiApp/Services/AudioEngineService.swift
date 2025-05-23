@@ -40,7 +40,6 @@ final class AudioEngineService {
     }
     
     // MARK: - Private Methods
-    
     private func configureAudioSession() throws {
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.record, mode: .default)

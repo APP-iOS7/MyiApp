@@ -22,7 +22,7 @@ struct NoteDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 8) {
-
+                
                 headerSection
                 
                 if event.category == .일지 && !event.imageURLs.isEmpty {
@@ -37,10 +37,20 @@ struct NoteDetailView: View {
             }
             .padding(.vertical, 8)
         }
-        .background(Color("customBackgroundColor").ignoresSafeArea())
+        .background(Color("customBackgroundColor"))
         .navigationTitle(event.category == .일지 ? "일지 상세" : "일정 상세")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.primary.opacity(0.8))
+                }
+            }
+            
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: 16) {
                     Button(action: {
@@ -76,7 +86,9 @@ struct NoteDetailView: View {
             NoteEditorView(selectedDate: event.date, note: event)
                 .environmentObject(viewModel)
         }
-        .alert("삭제 시 되돌릴 수 없습니다", isPresented: $showingDeleteAlert) {
+        .alert(Text(event.category == .일지 ?
+                    "일지를 삭제합니다" :
+                        "일정을 삭제합니다"), isPresented: $showingDeleteAlert) {
             Button("취소", role: .cancel) { }
             Button("삭제", role: .destructive) {
                 deleteNote()

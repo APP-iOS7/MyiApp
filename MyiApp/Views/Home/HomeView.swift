@@ -9,7 +9,6 @@ import SwiftUI
 
 /*
  헤더 사이즈 줄이기.
- 돋보기
  */
 
 struct HomeView: View {
@@ -112,7 +111,7 @@ struct HomeView: View {
                 Image(systemName: "magnifyingglass")
                     .resizable()
                     .frame(width: 15, height: 15)
-                    .padding(5)
+                    .padding(9)
                     .background(Circle().fill(Color.sharkPrimaryDark))
                     .tint(.white)
             }
@@ -246,79 +245,7 @@ struct HomeView: View {
         return LazyVGrid(columns: columns) {
             ForEach(careItems, id: \.name) { item in
                 Button {
-                    switch item.category {
-                        case .breastfeeding:
-                            if let recentMeal = viewModel.recentMeal {
-                                let newRecord = Record(
-                                    id: UUID(),
-                                    createdAt: Date(),
-                                    title: recentMeal.title,
-                                    mlAmount: recentMeal.mlAmount,
-                                    breastfeedingLeftMinutes: recentMeal.breastfeedingLeftMinutes,
-                                    breastfeedingRightMinutes: recentMeal.breastfeedingRightMinutes
-                                )
-                                viewModel.saveRecord(record: newRecord)
-                            } else {
-                                viewModel.saveRecord(record: Record(title: .breastfeeding))
-                            }
-                        case .diaper: return
-                            viewModel.saveRecord(record: Record(title: .diaper))
-                        case .pee:
-                            if let recentPotty = viewModel.recentPotty {
-                                let newRecord = Record(
-                                    id: UUID(),
-                                    createdAt: Date(),
-                                    title: recentPotty.title
-                                )
-                                viewModel.saveRecord(record: newRecord)
-                            } else {
-                                viewModel.saveRecord(record: Record(title: .pee))
-                            }
-                        case .sleep: return
-                            viewModel.saveRecord(record: Record(title: .sleep))
-                        case .heightWeight:
-                            if let recentHeightWeight = viewModel.recentHeightWeight {
-                                let newRecord = Record(
-                                    id: UUID(),
-                                    createdAt: Date(),
-                                    title: recentHeightWeight.title,
-                                    height: recentHeightWeight.height,
-                                    weight: recentHeightWeight.weight
-                                )
-                                viewModel.saveRecord(record: newRecord)
-                            } else {
-                                viewModel.saveRecord(record: Record(title: .heightWeight))
-                            }
-                        case .bath: return
-                            viewModel.saveRecord(record: Record(title: .bath))
-                        case .snack:
-                            if let recentSnack = viewModel.recentSnack {
-                                let newRecord = Record(
-                                    id: UUID(),
-                                    createdAt: Date(),
-                                    title: recentSnack.title,
-                                    content: recentSnack.content
-                                )
-                                viewModel.saveRecord(record: newRecord)
-                            } else {
-                                viewModel.saveRecord(record: Record(title: .snack))
-                            }
-                        case .temperature:
-                            if let recentHealth = viewModel.recentHealth {
-                                let newRecord = Record(
-                                    id: UUID(),
-                                    createdAt: Date(),
-                                    title: recentHealth.title,
-                                    temperature: recentHealth.temperature,
-                                    content: recentHealth.content
-                                )
-                                viewModel.saveRecord(record: newRecord)
-                            } else {
-                                viewModel.saveRecord(record: Record(title: .temperature, temperature: 36.5))
-                            }
-                        default:
-                            print(item.category)
-                    }
+                    viewModel.gridItemDidTap(title: item.category)
                 } label: {
                     VStack(spacing: 0) {
                         Image(uiImage: item.image)
@@ -334,6 +261,7 @@ struct HomeView: View {
                             .font(.system(size: 12))
                             .foregroundStyle(.foreground)
                     }
+                    .frame(width: 90, height: 100)
                 }
                 .buttonStyle(.plain)
             }
