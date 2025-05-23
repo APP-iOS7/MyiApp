@@ -18,25 +18,94 @@ struct BabyBloodEditView: View {
         }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 20) {
             Text("혈액형")
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(.primary.opacity(0.8))
                 .padding()
                 .padding(.top, 10)
-            HStack {
-                Picker("", selection: $selectedBloodType) {
-                    Text(BloodType.A.rawValue).tag(BloodType.A)
-                    Text(BloodType.B.rawValue).tag(BloodType.B)
-                    Text(BloodType.AB.rawValue).tag(BloodType.AB)
-                    Text(BloodType.O.rawValue).tag(BloodType.O)
+            
+//            HStack {
+//                Picker("", selection: $selectedBloodType) {
+//                    Text(BloodType.A.rawValue).tag(BloodType.A)
+//                    Text(BloodType.B.rawValue).tag(BloodType.B)
+//                    Text(BloodType.AB.rawValue).tag(BloodType.AB)
+//                    Text(BloodType.O.rawValue).tag(BloodType.O)
+//                }
+//                .pickerStyle(.segmented)
+//                .padding()
+//            }
+//            .padding()
+//            .foregroundColor(.primary.opacity(0.6))
+            VStack {
+                HStack {
+                    Text("A 형")
+                        .font(.title3)
+                    
+                    Spacer()
+                    
+                    Image(systemName: selectedBloodType == .A ? "checkmark.circle.fill" : "checkmark.circle")
+                        .font(.title2)
+                        .foregroundColor(selectedBloodType == .A ? Color("buttonColor") : .primary.opacity(0.6))
                 }
-                .pickerStyle(.segmented)
                 .padding()
-            }
-            .padding()
-            .foregroundColor(.primary.opacity(0.6))
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    selectedBloodType = .A
+                }
+                
+                HStack {
+                    Text("B 형")
+                        .font(.title3)
+                    
+                    Spacer()
+                    
+                    Image(systemName: selectedBloodType == .B ? "checkmark.circle.fill" : "checkmark.circle")
+                        .font(.title2)
+                        .foregroundColor(selectedBloodType == .B ? Color("buttonColor") : .primary.opacity(0.6))
+                }
+                .padding()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    selectedBloodType = .B
+                }
+                
+                HStack {
+                    Text("O 형")
+                        .font(.title3)
+                    
+                    Spacer()
+                    
+                    Image(systemName: selectedBloodType == .O ? "checkmark.circle.fill" : "checkmark.circle")
+                        .font(.title2)
+                        .foregroundColor(selectedBloodType == .O ? Color("buttonColor") : .primary.opacity(0.6))
+                }
+                .padding()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    selectedBloodType = .O
+                }
+                
+                HStack {
+                    Text("AB 형")
+                        .font(.title3)
+                    
+                    Spacer()
+                    
+                    Image(systemName: selectedBloodType == .AB ? "checkmark.circle.fill" : "checkmark.circle")
+                        .font(.title2)
+                        .foregroundColor(selectedBloodType == .AB ? Color("buttonColor") : .primary.opacity(0.6))
+                }
+                .padding()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    selectedBloodType = .AB
+                }
+                
+        }
+            
+            Spacer()
             
             VStack {
                 Button(action: {
@@ -50,16 +119,15 @@ struct BabyBloodEditView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
+                        .font(.headline)
                         .background(Color("buttonColor"))
                         .cornerRadius(12)
                 }
                 .contentShape(Rectangle())
                 .padding(.horizontal)
             }
-            
-            Spacer()
         }
-        .background(Color("customBackgroundColor"))
+        .background(Color(UIColor.tertiarySystemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {

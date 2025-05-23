@@ -18,23 +18,59 @@ struct BabyGenderEditView: View {
         }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 20) {
             Text("성별")
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(.primary.opacity(0.8))
                 .padding()
                 .padding(.top, 10)
-            HStack {
-                Picker("성별", selection: $selectedGender) {
-                    Text("남").tag(Gender.male)
-                    Text("여").tag(Gender.female)
+            
+//            HStack {
+//                Picker("성별", selection: $selectedGender) {
+//                    Text("남").tag(Gender.male)
+//                    Text("여").tag(Gender.female)
+//                }
+//                .pickerStyle(.segmented)
+//                .padding()
+//            }
+//            .padding()
+//            .foregroundColor(.primary.opacity(0.6))
+            
+            VStack {
+                HStack {
+                    Text("남자 아이")
+                        .font(.title3)
+                    
+                    Spacer()
+                    
+                    Image(systemName: selectedGender == .male ? "checkmark.circle.fill" : "checkmark.circle")
+                        .font(.title2)
+                        .foregroundColor(selectedGender == .male ? Color("buttonColor") : .primary.opacity(0.6))
                 }
-                .pickerStyle(.segmented)
                 .padding()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    selectedGender = .male
+                }
+                
+                HStack {
+                    Text("여자 아이")
+                        .font(.title3)
+                    
+                    Spacer()
+                    Image(systemName: selectedGender == .female ? "checkmark.circle.fill" : "checkmark.circle")
+                        .font(.title2)
+                        .foregroundColor(selectedGender == .female ? Color("buttonColor") : .primary.opacity(0.6))
             }
             .padding()
-            .foregroundColor(.primary.opacity(0.6))
+            .contentShape(Rectangle())
+            .onTapGesture {
+                selectedGender = .  female
+            }
+        }
+            
+            Spacer()
             
             VStack {
                 Button(action: {
@@ -48,16 +84,15 @@ struct BabyGenderEditView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
+                        .font(.headline)
                         .background(Color("buttonColor"))
                         .cornerRadius(12)
                 }
                 .contentShape(Rectangle())
                 .padding(.horizontal)
             }
-            
-            Spacer()
         }
-        .background(Color("customBackgroundColor"))
+        .background(Color(UIColor.tertiarySystemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {

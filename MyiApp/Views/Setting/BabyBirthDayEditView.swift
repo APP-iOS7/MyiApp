@@ -19,7 +19,7 @@ struct BabyBirthDayEditView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 20) {
             Text("출생일")
                 .font(.title)
                 .fontWeight(.bold)
@@ -48,6 +48,7 @@ struct BabyBirthDayEditView: View {
                     Text("완료")
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
+                        .font(.headline)
                         .frame(height: 50)
                         .background(Color("buttonColor"))
                         .cornerRadius(12)
@@ -56,7 +57,7 @@ struct BabyBirthDayEditView: View {
                 .padding(.horizontal)
             }
         }
-        .background(Color("customBackgroundColor"))
+        .background(Color(UIColor.tertiarySystemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
