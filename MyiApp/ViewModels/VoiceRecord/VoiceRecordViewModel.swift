@@ -78,7 +78,7 @@ final class VoiceRecordViewModel: ObservableObject {
     func startAnalysis() {
         print("[ViewModel] startAnalysis() called — step: \(step)")
         hasStarted = true
-        step = .recording
+        step = .start
         recordingProgress = 0.0
         recordingBuffer.removeAll()
         shouldDismissResultView = false
@@ -91,13 +91,20 @@ final class VoiceRecordViewModel: ObservableObject {
 
         audioService.bufferHandler = { [weak self] samples in
             self?.recordingBuffer.append(contentsOf: samples)
+            let avg = samples.reduce(0, +) / Float(samples.count)
+            print("[ViewModel] 새 샘플 수신: \(samples.count)개, 평균값: \(avg)")
         }
 
-        do {
-            try audioService.startRecording()
-            startRecordingTimer()
-        } catch {
-            step = .error("오디오 녹음을 시작할 수 없습니다.")
+        audioService.startRecording { [weak self] granted in
+            guard let self = self else { return }
+
+            if granted {
+                self.step = .recording
+                self.startRecordingTimer()
+            } else {
+                self.step = .error("마이크 권한이 필요합니다.")
+                self.shouldDismissResultView = true
+            }
         }
     }
 
