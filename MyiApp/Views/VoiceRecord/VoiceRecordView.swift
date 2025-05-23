@@ -55,29 +55,13 @@ struct VoiceRecordView: View {
                 .padding([.top, .horizontal])
 
                 // 결과 리스트
-                if viewModel.recordResults.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "magnifyingglass")
-                            .font(.system(size: 48))
-                            .foregroundColor(.gray)
-                        Text("아직 기록된 분석 결과가 없습니다.")
-                            .font(.body)
-                            .foregroundColor(.gray)
-                        Text("하단의 분석 시작 버튼을 눌러 분석을 시작해보세요.")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(.top, 80)
-                } else {
-                    ScrollView {
-                        VStack(spacing: 8) {
-                            ForEach(viewModel.recordResults) { result in
-                                VoiceRecordResultCard(result: result)
-                            }
+                ScrollView {
+                    VStack(spacing: 8) {
+                        ForEach(viewModel.recordResults) { result in
+                            VoiceRecordResultCard(result: result)
                         }
-                        .padding(.top, 8)
                     }
+                    .padding(.top, 8)
                 }
 
                 // 분석 시작 버튼
