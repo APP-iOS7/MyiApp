@@ -30,7 +30,7 @@ struct NoteView: View {
     var body: some View {
         ZStack {
             Color("customBackgroundColor").ignoresSafeArea(.container, edges: .top)
-
+            
             
             VStack(spacing: 0) {
                 SafeAreaPaddingView()
@@ -178,48 +178,58 @@ struct NoteView: View {
         VStack(spacing: 0) {
             ZStack {
                 HStack {
+                    Button(action: {
+                        viewModel.changeMonth(by: -1)
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .font(.title3)
+                            .foregroundColor(.primary)
+                    }
+                    
+                    Spacer()
+                    
                     HStack {
-                        Text(viewModel.currentMonth)
-                            .font(.system(size: 24))
-                            .fontWeight(.bold)
-                            .foregroundStyle(.button)
+                        Image(systemName: "calendar")
+                            .foregroundColor(.primary)
                         
-                        Image(systemName: "chevron.down")
-                            .font(.caption)
-                            .foregroundColor(.button)
+                        Text(viewModel.currentMonth)
+                            .font(.title)
+                            .foregroundColor(.primary)
                     }
                     
                     Spacer()
                     
                     Button(action: {
-                        selectToday()
+                        viewModel.changeMonth(by: 1)
                     }) {
-                        Text("오늘")
-                            .font(.subheadline)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .foregroundColor(.white)
-                            .background(Capsule().fill(Color("sharkPrimaryColor")))
+                        Image(systemName: "chevron.right")
+                            .font(.title3)
+                            .foregroundColor(.primary)
                     }
-                    .padding(.trailing, 10)
                     
-                    HStack(spacing: 18) {
-                        Button(action: {
-                            viewModel.changeMonth(by: -1)
-                        }) {
-                            Image(systemName: "chevron.left")
-                                .font(.title3)
-                                .foregroundColor(.primary)
-                        }
-                        
-                        Button(action: {
-                            viewModel.changeMonth(by: 1)
-                        }) {
-                            Image(systemName: "chevron.right")
-                                .font(.title3)
-                                .foregroundColor(.primary)
+                    Spacer()
+                    Spacer()
+                    
+                    VStack {
+                        if viewModel.selectedDay?.date != nil &&
+                            !Calendar.current.isDateInToday(viewModel.selectedDay?.date ?? Date()) {
+                            Button(action: {
+                                selectToday()
+                            }) {
+                                Text("오늘")
+                                    .font(.subheadline)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .foregroundColor(.primary)
+                                    .background(
+                                        Capsule().stroke(Color.primary, lineWidth: 1)
+                                    )
+                            }
+                        } else {
+                            Text("")
                         }
                     }
+                    .frame(width: 60)
                 }
                 
                 DatePicker(
@@ -293,7 +303,7 @@ struct NoteView: View {
                         .padding(.vertical, 6)
                         .background(
                             Capsule()
-                                .fill(selectedFilterCategory == nil ? Color("sharkPrimaryColor") : Color.gray.opacity(0.1))
+                                .fill(selectedFilterCategory == nil ? Color.button : Color.gray.opacity(0.1))
                         )
                         .foregroundColor(selectedFilterCategory == nil ? .white : .primary)
                 }
@@ -309,7 +319,7 @@ struct NoteView: View {
                             .padding(.vertical, 6)
                             .background(
                                 Capsule()
-                                    .fill(selectedFilterCategory == category ? Color("sharkPrimaryColor") : Color.gray.opacity(0.1))
+                                    .fill(selectedFilterCategory == category ? Color.button : Color.gray.opacity(0.1))
                             )
                             .foregroundColor(selectedFilterCategory == category ? .white : .primary)
                     }
@@ -370,7 +380,7 @@ struct NoteView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 50, height: 50)
-                .foregroundColor(Color("sharkPrimaryLight"))
+                .foregroundColor(.gray)
                 .padding(.top, 4)
             
             Text("기록된 일지가 없습니다.")
