@@ -144,17 +144,6 @@ private struct VoiceRecordResultCard: View {
     }
 }
 
-//#Preview {
-//    NavigationStack {
-//        VoiceRecordView(selectedBaby: Baby(
-//            id: UUID(),
-//            name: "Test Baby",
-//            birthDate: Date(),
-//            birthTime: nil,
-//            gender: .male,
-//            height: 50.0,
-//            weight: 3.5,
-//            bloodType: .a
-//        ))
-//    }
-//}
+#Preview {
+    VoiceRecordView()
+}
