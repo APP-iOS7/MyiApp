@@ -55,7 +55,7 @@ struct NoteReminderView: View {
     private var authorizedView: some View {
         VStack(spacing: 16) {
             Toggle("일정 알림", isOn: $isEnabled)
-                .tint(Color("sharkPrimaryColor"))
+                .tint(Color.button)
                 .onChange(of: isEnabled) { _, enabled in
                     
                     if enabled {
@@ -128,7 +128,7 @@ struct NoteReminderView: View {
                     }) {
                         HStack {
                             Image(systemName: "bell.fill")
-                                .foregroundColor(Color("sharkPrimaryColor"))
+                                .foregroundColor(.button)
                             
                             Text(formattedReminderTime)
                                 .foregroundColor(.primary)
