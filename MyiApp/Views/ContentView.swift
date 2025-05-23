@@ -11,7 +11,15 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject var caregiverManager = CaregiverManager.shared
-
+    
+    init() {
+        let tabbarAppearance = UITabBarAppearance()
+        tabbarAppearance.configureWithOpaqueBackground()
+        tabbarAppearance.backgroundColor = .customBackground
+        UITabBar.appearance().standardAppearance = tabbarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabbarAppearance
+    }
+    
     var body: some View {
         Group {
             if caregiverManager.selectedBaby != nil {
@@ -22,6 +30,10 @@ struct ContentView: View {
                     Tab("통계", systemImage: "chart.bar.fill") { NavigationStack { StatisticView() } }
                     Tab("더 보기", systemImage: "line.3.horizontal") { NavigationStack { SettingsView() } }
                 }
+                .tabViewStyle(DefaultTabViewStyle())
+                .edgesIgnoringSafeArea(.bottom)
+                .tint(Color.button)
+              
             } else {
                 ProgressView("케어기버및 아기 정보를 불러오는 중...")
             }

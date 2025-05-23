@@ -131,14 +131,14 @@ struct BabyProfileView: View {
             }
             NavigationLink(destination: BabyGenderEditView(viewModel: viewModel)) {
                 HStack {
-                    Text("성별")
+                    Text("출생 시간")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary.opacity(0.8))
                     
                     Spacer()
                     
-                    Text("\(viewModel.baby.gender == .male ? "남" : "여")")
+                    Text(viewModel.formattedTime(viewModel.baby.birthDate))
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
