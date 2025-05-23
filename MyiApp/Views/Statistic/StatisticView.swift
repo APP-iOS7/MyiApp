@@ -36,7 +36,11 @@ struct StatisticView: View {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
         if selectedMode == "일" {
-            formatter.dateFormat = "MM월 dd일"
+            if Calendar.current.isDateInToday(selectedDate) {
+                formatter.dateFormat = "MM월 dd일 '(오늘)'"
+            } else {
+                formatter.dateFormat = "MM월 dd일 (E)"
+            }
             return formatter.string(from: selectedDate)
         } else {
             let calendar = Calendar(identifier: .gregorian)
@@ -288,41 +292,6 @@ struct StatisticView: View {
         }
         
     }
-    
-//    private var gridItems: some View {
-//        let careItems: [CareCategory] = [
-//            .init(name: "수유\n이유식", image: .colorBabyFood),
-//            .init(name: "기저귀", image: .colorBabyFood),
-//            .init(name: "배변", image: .colorBabyFood),
-//            .init(name: "수면", image: .colorBabyFood),
-//            .init(name: "키/몸무게", image: .colorBabyFood),
-//            .init(name: "목욕", image: .colorBabyFood),
-//            .init(name: "간식", image: .colorBabyFood),
-//            .init(name: "건강 관리", image: .colorBabyFood)
-//        ]
-//        let columns = Array(repeating: GridItem(.flexible()), count: 4)
-//        return LazyVGrid(columns: columns) {
-//            ForEach(careItems, id: \.name) { item in
-//                Button(action: {print(item)}) {
-//                    VStack(spacing: 0) {
-//                        Image(uiImage: item.image)
-//                            .resizable()
-//                            .aspectRatio(contentMode: .fit)
-//                            .padding()
-//                            .background(
-//                                RoundedRectangle(cornerRadius: 12)
-//                                    .fill(Color.blue.opacity(0.1))
-//                                    .frame(width: 70, height: 70)
-//                            )
-//                        Text(item.name)
-//                            .font(.system(size: 12))
-//                    }
-//                }
-//                
-//            }
-//        }
-//        .padding(.horizontal)
-//    }
 }
 
 struct IconItem: View {
