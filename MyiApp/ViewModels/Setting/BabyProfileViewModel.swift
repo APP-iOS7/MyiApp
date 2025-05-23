@@ -154,4 +154,14 @@ class BabyProfileViewModel: ObservableObject {
         selectedImage = nil
         Task { await loadBabyProfileImage() }
     }
+    
+    //숫자 포맷팅
+    func formatNumber(_ value: Double) -> String {
+        if floor(value) == value {
+            return String(format: "%.0f", value)
+        } else {
+            let formatted = String(format: "%.2f", value)
+            return formatted.trimmingCharacters(in: CharacterSet(charactersIn: "0"))
+        }
+    }
 }
