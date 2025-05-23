@@ -35,41 +35,53 @@ struct BabyHeightEditView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 20) {
             Text("키를 입력하세요")
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(.primary.opacity(0.8))
                 .padding()
                 .padding(.top, 10)
-            HStack {
-                TextField("키를 입력하세요", value: $selectedHeight, formatter: numberFormatter)
-                    .multilineTextAlignment(.leading)
-                    .keyboardType(.decimalPad)
-                    .foregroundColor(.primary.opacity(0.6))
-                    .font(.title2)
-                    .padding()
-                    .padding(.vertical)
-                Text("cm")
-                    .foregroundColor(.primary.opacity(0.6))
-                    .padding(.trailing)
-                    .font(.title2)
-            }
-            .background(
-                VStack {
-                    Spacer()
-                    Rectangle()
-                        .frame(height: 1)
-                        .foregroundColor(.primary.opacity(0.8))
+            ZStack(alignment: .trailing) {
+                    TextField("키를 입력하세요", value: $selectedHeight, formatter: numberFormatter)
+                        .multilineTextAlignment(.leading)
+                        .keyboardType(.decimalPad)
+                        .foregroundColor(.primary.opacity(0.6))
+                        .font(.title2)
+                        .padding()
+                        .padding(.vertical)
+                        .padding(.trailing, 70)
+                        .background(
+                            VStack {
+                                Spacer()
+                                Rectangle()
+                                    .frame(height: 1)
+                                    .foregroundColor(.primary.opacity(0.8))
+                            }
+                            .padding()
+                        )
+                        .focused($isTextFieldFocused)
+                    
+                    if selectedHeight != nil {
+                        HStack(spacing: 15) {
+                            Text("cm")
+                                .foregroundColor(.primary.opacity(0.6))
+                                .font(.title2)
+                            Button(action: {
+                                selectedHeight = nil
+                                isTextFieldFocused = true
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .padding(.trailing, 20)
+                    }
                 }
-                    .padding()
-            )
-            .focused($isTextFieldFocused)
-            
             Spacer()
             
         }
-        .background(Color("customBackgroundColor"))
+        .background(Color(UIColor.tertiarySystemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -98,6 +110,7 @@ struct BabyHeightEditView: View {
                             .foregroundColor(isButtonEnabled ? .white : .primary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
+                            .font(.headline)
                             .background(isButtonEnabled ? Color("buttonColor") : Color.gray)
                     }
                     .contentShape(Rectangle())

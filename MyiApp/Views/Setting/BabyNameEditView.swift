@@ -23,35 +23,48 @@ struct BabyNameEditView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 20) {
             Text("이름을 입력하세요")
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(.primary.opacity(0.8))
                 .padding()
                 .padding(.top, 10)
-            
-            TextField("이름을 입력하세요", text: $selectedName)
-                .multilineTextAlignment(.leading)
-                .foregroundColor(.primary.opacity(0.6))
-                .font(.title2)
-                .padding()
-                .padding(.vertical)
-                .background(
-                    VStack {
-                        Spacer()
-                        Rectangle()
-                            .frame(height: 1)
-                            .foregroundColor(.primary.opacity(0.8))
-                    }
+            ZStack(alignment: .trailing) {
+                TextField("이름을 입력하세요", text: $selectedName)
+                    .multilineTextAlignment(.leading)
+                    .foregroundColor(.primary.opacity(0.6))
+                    .font(.title2)
+                    .padding()
+                    .padding(.vertical)
+                    .padding(.trailing, 40)
+                    .background(
+                        VStack {
+                            Spacer()
+                            Rectangle()
+                                .frame(height: 1)
+                                .foregroundColor(.primary.opacity(0.8))
+                        }
                         .padding()
-                )
-                .focused($isTextFieldFocused)
+                    )
+                    .focused($isTextFieldFocused)
+                
+                if !selectedName.isEmpty {
+                    Button(action: {
+                        selectedName = ""
+                        isTextFieldFocused = true
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                            .padding(.trailing, 20)
+                    }
+                }
+            }
             
             Spacer()
             
         }
-        .background(Color("customBackgroundColor"))
+        .background(Color(UIColor.tertiarySystemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -78,6 +91,7 @@ struct BabyNameEditView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
+                            .font(.headline)
                             .background(isButtonEnabled ? Color("buttonColor") : Color.gray)
                     }
                     .contentShape(Rectangle())

@@ -19,7 +19,7 @@ struct BabyBirthTimeEditView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 20) {
             Text("출생 시간")
                 .font(.title)
                 .fontWeight(.bold)
@@ -49,6 +49,7 @@ struct BabyBirthTimeEditView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
+                        .font(.headline)
                         .background(Color("buttonColor"))
                         .cornerRadius(12)
                 }
@@ -56,7 +57,7 @@ struct BabyBirthTimeEditView: View {
                 .padding(.horizontal)
             }
         }
-        .background(Color("customBackgroundColor"))
+        .background(Color(UIColor.tertiarySystemBackground))
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
