@@ -86,13 +86,23 @@ struct TimelineRow: View {
             case .sleep:
                 if let start = record.sleepStart, let end = record.sleepEnd {
                     return "\(start.to24HourTimeString()) - \(end.to24HourTimeString())"
+                } else if let start = record.sleepStart {
+                    return "\(start.to24HourTimeString()) - (종료 시간 없음)"
+                } else if let end = record.sleepEnd {
+                    return "(시작 시간 없음) - \(end.to24HourTimeString())"
+                } else {
+                    return "시간 미기록"
                 }
-                return "시간 미기록"
             case .heightWeight:
                 if let height = record.height, let weight = record.weight {
                     return "키 \(String(format: "%.1f", height))cm, 몸무게 \(String(format: "%.1f", weight))kg"
+                } else if let height = record.height {
+                    return "키 \(String(format: "%.1f", height))cm"
+                } else if let weight = record.weight {
+                    return "몸무게 \(String(format: "%.1f", weight))kg"
+                } else {
+                    return "미기록"
                 }
-                return "미기록"
             case .temperature:
                 if let temp = record.temperature {
                     return "\(String(format: "%.1f", temp))°C"
