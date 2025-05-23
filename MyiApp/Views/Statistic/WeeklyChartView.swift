@@ -16,6 +16,7 @@ struct WeeklyChartView: View {
     }
     
     let selectedDate: Date
+    let selectedCategories: [String]
     
     private var weekDates: [Date] {
         var calendar = Calendar.current
@@ -102,7 +103,14 @@ struct WeeklyChartView: View {
 
         return records
             .filter { record in
-                record.title != .heightWeight && record.title != .temperature && record.title != .medicine && record.title != .clinic
+                guard record.title != .heightWeight,
+                      record.title != .temperature,
+                      record.title != .medicine,
+                      record.title != .clinic else {
+                    return false
+                }
+                
+                return selectedCategories.contains(record.title.displayName)
             }
             .flatMap { record in
                 // 수면시간은 나눠서 관리
