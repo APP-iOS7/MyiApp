@@ -144,7 +144,7 @@ struct NoteEditorView: View {
                 RadioButtonRow(
                     title: "일지",
                     icon: "note.text",
-                    color: Color("sharkPrimaryColor"),
+                    color: Color.button,
                     isSelected: selectedCategory == .일지
                 ) {
                     selectedCategory = .일지

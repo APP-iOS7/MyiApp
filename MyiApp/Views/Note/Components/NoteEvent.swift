@@ -274,7 +274,7 @@ struct NoteEventRow: View {
     private func categoryColor(for category: NoteCategory) -> Color {
         switch category {
         case .일지:
-            return Color("sharkPrimaryColor")
+            return Color.button
         case .일정:
             return Color.orange
         }
