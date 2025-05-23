@@ -47,7 +47,7 @@ private struct ProcessingStateView: View {
     @ObservedObject var viewModel: VoiceRecordViewModel
     let dismiss: DismissAction
     @State private var dotCount: Int = 0
-    @State private var dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+    private let dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
     
     @State private var progress: Double = 0.0
     @State private var startTime: Date? = nil
