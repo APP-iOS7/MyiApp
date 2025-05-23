@@ -55,12 +55,23 @@ struct ImageGallery: View {
 
 struct CustomAsyncImageView: View {
     let imageUrlString: String
+    let localImage: UIImage?
+    
     @State private var image: UIImage? = nil
     @State private var isLoading = true
     
+    init(imageUrlString: String, localImage: UIImage? = nil) {
+        self.imageUrlString = imageUrlString
+        self.localImage = localImage
+    }
+    
     var body: some View {
         ZStack {
-            if let image = image {
+            if let localImage = localImage {
+                Image(uiImage: localImage)
+                    .resizable()
+                    .scaledToFill()
+            } else if let image = image {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
@@ -75,7 +86,11 @@ struct CustomAsyncImageView: View {
             }
         }
         .onAppear {
-            loadImage()
+            if localImage == nil {
+                loadImage()
+            } else {
+                isLoading = false
+            }
         }
     }
     
