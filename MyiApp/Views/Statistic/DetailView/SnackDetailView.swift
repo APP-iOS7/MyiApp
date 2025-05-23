@@ -24,7 +24,11 @@ struct SnackDetailView: View {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
         if selectedMode == "일" {
-            formatter.dateFormat = "MM월 dd일"
+            if Calendar.current.isDateInToday(selectedDate) {
+                formatter.dateFormat = "MM월 dd일 '(오늘)'"
+            } else {
+                formatter.dateFormat = "MM월 dd일 (E)"
+            }
             return formatter.string(from: selectedDate)
         } else if selectedMode == "주" {
             let calendar = Calendar(identifier: .gregorian)
