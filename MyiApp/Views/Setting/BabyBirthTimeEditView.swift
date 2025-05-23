@@ -1,5 +1,5 @@
 //
-//  BabyBirthEditView.swift
+//  BabyBirthTimeEditView.swift
 //  MyiApp
 //
 //  Created by Yung Hak Lee on 5/23/25.
@@ -7,39 +7,39 @@
 
 import SwiftUI
 
-struct BabyBirthDayEditView: View {
+struct BabyBirthTimeEditView: View {
     @StateObject var viewModel: BabyProfileViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var showBirthDatePicker = false
-    @State private var selectedDate: Date
+    @State private var selectedTime: Date
     
     init(viewModel: BabyProfileViewModel) {
         self._viewModel = StateObject(wrappedValue: viewModel)
-        self._selectedDate = State(wrappedValue: viewModel.baby.birthDate)
+        self._selectedTime = State(wrappedValue: viewModel.baby.birthDate)
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("출생일")
+            Text("출생 시간")
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(.primary.opacity(0.8))
                 .padding()
                 .padding(.top, 10)
-            DatePicker(
-                "출생일",
-                selection: $selectedDate,
-                displayedComponents: [.date]
-            )
-            .datePickerStyle(.graphical)
-            .padding()
-            .foregroundColor(.primary.opacity(0.6))
+            HStack {
+                DatePicker("출생 시간", selection: $selectedTime, displayedComponents: [.hourAndMinute])
+                    .labelsHidden()
+                    .datePickerStyle(.wheel)
+                    .padding()
+                    .foregroundColor(.primary.opacity(0.6))
+                    .environment(\.locale, Locale(identifier: "ko_KR"))
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
             
             Spacer()
-
             VStack {
                 Button(action: {
-                    viewModel.baby.birthDate = selectedDate
+                    viewModel.baby.birthDate = selectedTime
                     Task {
                         await viewModel.saveProfileEdits()
                         dismiss()
@@ -81,6 +81,5 @@ struct BabyBirthDayEditView: View {
         weight: 3.5,
         bloodType: .A
     )
-    BabyBirthDayEditView(viewModel: BabyProfileViewModel(baby: sampleBaby))
+    return BabyBirthTimeEditView(viewModel: BabyProfileViewModel(baby: sampleBaby))
 }
-

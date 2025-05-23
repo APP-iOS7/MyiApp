@@ -63,22 +63,22 @@ struct BabyProfileView: View {
             .padding(.bottom, 20)
             // 아기 정보
             NavigationLink(destination: BabyNameEditView(viewModel: viewModel)) {
-            HStack {
-                Text("이름")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.primary.opacity(0.8))
-                
-                Spacer()
-                
-                Text("\(viewModel.baby.name)")
-                    .foregroundColor(.primary.opacity(0.6))
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.primary.opacity(0.6))
-                    .font(.system(size: 12))
+                HStack {
+                    Text("이름")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary.opacity(0.8))
+                    
+                    Spacer()
+                    
+                    Text("\(viewModel.baby.name)")
+                        .foregroundColor(.primary.opacity(0.6))
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.primary.opacity(0.6))
+                        .font(.system(size: 12))
+                }
+                .padding()
             }
-            .padding()
-        }
             NavigationLink(destination: BabyBirthDayEditView(viewModel: viewModel)) {
                 HStack {
                     Text("출생일")
@@ -96,24 +96,27 @@ struct BabyProfileView: View {
                 }
                 .padding()
             }
-                let components = Calendar.current.dateComponents([.hour, .minute], from: viewModel.baby.birthDate)
+            let components = Calendar.current.dateComponents([.hour, .minute], from: viewModel.baby.birthDate)
             if components.hour == 0 && components.minute == 0 {
-                HStack {
-                    Text("출생 시간")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary.opacity(0.8))
-                    
-                    Spacer()
-                    
-                    Text("없음")
-                        .foregroundColor(.primary.opacity(0.6))
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.primary.opacity(0.6))
-                        .font(.system(size: 12))
+                NavigationLink(destination: BabyBirthTimeEditView(viewModel: viewModel)) {
+                    HStack {
+                        Text("출생 시간")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary.opacity(0.8))
+                        
+                        Spacer()
+                        
+                        Text("없음")
+                            .foregroundColor(.primary.opacity(0.6))
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.primary.opacity(0.6))
+                            .font(.system(size: 12))
+                    }
+                    .padding()
                 }
-                .padding()
             } else {
+                NavigationLink(destination: BabyBirthTimeEditView(viewModel: viewModel)) {
                     HStack {
                         Text("출생 시간")
                             .font(.headline)
@@ -130,6 +133,8 @@ struct BabyProfileView: View {
                     }
                     .padding()
                 }
+            }
+            NavigationLink(destination: BabyGenderEditView(viewModel: viewModel)) {
                 HStack {
                     Text("성별")
                         .font(.headline)
@@ -145,6 +150,7 @@ struct BabyProfileView: View {
                         .font(.system(size: 12))
                 }
                 .padding()
+            }
             NavigationLink(destination: BabyHeightEditView(viewModel: viewModel)) {
                 HStack {
                     Text("키")
@@ -154,7 +160,7 @@ struct BabyProfileView: View {
                     
                     Spacer()
                     
-                    Text("\(String(format: "%.1f", viewModel.baby.height)) cm")
+                    Text(viewModel.formatNumber(viewModel.baby.height) + " cm")
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
@@ -171,7 +177,7 @@ struct BabyProfileView: View {
                     
                     Spacer()
                     
-                    Text("\(String(format: "%.1f", viewModel.baby.weight)) kg")
+                    Text(viewModel.formatNumber(viewModel.baby.weight) + " kg")
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
@@ -179,7 +185,7 @@ struct BabyProfileView: View {
                 }
                 .padding()
             }
-            
+            NavigationLink(destination: BabyBloodEditView(viewModel: viewModel)) {
                 HStack {
                     Text("혈액형")
                         .font(.headline)
@@ -196,58 +202,59 @@ struct BabyProfileView: View {
                 }
                 .padding()
             }
-            .padding(.horizontal)
-            .padding(.vertical, 30)
-            .cornerRadius(10)
-            
-            Spacer()
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 30)
+        .cornerRadius(10)
         
-        .background(Color(UIColor.tertiarySystemBackground))
-        .navigationTitle("\(viewModel.baby.name)님의 정보")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            Image(systemName: "chevron.left")
-                                .foregroundColor(.primary.opacity(0.8))
-                        }
+        Spacer()
+        
+            .background(Color(UIColor.tertiarySystemBackground))
+            .navigationTitle("\(viewModel.baby.name)님의 정보")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.primary.opacity(0.8))
                     }
                 }
-        .task {
-            await viewModel.loadBabyProfileImage()
-        }
-        .onChange(of: viewModel.selectedImage) {
-            Task {
-                
-                await viewModel.loadSelectedBabyImage()
             }
-        }
-        .confirmationDialog("프로필 사진 변경", isPresented: $showPhotoActionSheet, titleVisibility: .visible) {
-            Button("앨범에서 선택") {
-                showPhotoPicker = true
+            .task {
+                await viewModel.loadBabyProfileImage()
             }
-            Button("프로필 사진 삭제", role: .destructive) {
-                showDeleteConfirmation = true
-            }
-            Button("닫기", role: .cancel) {
-                showPhotoActionSheet = false
-            }
-        }
-        .alert("정말 프로필 사진을 삭제하시겠습니까?", isPresented: $showDeleteConfirmation) {
-            Button("삭제", role: .destructive) {
+            .onChange(of: viewModel.selectedImage) {
                 Task {
-                    viewModel.babyImage = nil
-                    viewModel.selectedImage = nil
-                    await viewModel.saveBabyImage()
-                    showAlert = true
+                    
+                    await viewModel.loadSelectedBabyImage()
                 }
             }
-            Button("취소", role: .cancel) {}
-        }
-        .photosPicker(isPresented: $showPhotoPicker, selection: $viewModel.selectedImage, matching: .images)
+            .confirmationDialog("프로필 사진 변경", isPresented: $showPhotoActionSheet, titleVisibility: .visible) {
+                Button("앨범에서 선택") {
+                    showPhotoPicker = true
+                }
+                Button("프로필 사진 삭제", role: .destructive) {
+                    showDeleteConfirmation = true
+                }
+                Button("닫기", role: .cancel) {
+                    showPhotoActionSheet = false
+                }
+            }
+            .alert("정말 프로필 사진을 삭제하시겠습니까?", isPresented: $showDeleteConfirmation) {
+                Button("삭제", role: .destructive) {
+                    Task {
+                        viewModel.babyImage = nil
+                        viewModel.selectedImage = nil
+                        await viewModel.saveBabyImage()
+                        showAlert = true
+                    }
+                }
+                Button("취소", role: .cancel) {}
+            }
+            .photosPicker(isPresented: $showPhotoPicker, selection: $viewModel.selectedImage, matching: .images)
     }
 }
 
@@ -257,7 +264,7 @@ struct BabyProfileView_Previews: PreviewProvider {
             name: "후추",
             birthDate: Date(),
             gender: .female,
-            height: 50.5,
+            height: 50,
             weight: 3.2,
             bloodType: .A
         )

@@ -12,6 +12,15 @@ struct BabyNameEditView: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isTextFieldFocused: Bool
     @State private var keyboardHeight: CGFloat = 0
+    @State private var selectedName: String
+    private var isButtonEnabled: Bool {
+            selectedName.trimmingCharacters(in: .whitespaces).isEmpty == false
+        }
+    
+    init(viewModel: BabyProfileViewModel) {
+        self._viewModel = StateObject(wrappedValue: viewModel)
+        self._selectedName = State(wrappedValue: viewModel.baby.name)
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -22,7 +31,7 @@ struct BabyNameEditView: View {
                 .padding()
                 .padding(.top, 10)
             
-            TextField("이름을 입력하세요", text: $viewModel.baby.name)
+            TextField("이름을 입력하세요", text: $selectedName)
                 .multilineTextAlignment(.leading)
                 .foregroundColor(.primary.opacity(0.6))
                 .font(.title2)
@@ -59,6 +68,7 @@ struct BabyNameEditView: View {
             if keyboardHeight > 0 {
                 VStack {
                     Button(action: {
+                        viewModel.baby.name = selectedName
                         Task {
                             await viewModel.saveProfileEdits()
                             dismiss()
@@ -68,11 +78,10 @@ struct BabyNameEditView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
-                            .background(Color("buttonColor"))
-                            .cornerRadius(12)
+                            .background(isButtonEnabled ? Color("buttonColor") : Color.gray)
                     }
                     .contentShape(Rectangle())
-                    .padding(.horizontal)
+                    .disabled(!isButtonEnabled)
                 }
             }
         }

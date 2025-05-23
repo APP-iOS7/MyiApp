@@ -1,5 +1,5 @@
 //
-//  BabyBirthEditView.swift
+//  BabyGenderEditView.swift
 //  MyiApp
 //
 //  Created by Yung Hak Lee on 5/23/25.
@@ -7,39 +7,38 @@
 
 import SwiftUI
 
-struct BabyBirthDayEditView: View {
+struct BabyGenderEditView: View {
     @StateObject var viewModel: BabyProfileViewModel
     @Environment(\.dismiss) private var dismiss
-    @State private var showBirthDatePicker = false
-    @State private var selectedDate: Date
+    @State private var selectedGender: Gender
     
     init(viewModel: BabyProfileViewModel) {
-        self._viewModel = StateObject(wrappedValue: viewModel)
-        self._selectedDate = State(wrappedValue: viewModel.baby.birthDate)
-    }
+            self._viewModel = StateObject(wrappedValue: viewModel)
+            self._selectedGender = State(wrappedValue: viewModel.baby.gender)
+        }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("출생일")
+            Text("성별")
                 .font(.title)
                 .fontWeight(.bold)
                 .foregroundColor(.primary.opacity(0.8))
                 .padding()
                 .padding(.top, 10)
-            DatePicker(
-                "출생일",
-                selection: $selectedDate,
-                displayedComponents: [.date]
-            )
-            .datePickerStyle(.graphical)
+            HStack {
+                Picker("성별", selection: $selectedGender) {
+                    Text("남").tag(Gender.male)
+                    Text("여").tag(Gender.female)
+                }
+                .pickerStyle(.segmented)
+                .padding()
+            }
             .padding()
             .foregroundColor(.primary.opacity(0.6))
             
-            Spacer()
-
             VStack {
                 Button(action: {
-                    viewModel.baby.birthDate = selectedDate
+                    viewModel.baby.gender = selectedGender
                     Task {
                         await viewModel.saveProfileEdits()
                         dismiss()
@@ -55,6 +54,8 @@ struct BabyBirthDayEditView: View {
                 .contentShape(Rectangle())
                 .padding(.horizontal)
             }
+            
+            Spacer()
         }
         .background(Color("customBackgroundColor"))
         .navigationBarTitleDisplayMode(.inline)
@@ -81,6 +82,5 @@ struct BabyBirthDayEditView: View {
         weight: 3.5,
         bloodType: .A
     )
-    BabyBirthDayEditView(viewModel: BabyProfileViewModel(baby: sampleBaby))
+    BabyGenderEditView(viewModel: BabyProfileViewModel(baby: sampleBaby))
 }
-
