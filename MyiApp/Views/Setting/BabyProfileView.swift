@@ -15,11 +15,6 @@
 import SwiftUI
 
 struct BabyProfileView: View {
-    enum EditField: String, Identifiable {
-        case name, birthDate, birthTime, gender, height, weight, bloodType
-        var id: String { self.rawValue }
-    }
-    @State private var editField: EditField?
     @StateObject private var viewModel: BabyProfileViewModel
     @State private var showPhotoActionSheet = false
     @State private var showPhotoPicker = false

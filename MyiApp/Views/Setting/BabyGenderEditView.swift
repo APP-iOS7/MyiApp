@@ -24,7 +24,7 @@ struct BabyGenderEditView: View {
                 .fontWeight(.bold)
                 .foregroundColor(.primary.opacity(0.8))
                 .padding()
-                .padding(.top, 10)ㅅ
+                .padding(.top, 10)
             
             VStack {
                 HStack {
