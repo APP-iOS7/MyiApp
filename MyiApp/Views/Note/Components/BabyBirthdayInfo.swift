@@ -59,7 +59,6 @@ struct BabyBirthdayInfoView: View {
         .frame(height: 80)
         .background(.clear)
         .cornerRadius(12)
-        .padding(.horizontal)
     }
     
     private var birthDateString: String {
