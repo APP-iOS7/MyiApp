@@ -52,7 +52,7 @@ struct TimelineRow: View {
             case .breastfeeding:
                 "모유수유"
             case .diaper:
-                "기져귀 교체"
+                "기저귀 교체"
             case .sleep:
                 "수면"
             case .heightWeight:

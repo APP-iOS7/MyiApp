@@ -76,7 +76,7 @@ struct EditRecordView: View {
                 Section {
                     HStack {
                         Image(systemName: record.title == .breastfeeding ? "circle.inset.filled" : "circle")
-                            .tint(Color.sharkPrimary)
+                            .foregroundStyle(Color.button)
                         Image(.normalBreastFeeding)
                             .resizable()
                             .scaledToFit()
@@ -89,6 +89,7 @@ struct EditRecordView: View {
                     }
                     HStack {
                         Image(systemName: record.title == .pumpedMilk ? "circle.inset.filled" : "circle")
+                            .foregroundStyle(Color.button)
                         Image(.normalPumpedMilk)
                             .resizable()
                             .scaledToFit()
@@ -101,6 +102,7 @@ struct EditRecordView: View {
                     }
                     HStack {
                         Image(systemName: record.title == .formula ? "circle.inset.filled" : "circle")
+                            .foregroundStyle(Color.button)
                         Image(.normalPowderedMilk)
                             .resizable()
                             .scaledToFit()
@@ -113,6 +115,7 @@ struct EditRecordView: View {
                     }
                     HStack {
                         Image(systemName: record.title == .babyFood ? "circle.inset.filled" : "circle")
+                            .foregroundStyle(Color.button)
                         Image(.normalBabyMeal)
                             .resizable()
                             .scaledToFit()
@@ -238,6 +241,7 @@ struct EditRecordView: View {
                 Section {
                     HStack {
                         Image(systemName: record.title == .temperature ? "circle.inset.filled" : "circle")
+                            .foregroundStyle(Color.button)
                         Image(.normalTemperature)
                             .resizable()
                             .scaledToFit()
@@ -250,6 +254,7 @@ struct EditRecordView: View {
                     }
                     HStack {
                         Image(systemName: record.title == .medicine ? "circle.inset.filled" : "circle")
+                            .foregroundStyle(Color.button)
                         Image(.normalMedicine)
                             .resizable()
                             .scaledToFit()
@@ -262,6 +267,7 @@ struct EditRecordView: View {
                     }
                     HStack {
                         Image(systemName: record.title == .clinic ? "circle.inset.filled" : "circle")
+                            .foregroundStyle(Color.button)
                         Image(.normalClinic)
                             .resizable()
                             .scaledToFit()
@@ -309,6 +315,7 @@ struct EditRecordView: View {
                 Section {
                     HStack {
                         Image(systemName: record.title == .pee ? "circle.inset.filled" : "circle")
+                            .foregroundStyle(Color.button)
                         Image(.normalPee)
                             .resizable()
                             .scaledToFit()
@@ -321,6 +328,7 @@ struct EditRecordView: View {
                     }
                     HStack {
                         Image(systemName: record.title == .poop ? "circle.inset.filled" : "circle")
+                            .foregroundStyle(Color.button)
                         Image(.normalPoop)
                             .resizable()
                             .scaledToFit()
@@ -333,6 +341,7 @@ struct EditRecordView: View {
                     }
                     HStack {
                         Image(systemName: record.title == .pottyAll ? "circle.inset.filled" : "circle")
+                            .foregroundStyle(Color.button)
                         Image(.normalPotty)
                             .resizable()
                             .scaledToFit()

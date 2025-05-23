@@ -108,10 +108,10 @@ struct HomeView: View {
             }
             Spacer()
             Button(action: {isPresented = true}) {
-                Image(systemName: "magnifyingglass")
+                Image(systemName: "person.crop.badge.magnifyingglass")
                     .resizable()
-                    .frame(width: 15, height: 15)
-                    .padding(9)
+                    .frame(width: 25, height: 25)
+                    .padding(7)
                     .background(Circle().fill(Color.sharkPrimaryDark))
                     .tint(.white)
             }
@@ -120,6 +120,7 @@ struct HomeView: View {
         .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
         .frame(height: 95)
     }
+    
     private var babyFullScreenCard: some View {
         Group {
             Color.black.opacity(0.3)
@@ -158,28 +159,32 @@ struct HomeView: View {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading) {
                         Text("성별")
-                            .fontWeight(.semibold)
+                            .font(.title2)
+                            .fontWeight(.medium)
                         Text(viewModel.displayGender)
-                            .font(.footnote)
+                            .font(.body)
                             .padding(.bottom)
                         Text("성장 단계")
-                            .fontWeight(.semibold)
+                            .font(.title2)
+                            .fontWeight(.medium)
                         Text(viewModel.displayDevelopmentalStage)
-                            .font(.footnote)
+                            .font(.body)
                         
                     }
                     .padding(.leading)
                     Spacer()
                     VStack(alignment: .leading) {
                         Text("키 / 몸무게")
-                            .fontWeight(.semibold)
+                            .font(.title2)
+                            .fontWeight(.medium)
                         Text(viewModel.displayHeightWeight)
-                            .font(.footnote)
+                            .font(.body)
                             .padding(.bottom)
                         Text("혈액형")
-                            .fontWeight(.semibold)
+                            .font(.title2)
+                            .fontWeight(.medium)
                         Text(viewModel.displayBloodType)
-                            .font(.footnote)
+                            .font(.body)
                     }
                     Spacer()
                 }
