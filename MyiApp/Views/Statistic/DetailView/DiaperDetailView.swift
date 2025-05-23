@@ -251,7 +251,7 @@ struct DailyDiaperChartView: View {
                             Text("평균 \(String(format: "%.2f", avgAmount))회")
                                 .font(.caption2)
                                 .foregroundColor(.red)
-                                .offset(x: -20, y: 105 - avgY),
+                                .offset(x: -20, y: 85 - avgY),
                             alignment: .topTrailing
                         )
                     HStack(alignment: .bottom, spacing: 10) {
@@ -399,7 +399,7 @@ struct WeeklyDiaperChartView: View {
                             Text("평균 \(String(format: "%.2f", avgAmount))회")
                                 .font(.caption2)
                                 .foregroundColor(.red)
-                                .offset(x: -20, y: 105 - avgY),
+                                .offset(x: -20, y: 85 - avgY),
                             alignment: .topTrailing
                         )
                     HStack(alignment: .bottom, spacing: 10) {
@@ -556,7 +556,7 @@ struct MonthlyDiaperChartView: View {
                             Text("평균 \(String(format: "%.2f", avgAmount))회")
                                 .font(.caption2)
                                 .foregroundColor(.red)
-                                .offset(x: -20, y: 105 - avgY),
+                                .offset(x: -20, y: 85 - avgY),
                             alignment: .topTrailing
                         )
                     HStack(alignment: .bottom, spacing: 10) {

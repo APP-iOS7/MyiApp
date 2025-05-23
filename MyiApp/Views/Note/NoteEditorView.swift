@@ -29,6 +29,8 @@ struct NoteEditorView: View {
     @State private var showAlertMessage = false
     @State private var alertMessage = ""
     
+    @FocusState private var isContentFieldFocused: Bool
+    
     let isEditing: Bool
     let noteId: UUID?
     
@@ -97,11 +99,8 @@ struct NoteEditorView: View {
         NavigationView {
             Form {
                 categorySection
-                
                 titleSection
-                
                 dateSection
-                
                 contentSection
                 
                 if selectedCategory == .일지 {
@@ -139,14 +138,13 @@ struct NoteEditorView: View {
         }
     }
     
-    // MARK: - View Sections
     private var categorySection: some View {
         Section(header: Text("카테고리")) {
             VStack(spacing: 8) {
                 RadioButtonRow(
                     title: "일지",
                     icon: "note.text",
-                    color: Color("sharkPrimaryColor"),
+                    color: Color.button,
                     isSelected: selectedCategory == .일지
                 ) {
                     selectedCategory = .일지
@@ -188,6 +186,17 @@ struct NoteEditorView: View {
     private var contentSection: some View {
         Section(header: Text("내용")) {
             TextEditor(text: $description)
+                .focused($isContentFieldFocused)
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button {
+                            isContentFieldFocused.toggle()
+                        } label: {
+                            Text("완료")
+                        }
+                    }
+                }
                 .frame(minHeight: 150)
         }
     }
@@ -334,8 +343,6 @@ struct NoteEditorView: View {
             }
         }
         
-        isSaving = true
-        
         let noteId = self.noteId ?? UUID()
         
         var notificationEnabled: Bool? = nil
@@ -354,7 +361,6 @@ struct NoteEditorView: View {
                     if !result.success {
                         alertMessage = result.message ?? "알림 설정에 실패했습니다."
                         showAlertMessage = true
-                        isSaving = false
                         return
                     }
                 }
@@ -381,38 +387,37 @@ struct NoteEditorView: View {
             notificationTime: notificationTime
         )
         
-        processNoteWithImages(note: note)
-    }
-    
-    private func processNoteWithImages(note: Note) {
-        if !selectedImages.isEmpty && selectedCategory == .일지 {
-            if isEditing {
-                let imagesToDeleteURLs = Array(imagesToDelete).map { existingImageURLs[$0] }
-                viewModel.updateNoteWithImagesAndDeletions(
-                    note: note,
-                    newImages: selectedImages,
-                    imagesToDelete: imagesToDeleteURLs
-                )
-            } else {
-                viewModel.addNoteWithImages(note: note, images: selectedImages)
-            }
-        } else {
-            if isEditing {
-                let imagesToDeleteURLs = Array(imagesToDelete).map { existingImageURLs[$0] }
-                viewModel.updateNoteWithDeletions(
-                    note: note,
-                    imagesToDelete: imagesToDeleteURLs
-                )
-            } else {
-                viewModel.addNote(note: note)
-            }
+        if !isEditing {
+            viewModel.addNoteLocallyWithImages(note, localImages: selectedImages)
         }
         
         setSuccessToastMessage(withNotification: note.notificationEnabled == true)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            isSaving = false
-            dismiss()
+        dismiss()
+        
+        Task {
+            do {
+                let imagesToDeleteURLs = Array(imagesToDelete).map { existingImageURLs[$0] }
+                
+                try await viewModel.saveNoteOptimistically(
+                    note,
+                    images: selectedImages,
+                    isEditing: isEditing,
+                    imagesToDelete: imagesToDeleteURLs
+                )
+                
+            } catch {
+                await MainActor.run {
+                    if !isEditing {
+                        viewModel.removeNoteLocally(noteId)
+                    }
+                    
+                    viewModel.toastMessage = ToastMessage(
+                        message: "저장에 실패했습니다: \(error.localizedDescription)",
+                        type: .error
+                    )
+                }
+            }
         }
     }
     
