@@ -40,12 +40,14 @@ struct NoteView: View {
                     VStack(spacing: 0) {
                         if let babyInfo = viewModel.babyInfo {
                             BabyBirthdayInfoView(babyName: babyInfo.name, birthDate: babyInfo.birthDate)
+                                .padding(.horizontal) // 좌우 패딩 추가
                         } else {
                             Text("아기 정보를 불러오는 중...")
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .padding(.vertical, 16)
+                                .padding(.horizontal) // 좌우 패딩 추가
                         }
                         
                         VStack(spacing: 0) {
@@ -57,7 +59,7 @@ struct NoteView: View {
                                 .padding(.bottom, 8)
                         }
                         .background(Color(UIColor.tertiarySystemBackground))
-                        .cornerRadius(10)
+                        .cornerRadius(12)
                         .padding(.horizontal)
                         .padding(.top, 8)
                         .padding(.bottom, 15)
@@ -103,7 +105,6 @@ struct NoteView: View {
                                     
                                     // 이벤트 목록
                                     eventsListView(for: date)
-                                        .padding(.horizontal)
                                         .padding(.top, 8)
                                         .padding(.bottom, 16)
                                 }
@@ -113,7 +114,7 @@ struct NoteView: View {
                             }
                         }
                         .background(Color(UIColor.tertiarySystemBackground))
-                        .cornerRadius(10)
+                        .cornerRadius(12)
                         .padding(.horizontal)
                         .padding(.top, 8)
                         .padding(.bottom, 16)
@@ -252,7 +253,7 @@ struct NoteView: View {
             HStack(spacing: 0) {
                 ForEach(viewModel.weekdays, id: \.self) { day in
                     Text(day)
-                        .font(.caption)
+                        .font(.callout)
                         .fontWeight(.semibold)
                         .foregroundColor(day == "일" ? .red : day == "토" ? .blue : .primary)
                         .frame(maxWidth: .infinity)
