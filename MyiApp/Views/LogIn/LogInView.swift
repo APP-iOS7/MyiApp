@@ -16,7 +16,7 @@ struct LogInView: View {
     var body: some View {
         ZStack {
             // 배경색
-            Color("launchScreen")
+            Color("LaunchScreenColor")
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
@@ -25,14 +25,14 @@ struct LogInView: View {
                 Text("My i")
                     .font(.system(size: 60))
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color("LaunchScreenTextColor"))
                     .fontDesign(.rounded)
                     .padding()
                 
                 Text("쉽고 편한 육아 기록 앱")
                     .font(.title2)
                     .fontWeight(.semibold)
-                    .foregroundColor(.white)
+                    .foregroundColor(Color("LaunchScreenTextColor"))
                     
                 Spacer()
                 
