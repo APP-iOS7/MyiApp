@@ -12,6 +12,27 @@ struct BabyHeightEditView: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isTextFieldFocused: Bool
     @State private var keyboardHeight: CGFloat = 0
+    @State private var selectedHeight: Double?
+    
+    private var isButtonEnabled: Bool {
+        selectedHeight != nil && selectedHeight! > 0
+        }
+    
+    private let numberFormatter: NumberFormatter = {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            formatter.minimumFractionDigits = 0
+            formatter.maximumFractionDigits = 2
+            formatter.minimum = 0
+            formatter.maximum = 200
+            formatter.allowsFloats = true
+            return formatter
+        }()
+    
+    init(viewModel: BabyProfileViewModel) {
+        self._viewModel = StateObject(wrappedValue: viewModel)
+        self._selectedHeight = State(wrappedValue: viewModel.baby.height)
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -22,8 +43,9 @@ struct BabyHeightEditView: View {
                 .padding()
                 .padding(.top, 10)
             HStack {
-                TextField("키를 입력하세요", value: $viewModel.baby.height, formatter: NumberFormatter())
+                TextField("키를 입력하세요", value: $selectedHeight, formatter: numberFormatter)
                     .multilineTextAlignment(.leading)
+                    .keyboardType(.decimalPad)
                     .foregroundColor(.primary.opacity(0.6))
                     .font(.title2)
                     .padding()
@@ -64,20 +86,22 @@ struct BabyHeightEditView: View {
             if keyboardHeight > 0 {
                 VStack {
                     Button(action: {
-                        Task {
-                            await viewModel.saveProfileEdits()
-                            dismiss()
+                        if let height = selectedHeight, height > 0 {
+                        viewModel.baby.height = height
+                            Task {
+                                await viewModel.saveProfileEdits()
+                                dismiss()
+                            }
                         }
                     }) {
                         Text("완료")
-                            .foregroundColor(.white)
+                            .foregroundColor(isButtonEnabled ? .white : .primary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
-                            .background(Color("buttonColor"))
-                            .cornerRadius(12)
+                            .background(isButtonEnabled ? Color("buttonColor") : Color.gray)
                     }
                     .contentShape(Rectangle())
-                    .padding(.horizontal)
+                    .disabled(!isButtonEnabled)
                 }
             }
         }
