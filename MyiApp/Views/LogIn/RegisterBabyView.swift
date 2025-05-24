@@ -27,6 +27,9 @@ struct RegisterBabyView: View {
                         .onSubmit {
                             dismissKeyboard()
                         }
+                        .submitLabel(.done)
+                        .disableAutocorrection(true)
+                        .textInputAutocapitalization(.never)
                 }
                 
                 Section(header: Text("출생")) {
@@ -66,11 +69,18 @@ struct RegisterBabyView: View {
                         .onSubmit {
                             dismissKeyboard()
                         }
+                        .submitLabel(.done)
+                        .disableAutocorrection(true)
+                        .textInputAutocapitalization(.never)
+                    
                     TextField("몸무게를 입력하세요", text: $viewModel.weight)
                         .keyboardType(.decimalPad)
                         .onSubmit {
                             dismissKeyboard()
                         }
+                        .submitLabel(.done)
+                        .disableAutocorrection(true)
+                        .textInputAutocapitalization(.never)
                 }
                 
                 Section(header: Text("혈액형")) {

@@ -52,7 +52,6 @@ struct BabyBirthTimeEditView: View {
                         .font(.headline)
                         .background(Color("buttonColor"))
                         .cornerRadius(12)
-                        .environment(\.locale, Locale(identifier: "en_US"))
                 }
                 .contentShape(Rectangle())
                 .padding(.horizontal)
