@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SettingsView: View {
-    //    @StateObject private var viewModel = AccountSettingsViewModel.shared
+    @StateObject private var viewModel = AccountSettingsViewModel.shared
     @StateObject var caregiverManager = CaregiverManager.shared
     @State private var showingAlert = false
     @State private var topExpanded: Bool = false
@@ -16,33 +16,61 @@ struct SettingsView: View {
     // 앱 버전 표시
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
-        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
-        return "\(version).\(build)"
+//        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+        return "\(version)"
+    }
+    
+    // 사용자 표시 이름
+    private var displayName: String {
+        if let name = caregiverManager.userName {
+            return name
+        } else {
+            return caregiverManager.email ?? ""
+        }
+    }
+    
+    // 로그인 제공자 표시
+    private var providerText: String {
+        guard let provider = caregiverManager.provider else {
+            return ""
+        }
+        switch provider {
+        case "apple.com":
+            return "Apple로 로그인"
+        case "google.com":
+            return "Google로 로그인"
+        default:
+            return ""
+        }
     }
     
     var body: some View {
         ScrollView {
             VStack(spacing: 15) {
-                HStack {
-                    Image(systemName: "person.circle.fill")
-                        .resizable()
-                        .frame(width: 60, height: 60)
-                        .foregroundColor(.gray)
-                    VStack(alignment: .leading) {
-                        Text("이민서")
-                            .font(.headline)
+                NavigationLink(destination: AccountSettingsView(viewModel: viewModel)) {
+                    HStack {
+                        Image(systemName: "person.circle.fill")
+                            .resizable()
+                            .frame(width: 60, height: 60)
+                            .foregroundColor(.gray)
+                        VStack(alignment: .leading) {
+                            Text(displayName)
+                                .font(.headline)
+                                .foregroundColor(.primary.opacity(0.8))
+                            Text(providerText)
+                                .font(.subheadline)
+                                .foregroundColor(.primary.opacity(0.6))
+                        }
+                        .padding(.leading, 10)
+                        Spacer()
+                        Image(systemName: "chevron.right")
                             .foregroundColor(.primary.opacity(0.8))
-                        Text("")
+                            .font(.system(size: 12))
+                            .padding(.trailing, 8)
                     }
-                    .padding(.leading, 10)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.primary.opacity(0.8))
-                        .font(.system(size: 12))
-                        .padding(.trailing, 8)
+                    .padding()
+                    .padding(.horizontal, 15)
                 }
-                .padding()
-                .padding(.horizontal, 15)
                 
                 VStack(alignment: .leading, spacing: 0) {
                     Text("개인 설정")
@@ -51,6 +79,7 @@ struct SettingsView: View {
                         .foregroundColor(.primary.opacity(0.8))
                         .padding()
                         .padding(.top, 10)
+                        .padding(.bottom, 10)
                     
                     DisclosureGroup(isExpanded: $topExpanded) {
                         VStack(alignment: .leading, spacing: 10) {
@@ -64,6 +93,9 @@ struct SettingsView: View {
                                         Text(baby.name)
                                             .foregroundColor(.primary.opacity(0.6))
                                             .padding()
+                                            .padding(.leading, 44)
+                                        
+                                        Spacer()
                                     }
                                 }
                             }
@@ -87,28 +119,27 @@ struct SettingsView: View {
                         .contentShape(Rectangle())
                         .padding(.leading, 16)
                         .padding(.trailing, 6)
-                        .padding(.top, 5)
-                        .padding(.bottom, 5)
+                        .padding(.bottom, 20)
                     }
                     .tint(.clear)
                     
-                    NavigationLink(destination: NotificationSettingsView()) {
-                        HStack {
-                            Image ("notificationIcon")
-                                .resizable()
-                                .frame(width: 30, height: 30)
-                            Text("알림 설정")
-                                .foregroundColor(.primary.opacity(0.6))
-                                .padding(.leading, 5)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.primary.opacity(0.6))
-                                .font(.system(size: 12))
-                                .padding(.trailing, 8)
-                        }
-                        .padding()
-                        .padding(.bottom, 10)
-                    }
+//                    NavigationLink(destination: NotificationSettingsView()) {
+//                        HStack {
+//                            Image ("notificationIcon")
+//                                .resizable()
+//                                .frame(width: 30, height: 30)
+//                            Text("알림 설정")
+//                                .foregroundColor(.primary.opacity(0.6))
+//                                .padding(.leading, 5)
+//                            Spacer()
+//                            Image(systemName: "chevron.right")
+//                                .foregroundColor(.primary.opacity(0.6))
+//                                .font(.system(size: 12))
+//                                .padding(.trailing, 8)
+//                        }
+//                        .padding()
+//                        .padding(.bottom, 10)
+//                    }
                 }
                 .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(10)
