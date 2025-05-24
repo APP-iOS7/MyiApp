@@ -12,73 +12,50 @@ struct AccountSettingsView: View {
     @ObservedObject private var viewModel = AccountSettingsViewModel.shared
     @State private var showPhotoActionSheet = false
     @State private var showPhotoPicker = false
+    @State private var keyboardHeight: CGFloat = 0
+    @State private var selectedName: String
+    private var isButtonEnabled: Bool {
+        selectedName.trimmingCharacters(in: .whitespaces).isEmpty == false
+    }
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isTextFieldFocused: Bool
     
     init(viewModel: AccountSettingsViewModel) {
         self.viewModel = viewModel
+        self._selectedName = State(wrappedValue: viewModel.name)
     }
     
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("프로필 사진") {
-                    if let image = viewModel.profileImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .onTapGesture {
-                                showPhotoActionSheet = true
-                            }
-                    } else {
-                        Image(systemName: "person.crop.circle.fill")
-                            .resizable()
-                            .frame(width: 100, height: 100)
-                            .foregroundStyle(.gray)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .onTapGesture {
-                                showPhotoActionSheet = true
-                            }
-                    }
-                    
-                    PhotosPicker("사진 변경", selection: $viewModel.selectedPhoto, matching: .images)
-                }
-                
-                Section("사용자") {
-                    HStack {
-                        TextField("이름", text: $viewModel.name)
-                            .disableAutocorrection(true)
-                            .textInputAutocapitalization(.never)
-                            .focused($isTextFieldFocused)
-                            .submitLabel(.done)
-                        
-                        if !viewModel.name.isEmpty {
-                            Button(action: {
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    viewModel.name = ""
-                                    isTextFieldFocused = false
-                                }
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.gray)
-                            }
+        VStack(alignment: .leading, spacing: 20) {
+            Text("사용자 이름을 입력하세요")
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.primary.opacity(0.8))
+                .padding()
+                .padding(.top, 10)
+            ZStack(alignment: .trailing) {
+                TextField("이름을 입력하세요", text: $selectedName)
+                    .multilineTextAlignment(.leading)
+                    .foregroundColor(.primary.opacity(0.6))
+                    .font(.title2)
+                    .padding()
+                    .padding(.vertical)
+                    .padding(.trailing, 40)
+                    .focused($isTextFieldFocused)
+                    .disableAutocorrection(true)
+                    .textInputAutocapitalization(.never)
+                    .background(
+                        VStack {
+                            Spacer()
+                            Rectangle()
+                                .frame(height: 1)
+                                .foregroundColor(.primary.opacity(0.8))
                         }
-                    }
-                }
-                
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .foregroundStyle(.red)
-                        .font(.caption)
-                }
-            }
-            .navigationTitle("사용자 프로필")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button("저장") {
+                            .padding()
+                    )
+                    .submitLabel(.done)
+                    .onSubmit {
+                        viewModel.name = selectedName
                         Task {
                             await viewModel.saveProfile()
                             if viewModel.isProfileSaved {
@@ -86,37 +63,100 @@ struct AccountSettingsView: View {
                             }
                         }
                     }
-                    .disabled(viewModel.isLoading)
-                }
-            }
-            .overlay {
-                if viewModel.isLoading {
-                    ProgressView()
-                }
-            }
-            .task {
-                await viewModel.loadProfile()
-            }
-            .onChange(of: viewModel.selectedPhoto) {
-                Task { await viewModel.loadSelectedPhoto() }
-            }
-            .confirmationDialog("프로필 사진 변경", isPresented: $showPhotoActionSheet, titleVisibility: .visible) {
-                Button("앨범에서 선택") {
-                    showPhotoPicker = true
-                }
-                Button("프로필 사진 삭제", role: .destructive) {
-                    Task {
-                        viewModel.profileImage = nil
-                        viewModel.selectedPhoto = nil
-                        await viewModel.saveProfile()
+                
+                if !selectedName.isEmpty {
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            selectedName = ""
+                            isTextFieldFocused = true
+                        }
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                            .padding(.trailing, 20)
                     }
                 }
-                Button("닫기", role: .cancel) {
-                    showPhotoActionSheet = false
+            }
+            
+            Spacer()
+            
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .foregroundStyle(.red)
+                    .font(.caption)
+            }
+        }
+        .background(Color(UIColor.tertiarySystemBackground))
+        .navigationTitle("사용자 프로필")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    dismiss()
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.primary.opacity(0.8))
                 }
             }
-            .photosPicker(isPresented: $showPhotoPicker, selection: $viewModel.selectedPhoto, matching: .images)
         }
+        .safeAreaInset(edge: .bottom) {
+            if keyboardHeight > 0 {
+                VStack {
+                    Button(action: {
+                        viewModel.name = selectedName
+                        Task {
+                            await viewModel.saveProfile()
+                            if viewModel.isProfileSaved {
+                                dismiss()
+                            }
+                        }
+                    }) {
+                        Text("완료")
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .font(.headline)
+                            .background(isButtonEnabled ? Color("buttonColor") : Color.gray)
+                    }
+                    .contentShape(Rectangle())
+                    .disabled(!isButtonEnabled)
+                }
+            }
+        }
+        .animation(.easeInOut, value: keyboardHeight)
+        .onAppear {
+            // 키보드 높이 감지
+            NotificationCenter.default.addObserver(
+                forName: UIResponder.keyboardWillShowNotification,
+                object: nil,
+                queue: .main
+            ) { notification in
+                if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
+                    keyboardHeight = keyboardFrame.height
+                }
+            }
+            NotificationCenter.default.addObserver(
+                forName: UIResponder.keyboardWillHideNotification,
+                object: nil,
+                queue: .main
+            ) { _ in
+                keyboardHeight = 0
+            }
+        }
+        .onDisappear {
+            // 노티피케이션 제거
+            NotificationCenter.default.removeObserver(self)
+        }
+        .overlay {
+            if viewModel.isLoading {
+                ProgressView()
+            }
+        }
+        .task {
+            await viewModel.loadProfile()
+        }
+        
     }
 }
 
