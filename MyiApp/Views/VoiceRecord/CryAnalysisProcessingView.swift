@@ -21,7 +21,7 @@ struct CryAnalysisProcessingView: View {
             case .result(let res):
                 Color.clear
                     .onAppear {
-                        print("[ProcessingView] result onAppear — 새 result 도착: \(res.type) / \(res.confidence)") // ✅ 여기에 쓰는 게 맞음
+                        print("[ProcessingView] result onAppear — 새 result 도착: \(res.type) / \(res.confidence)")
 
                         if result?.type != res.type || result?.confidence != res.confidence {
                             self.result = res
@@ -47,7 +47,7 @@ private struct ProcessingStateView: View {
     @ObservedObject var viewModel: VoiceRecordViewModel
     let dismiss: DismissAction
     @State private var dotCount: Int = 0
-    private let dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+    @State private var dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
     
     @State private var progress: Double = 0.0
     @State private var startTime: Date? = nil

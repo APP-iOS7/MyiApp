@@ -71,7 +71,7 @@ struct BabyProfileView: View {
                                 .frame(width: 20, height: 20)
                                 .foregroundColor(.gray)
                                 .background(Circle().fill(Color.white).frame(width: 24, height: 24))
-                                .offset(x: 40, y: -7)
+                                .offset(x: 42, y: -10)
                                 .onTapGesture {
                                     showPhotoActionSheet = true
                                 }
@@ -153,14 +153,14 @@ struct BabyProfileView: View {
             }
             NavigationLink(destination: BabyGenderEditView(viewModel: viewModel)) {
                 HStack {
-                    Text("출생 시간")
+                    Text("성별")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary.opacity(0.8))
                     
                     Spacer()
                     
-                    Text(viewModel.formattedTime(viewModel.baby.birthDate))
+                    Text("\(viewModel.baby.gender == .male ? "남" : "여")")
                         .foregroundColor(.primary.opacity(0.6))
                     Image(systemName: "chevron.right")
                         .foregroundColor(.primary.opacity(0.6))
