@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import FirebaseAuth
+import FirebaseFirestore
 import PhotosUI
 
 @MainActor
@@ -18,55 +20,27 @@ class AccountSettingsViewModel: ObservableObject {
     @Published var isProfileSaved: Bool = false
     
     private let databaseService = DatabaseService.shared
+    private let caregiverManager = CaregiverManager.shared
     private let imageCache: NSCache<NSString, UIImage> = {
-            let cache = NSCache<NSString, UIImage>()
-            cache.totalCostLimit = 50 * 1024 * 1024
-            return cache
-        }()
+        let cache = NSCache<NSString, UIImage>()
+        cache.totalCostLimit = 50 * 1024 * 1024
+        return cache
+    }()
     
     static let shared = AccountSettingsViewModel()
     private init() {}
     
     // 초기 프로필 데이터 로드
     func loadProfile() async {
-        guard !isLoading else { return }
-        isLoading = true
-        defer { isLoading = false }
-        
-        do {
-            let (name, imageUrl) = try await databaseService.fetchUserProfile()
-            self.name = name ?? ""
-            self.profileImage = nil
-            
-            if let imageUrl = imageUrl, let url = URL(string: imageUrl) {
-                if let cachedImage = imageCache.object(forKey: imageUrl as NSString) {
-                    self.profileImage = cachedImage
-                    return
-                }
-                
-                let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
-                let (data, response) = try await URLSession.shared.data(for: request)
-                
-                guard let httpResponse = response as? HTTPURLResponse else {
-                    throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid HTTP response"])
-                }
-                
-                guard httpResponse.statusCode == 200 else {
-                    throw NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "HTTP error: \(httpResponse.statusCode)"])
-                }
-                
-                guard let image = UIImage(data: data) else {
-                    throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to convert data to image"])
-                }
-                
-                self.imageCache.setObject(image, forKey: imageUrl as NSString)
-                self.profileImage = image
-            } else {
-                self.profileImage = nil
-            }
-        } catch {
-            self.errorMessage = "Failed to load profile: \(error.localizedDescription) (Code: \((error as NSError).code))"
-            self.profileImage = nil
+        await MainActor.run {
+            self.isLoading = true
+        }
+        await caregiverManager.loadCaregiverInfo()
+        await MainActor.run {
+            self.name = self.caregiverManager.userName ?? self.caregiverManager.email ?? ""
+        }
+        await MainActor.run {
+            self.isLoading = false
         }
     }
     
@@ -76,31 +50,60 @@ class AccountSettingsViewModel: ObservableObject {
         do {
             if let data = try await selectedPhoto.loadTransferable(type: Data.self),
                let image = UIImage(data: data) {
-                self.profileImage = image
+                await MainActor.run {
+                    self.profileImage = image
+                }
             } else {
-                self.errorMessage = "Failed to load selected photo"
+                await MainActor.run {
+                    self.errorMessage = "Failed to load selected photo"
+                }
             }
         } catch {
-            self.errorMessage = "Failed to load photo: \(error.localizedDescription)"
+            await MainActor.run {
+                self.errorMessage = "Failed to load photo: \(error.localizedDescription)"
+            }
         }
     }
     
     // 프로필 저장
     func saveProfile() async {
-        isLoading = true
-        defer { isLoading = false }
-        
-        do {
-            var imageUrl: String?
-            if let profileImage = profileImage {
-                imageUrl = try await databaseService.uploadProfileImage(profileImage)
+        guard let uid = Auth.auth().currentUser?.uid else {
+            await MainActor.run {
+                self.errorMessage = "로그인된 사용자가 없습니다."
             }
-            try await databaseService.saveUserProfile(name: name, imageUrl: imageUrl)
-            self.errorMessage = nil
-            self.isProfileSaved = true
-        } catch {
-            self.errorMessage = "프로필 저장 실패: \(error.localizedDescription)"
+            return
+        }
+        let trimmedName = name.trimmingCharacters(in: .whitespaces)
+        if trimmedName.isEmpty {
+            await MainActor.run {
+                self.errorMessage = "이름을 입력해주세요."
+                self.isProfileSaved = false
+            }
+            return
+        }
+        await MainActor.run {
+            self.isLoading = true
             self.isProfileSaved = false
+        }
+        do {
+            let data: [String: Any] = [
+                "name": name,
+                "email": caregiverManager.email ?? "",
+                "provider": caregiverManager.provider ?? ""
+            ]
+            try await databaseService.db.collection("users").document(uid).setData(data, merge: true)
+            await MainActor.run {
+                self.caregiverManager.userName = trimmedName
+                self.isProfileSaved = true
+            }
+        } catch {
+            await MainActor.run {
+                self.caregiverManager.userName = self.name
+                self.isProfileSaved = true
+            }
+        }
+        await MainActor.run {
+            self.isLoading = false
         }
     }
 }
