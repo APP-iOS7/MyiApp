@@ -28,17 +28,9 @@ final class AudioEngineService {
     
     // MARK: - Public Methods
     func startRecording(onPermissionResult: @escaping (Bool) -> Void) {
-        if #available(iOS 17.0, *) {
-            AVAudioApplication.requestRecordPermission { granted in
-                DispatchQueue.main.async {
-                    self.handlePermissionResult(granted, onPermissionResult: onPermissionResult)
-                }
-            }
-        } else {
-            AVAudioSession.sharedInstance().requestRecordPermission { granted in
-                DispatchQueue.main.async {
-                    self.handlePermissionResult(granted, onPermissionResult: onPermissionResult)
-                }
+        AVAudioApplication.requestRecordPermission() { granted in
+            DispatchQueue.main.async {
+                self.handlePermissionResult(granted, onPermissionResult: onPermissionResult)
             }
         }
     }
