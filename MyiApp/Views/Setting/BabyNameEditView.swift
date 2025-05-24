@@ -14,8 +14,8 @@ struct BabyNameEditView: View {
     @State private var keyboardHeight: CGFloat = 0
     @State private var selectedName: String
     private var isButtonEnabled: Bool {
-            selectedName.trimmingCharacters(in: .whitespaces).isEmpty == false
-        }
+        selectedName.trimmingCharacters(in: .whitespaces).isEmpty == false
+    }
     
     init(viewModel: BabyProfileViewModel) {
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -38,6 +38,9 @@ struct BabyNameEditView: View {
                     .padding()
                     .padding(.vertical)
                     .padding(.trailing, 40)
+                    .focused($isTextFieldFocused)
+                    .disableAutocorrection(true)
+                    .textInputAutocapitalization(.never)
                     .background(
                         VStack {
                             Spacer()
@@ -45,9 +48,16 @@ struct BabyNameEditView: View {
                                 .frame(height: 1)
                                 .foregroundColor(.primary.opacity(0.8))
                         }
-                        .padding()
+                            .padding()
                     )
-                    .focused($isTextFieldFocused)
+                    .submitLabel(.done)
+                    .onSubmit {
+                        viewModel.baby.name = selectedName
+                        Task {
+                            await viewModel.saveProfileEdits()
+                            dismiss()
+                        }
+                    }
                 
                 if !selectedName.isEmpty {
                     Button(action: {
