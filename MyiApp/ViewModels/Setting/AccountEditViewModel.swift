@@ -11,7 +11,7 @@ import FirebaseFirestore
 import PhotosUI
 
 @MainActor
-class AccountSettingsViewModel: ObservableObject {
+class AccountEditViewModel: ObservableObject {
     @Published var name: String = ""
     @Published var profileImage: UIImage?
     @Published var selectedPhoto: PhotosPickerItem?
@@ -27,7 +27,7 @@ class AccountSettingsViewModel: ObservableObject {
         return cache
     }()
     
-    static let shared = AccountSettingsViewModel()
+    static let shared = AccountEditViewModel()
     private init() {}
     
     // 초기 프로필 데이터 로드

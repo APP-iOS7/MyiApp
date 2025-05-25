@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @StateObject private var viewModel = AccountSettingsViewModel.shared
+    @StateObject private var viewModel = AccountEditViewModel.shared
     @StateObject var caregiverManager = CaregiverManager.shared
     @State private var showingAlert = false
     @State private var showingDeleteAlert = false

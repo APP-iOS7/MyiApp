@@ -40,11 +40,6 @@ class CaregiverManager: ObservableObject {
             return
         }
         
-        let authUser = Auth.auth().currentUser
-        let authName = authUser?.displayName
-        let authEmail = authUser?.email
-        let authProvider = authUser?.providerData.first?.providerID
-        
         if let caregiver = await loadCaregiver(uid: uid) {
             let babies = await loadBabies(from: caregiver.babies)
             await MainActor.run {
@@ -57,20 +52,31 @@ class CaregiverManager: ObservableObject {
             }
         } else {
             print("Error from CaregiverManager.loadCaregiverInfo")
-            await MainActor.run {
-                self.userName = authName
-                self.email = authEmail
-                self.provider = authProvider
-            }
+            await saveCaregiverInfo()
         }
-        print("loadCaregiverInfo called")
-        print("loadCaregiverInfo called")
+    }
+    
+    @MainActor
+    func saveCaregiverInfo() async {
+        guard let user = Auth.auth().currentUser else { return }
+        let caregiver = Caregiver(
+            id: user.uid,
+            name: user.displayName,
+            email: user.email ?? "unknown@example.com",
+            provider: user.providerData.first?.providerID ?? "unknown",
+            babies: []
+        )
+        
+        try await db.collection("users").document(user.uid).setData(from: caregiver)
+        self.caregiver = caregiver
+        self.userName = caregiver.name
+        self.email = caregiver.email
+        self.provider = caregiver.provider
     }
     
     private func subscribeToRecords() {
         guard let babyId = selectedBaby?.id else { return }
-        Firestore.firestore()
-            .collection("babies").document(babyId.uuidString).collection("records")
+        db.collection("babies").document(babyId.uuidString).collection("records")
             .order(by: "createdAt", descending: true)
             .snapshotPublisher()
             .map { snapshot in
@@ -84,8 +90,7 @@ class CaregiverManager: ObservableObject {
     
     private func subscribeToNotes() {
         guard let babyId = selectedBaby?.id else { return }
-        Firestore.firestore()
-            .collection("babies").document(babyId.uuidString).collection("notes")
+        db.collection("babies").document(babyId.uuidString).collection("notes")
             .order(by: "createdAt", descending: true)
             .snapshotPublisher()
             .map { snapshot in
@@ -99,8 +104,7 @@ class CaregiverManager: ObservableObject {
     
     private func subscribeToVoiceRecords() {
         guard let babyId = selectedBaby?.id else { return }
-        Firestore.firestore()
-            .collection("babies").document(babyId.uuidString).collection("voiceRecords")
+        db.collection("babies").document(babyId.uuidString).collection("voiceRecords")
             .order(by: "createdAt", descending: true)
             .snapshotPublisher()
             .map { snapshot in

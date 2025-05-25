@@ -30,6 +30,7 @@ class AuthService: ObservableObject {
             self.user = nil
             DatabaseService.shared.hasBabyInfo = false
             CaregiverManager.shared.logout()
+            try? Auth.auth().signOut()
             print("Sign out successful")
         } catch {
             print("Sign out failed: \(error.localizedDescription)")
@@ -56,6 +57,20 @@ class AuthService: ObservableObject {
                                                        accessToken: result.user.accessToken.tokenString)
         let authResult = try await auth.signIn(with: credential)
         self.user = authResult.user
+        
+        let userRef = DatabaseService.shared.db.collection("users").document(authResult.user.uid)
+                let name = result.user.profile?.name ?? authResult.user.displayName
+                let email = result.user.profile?.email ?? authResult.user.email ?? "unknown@google.com"
+                let caregiver = Caregiver(
+                    id: authResult.user.uid,
+                    name: name?.isEmpty == false ? name : nil,
+                    email: email,
+                    provider: "google.com",
+                    babies: []
+                )
+                try await userRef.setData(from: caregiver)
+                
+                print("Firebase user: \(authResult.user.uid), saved caregiver: \(caregiver)")
         print("Firebase user: \(authResult.user.uid)")
     }
     
@@ -83,11 +98,25 @@ class AuthService: ObservableObject {
             let credential = OAuthProvider.appleCredential(withIDToken: idTokenString,
                                                            rawNonce: nonce,
                                                            fullName: appleIDCredential.fullName)
-            // Sign in with Firebase.
+            
             let authResult = try await auth.signIn(with: credential)
             self.user = authResult.user
             self.currentNonce = nil
-            //            let email = appleIDCredential.email ?? authResult.user.email ?? "unknown@apple.com"
+            let userRef = DatabaseService.shared.db.collection("users").document(authResult.user.uid)
+                    let fullName = appleIDCredential.fullName
+                    let name = [fullName?.givenName, fullName?.familyName]
+                        .compactMap { $0 }
+                        .joined(separator: " ")
+                        .trimmingCharacters(in: .whitespaces)
+                    let email = appleIDCredential.email ?? authResult.user.email ?? "unknown@apple.com"
+                    let caregiver = Caregiver(
+                        id: authResult.user.uid,
+                        name: name.isEmpty ? nil : name,
+                        email: email,
+                        provider: "apple.com",
+                        babies: []
+                    )
+                    try await userRef.setData(from: caregiver)
             print("Firebase user: \(authResult.user.uid)")
         }
     }
@@ -132,7 +161,7 @@ class AuthService: ObservableObject {
     
     // 회원 탈퇴
     func deleteAccount() async throws {
-        guard let user = Auth.auth().currentUser else {
+        guard let user = auth.currentUser else {
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "로그인된 유저 없음"])
         }
         let providerID = user.providerData.first?.providerID ?? ""
@@ -149,10 +178,12 @@ class AuthService: ObservableObject {
                 throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "지원되지 않는 제공자: \(providerID)"])
             }
             try await CaregiverManager.shared.deleteUserData(uid: user.uid)
+            try await user.delete()
             DatabaseService.shared.hasBabyInfo = false
             CaregiverManager.shared.logout()
-            print("회원 탈퇴 및 로그아웃 성공")
             self.user = nil
+            try auth.signOut()
+            print("회원 탈퇴 및 로그아웃 성공")
         } catch {
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "회원탈퇴 실패: \(error.localizedDescription)"])
         }
