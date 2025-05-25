@@ -63,9 +63,10 @@ class CaregiverManager: ObservableObject {
                 self.provider = authProvider
             }
         }
+        print("loadCaregiverInfo called")
     }
     
-    func subscribeToRecords() {
+    private func subscribeToRecords() {
         guard let babyId = selectedBaby?.id else { return }
         Firestore.firestore()
             .collection("babies").document(babyId.uuidString).collection("records")
@@ -80,7 +81,7 @@ class CaregiverManager: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func subscribeToNotes() {
+    private func subscribeToNotes() {
         guard let babyId = selectedBaby?.id else { return }
         Firestore.firestore()
             .collection("babies").document(babyId.uuidString).collection("notes")
@@ -95,7 +96,7 @@ class CaregiverManager: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func subscribeToVoiceRecords() {
+    private func subscribeToVoiceRecords() {
         guard let babyId = selectedBaby?.id else { return }
         Firestore.firestore()
             .collection("babies").document(babyId.uuidString).collection("voiceRecords")
@@ -110,12 +111,12 @@ class CaregiverManager: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func loadCaregiver(uid: String) async -> Caregiver? {
+    private func loadCaregiver(uid: String) async -> Caregiver? {
         try? await Firestore.firestore().collection("users")
             .document(uid).getDocument().data(as: Caregiver.self)
     }
     
-    func loadBabies(from refs: [DocumentReference]) async -> [Baby] {
+    private func loadBabies(from refs: [DocumentReference]) async -> [Baby] {
         await withTaskGroup(of: Baby?.self) { group in
             for ref in refs {
                 group.addTask {
