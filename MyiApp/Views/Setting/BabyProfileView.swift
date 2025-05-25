@@ -13,6 +13,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct BabyProfileView: View {
     @StateObject private var viewModel: BabyProfileViewModel
@@ -21,6 +22,7 @@ struct BabyProfileView: View {
     @State private var uploadError: String?
     @State private var showAlert: Bool = false
     @State private var showDeleteConfirmation = false
+    @State private var isUploading: Bool = false
     @Environment(\.dismiss) private var dismiss
     
     let baby: Baby
@@ -35,46 +37,41 @@ struct BabyProfileView: View {
             VStack {
                 // 아기 사진
                 ZStack(alignment: .bottom) {
-                    if let image = viewModel.babyImage {
-                        Image(uiImage: image)
+                    ZStack {
+                        KFImage(URL(string: viewModel.baby.photoURL ?? ""))
+                            .placeholder({
+                                if isUploading {
+                                    ProgressView()
+                                }
+                            })
+                            .onFailureImage(viewModel.displaySharkImage)
                             .resizable()
                             .scaledToFill()
                             .frame(width: 100, height: 100)
-                            .clipShape(Circle())
-                            .padding(5)
+                            .clipShape(.circle)
+                            .background(
+                                Circle()
+                                    .fill(Color.sharkPrimaryLight)
+                                    .stroke(Color.sharksSadowTone, lineWidth: 2)
+                            )
                             .overlay(
                                 Circle()
-                                    .stroke(Color.gray, lineWidth: 3)
+                                    .stroke(Color.sharksSadowTone, lineWidth: 2)
                             )
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .onTapGesture {
-                                showPhotoActionSheet = true
-                            }
-                    } else {
-                        Image("sharkToddler")
-                            .resizable()
-                            .frame(width: 100, height: 100)
-                            .foregroundStyle(.gray)
-                            .clipShape(Circle())
-                            .padding(5)
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.gray, lineWidth: 3)
-                            )
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .onTapGesture {
-                                showPhotoActionSheet = true
-                            }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .onTapGesture {
+                        showPhotoActionSheet = true
                     }
                     Image(systemName: "plus.circle.fill")
-                                .resizable()
-                                .frame(width: 20, height: 20)
-                                .foregroundColor(.gray)
-                                .background(Circle().fill(Color.white).frame(width: 24, height: 24))
-                                .offset(x: 42, y: -10)
-                                .onTapGesture {
-                                    showPhotoActionSheet = true
-                                }
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(.gray)
+                        .background(Circle().fill(Color.white).frame(width: 24, height: 24))
+                        .offset(x: 42, y: -10)
+                        .onTapGesture {
+                            showPhotoActionSheet = true
+                        }
                 }
             }
             .padding(.bottom, 20)
@@ -219,59 +216,62 @@ struct BabyProfileView: View {
                 }
                 .padding()
             }
+            
+            Spacer()
         }
-        .padding(.horizontal)
-        .padding(.vertical, 30)
-        .cornerRadius(10)
-        
-        Spacer()
-        
-            .background(Color(UIColor.tertiarySystemBackground))
-            .navigationTitle("\(viewModel.baby.name)님의 정보")
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
+        .padding()
+        .background(Color(UIColor.tertiarySystemBackground))
+        .navigationTitle("\(viewModel.baby.name)님의 정보")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    if !isUploading {
                         dismiss()
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(.primary.opacity(0.8))
                     }
+                } label: {
+                    Image(systemName: "chevron.backward")
+                        .foregroundStyle(.primary.opacity(isUploading ? 0.3 : 0.8))
                 }
+                .disabled(isUploading)
             }
-            .task {
-                await viewModel.loadBabyProfileImage()
+        }
+        .task {
+            await viewModel.loadBabyProfileImage()
+        }
+        .onChange(of: viewModel.selectedImage) {
+            Task {
+                isUploading = true
+                await viewModel.loadSelectedBabyImage()
+                await viewModel.saveBabyImage()
+                isUploading = false
             }
-            .onChange(of: viewModel.selectedImage) {
+        }
+        .confirmationDialog("프로필 사진 변경", isPresented: $showPhotoActionSheet, titleVisibility: .visible) {
+            Button("앨범에서 선택") {
+                showPhotoPicker = true
+            }
+            Button("프로필 사진 삭제", role: .destructive) {
+                showDeleteConfirmation = true
+            }
+            Button("닫기", role: .cancel) {}
+        }
+        .alert("프로필 사진을 삭제하시겠습니까?", isPresented: $showDeleteConfirmation) {
+            Button("삭제", role: .destructive) {
                 Task {
-                    
-                    await viewModel.loadSelectedBabyImage()
+                    isUploading = true
+                    viewModel.babyImage = nil
+                    viewModel.selectedImage = nil
+                    await viewModel.saveBabyImage()
+                    uploadError = "프로필 사진이 삭제되었습니다."
+                    showAlert = true
+                    isUploading = false
                 }
             }
-            .confirmationDialog("프로필 사진 변경", isPresented: $showPhotoActionSheet, titleVisibility: .visible) {
-                Button("앨범에서 선택") {
-                    showPhotoPicker = true
-                }
-                Button("프로필 사진 삭제", role: .destructive) {
-                    showDeleteConfirmation = true
-                }
-                Button("닫기", role: .cancel) {
-                    showPhotoActionSheet = false
-                }
-            }
-            .alert("정말 프로필 사진을 삭제하시겠습니까?", isPresented: $showDeleteConfirmation) {
-                Button("삭제", role: .destructive) {
-                    Task {
-                        viewModel.babyImage = nil
-                        viewModel.selectedImage = nil
-                        await viewModel.saveBabyImage()
-                        showAlert = true
-                    }
-                }
-                Button("취소", role: .cancel) {}
-            }
-            .photosPicker(isPresented: $showPhotoPicker, selection: $viewModel.selectedImage, matching: .images)
+            Button("취소", role: .cancel) {}
+        }
+        .photosPicker(isPresented: $showPhotoPicker, selection: $viewModel.selectedImage, matching: .images)
     }
 }
 
