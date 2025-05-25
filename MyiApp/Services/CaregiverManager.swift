@@ -17,7 +17,6 @@ class CaregiverManager: ObservableObject {
     @Published var selectedBaby: Baby? {
         didSet {
             cancellables.removeAll()
-//            subscribeToSelectedBaby()
             subscribeToRecords()
             subscribeToNotes()
             subscribeToVoiceRecords()
@@ -84,7 +83,6 @@ class CaregiverManager: ObservableObject {
     }
     
     private func subscribeToNotes() {
-    private func subscribeToNotes() {
         guard let babyId = selectedBaby?.id else { return }
         Firestore.firestore()
             .collection("babies").document(babyId.uuidString).collection("notes")
@@ -99,7 +97,6 @@ class CaregiverManager: ObservableObject {
             .store(in: &cancellables)
     }
     
-    private func subscribeToVoiceRecords() {
     private func subscribeToVoiceRecords() {
         guard let babyId = selectedBaby?.id else { return }
         Firestore.firestore()
@@ -116,12 +113,10 @@ class CaregiverManager: ObservableObject {
     }
     
     private func loadCaregiver(uid: String) async -> Caregiver? {
-    private func loadCaregiver(uid: String) async -> Caregiver? {
         try? await Firestore.firestore().collection("users")
             .document(uid).getDocument().data(as: Caregiver.self)
     }
     
-    private func loadBabies(from refs: [DocumentReference]) async -> [Baby] {
     private func loadBabies(from refs: [DocumentReference]) async -> [Baby] {
         await withTaskGroup(of: Baby?.self) { group in
             for ref in refs {
