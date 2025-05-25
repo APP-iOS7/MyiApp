@@ -225,14 +225,14 @@ struct BabyProfileView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
                     if !isUploading {
                         dismiss()
                     }
-                } label: {
-                    Image(systemName: "chevron.backward")
-                        .foregroundStyle(.primary.opacity(isUploading ? 0.3 : 0.8))
+                }) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.primary.opacity(isUploading ? 0.3 : 0.8))
                 }
                 .disabled(isUploading)
             }

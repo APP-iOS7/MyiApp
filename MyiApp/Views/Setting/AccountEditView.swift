@@ -9,7 +9,7 @@ import SwiftUI
 import PhotosUI
 
 struct AccountEditView: View {
-    @ObservedObject private var viewModel = AccountSettingsViewModel.shared
+    @ObservedObject private var viewModel = AccountEditViewModel.shared
     @State private var showPhotoActionSheet = false
     @State private var showPhotoPicker = false
     @State private var keyboardHeight: CGFloat = 0
@@ -20,7 +20,7 @@ struct AccountEditView: View {
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isTextFieldFocused: Bool
     
-    init(viewModel: AccountSettingsViewModel) {
+    init(viewModel: AccountEditViewModel) {
         self.viewModel = viewModel
         self._selectedName = State(wrappedValue: viewModel.name)
     }
