@@ -50,6 +50,9 @@ class EditRecordViewModel: ObservableObject {
     func saveRecord() {
         let babyId = caregiverManager.selectedBaby?.id.uuidString ?? ""
         let _ = Firestore.firestore().collection("babies").document(babyId).collection("records").document(record.id.uuidString).setData(from: record)
+        if record.title == .heightWeight {
+            saveHeightWeight()
+        }
     }
     
     func deleteRecord() {
@@ -58,4 +61,19 @@ class EditRecordViewModel: ObservableObject {
             print(error ?? "")
         }
     }
-} 
+    
+    func saveHeightWeight() {
+        guard let babyId = caregiverManager.selectedBaby?.id.uuidString else { return }
+        var updateData: [String: Any] = [:]
+        if let height = record.height {
+            updateData["height"] = height
+        }
+        if let weight = record.weight {
+            updateData["weight"] = weight
+        }
+        let _ = Firestore.firestore().collection("babies").document(babyId).updateData(updateData)
+        Task {
+           await caregiverManager.loadCaregiverInfo()
+        }
+    }
+}

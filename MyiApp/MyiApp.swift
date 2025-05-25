@@ -82,17 +82,17 @@ struct MyiApp: App {
     @ViewBuilder
     private var currentView: some View {
         switch appState {
-        case .loading:
-            ProgressView()
-                .progressViewStyle(.circular)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.white.ignoresSafeArea())
-        case .login:
-            LogInView()
-        case .content:
-            ContentView()
-        case .register:
-            RegisterBabyView()
+            case .loading:
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.customBackground.ignoresSafeArea())
+            case .login:
+                LogInView()
+            case .content:
+                ContentView()
+            case .register:
+                RegisterBabyView()
         }
     }
     
