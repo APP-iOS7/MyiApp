@@ -13,9 +13,9 @@ struct BabyBloodEditView: View {
     @State private var selectedBloodType: BloodType
     
     init(viewModel: BabyProfileViewModel) {
-            self._viewModel = StateObject(wrappedValue: viewModel)
-            self._selectedBloodType = State(wrappedValue: viewModel.baby.bloodType)
-        }
+        self._viewModel = StateObject(wrappedValue: viewModel)
+        self._selectedBloodType = State(wrappedValue: viewModel.baby.bloodType)
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -91,7 +91,7 @@ struct BabyBloodEditView: View {
                     selectedBloodType = .AB
                 }
                 
-        }
+            }
             
             Spacer()
             

@@ -16,18 +16,18 @@ struct BabyHeightEditView: View {
     
     private var isButtonEnabled: Bool {
         selectedHeight != nil && selectedHeight! > 0
-        }
+    }
     
     private let numberFormatter: NumberFormatter = {
-            let formatter = NumberFormatter()
-            formatter.numberStyle = .decimal
-            formatter.minimumFractionDigits = 0
-            formatter.maximumFractionDigits = 2
-            formatter.minimum = 0
-            formatter.maximum = 200
-            formatter.allowsFloats = true
-            return formatter
-        }()
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 2
+        formatter.minimum = 0
+        formatter.maximum = 200
+        formatter.allowsFloats = true
+        return formatter
+    }()
     
     init(viewModel: BabyProfileViewModel) {
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -43,41 +43,41 @@ struct BabyHeightEditView: View {
                 .padding()
                 .padding(.top, 10)
             ZStack(alignment: .trailing) {
-                    TextField("키를 입력하세요", value: $selectedHeight, formatter: numberFormatter)
-                        .multilineTextAlignment(.leading)
-                        .keyboardType(.decimalPad)
-                        .foregroundColor(.primary.opacity(0.6))
-                        .font(.title2)
-                        .padding()
-                        .padding(.vertical)
-                        .padding(.trailing, 70)
-                        .background(
-                            VStack {
-                                Spacer()
-                                Rectangle()
-                                    .frame(height: 1)
-                                    .foregroundColor(.primary.opacity(0.8))
-                            }
-                            .padding()
-                        )
-                        .focused($isTextFieldFocused)
-                    
-                    if selectedHeight != nil {
-                        HStack(spacing: 15) {
-                            Text("cm")
-                                .foregroundColor(.primary.opacity(0.6))
-                                .font(.title2)
-                            Button(action: {
-                                selectedHeight = nil
-                                isTextFieldFocused = true
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.gray)
-                            }
+                TextField("키를 입력하세요", value: $selectedHeight, formatter: numberFormatter)
+                    .multilineTextAlignment(.leading)
+                    .keyboardType(.decimalPad)
+                    .foregroundColor(.primary.opacity(0.6))
+                    .font(.title2)
+                    .padding()
+                    .padding(.vertical)
+                    .padding(.trailing, 70)
+                    .background(
+                        VStack {
+                            Spacer()
+                            Rectangle()
+                                .frame(height: 1)
+                                .foregroundColor(.primary.opacity(0.8))
                         }
-                        .padding(.trailing, 20)
+                            .padding()
+                    )
+                    .focused($isTextFieldFocused)
+                
+                if selectedHeight != nil {
+                    HStack(spacing: 15) {
+                        Text("cm")
+                            .foregroundColor(.primary.opacity(0.6))
+                            .font(.title2)
+                        Button(action: {
+                            selectedHeight = nil
+                            isTextFieldFocused = true
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                        }
                     }
+                    .padding(.trailing, 20)
                 }
+            }
             Spacer()
             
         }
@@ -99,7 +99,7 @@ struct BabyHeightEditView: View {
                 VStack {
                     Button(action: {
                         if let height = selectedHeight, height > 0 {
-                        viewModel.baby.height = height
+                            viewModel.baby.height = height
                             Task {
                                 await viewModel.saveProfileEdits()
                                 dismiss()
