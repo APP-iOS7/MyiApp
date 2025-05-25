@@ -55,7 +55,10 @@ struct BabyNameEditView: View {
                         viewModel.baby.name = selectedName
                         Task {
                             await viewModel.saveProfileEdits()
-                            dismiss()
+                            if viewModel.isProfileSaved {
+                                await CaregiverManager.shared.loadCaregiverInfo()
+                                dismiss()
+                            }
                         }
                     }
                 
@@ -69,6 +72,12 @@ struct BabyNameEditView: View {
                             .padding(.trailing, 20)
                     }
                 }
+            }
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .foregroundStyle(.red)
+                    .font(.caption)
+                    .padding(.leading, 18)
             }
             
             Spacer()
@@ -94,7 +103,10 @@ struct BabyNameEditView: View {
                         viewModel.baby.name = selectedName
                         Task {
                             await viewModel.saveProfileEdits()
-                            dismiss()
+                            if viewModel.isProfileSaved {
+                                await CaregiverManager.shared.loadCaregiverInfo()
+                                dismiss()
+                            }
                         }
                     }) {
                         Text("완료")

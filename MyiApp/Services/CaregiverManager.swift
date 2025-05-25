@@ -149,4 +149,9 @@ class CaregiverManager: ObservableObject {
         email = nil
         provider = nil
     }
+    
+    // 회원탈퇴 시 회원 데이터 삭제
+    func deleteUserData(uid: String) async throws {
+        try await db.collection("users").document(uid).delete()
+    }
 }

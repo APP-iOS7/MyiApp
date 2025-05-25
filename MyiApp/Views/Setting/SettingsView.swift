@@ -11,12 +11,15 @@ struct SettingsView: View {
     @StateObject private var viewModel = AccountSettingsViewModel.shared
     @StateObject var caregiverManager = CaregiverManager.shared
     @State private var showingAlert = false
+    @State private var showingDeleteAlert = false
     @State private var topExpanded: Bool = false
-    
+    @State private var showingErrorAlert = false
+    @State private var errorMessage = ""
+    @State private var isLoading = false
     // 앱 버전 표시
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
-//        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+        //        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
         return "\(version)"
     }
     
@@ -47,7 +50,7 @@ struct SettingsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 15) {
-                NavigationLink(destination: AccountSettingsView(viewModel: viewModel)) {
+                NavigationLink(destination: AccountEditView(viewModel: viewModel)) {
                     HStack {
                         Image(systemName: "person.circle.fill")
                             .resizable()
@@ -123,23 +126,23 @@ struct SettingsView: View {
                     }
                     .tint(.clear)
                     
-//                    NavigationLink(destination: NotificationSettingsView()) {
-//                        HStack {
-//                            Image ("notificationIcon")
-//                                .resizable()
-//                                .frame(width: 30, height: 30)
-//                            Text("알림 설정")
-//                                .foregroundColor(.primary.opacity(0.6))
-//                                .padding(.leading, 5)
-//                            Spacer()
-//                            Image(systemName: "chevron.right")
-//                                .foregroundColor(.primary.opacity(0.6))
-//                                .font(.system(size: 12))
-//                                .padding(.trailing, 8)
-//                        }
-//                        .padding()
-//                        .padding(.bottom, 10)
-//                    }
+                    //                    NavigationLink(destination: NotificationSettingsView()) {
+                    //                        HStack {
+                    //                            Image ("notificationIcon")
+                    //                                .resizable()
+                    //                                .frame(width: 30, height: 30)
+                    //                            Text("알림 설정")
+                    //                                .foregroundColor(.primary.opacity(0.6))
+                    //                                .padding(.leading, 5)
+                    //                            Spacer()
+                    //                            Image(systemName: "chevron.right")
+                    //                                .foregroundColor(.primary.opacity(0.6))
+                    //                                .font(.system(size: 12))
+                    //                                .padding(.trailing, 8)
+                    //                        }
+                    //                        .padding()
+                    //                        .padding(.bottom, 10)
+                    //                    }
                 }
                 .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(10)
@@ -221,7 +224,7 @@ struct SettingsView: View {
                 .cornerRadius(10)
                 .padding(.horizontal)
                 
-                VStack {
+                VStack(spacing: -10) {
                     Button(role: .destructive) {
                         showingAlert = true
                     } label: {
@@ -229,26 +232,66 @@ struct SettingsView: View {
                             .frame(maxWidth: .infinity)
                     }
                     .padding()
+                    .background(Color(UIColor.tertiarySystemBackground))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                    .padding(.bottom)
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            showingDeleteAlert = true
+                        }) {
+                            Text("회원탈퇴")
+                                .font(.caption2)
+                                .foregroundColor(.blue)
+                                .padding(.vertical, 20)
+                                .underline()
+                        }
                 }
-                .background(Color(UIColor.tertiarySystemBackground))
-                .cornerRadius(10)
-                .padding(.horizontal)
-                .padding(.bottom)
             }
-        }
-        .background(Color("customBackgroundColor"))
-        .alert(isPresented: $showingAlert) {
-            Alert(
-                title: Text("로그아웃"),
-                message: Text("정말 로그아웃하시겠습니까?"),
-                primaryButton: .destructive(Text("로그아웃")) {
-                    AuthService.shared.signOut()
-                },
-                secondaryButton: .cancel(Text("취소"))
+            .background(Color("customBackgroundColor"))
+            .alert(isPresented: $showingAlert) {
+                Alert(
+                    title: Text("로그아웃"),
+                    message: Text("정말 로그아웃하시겠습니까?"),
+                    primaryButton: .destructive(Text("로그아웃")) {
+                        AuthService.shared.signOut()
+                    },
+                    secondaryButton: .cancel(Text("취소"))
+                )
+            }
+            .alert("회원탈퇴", isPresented: $showingDeleteAlert) {
+                Button("삭제", role: .destructive) {
+                    Task {
+                        defer { isLoading = false }
+                        isLoading = true
+                        do {
+                            try await AuthService.shared.deleteAccount()
+                            print("Account deletion successful")
+                        } catch {
+                            errorMessage = "회원탈퇴 실패: \(error.localizedDescription)"
+                            showingErrorAlert = true
+                            print("Account deletion failed: \(error.localizedDescription)")
+                        }
+                        isLoading = false
+                    }
+                }
+                Button("취소", role: .cancel) {}
+            } message: {
+                Text("계정을 삭제하려면 재인증이 필요합니다. 계속하시겠습니까?")
+            }
+            .alert("오류", isPresented: $showingErrorAlert) {
+                Button("확인", role: .cancel) {}
+            } message: {
+                Text(errorMessage)
+            }
+            .overlay(
+                isLoading ? ProgressView().progressViewStyle(CircularProgressViewStyle()) : nil
             )
-        }
-        .task {
-            await caregiverManager.loadCaregiverInfo()
+            .task {
+                await caregiverManager.loadCaregiverInfo()
+            }
         }
     }
 }
