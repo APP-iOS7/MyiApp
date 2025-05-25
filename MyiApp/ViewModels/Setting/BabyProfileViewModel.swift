@@ -124,28 +124,42 @@ class BabyProfileViewModel: ObservableObject {
     
     // 프로필 변경
     func saveProfileEdits() async {
-            isLoading = true
-            defer { isLoading = false }
-            
-            let babyID = baby.id.uuidString
-            let babyData: [String: Any] = [
-                "name": baby.name,
-                "birth_date": Timestamp(date: baby.birthDate),
-                "gender": baby.gender.rawValue,
-                "height": baby.height,
-                "weight": baby.weight,
-                "blood_type": baby.bloodType.rawValue,
-            ]
-            
-            do {
-                try await Firestore.firestore().collection("babies").document(babyID).setData(babyData, merge: true)
-                self.errorMessage = nil
-                self.isProfileSaved = true
-            } catch {
-                self.errorMessage = "프로필 저장 실패: \(error.localizedDescription)"
+        isLoading = true
+        defer { isLoading = false }
+        
+        let babyID = baby.id.uuidString
+        let babyData: [String: Any] = [
+            "name": baby.name,
+            "birth_date": Timestamp(date: baby.birthDate),
+            "gender": baby.gender.rawValue,
+            "height": baby.height,
+            "weight": baby.weight,
+            "blood_type": baby.bloodType.rawValue,
+        ]
+        
+        let trimmedName = baby.name.trimmingCharacters(in: .whitespaces)
+        if trimmedName.isEmpty {
+            await MainActor.run {
+                self.errorMessage = "이름을 입력해주세요."
                 self.isProfileSaved = false
+                self.baby = self.originalBaby
             }
+            return
         }
+        await MainActor.run {
+            self.isLoading = true
+            self.isProfileSaved = false
+        }
+        do {
+            try await databaseService.db.collection("babies").document(babyID).setData(babyData, merge: true)
+            self.errorMessage = nil
+            self.isProfileSaved = true
+        } catch {
+            self.errorMessage = "프로필 저장 실패: \(error.localizedDescription)"
+            self.isProfileSaved = false
+            self.baby = self.originalBaby
+        }
+    }
     
     // 프로필 편집 취소 기능
     func resetChanges() {

@@ -8,7 +8,7 @@
 import SwiftUI
 import PhotosUI
 
-struct AccountSettingsView: View {
+struct AccountEditView: View {
     @ObservedObject private var viewModel = AccountSettingsViewModel.shared
     @State private var showPhotoActionSheet = false
     @State private var showPhotoPicker = false
@@ -77,14 +77,15 @@ struct AccountSettingsView: View {
                     }
                 }
             }
-            
-            Spacer()
-            
             if let errorMessage = viewModel.errorMessage {
                 Text(errorMessage)
                     .foregroundStyle(.red)
                     .font(.caption)
+                    .padding(.leading, 18)
             }
+            
+            Spacer()
+            
         }
         .background(Color(UIColor.tertiarySystemBackground))
         .navigationTitle("사용자 프로필")
@@ -108,11 +109,12 @@ struct AccountSettingsView: View {
                         Task {
                             await viewModel.saveProfile()
                             if viewModel.isProfileSaved {
+                                await CaregiverManager.shared.loadCaregiverInfo()
                                 dismiss()
                             }
                         }
-                    }) {
-                        Text("완료")
+                }) {
+                    Text("완료")
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)

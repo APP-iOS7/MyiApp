@@ -11,8 +11,8 @@ import FirebaseFirestore
 struct Caregiver: Codable, Identifiable {
     var id: String
     var name: String?
-    var email: String
-    var provider: String
+    var email: String?
+    var provider: String?
     var babies: [DocumentReference]
     
     enum CodingKeys: String, CodingKey {

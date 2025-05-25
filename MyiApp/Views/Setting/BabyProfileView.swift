@@ -245,7 +245,6 @@ struct BabyProfileView: View {
             }
             .onChange(of: viewModel.selectedImage) {
                 Task {
-                    
                     await viewModel.loadSelectedBabyImage()
                 }
             }
