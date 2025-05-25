@@ -16,18 +16,18 @@ struct BabyWeightEditView: View {
     
     private var isButtonEnabled: Bool {
         selectedWeight != nil && selectedWeight! > 0
-        }
+    }
     
     private let numberFormatter: NumberFormatter = {
-            let formatter = NumberFormatter()
-            formatter.numberStyle = .decimal
-            formatter.minimumFractionDigits = 0
-            formatter.maximumFractionDigits = 2
-            formatter.minimum = 0
-            formatter.maximum = 200
-            formatter.allowsFloats = true
-            return formatter
-        }()
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 2
+        formatter.minimum = 0
+        formatter.maximum = 200
+        formatter.allowsFloats = true
+        return formatter
+    }()
     
     init(viewModel: BabyProfileViewModel) {
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -43,41 +43,41 @@ struct BabyWeightEditView: View {
                 .padding()
                 .padding(.top, 10)
             ZStack(alignment: .trailing) {
-                    TextField("몸무게를 입력하세요", value: $selectedWeight, formatter: numberFormatter)
-                        .multilineTextAlignment(.leading)
-                        .keyboardType(.decimalPad)
-                        .foregroundColor(.primary.opacity(0.6))
-                        .font(.title2)
-                        .padding()
-                        .padding(.vertical)
-                        .padding(.trailing, 70)
-                        .background(
-                            VStack {
-                                Spacer()
-                                Rectangle()
-                                    .frame(height: 1)
-                                    .foregroundColor(.primary.opacity(0.8))
-                            }
-                            .padding()
-                        )
-                        .focused($isTextFieldFocused)
-                    
-                    if selectedWeight != nil {
-                        HStack(spacing: 15) {
-                            Text("kg")
-                                .foregroundColor(.primary.opacity(0.6))
-                                .font(.title2)
-                            Button(action: {
-                                selectedWeight = nil
-                                isTextFieldFocused = true
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.gray)
-                            }
+                TextField("몸무게를 입력하세요", value: $selectedWeight, formatter: numberFormatter)
+                    .multilineTextAlignment(.leading)
+                    .keyboardType(.decimalPad)
+                    .foregroundColor(.primary.opacity(0.6))
+                    .font(.title2)
+                    .padding()
+                    .padding(.vertical)
+                    .padding(.trailing, 70)
+                    .background(
+                        VStack {
+                            Spacer()
+                            Rectangle()
+                                .frame(height: 1)
+                                .foregroundColor(.primary.opacity(0.8))
                         }
-                        .padding(.trailing, 20)
+                            .padding()
+                    )
+                    .focused($isTextFieldFocused)
+                
+                if selectedWeight != nil {
+                    HStack(spacing: 15) {
+                        Text("kg")
+                            .foregroundColor(.primary.opacity(0.6))
+                            .font(.title2)
+                        Button(action: {
+                            selectedWeight = nil
+                            isTextFieldFocused = true
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                        }
                     }
+                    .padding(.trailing, 20)
                 }
+            }
             Spacer()
             
         }
@@ -99,7 +99,7 @@ struct BabyWeightEditView: View {
                 VStack {
                     Button(action: {
                         if let weight = selectedWeight, weight > 0 {
-                        viewModel.baby.weight = weight
+                            viewModel.baby.weight = weight
                             Task {
                                 await viewModel.saveProfileEdits()
                                 dismiss()

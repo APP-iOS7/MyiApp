@@ -178,4 +178,26 @@ class BabyProfileViewModel: ObservableObject {
             return formatted.trimmingCharacters(in: CharacterSet(charactersIn: "0"))
         }
     }
+    
+    var displaySharkImage: UIImage {
+        let birthDate = baby.birthDate
+        let now = Date()
+        let calendar = Calendar.current
+        
+        guard let months = calendar.dateComponents([.month], from: birthDate, to: now).month,
+              let days = calendar.dateComponents([.day], from: birthDate, to: now).day else {
+            return UIImage(resource: .sharkNewBorn)
+        }
+        
+        switch months {
+        case 0 where days < 28:
+            return UIImage(resource: .sharkNewBorn)
+        case 0...11:
+            return UIImage(resource: .sharkInfant)
+        case 12...35:
+            return UIImage(resource: .sharkToddler)
+        default:
+            return UIImage(resource: .sharkChild)
+        }
+    }
 }

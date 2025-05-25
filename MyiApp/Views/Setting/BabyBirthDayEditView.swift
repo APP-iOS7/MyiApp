@@ -36,7 +36,7 @@ struct BabyBirthDayEditView: View {
             .foregroundColor(.primary.opacity(0.6))
             
             Spacer()
-
+            
             VStack {
                 Button(action: {
                     viewModel.baby.birthDate = selectedDate
