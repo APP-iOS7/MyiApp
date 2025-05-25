@@ -13,9 +13,9 @@ struct BabyGenderEditView: View {
     @State private var selectedGender: Gender
     
     init(viewModel: BabyProfileViewModel) {
-            self._viewModel = StateObject(wrappedValue: viewModel)
-            self._selectedGender = State(wrappedValue: viewModel.baby.gender)
-        }
+        self._viewModel = StateObject(wrappedValue: viewModel)
+        self._selectedGender = State(wrappedValue: viewModel.baby.gender)
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -51,13 +51,13 @@ struct BabyGenderEditView: View {
                     Image(systemName: selectedGender == .female ? "checkmark.circle.fill" : "checkmark.circle")
                         .font(.title2)
                         .foregroundColor(selectedGender == .female ? Color("buttonColor") : .primary.opacity(0.6))
+                }
+                .padding()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    selectedGender = .  female
+                }
             }
-            .padding()
-            .contentShape(Rectangle())
-            .onTapGesture {
-                selectedGender = .  female
-            }
-        }
             
             Spacer()
             
