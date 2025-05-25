@@ -115,7 +115,8 @@ class DatabaseService: ObservableObject {
         guard let imageData = image.jpegData(compressionQuality: 0.8) else {
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to compress image"])
         }
-        let ref = storage.reference().child("babyImages/\(babyID).jpg")
+        let uuid = UUID().uuidString
+        let ref = storage.reference().child("babyImages/\(babyID).\(uuid).jpg")
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
         _ = try await ref.putDataAsync(imageData, metadata: metadata)
