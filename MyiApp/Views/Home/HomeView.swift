@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import Kingfisher
 /*
  헤더 사이즈 줄이기.
  */
@@ -23,7 +23,7 @@ struct HomeView: View {
                     .background(Color.customBackground)
                 ScrollView {
                     VStack(spacing: 15) {
-//                        header
+                        //                        header
                         babyInfoCard
                         VStack {
                             dateSection
@@ -68,9 +68,9 @@ struct HomeView: View {
                         .fill(Color.gray.opacity(0.15))
                 )
             }
-
+            
             Spacer()
-
+            
             Button {
                 // TODO: 알림 상황일 때.
             } label: {
@@ -84,17 +84,26 @@ struct HomeView: View {
     }
     private var babyInfoCard: some View {
         HStack {
-            Image(.sharkChild)
+            KFImage(URL(string: viewModel.baby?.photoURL ?? ""))
+                .placeholder({
+                    Image(uiImage: viewModel.displaySharkImage)
+                })
+                .onFailureImage(viewModel.displaySharkImage)
                 .resizable()
-                .scaledToFit()
-                .padding(8)
+                .scaledToFill()
+                .frame(width: 60, height: 60)
+                .clipShape(.circle)
                 .background(
                     Circle()
                         .fill(Color.sharkPrimaryLight)
                         .stroke(Color.sharksSadowTone, lineWidth: 2)
                 )
-                .padding(15)
-                .padding(.leading, 5)
+                .overlay(
+                    Circle()
+                        .stroke(Color.sharksSadowTone, lineWidth: 2)
+                )
+                .padding(10)
+                .padding(.leading, 10)
             VStack(alignment: .leading, spacing: 3) {
                 Text(viewModel.displayName)
                     .font(.headline)
@@ -129,18 +138,32 @@ struct HomeView: View {
             VStack {
                 HStack {
                     Spacer()
-                    Image(systemName: "square.and.pencil")
+                    NavigationLink(destination: BabyProfileView(baby: viewModel.baby ?? Baby(name: "", birthDate: Date(), gender: .female, height: 0, weight: 0, bloodType: .O))) {
+                        Image(systemName: "square.and.pencil")
+                            .tint(Color.primary)
+                    }
                 }
                 .padding([.top, .trailing])
-                Image(.sharkChild)
+                
+                KFImage(URL(string: viewModel.baby?.photoURL ?? ""))
+                    .placeholder({
+                        Image(uiImage: viewModel.displaySharkImage)
+                    })
+                    .onFailureImage(viewModel.displaySharkImage)
                     .resizable()
+                    .scaledToFill()
                     .frame(width: 130, height: 130)
-                    .padding(8)
+                    .clipShape(.circle)
                     .background(
                         Circle()
                             .fill(Color.sharkPrimaryLight)
                             .stroke(Color.sharksSadowTone, lineWidth: 2)
                     )
+                    .overlay(
+                        Circle()
+                            .stroke(Color.sharksSadowTone, lineWidth: 2)
+                    )
+                    .padding(10)
                 VStack {
                     HStack {
                         Text(viewModel.displayName)
