@@ -17,6 +17,7 @@ class CaregiverManager: ObservableObject {
     @Published var selectedBaby: Baby? {
         didSet {
             cancellables.removeAll()
+//            subscribeToSelectedBaby()
             subscribeToRecords()
             subscribeToNotes()
             subscribeToVoiceRecords()
@@ -63,9 +64,29 @@ class CaregiverManager: ObservableObject {
                 self.provider = authProvider
             }
         }
+        print("loadCaregiverInfo called")
     }
     
-    func subscribeToRecords() {
+//    func subscribeToSelectedBaby() {
+//        guard let babyId = selectedBaby?.id else { return }
+//        
+//        Firestore.firestore()
+//            .collection("babies")
+//            .document(babyId.uuidString)
+//            .snapshotPublisher()
+//            .compactMap { try? $0.data(as: Baby.self) }
+//            .receive(on: DispatchQueue.main)
+//            .sink(receiveCompletion: { completion in
+//                if case let .failure(error) = completion {
+//                    print("Error subscribing to baby: \(error.localizedDescription)")
+//                }
+//            }, receiveValue: { [weak self] updatedBaby in
+//                self?.selectedBaby = updatedBaby
+//            })
+//            .store(in: &cancellables)
+//    }
+    
+    private func subscribeToRecords() {
         guard let babyId = selectedBaby?.id else { return }
         Firestore.firestore()
             .collection("babies").document(babyId.uuidString).collection("records")
@@ -80,7 +101,7 @@ class CaregiverManager: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func subscribeToNotes() {
+    private func subscribeToNotes() {
         guard let babyId = selectedBaby?.id else { return }
         Firestore.firestore()
             .collection("babies").document(babyId.uuidString).collection("notes")
@@ -95,7 +116,7 @@ class CaregiverManager: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func subscribeToVoiceRecords() {
+    private func subscribeToVoiceRecords() {
         guard let babyId = selectedBaby?.id else { return }
         Firestore.firestore()
             .collection("babies").document(babyId.uuidString).collection("voiceRecords")
@@ -110,12 +131,12 @@ class CaregiverManager: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func loadCaregiver(uid: String) async -> Caregiver? {
+    private func loadCaregiver(uid: String) async -> Caregiver? {
         try? await Firestore.firestore().collection("users")
             .document(uid).getDocument().data(as: Caregiver.self)
     }
     
-    func loadBabies(from refs: [DocumentReference]) async -> [Baby] {
+    private func loadBabies(from refs: [DocumentReference]) async -> [Baby] {
         await withTaskGroup(of: Baby?.self) { group in
             for ref in refs {
                 group.addTask {
