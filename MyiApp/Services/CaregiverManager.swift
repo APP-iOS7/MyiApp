@@ -25,22 +25,44 @@ class CaregiverManager: ObservableObject {
     private let db = Firestore.firestore()
     private var cancellables: Set<AnyCancellable> = []
     static let shared = CaregiverManager()
+    @Published var userName: String? = nil
+    @Published var email: String? = nil
+    @Published var provider: String? = nil
     @Published var records: [Record] = []
     @Published var voiceRecords: [VoiceRecord] = []
     @Published var notes: [Note] = []
     private init() { }
     
-
+    
     func loadCaregiverInfo() async {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
+        guard let uid = Auth.auth().currentUser?.uid else {
+            clearUserInfo()
+            return
+        }
+        
+        let authUser = Auth.auth().currentUser
+        let authName = authUser?.displayName
+        let authEmail = authUser?.email
+        let authProvider = authUser?.providerData.first?.providerID
+        
         if let caregiver = await loadCaregiver(uid: uid) {
             let babies = await loadBabies(from: caregiver.babies)
             await MainActor.run {
                 self.caregiver = caregiver
                 self.babies = babies
-                selectedBaby = babies.first
+                self.selectedBaby = babies.first
+                self.userName = caregiver.name
+                self.email = caregiver.email
+                self.provider = caregiver.provider
             }
-        } else { print("Error from CaregiverManager.loadCaregiverInfo") }
+        } else {
+            print("Error from CaregiverManager.loadCaregiverInfo")
+            await MainActor.run {
+                self.userName = authName
+                self.email = authEmail
+                self.provider = authProvider
+            }
+        }
     }
     
     func subscribeToRecords() {
@@ -115,5 +137,16 @@ class CaregiverManager: ObservableObject {
         records = []
         voiceRecords = []
         notes = []
+        userName = nil
+        email = nil
+        provider = nil
+    }
+    private func clearUserInfo() {
+        caregiver = nil
+        babies = []
+        selectedBaby = nil
+        userName = nil
+        email = nil
+        provider = nil
     }
 }
