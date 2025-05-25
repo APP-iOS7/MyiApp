@@ -86,7 +86,7 @@ struct HomeView: View {
         HStack {
             KFImage(URL(string: viewModel.baby?.photoURL ?? ""))
                 .placeholder({
-                    Image(uiImage: viewModel.displaySharkImage)
+                    ProgressView()
                 })
                 .onFailureImage(viewModel.displaySharkImage)
                 .resizable()
@@ -147,7 +147,7 @@ struct HomeView: View {
                 
                 KFImage(URL(string: viewModel.baby?.photoURL ?? ""))
                     .placeholder({
-                        Image(uiImage: viewModel.displaySharkImage)
+                        ProgressView()
                     })
                     .onFailureImage(viewModel.displaySharkImage)
                     .resizable()
