@@ -11,7 +11,6 @@ import GoogleSignIn
 import CryptoKit
 import AuthenticationServices
 import SwiftUI
-import SwiftJWT
 
 @MainActor
 class AuthService: ObservableObject {
