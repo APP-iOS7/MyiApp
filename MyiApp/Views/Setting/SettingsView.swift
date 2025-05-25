@@ -247,9 +247,6 @@ struct SettingsView: View {
                 secondaryButton: .cancel(Text("취소"))
             )
         }
-        .task {
-            await caregiverManager.loadCaregiverInfo()
-        }
     }
 }
 

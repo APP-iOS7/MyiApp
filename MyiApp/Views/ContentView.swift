@@ -33,9 +33,11 @@ struct ContentView: View {
                 .tabViewStyle(DefaultTabViewStyle())
                 .edgesIgnoringSafeArea(.bottom)
                 .tint(Color.button)
-              
+                
             } else {
                 ProgressView("케어기버및 아기 정보를 불러오는 중...")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.customBackground.ignoresSafeArea())
             }
         }
         .task {
