@@ -57,6 +57,7 @@ class AuthService: ObservableObject {
                                                        accessToken: result.user.accessToken.tokenString)
         let authResult = try await auth.signIn(with: credential)
         self.user = authResult.user
+        await CaregiverManager.shared.loadCaregiverInfo()
         print("Firebase user: \(authResult.user.uid)")
     }
     
@@ -88,6 +89,7 @@ class AuthService: ObservableObject {
             let authResult = try await auth.signIn(with: credential)
             self.user = authResult.user
             self.currentNonce = nil
+            await CaregiverManager.shared.loadCaregiverInfo()
             print("Firebase user: \(authResult.user.uid)")
         }
     }

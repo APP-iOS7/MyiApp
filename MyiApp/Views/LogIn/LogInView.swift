@@ -15,10 +15,6 @@ struct LogInView: View {
     
     var body: some View {
         ZStack {
-            // 배경색
-            Color("LaunchScreenColor")
-                .ignoresSafeArea()
-            
             VStack(spacing: 20) {
                 Spacer()
                 
@@ -40,7 +36,6 @@ struct LogInView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 256, height: 256)
-                    .padding(.bottom, 75)
                 
                 Spacer()
                 
@@ -99,6 +94,7 @@ struct LogInView: View {
                 .signInWithAppleButtonStyle(.whiteOutline)
                 .frame(height: 50)
                 .padding(.horizontal, 50)
+                .padding(.bottom, 50)
                 
                 Spacer()
             }
@@ -117,6 +113,7 @@ struct LogInView: View {
                 .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
             }
         }
+        .background(Color("LaunchScreenColor"))
     }
 }
 
