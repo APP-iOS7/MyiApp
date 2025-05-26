@@ -57,20 +57,6 @@ class AuthService: ObservableObject {
                                                        accessToken: result.user.accessToken.tokenString)
         let authResult = try await auth.signIn(with: credential)
         self.user = authResult.user
-        
-        let userRef = DatabaseService.shared.db.collection("users").document(authResult.user.uid)
-                let name = result.user.profile?.name ?? authResult.user.displayName
-                let email = result.user.profile?.email ?? authResult.user.email ?? "unknown@google.com"
-                let caregiver = Caregiver(
-                    id: authResult.user.uid,
-                    name: name?.isEmpty == false ? name : nil,
-                    email: email,
-                    provider: "google.com",
-                    babies: []
-                )
-                try await userRef.setData(from: caregiver)
-                
-                print("Firebase user: \(authResult.user.uid), saved caregiver: \(caregiver)")
         print("Firebase user: \(authResult.user.uid)")
     }
     
@@ -102,21 +88,6 @@ class AuthService: ObservableObject {
             let authResult = try await auth.signIn(with: credential)
             self.user = authResult.user
             self.currentNonce = nil
-            let userRef = DatabaseService.shared.db.collection("users").document(authResult.user.uid)
-                    let fullName = appleIDCredential.fullName
-                    let name = [fullName?.givenName, fullName?.familyName]
-                        .compactMap { $0 }
-                        .joined(separator: " ")
-                        .trimmingCharacters(in: .whitespaces)
-                    let email = appleIDCredential.email ?? authResult.user.email ?? "unknown@apple.com"
-                    let caregiver = Caregiver(
-                        id: authResult.user.uid,
-                        name: name.isEmpty ? nil : name,
-                        email: email,
-                        provider: "apple.com",
-                        babies: []
-                    )
-                    try await userRef.setData(from: caregiver)
             print("Firebase user: \(authResult.user.uid)")
         }
     }
