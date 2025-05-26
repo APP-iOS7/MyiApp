@@ -228,12 +228,13 @@ struct StatisticView: View {
                     .padding(.vertical, 20)
                 
             } else if selectedMode == "일" {
-                Spacer()
-                DailyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: selectedCategories)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(.horizontal)
-                    .padding(.vertical, 20)
-                Spacer()
+                GeometryReader { geometry in
+                    DailyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: selectedCategories)
+                        .frame(width: geometry.size.width * 0.9, height: geometry.size.width * 0.9)
+                        .padding(.horizontal)
+                        .padding(.vertical, 20)
+                }
+                .frame(height: UIScreen.main.bounds.width * 0.9)
                 
             }
         }
@@ -305,12 +306,12 @@ struct IconItem: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
                     .fill((Color(.tertiarySystemBackground)))
-                    .frame(width: 35, height: 35)
+                    .frame(width: 30, height: 30)
                 
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 30, height: 30)
+                    .frame(width: 25, height: 25)
             }
             
             Text(title)
@@ -321,7 +322,7 @@ struct IconItem: View {
             Spacer()
         }
         .padding(.leading, 10)
-        .frame(width: 105, height: 60)
+        .frame(height: 60)
         .background(isSelected ? selectedColor.opacity(0.5) : Color.gray.opacity(0.1))
         .cornerRadius(12)
         .overlay(
