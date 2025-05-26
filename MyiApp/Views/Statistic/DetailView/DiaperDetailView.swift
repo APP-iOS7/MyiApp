@@ -224,10 +224,10 @@ struct DailyDiaperChartView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Image(uiImage: UIImage(named: "normalDiaper") ?? UIImage())
+                Image(uiImage: UIImage(named: "colorDiaper") ?? UIImage())
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 25, height: 25)
+                    .frame(width: 32, height: 32)
                 Text("기저귀 교체")
                     .font(.headline)
             }
@@ -372,10 +372,10 @@ struct WeeklyDiaperChartView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Image(uiImage: UIImage(named: "normalDiaper") ?? UIImage())
+                Image(uiImage: UIImage(named: "colorDiaper") ?? UIImage())
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 25, height: 25)
+                    .frame(width: 32, height: 32)
                 Text("기저귀 교체")
                     .font(.headline)
             }
@@ -529,10 +529,10 @@ struct MonthlyDiaperChartView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Image(uiImage: UIImage(named: "normalDiaper") ?? UIImage())
+                Image(uiImage: UIImage(named: "colorDiaper") ?? UIImage())
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 25, height: 25)
+                    .frame(width: 32, height: 32)
                 Text("기저귀 교체")
                     .font(.headline)
             }
