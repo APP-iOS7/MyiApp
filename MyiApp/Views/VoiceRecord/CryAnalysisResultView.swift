@@ -14,7 +14,7 @@ private enum Constants {
     static let iconSize: CGFloat = 140
     static let ringSize: CGFloat = 230
     static let percentageFontSize: CGFloat = 24
-    static let titleFontSize: CGFloat = 32
+    static let titleFontSize: CGFloat = 25
     static let emotionTypeFontSize: CGFloat = 40
     static let tipsFontSize: CGFloat = 16
     static let cornerRadius: CGFloat = 12
@@ -118,26 +118,21 @@ struct CryAnalysisResultView: View {
                 .font(.system(size: Constants.titleFontSize, weight: .heavy))
                 .padding(.top)
                 .accessibilityAddTraits(.isHeader)
-            
-            Spacer()
-            
+
             ConfidenceRingView(confidence: confidence, imageName: resultImageName)
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("\(emotionType.displayName) 상태, 확률 \(Int(confidence * 100))%")
+
+            Text(emotionType.displayName)
+                .font(.system(size: Constants.emotionTypeFontSize, weight: .bold))
+                .padding()
+                .accessibilityAddTraits(.isHeader)
             
-            Spacer()
-            
-            VStack(spacing: Constants.tipsSpacing) {
-                Text(emotionType.displayName)
-                    .font(.system(size: Constants.emotionTypeFontSize, weight: .bold))
-                    .padding()
-                    .accessibilityAddTraits(.isHeader)
-            }
 
             VStack(alignment: .leading, spacing: Constants.tipsSpacing) {
                 Text(NSLocalizedString("추천 행동", comment: ""))
                     .font(.system(size: Constants.tipsFontSize, weight: .bold))
-                
+
                 ForEach(localizedTips, id: \.self) { tip in
                     HStack(alignment: .top, spacing: 4) {
                         Text("•")
@@ -164,10 +159,10 @@ struct CryAnalysisResultView: View {
                     .background(Color("buttonColor"))
                     .cornerRadius(12)
             }
-            .contentShape(Rectangle())
             .padding(.horizontal)
+            .contentShape(Rectangle())
         }
-        .padding(.top)
+        .background(Color(UIColor.systemBackground))
         .navigationBarBackButtonHidden(true)
         .onAppear {
             print("[ResultView] 결과 화면 표시됨: \(emotionType.rawValue)")
@@ -239,6 +234,21 @@ struct CryAnalysisResultView: View {
             ]
         }
     }
+}
+
+private func maxSafeAreaBottomPadding() -> CGFloat {
+    guard let keyWindow = UIApplication.shared.connectedScenes
+        .compactMap({ $0 as? UIWindowScene })
+        .first?.windows.first(where: { $0.isKeyWindow }) else {
+        return 28
+    }
+
+    let bottomInset = keyWindow.safeAreaInsets.bottom
+    let screenHeight = keyWindow.bounds.height
+
+    let basePadding: CGFloat = screenHeight > 700 ? 16 : 28
+
+    return min(bottomInset + basePadding, 40)
 }
 
 // MARK: - Extension EmotionType
