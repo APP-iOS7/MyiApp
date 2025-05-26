@@ -225,10 +225,10 @@ struct DailyBathChartView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Image(uiImage: UIImage(named: "normalBath") ?? UIImage())
+                Image(uiImage: UIImage(named: "colorBath") ?? UIImage())
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 25, height: 25)
+                    .frame(width: 32, height: 32)
                 Text("목욕")
                     .font(.headline)
             }
@@ -373,10 +373,10 @@ struct WeeklyBathChartView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Image(uiImage: UIImage(named: "normalBath") ?? UIImage())
+                Image(uiImage: UIImage(named: "colorBath") ?? UIImage())
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 25, height: 25)
+                    .frame(width: 32, height: 32)
                 Text("목욕")
                     .font(.headline)
             }
@@ -530,10 +530,10 @@ struct MonthlyBathChartView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Image(uiImage: UIImage(named: "normalBath") ?? UIImage())
+                Image(uiImage: UIImage(named: "colorBath") ?? UIImage())
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 25, height: 25)
+                    .frame(width: 32, height: 32)
                 Text("목욕")
                     .font(.headline)
             }
