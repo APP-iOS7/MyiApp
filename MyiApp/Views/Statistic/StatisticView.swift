@@ -206,7 +206,7 @@ struct StatisticView: View {
         NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
             HStack {
                 Text("성장곡선")
-                    .font(.subheadline)
+                    .font(.headline)
                     .foregroundColor(.primary)
                 
                 Spacer()
