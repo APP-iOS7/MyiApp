@@ -40,7 +40,7 @@ struct Baby: Codable, Identifiable {
             case height
             case weight
             case bloodType = "blood_type"
-            case photoURL = "photo_url"
+            case photoURL
             case caregivers
         }
 }

@@ -20,7 +20,12 @@ class LogInViewModel: ObservableObject {
     func signInWithGoogle() async throws {
         isLoading = true
         defer { isLoading = false }
-        try await authService.googleSignIn()
+        do {
+            try await authService.googleSignIn()
+        } catch {
+            self.error = "Goolge 로그인에 실패했습니다: \(error.localizedDescription)"
+            throw error
+        }
     }
     
     func signInWithApple(_ authorization: ASAuthorization) async throws {
