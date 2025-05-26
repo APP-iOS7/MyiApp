@@ -89,15 +89,15 @@ struct VoiceRecordView: View {
                     navigationPath.append(CryRoute.processing())
                 }) {
                     Text("분석 시작")
-                        .font(.system(size: 30, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 60)
+                        .font(.headline)
+                        .frame(height: 50)
                         .background(Color("buttonColor"))
                         .cornerRadius(12)
-                        .padding(.horizontal)
                 }
-                .padding(.bottom, 8)
+                .contentShape(Rectangle())
+                .padding(.horizontal)
             }
             .background(Color(UIColor.systemGroupedBackground))
             .navigationDestination(for: CryRoute.self) { route in

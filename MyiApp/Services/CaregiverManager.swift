@@ -40,11 +40,6 @@ class CaregiverManager: ObservableObject {
             return
         }
         
-        let authUser = Auth.auth().currentUser
-        let authName = authUser?.displayName
-        let authEmail = authUser?.email
-        let authProvider = authUser?.providerData.first?.providerID
-        
         if let caregiver = await loadCaregiver(uid: uid) {
             let babies = await loadBabies(from: caregiver.babies)
             await MainActor.run {
@@ -57,18 +52,40 @@ class CaregiverManager: ObservableObject {
             }
         } else {
             print("Error from CaregiverManager.loadCaregiverInfo")
-            await MainActor.run {
-                self.userName = authName
-                self.email = authEmail
-                self.provider = authProvider
-            }
+            await saveCaregiverInfo()
         }
     }
     
-    func subscribeToRecords() {
+    @MainActor
+    func saveCaregiverInfo() async {
+        guard let user = Auth.auth().currentUser else { return }
+        let userRef = db.collection("users").document(user.uid)
+        if let existingCaregiver = try? await userRef.getDocument().data(as: Caregiver.self) {
+            // 기존 데이터 존재하면 유지
+            self.caregiver = existingCaregiver
+            self.userName = existingCaregiver.name
+            self.email = existingCaregiver.email
+            self.provider = existingCaregiver.provider
+        } else {
+            // 신규 사용자 데이터 저장
+            let caregiver = Caregiver(
+                id: user.uid,
+                name: user.displayName?.isEmpty == false ? user.displayName : nil,
+                email: user.email ?? "unknown@example.com",
+                provider: user.providerData.first?.providerID ?? "unknown",
+                babies: []
+            )
+            let _ = userRef.setData(from: caregiver)
+            self.caregiver = caregiver
+            self.userName = caregiver.name
+            self.email = caregiver.email
+            self.provider = caregiver.provider
+        }
+    }
+    
+    private func subscribeToRecords() {
         guard let babyId = selectedBaby?.id else { return }
-        Firestore.firestore()
-            .collection("babies").document(babyId.uuidString).collection("records")
+        db.collection("babies").document(babyId.uuidString).collection("records")
             .order(by: "createdAt", descending: true)
             .snapshotPublisher()
             .map { snapshot in
@@ -80,10 +97,9 @@ class CaregiverManager: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func subscribeToNotes() {
+    private func subscribeToNotes() {
         guard let babyId = selectedBaby?.id else { return }
-        Firestore.firestore()
-            .collection("babies").document(babyId.uuidString).collection("notes")
+        db.collection("babies").document(babyId.uuidString).collection("notes")
             .order(by: "createdAt", descending: true)
             .snapshotPublisher()
             .map { snapshot in
@@ -95,10 +111,9 @@ class CaregiverManager: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func subscribeToVoiceRecords() {
+    private func subscribeToVoiceRecords() {
         guard let babyId = selectedBaby?.id else { return }
-        Firestore.firestore()
-            .collection("babies").document(babyId.uuidString).collection("voiceRecords")
+        db.collection("babies").document(babyId.uuidString).collection("voiceRecords")
             .order(by: "createdAt", descending: true)
             .snapshotPublisher()
             .map { snapshot in
@@ -110,12 +125,12 @@ class CaregiverManager: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func loadCaregiver(uid: String) async -> Caregiver? {
+    private func loadCaregiver(uid: String) async -> Caregiver? {
         try? await Firestore.firestore().collection("users")
             .document(uid).getDocument().data(as: Caregiver.self)
     }
     
-    func loadBabies(from refs: [DocumentReference]) async -> [Baby] {
+    private func loadBabies(from refs: [DocumentReference]) async -> [Baby] {
         await withTaskGroup(of: Baby?.self) { group in
             for ref in refs {
                 group.addTask {
@@ -148,5 +163,10 @@ class CaregiverManager: ObservableObject {
         userName = nil
         email = nil
         provider = nil
+    }
+    
+    // 회원탈퇴 시 회원 데이터 삭제
+    func deleteUserData(uid: String) async throws {
+        try await db.collection("users").document(uid).delete()
     }
 }

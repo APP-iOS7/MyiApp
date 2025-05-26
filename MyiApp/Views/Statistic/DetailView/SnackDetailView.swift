@@ -224,10 +224,10 @@ struct DailySnackChartView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Image(uiImage: UIImage(named: "normalSnack") ?? UIImage())
+                Image(uiImage: UIImage(named: "colorSnack") ?? UIImage())
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 25, height: 25)
+                    .frame(width: 32, height: 32)
                 Text("간식")
                     .font(.headline)
             }
@@ -373,10 +373,10 @@ struct WeeklySnackChartView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Image(uiImage: UIImage(named: "normalSnack") ?? UIImage())
+                Image(uiImage: UIImage(named: "colorSnack") ?? UIImage())
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 25, height: 25)
+                    .frame(width: 32, height: 32)
                 Text("간식")
                     .font(.headline)
             }
@@ -530,10 +530,10 @@ struct MonthlySnackChartView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) {
-                Image(uiImage: UIImage(named: "normalSnack") ?? UIImage())
+                Image(uiImage: UIImage(named: "colorSnack") ?? UIImage())
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 25, height: 25)
+                    .frame(width: 32, height: 32)
                 Text("간식")
                     .font(.headline)
             }

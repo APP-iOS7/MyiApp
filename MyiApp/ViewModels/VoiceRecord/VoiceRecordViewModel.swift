@@ -175,9 +175,9 @@ final class VoiceRecordViewModel: ObservableObject {
     // MARK: - Private Methods
 
     private func observeStep() {
-        $step
+        $step // step 상태가 바뀔 때마다 .sink 클로저가 호출
             .receive(on: DispatchQueue.main)
-            .removeDuplicates()
+            .removeDuplicates() // 같은 값으로 연속 변경되는 경우 무시
             .sink { [weak self] newStep in
                 self?.handleStepChange(newStep)
             }
