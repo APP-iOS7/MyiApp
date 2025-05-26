@@ -101,16 +101,14 @@ struct LogInView: View {
             
             // 로그인 로딩 화면
             if viewModel.isLoading {
-                ZStack {
                     Color.black.opacity(0.5)
                         .ignoresSafeArea()
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         .scaleEffect(1.5)
                         .padding()
-                }
-                .opacity(viewModel.isLoading ? 1 : 0)
-                .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
+                        .opacity(viewModel.isLoading ? 1 : 0)
+                        .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
             }
         }
         .background(Color("LaunchScreenColor"))
