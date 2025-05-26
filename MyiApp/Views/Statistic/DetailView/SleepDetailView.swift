@@ -219,10 +219,10 @@ struct DailySleepChartView: View {
             ForEach(SleepType.allCases, id: \.self) { type in
                 VStack(alignment: .leading) {
                     HStack(spacing: 6) {
-                        Image(uiImage: UIImage(named: "normalSleep") ?? UIImage())
+                        Image(uiImage: UIImage(named: "colorSleep") ?? UIImage())
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 25, height: 25)
+                            .frame(width: 32, height: 32)
                         Text(type.rawValue)
                             .font(.headline)
                     }
@@ -418,10 +418,10 @@ struct WeeklySleepChartView: View {
             ForEach(SleepType.allCases, id: \.self) { type in
                 VStack(alignment: .leading) {
                     HStack(spacing: 6) {
-                        Image(uiImage: UIImage(named: "normalSleep") ?? UIImage())
+                        Image(uiImage: UIImage(named: "colorSleep") ?? UIImage())
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 25, height: 25)
+                            .frame(width: 32, height: 32)
                         Text(type.rawValue)
                             .font(.headline)
                     }
@@ -625,10 +625,10 @@ struct MonthlySleepChartView: View {
             ForEach(SleepType.allCases, id: \.self) { type in
                 VStack(alignment: .leading) {
                     HStack(spacing: 6) {
-                        Image(uiImage: UIImage(named: "normalSleep") ?? UIImage())
+                        Image(uiImage: UIImage(named: "colorSleep") ?? UIImage())
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 25, height: 25)
+                            .frame(width: 32, height: 32)
                         Text(type.rawValue)
                             .font(.headline)
                     }

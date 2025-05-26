@@ -222,7 +222,7 @@ struct DailyPottyChartView: View {
                         Image(uiImage: iconImage(for: type))
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 25, height: 25)
+                            .frame(width: 32, height: 32)
                         Text(type.rawValue)
                             .font(.headline)
                     }
@@ -411,7 +411,7 @@ struct WeeklyPottyChartView: View {
                         Image(uiImage: iconImage(for: type))
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 25, height: 25)
+                            .frame(width: 32, height: 32)
                         Text(type.rawValue)
                             .font(.headline)
                     }
@@ -606,7 +606,7 @@ struct MonthlyPottyChartView: View {
                         Image(uiImage: iconImage(for: type))
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 25, height: 25)
+                            .frame(width: 32, height: 32)
                         Text(type.rawValue)
                             .font(.headline)
                     }
