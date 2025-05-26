@@ -6,8 +6,20 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
 struct Caregiver: Codable, Identifiable {
-    var id: UUID
-    var babies: [Baby]
+    var id: String
+    var name: String?
+    var email: String?
+    var provider: String?
+    var babies: [DocumentReference]
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case email
+        case provider
+        case babies
+    }
 }

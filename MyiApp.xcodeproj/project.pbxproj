@@ -7,9 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		821A3C642DD41BAB003BFB6C /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 821A3C632DD41BAB003BFB6C /* FirebaseStorage */; };
 		B3019C532DCB6DB300C3F02A /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B3019C522DCB6DB300C3F02A /* FirebaseAnalytics */; };
 		B3019C552DCB6DB300C3F02A /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = B3019C542DCB6DB300C3F02A /* FirebaseAuth */; };
 		B3019C572DCB6DB300C3F02A /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B3019C562DCB6DB300C3F02A /* FirebaseFirestore */; };
+		B33912142DE30C9B00FB8189 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = B33912132DE30C9B00FB8189 /* Kingfisher */; };
 		B3412B582DCF86B50059184D /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = B3412B572DCF86B50059184D /* FirebaseFirestoreCombine-Community */; };
 		B35CF1742DCE722000FAD1FA /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B35CF1732DCE722000FAD1FA /* GoogleSignIn */; };
 		B35CF1762DCE722000FAD1FA /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B35CF1752DCE722000FAD1FA /* GoogleSignInSwift */; };
@@ -49,6 +51,8 @@
 				B3019C532DCB6DB300C3F02A /* FirebaseAnalytics in Frameworks */,
 				B35CF1742DCE722000FAD1FA /* GoogleSignIn in Frameworks */,
 				B3412B582DCF86B50059184D /* FirebaseFirestoreCombine-Community in Frameworks */,
+				B33912142DE30C9B00FB8189 /* Kingfisher in Frameworks */,
+				821A3C642DD41BAB003BFB6C /* FirebaseStorage in Frameworks */,
 				B3019C552DCB6DB300C3F02A /* FirebaseAuth in Frameworks */,
 				B3019C572DCB6DB300C3F02A /* FirebaseFirestore in Frameworks */,
 			);
@@ -107,6 +111,8 @@
 				B35CF1732DCE722000FAD1FA /* GoogleSignIn */,
 				B35CF1752DCE722000FAD1FA /* GoogleSignInSwift */,
 				B3412B572DCF86B50059184D /* FirebaseFirestoreCombine-Community */,
+				821A3C632DD41BAB003BFB6C /* FirebaseStorage */,
+				B33912132DE30C9B00FB8189 /* Kingfisher */,
 			);
 			productName = MyiApp;
 			productReference = B3019C252DCB69B300C3F02A /* MyiApp.app */;
@@ -128,17 +134,19 @@
 				};
 			};
 			buildConfigurationList = B3019C202DCB69B300C3F02A /* Build configuration list for PBXProject "MyiApp" */;
-			developmentRegion = en;
+			developmentRegion = ko;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				ko,
 			);
 			mainGroup = B3019C1C2DCB69B300C3F02A;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				B3019C512DCB6DB300C3F02A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				B35CF1722DCE722000FAD1FA /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				B33912122DE30C9B00FB8189 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B3019C262DCB69B300C3F02A /* Products */;
@@ -176,6 +184,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -240,6 +249,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -298,12 +308,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = MyiApp/MyiApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 59FP2PXRXK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MyiApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "My i";
+				INFOPLIST_KEY_LSApplicationCategoryType = "Fonts provided by application";
+				INFOPLIST_KEY_NSCameraUsageDescription = "아기의 사진을 찍어서 일지에 추가하기 위해 카메라에 접근합니다.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "아기의 울음 소리를 분석하기 위해 마이크 권한이 필요합니다.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "아기의 사진을 일지에 추가하기 위해 사진 라이브러리에 접근합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -314,7 +330,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kr.co.codegroove.MyiApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -329,12 +345,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = MyiApp/MyiApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 59FP2PXRXK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MyiApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "My i";
+				INFOPLIST_KEY_LSApplicationCategoryType = "Fonts provided by application";
+				INFOPLIST_KEY_NSCameraUsageDescription = "아기의 사진을 찍어서 일지에 추가하기 위해 카메라에 접근합니다.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "아기의 울음 소리를 분석하기 위해 마이크 권한이 필요합니다.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "아기의 사진을 일지에 추가하기 위해 사진 라이브러리에 접근합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -345,7 +367,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = kr.co.codegroove.MyiApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -386,6 +408,14 @@
 				minimumVersion = 11.12.0;
 			};
 		};
+		B33912122DE30C9B00FB8189 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.3.2;
+			};
+		};
 		B35CF1722DCE722000FAD1FA /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
@@ -397,6 +427,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		821A3C632DD41BAB003BFB6C /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B3019C512DCB6DB300C3F02A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
 		B3019C522DCB6DB300C3F02A /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B3019C512DCB6DB300C3F02A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
@@ -411,6 +446,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B3019C512DCB6DB300C3F02A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
+		};
+		B33912132DE30C9B00FB8189 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B33912122DE30C9B00FB8189 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
 		};
 		B3412B572DCF86B50059184D /* FirebaseFirestoreCombine-Community */ = {
 			isa = XCSwiftPackageProductDependency;
