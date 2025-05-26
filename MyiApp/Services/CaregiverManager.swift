@@ -36,7 +36,6 @@ class CaregiverManager: ObservableObject {
     
     func loadCaregiverInfo() async {
         guard let uid = Auth.auth().currentUser?.uid else {
-            clearUserInfo()
             return
         }
         
@@ -153,14 +152,6 @@ class CaregiverManager: ObservableObject {
         records = []
         voiceRecords = []
         notes = []
-        userName = nil
-        email = nil
-        provider = nil
-    }
-    private func clearUserInfo() {
-        caregiver = nil
-        babies = []
-        selectedBaby = nil
         userName = nil
         email = nil
         provider = nil
