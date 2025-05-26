@@ -18,58 +18,61 @@ struct DailyChartView: View {
     let selectedCategories: [String]
     
     var body: some View {
-        ZStack {
-            // 그래프 바탕
-            Circle()
-                .stroke(Color.gray.opacity(0.2), lineWidth: 80)
-                .frame(width: 200, height: 200)
+        GeometryReader { geometry in
+            let size = geometry.size.width * 0.8
+            let lineWidth = size * 0.4
+            let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
+            let radius = size / 2 + lineWidth / 2 + 10
             
-            // 숫자 표기
-            GeometryReader { geometry in
-                let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
-                let radius = geometry.size.width / 2 + 20
+            ZStack {
+                // 그래프 바탕
+                Circle()
+                    .stroke(Color.gray.opacity(0.2), lineWidth: lineWidth)
+                    .frame(width: size, height: size)
+                    .position(center)
                 
-                ZStack {
-                    ForEach(0..<24) { hour in
-                        let angle = Angle(degrees: Double(hour) / 24 * 360 - 90)
-                        let x = center.x + cos(angle.radians) * radius
-                        let y = center.y + sin(angle.radians) * radius
-                        
-                        if (hour % 2 == 0) {
-                            Text("\(hour)")
-                                .font(.caption2)
-                                .foregroundColor(.gray)
-                                .position(x: x, y: y)
-                        } else {
-                            Text("·")
-                                .font(.caption2)
-                                .foregroundColor(.gray)
-                                .position(x: x, y: y)
-                        }
-                        
+                // 숫자 표기
+                ForEach(0..<24) { hour in
+                    let angle = Angle(degrees: Double(hour) / 24 * 360 - 90)
+                    let x = center.x + cos(angle.radians) * radius
+                    let y = center.y + sin(angle.radians) * radius
+                    
+                    if (hour % 2 == 0) {
+                        Text("\(hour)")
+                            .font(.caption2)
+                            .foregroundColor(.gray)
+                            .position(x: x, y: y)
+                    } else {
+                        Text("·")
+                            .font(.caption2)
+                            .foregroundColor(.gray)
+                            .position(x: x, y: y)
                     }
+                    
                 }
-            }
-            
-            // 그래프 표기
-            ForEach(recordsWithTimeSpan, id: \.id) { record in
-                CircleSegmentShape(startHour: record.startHour, endHour: record.endHour)
-                    .stroke(record.color, lineWidth: 80)
-                    .frame(width: 200, height: 200)
                 
+                // 그래프 표기
+                ForEach(recordsWithTimeSpan, id: \.id) { record in
+                    CircleSegmentShape(startHour: record.startHour, endHour: record.endHour)
+                        .stroke(record.color, lineWidth: lineWidth)
+                        .frame(width: size, height: size)
+                        .position(center)
+                    
+                }
+                
+                //가운데 정보
+                let months = Calendar.current.dateComponents([.month, .day], from: baby.birthDate, to: Date()).month ?? 0
+                let days = (Calendar.current.dateComponents(
+                    [.day],
+                    from: Calendar.current.date(byAdding: .month, value: months, to: baby.birthDate) ?? Date(),
+                    to: Date()
+                ).day ?? 0) + 1
+                
+                Text("\(months)개월 \(days)일")
+                    .font(.headline)
+                    .foregroundColor(.gray)
+                    .position(center)
             }
-            
-            //가운데 정보
-            let months = Calendar.current.dateComponents([.month, .day], from: baby.birthDate, to: Date()).month ?? 0
-            let days = (Calendar.current.dateComponents(
-                [.day],
-                from: Calendar.current.date(byAdding: .month, value: months, to: baby.birthDate) ?? Date(),
-                to: Date()
-            ).day ?? 0) + 1
-            
-            Text("\(months)개월 \(days)일")
-                .font(.headline)
-                .foregroundColor(.gray)
         }
         .padding()
     }

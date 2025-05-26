@@ -28,7 +28,7 @@ struct SettingsView: View {
         if let name = caregiverManager.userName {
             return name
         } else {
-            return caregiverManager.email ?? ""
+            return caregiverManager.email ?? "이름을 설정해주세요"
         }
     }
     
