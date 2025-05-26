@@ -156,18 +156,16 @@ struct CryAnalysisResultView: View {
             Button(action: {
                 onDismiss()
             }) {
-                Text(NSLocalizedString("닫기", comment: ""))
-                    .font(.system(size: 30, weight: .bold))
+                Text("완료")
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .padding()
+                    .font(.headline)
+                    .frame(height: 50)
                     .background(Color("buttonColor"))
-                    .cornerRadius(Constants.cornerRadius)
-                    .padding(.horizontal)
+                    .cornerRadius(12)
             }
+            .contentShape(Rectangle())
             .padding(.horizontal)
-
-            Spacer(minLength: 20)
         }
         .padding(.top)
         .navigationBarBackButtonHidden(true)
