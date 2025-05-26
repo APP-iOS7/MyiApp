@@ -36,7 +36,6 @@ class CaregiverManager: ObservableObject {
     
     func loadCaregiverInfo() async {
         guard let uid = Auth.auth().currentUser?.uid else {
-            clearUserInfo()
             return
         }
         
@@ -145,6 +144,7 @@ class CaregiverManager: ObservableObject {
         }
     }
     
+    @MainActor
     func logout() {
         caregiver = nil
         babies = []
@@ -156,17 +156,35 @@ class CaregiverManager: ObservableObject {
         email = nil
         provider = nil
     }
-    private func clearUserInfo() {
-        caregiver = nil
-        babies = []
-        selectedBaby = nil
-        userName = nil
-        email = nil
-        provider = nil
-    }
     
     // 회원탈퇴 시 회원 데이터 삭제
     func deleteUserData(uid: String) async throws {
-        try await db.collection("users").document(uid).delete()
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(uid)
+        let document = try await userRef.getDocument()
+        
+        guard document.exists, let caregiver = try? document.data(as: Caregiver.self) else {
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "사용자 데이터를 찾을 수 없거나 디코딩 실패"])
+        }
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for babyRef in caregiver.babies {
+                group.addTask {
+                    try await babyRef.delete()
+                    let babyId = babyRef.documentID
+                    let collections = ["records", "notes", "voiceRecords"]
+                    for collection in collections {
+                        let querySnapshot = try await db.collection("babies").document(babyId).collection(collection).getDocuments()
+                        for document in querySnapshot.documents {
+                            try await document.reference.delete()
+                        }
+                    }
+                }
+            }
+            try await group.waitForAll()
+        }
+        try await userRef.delete()
+        await logout()
+        
+        print("회원 데이터 및 관련 아기 데이터 삭제 성공")
     }
 }
