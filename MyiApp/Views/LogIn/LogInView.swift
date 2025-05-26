@@ -15,10 +15,6 @@ struct LogInView: View {
     
     var body: some View {
         ZStack {
-            // 배경색
-            Color("LaunchScreenColor")
-                .ignoresSafeArea()
-            
             VStack(spacing: 20) {
                 Spacer()
                 
@@ -40,7 +36,6 @@ struct LogInView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 256, height: 256)
-                    .padding(.bottom, 75)
                 
                 Spacer()
                 
@@ -99,24 +94,24 @@ struct LogInView: View {
                 .signInWithAppleButtonStyle(.whiteOutline)
                 .frame(height: 50)
                 .padding(.horizontal, 50)
+                .padding(.bottom, 50)
                 
                 Spacer()
             }
             
             // 로그인 로딩 화면
             if viewModel.isLoading {
-                ZStack {
                     Color.black.opacity(0.5)
                         .ignoresSafeArea()
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         .scaleEffect(1.5)
                         .padding()
-                }
-                .opacity(viewModel.isLoading ? 1 : 0)
-                .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
+                        .opacity(viewModel.isLoading ? 1 : 0)
+                        .animation(.easeInOut(duration: 0.3), value: viewModel.isLoading)
             }
         }
+        .background(Color("LaunchScreenColor"))
     }
 }
 

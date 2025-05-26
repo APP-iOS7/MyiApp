@@ -27,7 +27,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="launchIcon" translatesAutoresizingMaskIntoConstraints="NO" id="fyW-Ld-Cm0" userLabel="launchIcon">
-                                <rect key="frame" x="68.666666666666686" y="224" width="256" height="256"/>
+                                <rect key="frame" x="68" y="224" width="256" height="256"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="256" id="gFO-xn-OlR"/>
                                     <constraint firstAttribute="height" constant="256" id="s3S-3R-uWD"/>
