@@ -70,9 +70,9 @@ class CaregiverManager: ObservableObject {
             // 신규 사용자 데이터 저장
             let caregiver = Caregiver(
                 id: user.uid,
-                name: user.displayName?.isEmpty == false ? user.displayName : nil,
-                email: user.email ?? "unknown@example.com",
-                provider: user.providerData.first?.providerID ?? "unknown",
+                name: user.displayName,
+                email: user.email,
+                provider: user.providerData.first?.providerID,
                 babies: []
             )
             let _ = userRef.setData(from: caregiver)
