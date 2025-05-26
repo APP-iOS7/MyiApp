@@ -11,7 +11,7 @@ import FirebaseFirestore
 import PhotosUI
 
 @MainActor
-class AccountSettingsViewModel: ObservableObject {
+class AccountEditViewModel: ObservableObject {
     @Published var name: String = ""
     @Published var profileImage: UIImage?
     @Published var selectedPhoto: PhotosPickerItem?
@@ -27,7 +27,7 @@ class AccountSettingsViewModel: ObservableObject {
         return cache
     }()
     
-    static let shared = AccountSettingsViewModel()
+    static let shared = AccountEditViewModel()
     private init() {}
     
     // 초기 프로필 데이터 로드
@@ -44,26 +44,26 @@ class AccountSettingsViewModel: ObservableObject {
         }
     }
     
-    // 프로필 사진 선택 시 처리
-    func loadSelectedPhoto() async {
-        guard let selectedPhoto = selectedPhoto else { return }
-        do {
-            if let data = try await selectedPhoto.loadTransferable(type: Data.self),
-               let image = UIImage(data: data) {
-                await MainActor.run {
-                    self.profileImage = image
-                }
-            } else {
-                await MainActor.run {
-                    self.errorMessage = "Failed to load selected photo"
-                }
-            }
-        } catch {
-            await MainActor.run {
-                self.errorMessage = "Failed to load photo: \(error.localizedDescription)"
-            }
-        }
-    }
+//    // 프로필 사진 선택 시 처리
+//    func loadSelectedPhoto() async {
+//        guard let selectedPhoto = selectedPhoto else { return }
+//        do {
+//            if let data = try await selectedPhoto.loadTransferable(type: Data.self),
+//               let image = UIImage(data: data) {
+//                await MainActor.run {
+//                    self.profileImage = image
+//                }
+//            } else {
+//                await MainActor.run {
+//                    self.errorMessage = "Failed to load selected photo"
+//                }
+//            }
+//        } catch {
+//            await MainActor.run {
+//                self.errorMessage = "Failed to load photo: \(error.localizedDescription)"
+//            }
+//        }
+//    }
     
     // 프로필 저장
     func saveProfile() async {
@@ -87,13 +87,15 @@ class AccountSettingsViewModel: ObservableObject {
         }
         do {
             let data: [String: Any] = [
-                "name": name,
+                "name": trimmedName,
                 "email": caregiverManager.email ?? "",
                 "provider": caregiverManager.provider ?? ""
             ]
             try await databaseService.db.collection("users").document(uid).setData(data, merge: true)
             await MainActor.run {
                 self.caregiverManager.userName = trimmedName
+                self.caregiverManager.email = data["email"] as? String
+                self.caregiverManager.provider = data["provider"] as? String
                 self.isProfileSaved = true
             }
         } catch {

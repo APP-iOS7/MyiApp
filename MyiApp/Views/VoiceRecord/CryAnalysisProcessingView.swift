@@ -8,16 +8,18 @@
 import SwiftUI
 
 struct CryAnalysisProcessingView: View {
-    @Environment(\.dismiss) private var dismiss
-    @ObservedObject var viewModel: VoiceRecordViewModel
-    let onComplete: (EmotionResult) -> Void
-    @State private var result: EmotionResult?
+    @Environment(\.dismiss) private var dismiss // 네비게이션에서 현재 뷰를 닫을 수 있는 Environment
+    @ObservedObject var viewModel: VoiceRecordViewModel // 상태와 로직을 포함한 뷰 모델
+    @State private var result: EmotionResult? // 현재 표시 중인 결과 캐시
+    let onComplete: (EmotionResult) -> Void // 결과 전달 클로저
 
     var body: some View {
         ZStack {
             switch viewModel.step {
+            // .recording, .processing이면 ProccessingStateView 렌더링
             case .recording, .processing:
                 ProcessingStateView(viewModel: viewModel, dismiss: dismiss)
+            // .result면 onAppear에서 onComplete 호출
             case .result(let res):
                 Color.clear
                     .onAppear {
@@ -30,13 +32,17 @@ struct CryAnalysisProcessingView: View {
                             }
                         }
                     }
+            // .error면 ErrorStateView 렌더링
             case .error(let message):
                 ErrorStateView(message: message, dismiss: dismiss)
+            
+            // 나머지는 EmptyView 렌더링
             default:
                 EmptyView()
             }
         }
         .navigationBarBackButtonHidden(true)
+        // 뷰가 사라지면 내부 결과 초기화
         .onDisappear {
             result = nil
         }
@@ -76,10 +82,10 @@ private struct ProcessingStateView: View {
             .padding(.top, 16)
             
             Spacer()
+            
             EqualizerView()
                 .padding(.horizontal, 24)
                 .frame(height: 140)
-            
 
             Image("CryAnalysisProcessingShark")
                 .resizable()
@@ -110,11 +116,10 @@ private struct ProcessingStateView: View {
             Spacer()
         }
         .onReceive(dotTimer) { _ in
-            dotCount = (dotCount + 1) % 4
+            dotCount = (dotCount + 1) % 4 
         }
         .onAppear {
             startTime = Date()
-            
         }
         .onReceive(progressTimer) { _ in
             guard let start = startTime else { return }
