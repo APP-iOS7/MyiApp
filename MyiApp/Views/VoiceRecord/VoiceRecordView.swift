@@ -99,6 +99,7 @@ struct VoiceRecordView: View {
                 .contentShape(Rectangle())
                 .padding(.horizontal)
             }
+            .padding(.bottom, 15)
             .background(Color(UIColor.systemGroupedBackground))
             .navigationDestination(for: CryRoute.self) { route in
                 switch route {
