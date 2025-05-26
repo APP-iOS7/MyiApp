@@ -75,7 +75,7 @@ class CaregiverManager: ObservableObject {
                 provider: user.providerData.first?.providerID ?? "unknown",
                 babies: []
             )
-            try? await userRef.setData(from: caregiver)
+            let _ = userRef.setData(from: caregiver)
             self.caregiver = caregiver
             self.userName = caregiver.name
             self.email = caregiver.email
