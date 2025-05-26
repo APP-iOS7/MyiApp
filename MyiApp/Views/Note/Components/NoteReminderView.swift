@@ -57,11 +57,16 @@ struct NoteReminderView: View {
             Toggle("일정 알림", isOn: $isEnabled)
                 .tint(Color.button)
                 .onChange(of: isEnabled) { _, enabled in
-                    
                     if enabled {
-                        if reminderTime <= Date() || reminderMinutesBefore < 0 {
+                        // 알림 활성화 시 기본값 설정
+                        if eventDate > Date() {
                             reminderMinutesBefore = 0
                             reminderTime = eventDate
+                        } else {
+                            // 과거 일정인 경우
+                            isEnabled = false
+                            showInvalidTimeAlert = true
+                            alertMessage = "과거 일정에는 알림을 설정할 수 없습니다."
                         }
                     }
                 }
@@ -77,19 +82,7 @@ struct NoteReminderView: View {
                         Menu {
                             ForEach(reminderOptions, id: \.self) { minutes in
                                 Button(action: {
-                                    if minutes == 0 {
-                                        reminderMinutesBefore = 0
-                                        reminderTime = eventDate
-                                    } else {
-                                        let newReminderTime = eventDate.addingTimeInterval(TimeInterval(-minutes * 60))
-                                        if newReminderTime > Date() {
-                                            reminderMinutesBefore = minutes
-                                            reminderTime = newReminderTime
-                                        } else {
-                                            showInvalidTimeAlert = true
-                                            alertMessage = "선택한 시간이 현재보다 이전입니다. 다른 옵션을 선택해주세요."
-                                        }
-                                    }
+                                    selectReminderOption(minutes: minutes)
                                 }) {
                                     HStack {
                                         Text(minutesToString(minutes))
@@ -113,7 +106,7 @@ struct NoteReminderView: View {
                             }
                         } label: {
                             HStack {
-                                Text(minutesToString(reminderMinutesBefore))
+                                Text(reminderMinutesBefore == -1 ? "직접 설정" : minutesToString(reminderMinutesBefore))
                                     .foregroundColor(.blue)
                                 Image(systemName: "chevron.down")
                                     .font(.caption)
@@ -122,6 +115,7 @@ struct NoteReminderView: View {
                         }
                     }
                     
+                    // 알림 시간 표시
                     Button(action: {
                         tempReminderTime = reminderTime
                         showTimePicker = true
@@ -144,58 +138,10 @@ struct NoteReminderView: View {
                         .cornerRadius(10)
                     }
                     .sheet(isPresented: $showTimePicker) {
-                        VStack(spacing: 20) {
-                            Text("알림 시간 설정")
-                                .font(.headline)
-                                .padding(.top)
-                            
-                            DatePicker("알림 시간", selection: $tempReminderTime, displayedComponents: [.date, .hourAndMinute])
-                                .datePickerStyle(.wheel)
-                                .labelsHidden()
-                            
-                            HStack {
-                                Button("취소") {
-                                    showTimePicker = false
-                                }
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.gray.opacity(0.2))
-                                .foregroundColor(.primary)
-                                .cornerRadius(10)
-                                
-                                Button("확인") {
-                                    if tempReminderTime >= eventDate {
-                                        showInvalidTimeAlert = true
-                                        alertMessage = "알림 시간은 일정 시작 시간보다 이전이어야 합니다."
-                                    } else if tempReminderTime <= Date() {
-                                        showInvalidTimeAlert = true
-                                        alertMessage = "알림 시간은 현재 시간보다 이후여야 합니다."
-                                    } else {
-                                        reminderTime = tempReminderTime
-                                        
-                                        let diffSeconds = eventDate.timeIntervalSince(tempReminderTime)
-                                        let diffMinutes = Int(diffSeconds / 60)
-                                        
-                                        if reminderOptions.contains(diffMinutes) {
-                                            reminderMinutesBefore = diffMinutes
-                                        } else {
-                                            reminderMinutesBefore = -1
-                                        }
-                                        
-                                        showTimePicker = false
-                                    }
-                                }
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color("sharkPrimaryColor"))
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                            }
-                            .padding(.horizontal)
-                        }
-                        .presentationDetents([.height(350)])
+                        timePickerSheet
                     }
                     
+                    // 알림 설명
                     if reminderMinutesBefore == 0 {
                         Text("일정 시작 시간에 알림을 받습니다")
                             .font(.caption)
@@ -212,6 +158,92 @@ struct NoteReminderView: View {
                 }
             }
         }
+    }
+    
+    private var timePickerSheet: some View {
+        VStack(spacing: 20) {
+            Text("알림 시간 설정")
+                .font(.headline)
+                .padding(.top)
+            
+            DatePicker("알림 시간", selection: $tempReminderTime, displayedComponents: [.date, .hourAndMinute])
+                .datePickerStyle(.wheel)
+                .labelsHidden()
+            
+            HStack {
+                Button("취소") {
+                    showTimePicker = false
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.gray.opacity(0.2))
+                .foregroundColor(.primary)
+                .cornerRadius(10)
+                
+                Button("확인") {
+                    validateAndSetCustomTime()
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color("sharkPrimaryColor"))
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            }
+            .padding(.horizontal)
+        }
+        .presentationDetents([.height(350)])
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func selectReminderOption(minutes: Int) {
+        if minutes == 0 {
+            reminderMinutesBefore = 0
+            reminderTime = eventDate
+        } else {
+            let newReminderTime = eventDate.addingTimeInterval(TimeInterval(-minutes * 60))
+            
+            // 현재 시간보다 5초 이상 미래인지 확인
+            if newReminderTime > Date().addingTimeInterval(5) {
+                reminderMinutesBefore = minutes
+                reminderTime = newReminderTime
+            } else {
+                showInvalidTimeAlert = true
+                alertMessage = "선택한 시간이 현재보다 이전입니다. 다른 옵션을 선택해주세요."
+            }
+        }
+    }
+    
+    private func validateAndSetCustomTime() {
+        // 일정 시간 이전인지 확인
+        if tempReminderTime >= eventDate {
+            showInvalidTimeAlert = true
+            alertMessage = "알림 시간은 일정 시작 시간보다 이전이어야 합니다."
+            return
+        }
+        
+        // 현재 시간보다 5초 이상 미래인지 확인
+        if tempReminderTime <= Date().addingTimeInterval(5) {
+            showInvalidTimeAlert = true
+            alertMessage = "알림 시간은 현재 시간보다 이후여야 합니다."
+            return
+        }
+        
+        // 시간 설정
+        reminderTime = tempReminderTime
+        
+        // 분 단위 차이 계산
+        let diffSeconds = eventDate.timeIntervalSince(tempReminderTime)
+        let diffMinutes = Int(diffSeconds / 60)
+        
+        // 기존 옵션과 일치하는지 확인
+        if reminderOptions.contains(diffMinutes) {
+            reminderMinutesBefore = diffMinutes
+        } else {
+            reminderMinutesBefore = -1
+        }
+        
+        showTimePicker = false
     }
     
     private var formattedReminderTime: String {
