@@ -264,7 +264,7 @@ struct DailyFeedChartView: View {
                                 ForEach(Array(zip(weekDates, values)), id: \.0) { date, value in
                                     VStack {
                                         if (maxAmount > 0) {
-                                            Text("\(value)회")
+                                            Text("\(value)\(type == .breastfeeding ? "분" : "ml")")
                                                 .font(.caption2)
                                                 .foregroundColor(.primary)
                                                 .frame(height: 12)
@@ -481,7 +481,7 @@ struct WeeklyFeedChartView: View {
                                 ForEach(Array(zip(sixWeekStartDates, values)), id: \.0) { startDate, value in
                                     VStack {
                                         if (maxAmount > 0) {
-                                            Text("\(value)회")
+                                            Text("\(value)\(type == .breastfeeding ? "분" : "ml")")
                                                 .font(.caption2)
                                                 .foregroundColor(.primary)
                                                 .frame(height: 12)
@@ -701,7 +701,7 @@ struct MonthlyFeedChartView: View {
                                 ForEach(Array(zip(sixMonthStartDates, values)), id: \.0) { startDate, value in
                                     VStack {
                                         if (maxAmount > 0) {
-                                            Text("\(value)회")
+                                            Text("\(value)\(type == .breastfeeding ? "분" : "ml")")
                                                 .font(.caption2)
                                                 .foregroundColor(.primary)
                                                 .frame(height: 12)
