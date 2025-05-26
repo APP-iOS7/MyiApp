@@ -14,6 +14,11 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
         
+        if AuthService.shared.user == nil {
+                    DatabaseService.shared.hasBabyInfo = false
+                    CaregiverManager.shared.logout()
+                }
+        
         // 알림 설정
         UNUserNotificationCenter.current().delegate = self
         
@@ -65,7 +70,7 @@ struct MyiApp: App {
                 currentView
                     .task {
                         await updateAppState()
-                        await AccountSettingsViewModel.shared.loadProfile()
+                        await AccountEditViewModel.shared.loadProfile()
                     }
                     .onChange(of: authService.user) { _, _ in
                         Task { await updateAppState() }
@@ -82,17 +87,17 @@ struct MyiApp: App {
     @ViewBuilder
     private var currentView: some View {
         switch appState {
-        case .loading:
-            ProgressView()
-                .progressViewStyle(.circular)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.white.ignoresSafeArea())
-        case .login:
-            LogInView()
-        case .content:
-            ContentView()
-        case .register:
-            RegisterBabyView()
+            case .loading:
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.customBackground.ignoresSafeArea())
+            case .login:
+                LogInView()
+            case .content:
+                ContentView()
+            case .register:
+                RegisterBabyView()
         }
     }
     
