@@ -19,9 +19,6 @@ struct Baby: Codable, Identifiable {
     var photoURL: String?
     
     var caregivers: [DocumentReference]
-    var records: [Record]
-    var voiceRecords: [VoiceRecord]
-    var note: [Note]
     
     init(name: String, birthDate: Date, gender: Gender, height: Double, weight: Double, bloodType: BloodType) {
         self.id = UUID()
@@ -33,10 +30,19 @@ struct Baby: Codable, Identifiable {
         self.bloodType = bloodType
         self.photoURL = nil
         self.caregivers = []
-        self.records = []
-        self.voiceRecords = []
-        self.note = []
     }
+    
+    enum CodingKeys: String, CodingKey {
+            case id
+            case name
+            case birthDate = "birth_date"
+            case gender
+            case height
+            case weight
+            case bloodType = "blood_type"
+            case photoURL
+            case caregivers
+        }
 }
 
 enum BloodType: String, Codable {
