@@ -111,7 +111,7 @@ struct PottyStatisticCardView: View {
                         .foregroundColor(.gray)
                 }
             }
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 15) {
                 
                 Text("소변 \(small)회")
                 ProgressComparisonBar(today: small, yesterday: yesterdaysmall, color: Color("potty"), unit: "회", mode: mode)

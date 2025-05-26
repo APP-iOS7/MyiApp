@@ -59,19 +59,28 @@ class CaregiverManager: ObservableObject {
     @MainActor
     func saveCaregiverInfo() async {
         guard let user = Auth.auth().currentUser else { return }
-        let caregiver = Caregiver(
-            id: user.uid,
-            name: user.displayName,
-            email: user.email ?? "unknown@example.com",
-            provider: user.providerData.first?.providerID ?? "unknown",
-            babies: []
-        )
-        
-        try await db.collection("users").document(user.uid).setData(from: caregiver)
-        self.caregiver = caregiver
-        self.userName = caregiver.name
-        self.email = caregiver.email
-        self.provider = caregiver.provider
+        let userRef = db.collection("users").document(user.uid)
+        if let existingCaregiver = try? await userRef.getDocument().data(as: Caregiver.self) {
+            // 기존 데이터 존재하면 유지
+            self.caregiver = existingCaregiver
+            self.userName = existingCaregiver.name
+            self.email = existingCaregiver.email
+            self.provider = existingCaregiver.provider
+        } else {
+            // 신규 사용자 데이터 저장
+            let caregiver = Caregiver(
+                id: user.uid,
+                name: user.displayName?.isEmpty == false ? user.displayName : nil,
+                email: user.email ?? "unknown@example.com",
+                provider: user.providerData.first?.providerID ?? "unknown",
+                babies: []
+            )
+            try? await userRef.setData(from: caregiver)
+            self.caregiver = caregiver
+            self.userName = caregiver.name
+            self.email = caregiver.email
+            self.provider = caregiver.provider
+        }
     }
     
     private func subscribeToRecords() {
