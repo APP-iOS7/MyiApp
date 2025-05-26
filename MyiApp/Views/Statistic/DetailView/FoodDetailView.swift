@@ -229,7 +229,7 @@ struct DailyFeedChartView: View {
                         Image(uiImage: iconImage(for: type))
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 25, height: 25)
+                            .frame(width: 32, height: 32)
                         Text(type.rawValue)
                             .font(.headline)
                     }
@@ -312,7 +312,7 @@ struct DailyFeedChartView: View {
     
     func iconImage(for type: FeedingType) -> UIImage {
         switch type {
-        case .formula: return UIImage(named: "nornalFomual") ?? UIImage()
+        case .formula: return UIImage(named: "normalPowderedMilk") ?? UIImage()
         case .pumpedMilk: return UIImage(named: "normalPumpedMilk") ?? UIImage()
         case .breastfeeding: return UIImage(named: "normalBreastFeeding") ?? UIImage()
         case .babyFood: return UIImage(named: "normalBabyMeal") ?? UIImage()
@@ -446,7 +446,7 @@ struct WeeklyFeedChartView: View {
                         Image(uiImage: iconImage(for: type))
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 25, height: 25)
+                            .frame(width: 32, height: 32)
                         Text(type.rawValue)
                             .font(.headline)
                     }
@@ -527,7 +527,7 @@ struct WeeklyFeedChartView: View {
     
     func iconImage(for type: FeedingType) -> UIImage {
         switch type {
-        case .formula: return UIImage(named: "nornalFomual") ?? UIImage()
+        case .formula: return UIImage(named: "normalPowderedMilk") ?? UIImage()
         case .pumpedMilk: return UIImage(named: "normalPumpedMilk") ?? UIImage()
         case .breastfeeding: return UIImage(named: "normalBreastFeeding") ?? UIImage()
         case .babyFood: return UIImage(named: "normalBabyMeal") ?? UIImage()
@@ -666,7 +666,7 @@ struct MonthlyFeedChartView: View {
                         Image(uiImage: iconImage(for: type))
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 25, height: 25)
+                            .frame(width: 32, height: 32)
                         Text(type.rawValue)
                             .font(.headline)
                     }
@@ -748,7 +748,7 @@ struct MonthlyFeedChartView: View {
     
     func iconImage(for type: FeedingType) -> UIImage {
         switch type {
-        case .formula: return UIImage(named: "nornalFomual") ?? UIImage()
+        case .formula: return UIImage(named: "normalPowderedMilk") ?? UIImage()
         case .pumpedMilk: return UIImage(named: "normalPumpedMilk") ?? UIImage()
         case .breastfeeding: return UIImage(named: "normalBreastFeeding") ?? UIImage()
         case .babyFood: return UIImage(named: "normalBabyMeal") ?? UIImage()
