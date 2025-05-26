@@ -81,8 +81,6 @@ private struct ProcessingStateView: View {
             .padding(.horizontal)
             .padding(.top, 16)
             
-            Spacer()
-            
             EqualizerView()
                 .padding(.horizontal, 24)
                 .frame(height: 140)
@@ -105,16 +103,18 @@ private struct ProcessingStateView: View {
             
             Spacer()
             
-            ProgressView(value: progress)
-                .progressViewStyle(LinearProgressViewStyle())
-                .padding(.horizontal, 24)
+            VStack(spacing: 8) {
+                ProgressView(value: progress)
+                    .progressViewStyle(LinearProgressViewStyle())
+                    .padding(.horizontal, 24)
 
-            Text("\(Int(progress * 100))%")
-                .font(.system(size: 18, weight: .medium))
-                .foregroundColor(.gray)
-            
-            Spacer()
+                Text("\(Int(progress * 100))%")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(.gray)
+            }
+            .padding(.bottom, 24)
         }
+        .frame(maxHeight: .infinity, alignment: .top)
         .onReceive(dotTimer) { _ in
             dotCount = (dotCount + 1) % 4 
         }
