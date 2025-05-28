@@ -57,7 +57,7 @@ struct EditRecordView: View {
     
     private var recordTimeSection: some View {
         Section {
-            DatePicker("기록 시간", selection: $viewModel.record.createdAt, displayedComponents: [.date, .hourAndMinute])
+            DatePicker("시간", selection: $viewModel.record.createdAt, displayedComponents: [.date, .hourAndMinute])
         }
     }
     
