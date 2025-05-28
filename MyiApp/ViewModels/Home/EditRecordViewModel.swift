@@ -64,6 +64,12 @@ class EditRecordViewModel: ObservableObject {
     
     func saveHeightWeight() {
         guard let babyId = caregiverManager.selectedBaby?.id.uuidString else { return }
+                let records = caregiverManager.records.filter { $0.title == .heightWeight }
+        if let latestRecord = records.first,
+           latestRecord.createdAt > record.createdAt {
+            return
+        }
+        
         var updateData: [String: Any] = [:]
         if let height = record.height {
             updateData["height"] = height
