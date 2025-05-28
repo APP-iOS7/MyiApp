@@ -19,7 +19,7 @@ struct EditRecordView: View {
         NavigationView {
             Form {
                 content(record: viewModel.record)
-                recordTimeSection
+                if viewModel.record.title != .sleep { recordTimeSection }
                 deleteSection
             }
             .navigationTitle(viewModel.navigationTitle)

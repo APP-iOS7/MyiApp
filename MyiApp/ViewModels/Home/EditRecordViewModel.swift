@@ -54,6 +54,9 @@ class EditRecordViewModel: ObservableObject {
         if record.title == .heightWeight {
             saveHeightWeight()
         }
+        if record.title == .sleep {
+            record.createdAt = record.sleepStart!
+        }
     }
     
     func deleteRecord() {
