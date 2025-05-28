@@ -464,11 +464,15 @@ extension NoteViewModel {
                     updatedNote.imageURLs.append(contentsOf: newImageURLs)
                     
                     self.updateNote(note: updatedNote)
-                    
                     self.deleteImagesFromStorage(imageURLs: imagesToDelete)
                     
                     self.isLoading = false
-                    self.toastMessage = ToastMessage(message: "일지가 수정되었습니다.", type: .success)
+                    let category = note.category == .일지 ? "일지" : "일정"
+                    let particle = note.category == .일지 ? "가" : "이"
+                    self.toastMessage = ToastMessage(
+                        message: "\(category)\(particle) 수정되었습니다.",
+                        type: .success
+                    )
                     
                 case .failure(let error):
                     self.isLoading = false
@@ -477,7 +481,10 @@ extension NoteViewModel {
                     self.updateNote(note: note)
                     self.deleteImagesFromStorage(imageURLs: imagesToDelete)
                     
-                    self.toastMessage = ToastMessage(message: "이미지 업로드 실패, 내용은 수정되었습니다.", type: .error)
+                    self.toastMessage = ToastMessage(
+                        message: "이미지 업로드 실패, 내용은 수정되었습니다.",
+                        type: .error
+                    )
                 }
             }
         }
@@ -487,12 +494,16 @@ extension NoteViewModel {
         isLoading = true
         
         updateNote(note: note)
-        
         deleteImagesFromStorage(imageURLs: imagesToDelete)
         
         DispatchQueue.main.async {
             self.isLoading = false
-            self.toastMessage = ToastMessage(message: "일지가 수정되었습니다.", type: .success)
+            let category = note.category == .일지 ? "일지" : "일정"
+            let particle = note.category == .일지 ? "가" : "이"
+            self.toastMessage = ToastMessage(
+                message: "\(category)\(particle) 수정되었습니다.",
+                type: .success
+            )
         }
     }
     

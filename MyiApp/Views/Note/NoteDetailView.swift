@@ -386,7 +386,11 @@ struct NoteDetailView: View {
         }
         
         let category = event.category == .일지 ? "일지" : "일정"
-        viewModel.toastMessage = ToastMessage(message: "\(category)가 삭제되었습니다.", type: .info)
+        let particle = event.category == .일지 ? "가" : "이"
+        viewModel.toastMessage = ToastMessage(
+            message: "\(category)\(particle) 삭제되었습니다.",
+            type: .info
+        )
         
         viewModel.deleteNote(note: event)
         presentationMode.wrappedValue.dismiss()
