@@ -63,23 +63,9 @@ private struct ProcessingStateView: View {
     
     var body: some View {
         VStack(spacing: 24) {
-            ZStack {
-                Text("분석 중")
-                    .font(.system(size: 20, weight: .semibold))
-
-                HStack {
-                    Button(action: {
-                        viewModel.cancel()
-                        dismiss()
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(.primary.opacity(0.8))
-                    }
-                    Spacer()
-                }
-            }
-            .padding(.horizontal)
-            .padding(.top, 16)
+            Text("분석 중")
+                .font(.system(size: 20, weight: .semibold))
+                .padding(.top, 16)
             
             EqualizerView()
                 .padding(.horizontal, 24)
@@ -112,7 +98,20 @@ private struct ProcessingStateView: View {
                     .font(.system(size: 18, weight: .medium))
                     .foregroundColor(.gray)
             }
-            .padding(.bottom, 24)
+            Button(action: {
+                viewModel.cancel()
+                dismiss()
+            }) {
+                Text("취소")
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .font(.headline)
+                    .frame(height: 50)
+                    .background(Color("buttonColor"))
+                    .cornerRadius(12)
+            }
+            .contentShape(Rectangle())
+            .padding(.horizontal)
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .onReceive(dotTimer) { _ in
