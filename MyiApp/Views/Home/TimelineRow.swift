@@ -6,11 +6,17 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
 
 struct TimelineRow: View {
     let record: Record
     let index: Int
     let totalCount: Int
+    @State private var offset: CGFloat = 0
+    @State private var isSwiped = false
+    @State private var showingDeleteAlert = false
+    @GestureState private var isDragging = false
+    private let deleteWidth: CGFloat = -70
     
     var showTopLine: Bool {
         if totalCount == 1 { return false }
@@ -129,44 +135,134 @@ struct TimelineRow: View {
     }
     
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Text(record.createdAt.to24HourTimeString())
-                .font(.system(size: 16))
-                .frame(width: 50, alignment: .leading)
-            VStack(spacing: 0) {
-                Rectangle()
-                    .fill(showTopLine ? Color.gray.opacity(0.4) : Color(uiColor: .tertiarySystemBackground))
-                    .frame(width: 2, height: 25)
-                Circle()
-                    .fill(circleColor)
-                    .frame(width: 10, height: 10)
-                Rectangle()
-                    .fill(showBottomLine ? Color.gray.opacity(0.4) : Color(uiColor: .tertiarySystemBackground))
-                    .frame(width: 2, height: 25)
+        ZStack {
+            // 삭제 버튼 배경
+            HStack(spacing: 0) {
+                Spacer()
+                
+                Button {
+                    showingDeleteAlert = true
+                } label: {
+                    VStack {
+                        Image(systemName: "trash")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                    }
+                    .frame(width: 50, height: 50)
+                    .background(Color.red.opacity(0.7))
+                }
+                .cornerRadius(20)
             }
-            HStack(spacing: 8) {
-                Image(uiImage: iconName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 40, height: 40)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                    Text(subtitle)
-                        .font(.caption2)
-                        .foregroundColor(.gray)
+            .opacity(offset < -10 ? 1 : 0)
+            
+            // 기존 타임라인 로우 내용
+            HStack(alignment: .center, spacing: 12) {
+                Text(record.createdAt.to24HourTimeString())
+                    .font(.system(size: 16))
+                    .frame(width: 50, alignment: .leading)
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .fill(showTopLine ? Color.gray.opacity(0.4) : Color(uiColor: .tertiarySystemBackground))
+                        .frame(width: 2, height: 25)
+                    Circle()
+                        .fill(circleColor)
+                        .frame(width: 10, height: 10)
+                    Rectangle()
+                        .fill(showBottomLine ? Color.gray.opacity(0.4) : Color(uiColor: .tertiarySystemBackground))
+                        .frame(width: 2, height: 25)
+                }
+                HStack(spacing: 8) {
+                    Image(uiImage: iconName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 40, height: 40)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(title)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        Text(subtitle)
+                            .font(.caption2)
+                            .foregroundColor(.gray)
+                    }
+                }
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
+            }
+            .background(Color(UIColor.tertiarySystemBackground))
+            .cornerRadius(10)
+            .contentShape(Rectangle())
+            .offset(x: offset)
+            .gesture(
+                DragGesture(minimumDistance: 15, coordinateSpace: .local)
+                    .updating($isDragging) { _, state, _ in
+                        state = true
+                    }
+                    .onChanged { value in
+                        if value.translation.width < 0 {
+                            offset = max(value.translation.width, deleteWidth)
+                        }
+                    }
+                    .onEnded { value in
+                        if value.translation.width < deleteWidth/2 {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                offset = deleteWidth
+                                isSwiped = true
+                            }
+                        } else {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                offset = 0
+                                isSwiped = false
+                            }
+                        }
+                    }
+            )
+            .simultaneousGesture(
+                TapGesture()
+                    .onEnded { _ in
+                        if isSwiped {
+                            withAnimation(.spring()) {
+                                offset = 0
+                                isSwiped = false
+                            }
+                        }
+                    }
+            )
+        }
+        .alert("삭제 확인", isPresented: $showingDeleteAlert) {
+            Button("취소", role: .cancel) {
+                withAnimation(.spring()) {
+                    offset = 0
+                    isSwiped = false
                 }
             }
-            Spacer()
-            
-            Image(systemName: "chevron.right")
-                .foregroundColor(.gray)
+            Button("삭제", role: .destructive) {
+                deleteRecord()
+                offset = 0
+                isSwiped = false
+            }
+        } message: {
+            Text("이 기록을 삭제하시겠습니까?")
         }
-        .padding(.horizontal, 5)
+        .padding(.horizontal)
+        .onAppear {
+            offset = 0
+            isSwiped = false
+        }
+        .onDisappear {
+            offset = 0
+            isSwiped = false
+        }
+    }
+    
+    private func deleteRecord() {
+        let babyId = CaregiverManager.shared.selectedBaby?.id.uuidString ?? ""
+        let _ = Firestore.firestore().collection("babies").document(babyId).collection("records").document(record.id.uuidString).delete { error in
+            print(error ?? "")
+        }
     }
 }
-
 
 #Preview {
     //    TimelineRow(record: Record.mockRecords[0])
