@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import Combine
+//import Combine
 import FirebaseFirestore
 
 class HomeViewModel: ObservableObject {
@@ -42,7 +42,6 @@ class HomeViewModel: ObservableObject {
         }
     }
     let caregiverManager = CaregiverManager.shared
-    private var cancellables = Set<AnyCancellable>()
     var displayName: String {
         baby?.name ?? "loading..."
     }
@@ -211,5 +210,19 @@ class HomeViewModel: ObservableObject {
     func babyChangeButtonDidTap(baby: Baby) {
         
     }
+    
+    func deleteRecord(_ record: Record, completion: ((Error?) -> Void)? = nil) {
+        guard let baby else { return }
+        Firestore.firestore().collection("babies").document(baby.id.uuidString).collection("records").document(record.id.uuidString).delete { error in
+            if let error = error {
+                print("Error deleting record: \(error.localizedDescription)")
+                completion?(error)
+            } else {
+                print("Record successfully deleted")
+                completion?(nil)
+            }
+        }
+    }
 }
+
 
