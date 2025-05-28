@@ -319,8 +319,6 @@ struct HomeView: View {
                             totalCount: viewModel.filteredRecords.count
                         )
                         .padding(.horizontal)
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
                         .contentShape(Rectangle())
                         .onTapGesture {
                             viewModel.recordToEdit = record
@@ -330,11 +328,15 @@ struct HomeView: View {
 //                                                viewModel.deleteRecord(record)
                             } label: {
                                 Label("삭제", systemImage: "trash")
+                                    .foregroundColor(.red)
                             }
+                            .tint(.red)
                         }
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                     }
                 }
-                .listRowSeparator(.hidden)
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
                 .frame(height: CGFloat(viewModel.filteredRecords.count * 60))
