@@ -310,19 +310,34 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 50)
             } else {
-                ForEach(viewModel.filteredRecords.indices, id: \.self) { index in
-                    let record = viewModel.filteredRecords[index]
-                    TimelineRow(
-                        record: record,
-                        index: index,
-                        totalCount: viewModel.filteredRecords.count
-                    )
-                    .frame(maxWidth: .infinity)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        viewModel.recordToEdit = record
+                List {
+                    ForEach(viewModel.filteredRecords.indices, id: \.self) { index in
+                        let record = viewModel.filteredRecords[index]
+                        TimelineRow(
+                            record: record,
+                            index: index,
+                            totalCount: viewModel.filteredRecords.count
+                        )
+                        .padding(.horizontal)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.recordToEdit = record
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+//                                                viewModel.deleteRecord(record)
+                            } label: {
+                                Label("삭제", systemImage: "trash")
+                            }
+                        }
                     }
                 }
+                .listRowSeparator(.hidden)
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .frame(height: CGFloat(viewModel.filteredRecords.count * 60))
                 .sheet(item: $viewModel.recordToEdit) { record in
                     let detents: Set<PresentationDetent> = {
                         switch record.title {
