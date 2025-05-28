@@ -50,12 +50,12 @@ class EditRecordViewModel: ObservableObject {
     
     func saveRecord() {
         let babyId = caregiverManager.selectedBaby?.id.uuidString ?? ""
+        if record.title == .sleep {
+            record.createdAt = record.sleepStart!
+        }
         let _ = Firestore.firestore().collection("babies").document(babyId).collection("records").document(record.id.uuidString).setData(from: record)
         if record.title == .heightWeight {
             saveHeightWeight()
-        }
-        if record.title == .sleep {
-            record.createdAt = record.sleepStart!
         }
     }
     
