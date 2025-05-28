@@ -248,7 +248,7 @@ struct SettingsView: View {
                         }) {
                             Text("회원탈퇴")
                                 .font(.caption2)
-                                .foregroundColor(.blue)
+                                .foregroundColor(.primary.opacity(0.5))
                                 .padding(.vertical, 20)
                                 .underline()
                         }

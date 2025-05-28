@@ -20,7 +20,6 @@ class NotificationService: ObservableObject {
         checkAuthorizationStatus()
     }
     
-    // 알림 권한 상태 확인
     func checkAuthorizationStatus() {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             DispatchQueue.main.async {
@@ -29,19 +28,18 @@ class NotificationService: ObservableObject {
         }
     }
     
-    // 알림 권한 요청
     func requestAuthorization(completion: @escaping (Bool) -> Void = { _ in }) {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             DispatchQueue.main.async {
                 self.authorizationStatus = granted ? .authorized : .denied
-                if error != nil {
+                if let error = error {
+                    print("알림 권한 요청 에러: \(error.localizedDescription)")
                 }
                 completion(granted)
             }
         }
     }
     
-    // 알림 예약
     @discardableResult
     func scheduleNotification(for note: Note, minutesBefore: Int = 0) -> (success: Bool, time: Date?, message: String?) {
         
@@ -51,57 +49,81 @@ class NotificationService: ObservableObject {
         
         cancelNotification(with: note.id.uuidString)
         
-        let triggerDate = minutesBefore == 0 ?
-            note.date :
-            note.date.addingTimeInterval(TimeInterval(-minutesBefore * 60))
+        let triggerDate: Date
+        if minutesBefore == 0 {
+            triggerDate = note.date
+        } else {
+            triggerDate = note.date.addingTimeInterval(TimeInterval(-minutesBefore * 60))
+        }
         
-        if triggerDate <= Date() {
-            return (false, nil, "이미 지난 시간으로 알림을 설정할 수 없습니다.")
+        let minimumFutureTime = Date().addingTimeInterval(5)
+        if triggerDate < minimumFutureTime {
+            return (false, nil, "알림 시간은 현재 시간보다 최소 5초 이후여야 합니다.")
         }
         
         let content = UNMutableNotificationContent()
         content.title = "일정 알림"
         content.body = note.title
         content.sound = .default
+        content.badge = 1
+        
+        content.categoryIdentifier = "SCHEDULE_NOTIFICATION"
         
         content.userInfo = [
             "noteId": note.id.uuidString,
             "title": note.title,
-            "date": note.date.timeIntervalSince1970
+            "date": note.date.timeIntervalSince1970,
+            "category": note.category.rawValue
         ]
         
-        let dateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: triggerDate)
+        let dateComponents = Calendar.current.dateComponents(
+            [.year, .month, .day, .hour, .minute],
+            from: triggerDate
+        )
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
         
-        let request = UNNotificationRequest(identifier: note.id.uuidString, content: content, trigger: trigger)
+        let request = UNNotificationRequest(
+            identifier: note.id.uuidString,
+            content: content,
+            trigger: trigger
+        )
         
         var isSuccessful = true
+        var errorMessage: String?
         let semaphore = DispatchSemaphore(value: 0)
         
         UNUserNotificationCenter.current().add(request) { error in
             defer { semaphore.signal() }
             
-            if error != nil {
+            if let error = error {
                 isSuccessful = false
+                errorMessage = error.localizedDescription
+                print("알림 예약 실패: \(error.localizedDescription)")
             } else {
+                print("알림 예약 성공: \(note.title) at \(triggerDate)")
             }
         }
         
         _ = semaphore.wait(timeout: .now() + 1.0)
         
-        
         if isSuccessful {
             notificationCache[note.id.uuidString] = (triggerDate, note.title)
             return (true, triggerDate, nil)
         } else {
-            return (false, nil, "알림 설정에 실패했습니다")
+            return (false, nil, errorMessage ?? "알림 설정에 실패했습니다")
         }
     }
     
     func cancelNotification(with identifier: String) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
-
         notificationCache.removeValue(forKey: identifier)
+        print("알림 취소됨: \(identifier)")
+    }
+    
+    func cancelAllNotifications() {
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        notificationCache.removeAll()
+        print("모든 알림이 취소되었습니다")
     }
     
     func getNotificationTimeText(for date: Date) -> String {
@@ -157,10 +179,33 @@ class NotificationService: ObservableObject {
         }
     }
     
-    // 설정 앱의 알림 설정 화면 열기
+    func getAllPendingNotifications(completion: @escaping ([UNNotificationRequest]) -> Void) {
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            DispatchQueue.main.async {
+                completion(requests)
+            }
+        }
+    }
+    
     func openNotificationSettings() {
         if let url = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(url)
+        }
+    }
+    
+    func printAllPendingNotifications() {
+        getAllPendingNotifications { requests in
+            print("===== 예약된 알림 목록 =====")
+            for request in requests {
+                if let trigger = request.trigger as? UNCalendarNotificationTrigger,
+                   let nextDate = trigger.nextTriggerDate() {
+                    print("ID: \(request.identifier)")
+                    print("제목: \(request.content.title)")
+                    print("시간: \(self.getNotificationTimeText(for: nextDate))")
+                    print("------------------------")
+                }
+            }
+            print("총 \(requests.count)개의 알림이 예약되어 있습니다.")
         }
     }
 }
