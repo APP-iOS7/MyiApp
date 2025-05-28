@@ -14,6 +14,8 @@ import Kingfisher
 struct HomeView: View {
     @StateObject var viewModel: HomeViewModel = .init()
     @State private var isPresented = false
+    @State private var showDeleteAlert = false
+    @State private var recordToDelete: Record?
     
     var body: some View {
         ZStack {
@@ -41,6 +43,19 @@ struct HomeView: View {
             .blur(radius: isPresented ? 10 : 0)
             .id(isPresented ? "blurred" : "normal")
             if isPresented { babyFullScreenCard }
+        }
+        .alert("기록 삭제", isPresented: $showDeleteAlert) {
+            Button("취소", role: .cancel) {
+                recordToDelete = nil
+            }
+            Button("삭제", role: .destructive) {
+                if let record = recordToDelete {
+                    viewModel.deleteRecord(record)
+                }
+                recordToDelete = nil
+            }
+        } message: {
+            Text("이 기록을 삭제하시겠습니까?")
         }
     }
     
@@ -324,8 +339,9 @@ struct HomeView: View {
                             viewModel.recordToEdit = record
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-//                                                viewModel.deleteRecord(record)
+                            Button(role: .cancel) {
+                                recordToDelete = record
+                                showDeleteAlert = true
                             } label: {
                                 Label("삭제", systemImage: "trash")
                                     .foregroundColor(.red)
