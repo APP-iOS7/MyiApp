@@ -7,6 +7,7 @@ class EditRecordViewModel: ObservableObject {
     @Published var isRightMinutesPickerActionSheetPresent = false
     @Published var isMLPickerActionSheetPresent = false
     @Published var isTMPickerActionSheetPresent = false
+    @Published var showDeleteAlert = false
     let caregiverManager = CaregiverManager.shared
     
     init(record: Record) {
