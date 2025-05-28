@@ -9,110 +9,93 @@ import SwiftUI
 
 struct RegisterBabyView: View {
     @StateObject private var viewModel = RegisterBabyViewModel()
-    
-    private var isButtonEnabled: Bool {
-        !viewModel.name.isEmpty &&
-        viewModel.gender != nil &&
-        !viewModel.height.isEmpty &&
-        !viewModel.weight.isEmpty &&
-        viewModel.bloodType != nil &&
-        viewModel.birthDate != nil
-    }
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedForm: RegistrationType? = nil
+    @State private var navigateToNextView = false
     
     var body: some View {
-        NavigationStack {
-            Form {
-                Section(header: Text("이름")) {
-                    TextField("이름을 입력하세요", text: $viewModel.name)
-                        .onSubmit {
-                            dismissKeyboard()
-                        }
-                        .submitLabel(.done)
-                        .disableAutocorrection(true)
-                        .textInputAutocapitalization(.never)
-                }
-                
-                Section(header: Text("출생")) {
-                    DatePicker(
-                        "날짜",
-                        selection: Binding(
-                            get: { viewModel.birthDate ?? Date() },
-                            set: { viewModel.birthDate = $0 }
-                        ),
-                        displayedComponents: .date
-                    )
-                    Toggle("시간 입력", isOn: $viewModel.isTimeSelectionEnabled)
-                    if viewModel.isTimeSelectionEnabled {
-                        DatePicker(
-                            "시간",
-                            selection: Binding(
-                                get: { viewModel.birthDate ?? Date() },
-                                set: { viewModel.birthDate = $0 }
-                            ),
-                            displayedComponents: .hourAndMinute
-                        )
-                    }
-                }
-                
-                Section(header: Text("카테고리")) {
-                    Picker("성별", selection: $viewModel.gender) {
-                        Text("선택").tag(nil as Gender?)
-                        Text("남").tag(Gender.male as Gender?)
-                        Text("여").tag(Gender.female as Gender?)
-                    }
-                    .pickerStyle(.menu)
-                }
-                
-                Section(header: Text("키/몸무게")) {
-                    TextField("키를 입력하세요", text: $viewModel.height)
-                        .keyboardType(.decimalPad)
-                        .onSubmit {
-                            dismissKeyboard()
-                        }
-                        .submitLabel(.done)
-                        .disableAutocorrection(true)
-                        .textInputAutocapitalization(.never)
+        VStack(alignment: .leading, spacing: 20) {
+            Text("아이 등록")
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.primary.opacity(0.8))
+                .padding()
+                .padding(.top, 10)
+            
+            VStack {
+                HStack {
+                    Text("새로운 아이 등록")
+                        .font(.title3)
                     
-                    TextField("몸무게를 입력하세요", text: $viewModel.weight)
-                        .keyboardType(.decimalPad)
-                        .onSubmit {
-                            dismissKeyboard()
-                        }
-                        .submitLabel(.done)
-                        .disableAutocorrection(true)
-                        .textInputAutocapitalization(.never)
+                    Spacer()
+                    
+                    Image(systemName: selectedForm == .newBaby ? "checkmark.circle.fill" : "checkmark.circle")
+                        .font(.title2)
+                        .foregroundColor(selectedForm == .newBaby ? Color("buttonColor") : .primary.opacity(0.6))
+                }
+                .padding()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    selectedForm = .newBaby
                 }
                 
-                Section(header: Text("혈액형")) {
-                    Picker("혈액형", selection: $viewModel.bloodType) {
-                        Text("선택").tag(nil as BloodType?)
-                        Text("A").tag(BloodType.A as BloodType?)
-                        Text("B").tag(BloodType.B as BloodType?)
-                        Text("O").tag(BloodType.O as BloodType?)
-                        Text("AB").tag(BloodType.AB as BloodType?)
-                    }
-                    .pickerStyle(.menu)
+                HStack {
+                    Text("기존 아이 등록")
+                        .font(.title3)
+                    
+                    Spacer()
+                    Image(systemName: selectedForm == .existingBaby ? "checkmark.circle.fill" : "checkmark.circle")
+                        .font(.title2)
+                        .foregroundColor(selectedForm == .existingBaby ? Color("buttonColor") : .primary.opacity(0.6))
+                }
+                .padding()
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    selectedForm = .existingBaby
                 }
             }
-            .navigationTitle("아이 정보 등록")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("저장") {
-                        dismissKeyboard()
-                        viewModel.registerBaby()
+            
+            Spacer()
+            
+            VStack {
+                Button(action: {
+                    if selectedForm != nil {
+                        navigateToNextView = true
                     }
-                    .disabled(!isButtonEnabled)
+                }) {
+                    Text("다음")
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .font(.headline)
+                        .background(selectedForm == nil ? Color.gray : Color("buttonColor"))
+                        .cornerRadius(12)
                 }
+                .disabled(selectedForm == nil)
+                .padding(.horizontal)
             }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                dismissKeyboard()
+            .navigationDestination(isPresented: $navigateToNextView) {
+                destinationView()
             }
         }
+        .background(Color(UIColor.tertiarySystemBackground))
     }
-    private func dismissKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
-                                        to: nil, from: nil, for: nil)
+    
+    enum RegistrationType {
+        case newBaby
+        case existingBaby
+    }
+    
+    @ViewBuilder
+    private func destinationView() -> some View {
+        switch selectedForm {
+        case .newBaby:
+            NewBabyRegisterView()
+        case .existingBaby:
+            ExistingBabyRegisterView()
+        case .none:
+            EmptyView()
+        }
     }
 }
 
