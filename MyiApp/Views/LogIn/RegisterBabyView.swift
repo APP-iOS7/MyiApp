@@ -63,7 +63,7 @@ struct RegisterBabyView: View {
                         navigateToNextView = true
                     }
                 }) {
-                    Text("완료")
+                    Text("다음")
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
