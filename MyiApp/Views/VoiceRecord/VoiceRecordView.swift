@@ -44,6 +44,11 @@ struct VoiceRecordView: View {
     @StateObject private var viewModel: VoiceRecordViewModel = .init()
     @State private var navigationPath = NavigationPath()
     
+    // 선택 모드 관련 상태
+    @State private var isSelectionMode = false
+    @State private var selectedRecords: Set<UUID> = []
+    @State private var showDeleteAlert = false
+    
     var body: some View {
         NavigationStack(path: $navigationPath) {
             VStack {
@@ -52,8 +57,53 @@ struct VoiceRecordView: View {
                     Text("울음분석")
                         .font(.system(size: 28, weight: .bold))
                     Spacer()
+                    
+                    // 선택/취소/삭제 버튼
+                    if !viewModel.recordResults.isEmpty {
+                        if isSelectionMode {
+                            HStack(spacing: 12) {
+                                // 삭제 버튼 (선택된 항목이 있을 때만 활성화)
+                                Button("삭제") {
+                                    showDeleteAlert = true
+                                }
+                                .font(.subheadline)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .foregroundColor(selectedRecords.isEmpty ? .primary : .red)
+                                .background(
+                                    Capsule().stroke(Color.primary, lineWidth: 1)
+                                )
+                                .disabled(selectedRecords.isEmpty)
+                                
+                                // 취소 버튼
+                                Button("취소") {
+                                    exitSelectionMode()
+                                }
+                                .font(.subheadline)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .foregroundColor(.primary)
+                                .background(
+                                    Capsule().stroke(Color.primary, lineWidth: 1)
+                                )
+                            }
+                        } else {
+                            // 선택 버튼
+                            Button("선택") {
+                                enterSelectionMode()
+                            }
+                            .font(.subheadline)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .foregroundColor(.primary)
+                            .background(
+                                Capsule().stroke(Color.primary, lineWidth: 1)
+                            )
+                        }
+                    }
                 }
                 .padding([.top, .horizontal])
+                .animation(.easeInOut(duration: 0.2), value: isSelectionMode)
 
                 // 결과 리스트
                 if viewModel.recordResults.isEmpty {
@@ -74,36 +124,46 @@ struct VoiceRecordView: View {
                     ScrollView {
                         VStack(spacing: 8) {
                             ForEach(viewModel.recordResults) { result in
-                                VoiceRecordResultCard(result: result)
+                                VoiceRecordResultCard(
+                                    result: result,
+                                    isSelectionMode: isSelectionMode,
+                                    isSelected: selectedRecords.contains(result.id),
+                                    onSelectionToggle: {
+                                        toggleSelection(for: result.id)
+                                    }
+                                )
                             }
                         }
                         .padding(.top, 8)
                     }
                 }
 
-                // 분석 시작 버튼
-                Button(action: {
-                    viewModel.resetAnalysisState()
-                    viewModel.startAnalysis()
-                    navigationPath = NavigationPath()
-                    navigationPath.append(CryRoute.processing())
-                }) {
-                    Text("분석 시작")
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .font(.headline)
-                        .frame(height: 50)
-                        .background(Color("buttonColor"))
-                        .cornerRadius(12)
+                // 분석 시작 버튼 (선택 모드가 아닐 때만 표시)
+                if !isSelectionMode {
+                    Button(action: {
+                        viewModel.resetAnalysisState()
+                        viewModel.startAnalysis()
+                        navigationPath = NavigationPath()
+                        navigationPath.append(CryRoute.processing())
+                    }) {
+                        Text("분석 시작")
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .font(.headline)
+                            .frame(height: 50)
+                            .background(Color("buttonColor"))
+                            .cornerRadius(12)
+                    }
+                    .contentShape(Rectangle())
+                    .padding(.horizontal)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
-                .contentShape(Rectangle())
-                .padding(.horizontal)
             }
             .padding(.bottom, 15)
             .background(Color(UIColor.systemGroupedBackground))
             .navigationDestination(for: CryRoute.self) { route in
                 switch route {
-                case .processing(let id):  // UUID 꺼냄
+                case .processing(let id):
                     CryAnalysisProcessingView(viewModel: viewModel) { result in
                         navigationPath.removeLast()
                         navigationPath.append(CryRoute.result(emotion: result, id: UUID()))
@@ -130,15 +190,65 @@ struct VoiceRecordView: View {
                     }
                 }
             }
+            .alert("선택한 항목을 삭제하시겠습니까?", isPresented: $showDeleteAlert) {
+                Button("취소", role: .cancel) { }
+                Button("삭제", role: .destructive) {
+                    deleteSelectedRecords()
+                }
+            } message: {
+                Text("\(selectedRecords.count)개의 분석 결과가 삭제됩니다.")
+            }
         }
+    }
+    
+    // MARK: - Selection Mode Functions
+    private func enterSelectionMode() {
+        isSelectionMode = true
+        selectedRecords.removeAll()
+    }
+    
+    private func exitSelectionMode() {
+        isSelectionMode = false
+        selectedRecords.removeAll()
+    }
+    
+    private func toggleSelection(for recordId: UUID) {
+        if selectedRecords.contains(recordId) {
+            selectedRecords.remove(recordId)
+        } else {
+            selectedRecords.insert(recordId)
+        }
+    }
+    
+    private func deleteSelectedRecords() {
+        viewModel.deleteRecords(with: selectedRecords)
+        exitSelectionMode()
     }
 }
 
 private struct VoiceRecordResultCard: View {
     let result: VoiceRecord
+    let isSelectionMode: Bool
+    let isSelected: Bool
+    let onSelectionToggle: () -> Void
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
+            // 선택 모드일 때 체크박스 표시
+            if isSelectionMode {
+                VStack {
+                    Spacer()
+                    Button(action: onSelectionToggle) {
+                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                            .foregroundColor(isSelected ? .blue : .gray)
+                            .font(.system(size: 24))
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    Spacer()
+                }
+                .frame(maxHeight: .infinity)
+            }
+            
             Image(result.firstLabel.rawImageName)
                 .resizable()
                 .frame(width: 48, height: 48)
@@ -157,10 +267,22 @@ private struct VoiceRecordResultCard: View {
             Spacer()
         }
         .padding()
-        .background(Color(.tertiarySystemBackground))
+        .background(
+            Color(.tertiarySystemBackground)
+                .overlay(
+                    // 선택된 상태일 때 하이라이트
+                    isSelected ? Color.blue.opacity(0.1) : Color.clear
+                )
+        )
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
         .padding(.horizontal)
+        .onTapGesture {
+            if isSelectionMode {
+                onSelectionToggle()
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: isSelected)
     }
 
     private func dateString(from date: Date) -> String {

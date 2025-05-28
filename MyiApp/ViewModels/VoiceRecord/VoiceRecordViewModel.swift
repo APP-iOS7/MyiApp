@@ -157,6 +157,27 @@ final class VoiceRecordViewModel: ObservableObject {
         shouldDismissResultView = true
     }
 
+    // MARK: - Record Management
+    // 선택된 레코드들 삭제
+    func deleteRecords(with ids: Set<UUID>) {
+        guard !ids.isEmpty else { return }
+        
+        // 로컬에서 삭제
+        careGiverManager.voiceRecords.removeAll { record in
+            ids.contains(record.id)
+        }
+        
+        // Firebase에서 삭제
+        Task {
+            await deleteRecordsFromFirebase(ids: ids)
+        }
+    }
+    
+    // 단일 레코드 삭제
+    func deleteRecord(with id: UUID) {
+        deleteRecords(with: [id])
+    }
+
     // Firebase에 결과 저장 함수
     func saveAnalysisResult(newResult: VoiceRecord) async throws {
         guard let babyID = careGiverManager.selectedBaby?.id.uuidString else {
@@ -248,6 +269,32 @@ final class VoiceRecordViewModel: ObservableObject {
                 guard let self = self else { return }
                 self.step = result.map { .result($0) } ?? .error("분석 실패")
             }
+        }
+    }
+    
+    // Firebase에서 레코드들 삭제
+    private func deleteRecordsFromFirebase(ids: Set<UUID>) async {
+        guard let babyID = careGiverManager.selectedBaby?.id.uuidString else {
+            print("선택된 아기가 없습니다.")
+            return
+        }
+        
+        let db = Firestore.firestore()
+        let batch = db.batch()
+        
+        for id in ids {
+            let docRef = db.collection("babies")
+                .document(babyID)
+                .collection("voiceRecords")
+                .document(id.uuidString)
+            batch.deleteDocument(docRef)
+        }
+        
+        do {
+            try await batch.commit()
+            print("Firebase에서 \(ids.count)개 레코드 삭제 완료")
+        } catch {
+            print("Firebase 삭제 실패: \(error)")
         }
     }
 }
