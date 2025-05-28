@@ -66,7 +66,11 @@ struct NoteEventList: View {
         
         // 삭제 토스트 메시지 설정
         let category = note.category == .일지 ? "일지" : "일정"
-        viewModel.toastMessage = ToastMessage(message: "\(category)가 삭제되었습니다.", type: .info)
+        let particle = note.category == .일지 ? "가" : "이"
+        viewModel.toastMessage = ToastMessage(
+            message: "\(category)\(particle) 삭제되었습니다.",
+            type: .info
+        )
         
         // 노트 삭제
         viewModel.deleteNote(note: note)
@@ -266,7 +270,11 @@ struct NoteEventRow: View {
         }
         
         let category = event.category == .일지 ? "일지" : "일정"
-        viewModel.toastMessage = ToastMessage(message: "\(category)가 삭제되었습니다.", type: .info)
+        let particle = event.category == .일지 ? "가" : "이"
+        viewModel.toastMessage = ToastMessage(
+            message: "\(category)\(particle) 삭제되었습니다.",
+            type: .info
+        )
         
         viewModel.deleteNote(note: event)
     }
