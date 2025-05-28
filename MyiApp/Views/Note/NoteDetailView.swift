@@ -153,32 +153,47 @@ struct NoteDetailView: View {
     
     // MARK: - 이미지 갤러리
     private var imageGallery: some View {
-        ZStack(alignment: .bottom) {
-            TabView(selection: $currentImageIndex) {
-                ForEach(0..<event.imageURLs.count, id: \.self) { index in
-                    CustomAsyncImageView(imageUrlString: event.imageURLs[index])
-                        .scaledToFill()
-                        .tag(index)
-                }
-            }
-            .frame(height: UIScreen.main.bounds.width * 0.8)
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-            
-            if event.imageURLs.count > 1 {
-                HStack(spacing: 6) {
-                    ForEach(0..<event.imageURLs.count, id: \.self) { index in
-                        Circle()
-                            .fill(currentImageIndex == index ?
-                                  Color("sharkPrimaryColor") : Color.gray.opacity(0.3))
-                            .frame(width: 6, height: 6)
+            VStack(spacing: 0) {
+                ZStack(alignment: .topTrailing) {
+                    TabView(selection: $currentImageIndex) {
+                        ForEach(0..<event.imageURLs.count, id: \.self) { index in
+                            CustomAsyncImageView(imageUrlString: event.imageURLs[index])
+                                .scaledToFill()
+                                .tag(index)
+                        }
+                    }
+                    .frame(height: UIScreen.main.bounds.width * 0.8)
+                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                    
+                    if event.imageURLs.count > 1 {
+                        Text("\(currentImageIndex + 1)/\(event.imageURLs.count)")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 4)
+                            .background(Capsule().fill(Color.black.opacity(0.6)))
+                            .padding(.trailing, 12)
+                            .padding(.top, 8)
                     }
                 }
-                .padding(.bottom, 8)
+                .cornerRadius(10)
+                
+                if event.imageURLs.count > 1 {
+                    HStack(spacing: 6) {
+                        ForEach(0..<event.imageURLs.count, id: \.self) { index in
+                            Circle()
+                                .fill(currentImageIndex == index ?
+                                      Color(.button) : Color.gray.opacity(0.3))
+                                .frame(width: 8, height: 8)
+                                .animation(.easeInOut(duration: 0.2), value: currentImageIndex)
+                        }
+                    }
+                    .padding(.top, 12)
+                    .padding(.bottom, 8)
+                }
             }
+            .padding(.horizontal)
         }
-        .cornerRadius(10)
-        .padding(.horizontal)
-    }
     
     // MARK: - 내용 섹션
     private var contentSection: some View {
