@@ -64,9 +64,17 @@ struct EditRecordView: View {
     private var deleteSection: some View {
         Section {
             Button("기록 삭제", role: .destructive, action: {
+                viewModel.showDeleteAlert = true
+            })
+        }
+        .alert("기록 삭제", isPresented: $viewModel.showDeleteAlert) {
+            Button("취소", role: .cancel) { }
+            Button("삭제", role: .destructive) {
                 viewModel.deleteRecord()
                 dismiss()
-            })
+            }
+        } message: {
+            Text("정말로 이 기록을 삭제하시겠습니까?")
         }
     }
     
