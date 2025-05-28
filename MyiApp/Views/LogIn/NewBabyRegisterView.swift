@@ -24,12 +24,12 @@ struct NewBabyRegisterView: View {
     @State private var isBloodTypeSelected: Bool = false
     
     private var isButtonEnabled: Bool {
-        !viewModel.name.isEmpty &&
-        viewModel.gender != nil &&
-        !viewModel.height.isEmpty &&
-        !viewModel.weight.isEmpty &&
-        viewModel.bloodType != nil &&
-        viewModel.birthDate != nil
+        isNameEntered &&
+        isGenderSelected &&
+        isHeightEntered &&
+        isWeightEntered &&
+        isBloodTypeSelected &&
+        isBirthDateSelected
     }
     
     var body: some View {
@@ -39,7 +39,7 @@ struct NewBabyRegisterView: View {
                 .background(Color.customBackground)
             ScrollView {
                 VStack(spacing: 15) {
-                    if !viewModel.weight.isEmpty {
+                    if isWeightEntered {
                         VStack(alignment: .leading, spacing: 0) {
                             Text("혈액형")
                                 .font(.headline)
@@ -139,7 +139,7 @@ struct NewBabyRegisterView: View {
                         }
                     }
                     
-                    if !viewModel.height.isEmpty {
+                    if isHeightEntered {
                         VStack(alignment: .leading, spacing: 0) {
                             Text("몸무게")
                                 .font(.headline)
@@ -166,7 +166,14 @@ struct NewBabyRegisterView: View {
                                         }
                                     )
                                     .focused($focusedField, equals: .weight)
-                                if !viewModel.weight.isEmpty {
+                                    .onChange(of: viewModel.weight) { _, newValue in
+                                        let filtered = newValue.filter { $0.isNumber || $0 == "." }
+                                        if filtered != newValue {
+                                            viewModel.weight = filtered
+                                        }
+                                        isWeightEntered = !filtered.isEmpty
+                                    }
+                                if isWeightEntered {
                                     Button(action: {
                                         withAnimation(.easeInOut(duration: 0.2)) {
                                             viewModel.weight = ""
@@ -214,6 +221,13 @@ struct NewBabyRegisterView: View {
                                         }
                                     )
                                     .focused($focusedField, equals: .height)
+                                    .onChange(of: viewModel.height) { _, newValue in
+                                        let filtered = newValue.filter { $0.isNumber || $0 == "." }
+                                        if filtered != newValue {
+                                            viewModel.height = filtered
+                                        }
+                                        isHeightEntered = !filtered.isEmpty
+                                    }
                                 if !viewModel.height.isEmpty {
                                     Button(action: {
                                         withAnimation(.easeInOut(duration: 0.2)) {
@@ -312,7 +326,7 @@ struct NewBabyRegisterView: View {
                         }
                     }
                     
-                    if viewModel.gender != nil {
+                    if isGenderSelected {
                         VStack(alignment: .leading, spacing: 0) {
                             Text("이름")
                                 .font(.headline)
@@ -341,7 +355,7 @@ struct NewBabyRegisterView: View {
                                     .submitLabel(.done)
                                     .focused($focusedField, equals: .name)
                                 
-                                if !viewModel.name.isEmpty {
+                                if isNameEntered {
                                     Button(action: {
                                         withAnimation(.easeInOut(duration: 0.2)) {
                                             viewModel.name = ""
@@ -435,6 +449,7 @@ struct NewBabyRegisterView: View {
             Button(action: {
                 dismissKeyboard()
                 viewModel.registerBaby()
+                dismiss()
             }) {
                 Text("완료")
                     .foregroundColor(.white)
