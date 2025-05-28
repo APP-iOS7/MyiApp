@@ -13,9 +13,6 @@ import Kingfisher
 
 struct HomeView: View {
     @StateObject var viewModel: HomeViewModel = .init()
-    @State private var isPresented = false
-    @State private var showDeleteAlert = false
-    @State private var recordToDelete: Record?
     
     var body: some View {
         ZStack {
@@ -25,7 +22,6 @@ struct HomeView: View {
                     .background(Color.customBackground)
                 ScrollView {
                     VStack(spacing: 15) {
-                        //                        header
                         babyInfoCard
                         VStack {
                             dateSection
@@ -40,25 +36,21 @@ struct HomeView: View {
                 }
             }
             .background(Color.customBackground)
-            .blur(radius: isPresented ? 10 : 0)
-            .id(isPresented ? "blurred" : "normal")
-            if isPresented { babyFullScreenCard }
+            .blur(radius: viewModel.isPresented ? 10 : 0)
+            .id(viewModel.isPresented ? "blurred" : "normal")
+            if viewModel.isPresented { babyFullScreenCard }
         }
-        .alert("기록 삭제", isPresented: $showDeleteAlert) {
+        .alert("기록 삭제", isPresented: $viewModel.showDeleteAlert) {
             Button("취소", role: .cancel) {
-                recordToDelete = nil
+                viewModel.cancelDelete()
             }
             Button("삭제", role: .destructive) {
-                if let record = recordToDelete {
-                    viewModel.deleteRecord(record)
-                }
-                recordToDelete = nil
+                viewModel.confirmDelete()
             }
         } message: {
             Text("이 기록을 삭제하시겠습니까?")
         }
     }
-    
     
     private var header: some View {
         HStack {
@@ -131,7 +123,7 @@ struct HomeView: View {
                 }
             }
             Spacer()
-            Button(action: {isPresented = true}) {
+            Button(action: { viewModel.toggleBabyFullScreenCard() }) {
                 Image(systemName: "list.bullet.rectangle.portrait.fill")
                     .resizable()
                     .frame(width: 15, height: 20)
@@ -149,7 +141,7 @@ struct HomeView: View {
         Group {
             Color.black.opacity(0.3)
                 .ignoresSafeArea()
-                .onTapGesture { isPresented = false }
+                .onTapGesture { viewModel.toggleBabyFullScreenCard() }
             VStack {
                 HStack {
                     Spacer()
@@ -239,7 +231,7 @@ struct HomeView: View {
         ZStack {
             HStack(spacing: 6) {
                 Button(action: {
-                    viewModel.selectedDate = Calendar.current.date(byAdding: .day, value: -1, to: viewModel.selectedDate) ?? viewModel.selectedDate
+                    viewModel.updateSelectedDate(by: -1)
                 }) {
                     Image(systemName: "chevron.left")
                         .font(.body)
@@ -253,7 +245,7 @@ struct HomeView: View {
                     .font(.body)
                 Spacer()
                 Button(action: {
-                    viewModel.selectedDate = Calendar.current.date(byAdding: .day, value: +1, to: viewModel.selectedDate) ?? viewModel.selectedDate
+                    viewModel.updateSelectedDate(by: 1)
                 }) {
                     Image(systemName: "chevron.right")
                         .font(.body)
@@ -313,7 +305,6 @@ struct HomeView: View {
     }
     private var timeline: some View {
         VStack(spacing: 0) {
-            
             if viewModel.filteredRecords.isEmpty {
                 VStack(spacing: 10) {
                     Image(systemName: "doc.text.magnifyingglass")
@@ -340,8 +331,7 @@ struct HomeView: View {
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .cancel) {
-                                recordToDelete = record
-                                showDeleteAlert = true
+                                viewModel.showDeleteConfirmation(for: record)
                             } label: {
                                 Label("삭제", systemImage: "trash")
                                     .foregroundColor(.red)
