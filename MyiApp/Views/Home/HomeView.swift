@@ -4,7 +4,8 @@
 //
 //  Created by 최범수 on 2025-05-08.
 //
-
+// 테스트
+// 왜 주석은 안됌?
 import SwiftUI
 import Kingfisher
 
@@ -12,221 +13,141 @@ struct HomeView: View {
     @StateObject var viewModel: HomeViewModel = .init()
     
     var body: some View {
-        ZStack {
-            VStack(spacing: 0) {
-                SafeAreaPaddingView()
-                    .frame(height: getTopSafeAreaHeight())
-                    .background(Color.customBackground)
-                ScrollView {
-                    VStack(spacing: 0) {
-                        header
-                            .padding(.horizontal, 7)
-                            .padding(.bottom, 5)
-                        babyInfoCard
-                            .padding(.bottom, 7)
-                        VStack {
-                            dateSection
-                            gridItems
-                            Divider()
-                                .padding(.horizontal)
-                            timeline
-                        }
-                        .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
+        VStack(spacing: 0) {
+            SafeAreaPaddingView()
+                .frame(height: getTopSafeAreaHeight())
+                .background(Color.customBackground)
+            ScrollView {
+                VStack(spacing: 15) {
+                    babyInfoCard
+                    VStack {
+                        dateSection
+                        gridItems
+                        Divider()
+                            .padding(.horizontal)
+                        timeline
                     }
-                    .padding([.horizontal, .bottom])
+                    .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
                 }
+                .padding([.horizontal, .bottom])
             }
-            .background(Color.customBackground)
-            .blur(radius: viewModel.isPresented ? 10 : 0)
-            .id(viewModel.isPresented ? "blurred" : "normal")
-            if viewModel.isPresented { babyFullScreenCard }
         }
-        .alert("기록 삭제", isPresented: $viewModel.showDeleteAlert) {
-            Button("취소", role: .cancel) {
-                viewModel.cancelDelete()
-            }
-            Button("삭제", role: .destructive) {
-                viewModel.confirmDelete()
-            }
-        } message: {
-            Text("이 기록을 삭제하시겠습니까?")
-        }
-    }
-    
-    private var header: some View {
-        HStack {
-            Menu {
-                ForEach(viewModel.caregiverManager.babies) { baby in
-                    Button {
-                        viewModel.babyChangeButtonDidTap(baby: baby)
-                    } label: {
-                        Spacer()
-                        Text(baby.name)
-                            .foregroundStyle(.primary)
-                    }
-                }
-                Divider()
-                NavigationLink(destination: RegisterBabyView()) {
-                    Text("아이 추가")
-                }
-            } label: {
-                HStack(spacing: 4) {
-                    Text(viewModel.displayName)
-                    Image(systemName: "chevron.down")
-                }
+        .background(Color.customBackground)
 
-            }
-            .font(.title3)
-            .bold()
-            .foregroundColor(.primary)
-            Spacer()
-            
-            Button {
-                // TODO: 알림 상황일 때.
-            } label: {
-                Image(systemName: "bell.fill")
-                    .font(.title2)
+    }
+    private struct GridItemCategory: Identifiable {
+        let id: UUID = UUID()
+        let name: String
+        let category: TitleCategory
+        let image: UIImage
+    }
+    private struct InfoItem: View {
+        let title: String
+        let value: String
+        
+        var body: some View {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.caption)
                     .foregroundColor(.gray)
+                Text(value)
+                    .font(.subheadline)
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
             }
         }
     }
     private var babyInfoCard: some View {
-        HStack {
-            KFImage(URL(string: viewModel.baby?.photoURL ?? ""))
-                .placeholder({
-                    ProgressView()
-                })
-                .onFailureImage(viewModel.displaySharkImage)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 60, height: 60)
-                .clipShape(.circle)
-                .background(
-                    Circle()
-                        .fill(Color.sharkPrimaryLight)
-                        .stroke(Color.sharksSadowTone, lineWidth: 2)
-                )
-                .overlay(
-                    Circle()
-                        .stroke(Color.sharksSadowTone, lineWidth: 2)
-                )
-                .padding(10)
-                .padding(.leading, 10)
-//            VStack(alignment: .leading, spacing: 3) {
-//                Text(viewModel.displayName)
-//                    .font(.headline)
-//                    .padding(.leading, 4)
-//                HStack(spacing: 0) {
-                    Image(.homeCalendar)
-                        .resizable()
-                        .frame(width: 30, height: 30)
-                    Text(viewModel.displayDayCount)
-//                }
-//            }
-            Spacer()
-            Button(action: viewModel.toggleBabyFullScreenCard) {
-                Image(systemName: "list.bullet.rectangle.portrait.fill")
-                    .resizable()
-                    .frame(width: 15, height: 20)
-                    .padding(10)
-                    .background(Circle().fill(Color.sharkPrimaryDark))
-                    .tint(.white)
-            }
-            .padding(.trailing)
-        }
-        .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
-        .frame(height: 95)
-    }
-    
-    private var babyFullScreenCard: some View {
-        Group {
-            Color.black.opacity(0.3)
-                .ignoresSafeArea()
-                .onTapGesture { viewModel.toggleBabyFullScreenCard() }
-            VStack {
-                HStack {
-                    Spacer()
-                    NavigationLink(destination: BabyProfileView(baby: viewModel.baby ?? Baby(name: "", birthDate: Date(), gender: .female, height: 0, weight: 0, bloodType: .O))) {
-                        Image(systemName: "square.and.pencil")
-                            .tint(Color.primary)
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                if let baby = viewModel.baby {
+                    NavigationLink(destination: BabyProfileView(baby: baby)) {
+                        KFImage(URL(string: baby.photoURL ?? ""))
+                            .placeholder({
+                                ProgressView()
+                            })
+                            .onFailureImage(viewModel.displaySharkImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 70, height: 70)
+                            .clipShape(.circle)
+                            .background(Circle().fill(Color.sharkPrimaryLight))
+                            .overlay(Circle().stroke(Color.sharksSadowTone, lineWidth: 2))
                     }
+                    .padding(.trailing, 16)
                 }
-                .padding([.top, .trailing])
                 
-                KFImage(URL(string: viewModel.baby?.photoURL ?? ""))
-                    .placeholder({
-                        ProgressView()
-                    })
-                    .onFailureImage(viewModel.displaySharkImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 130, height: 130)
-                    .clipShape(.circle)
-                    .background(
-                        Circle()
-                            .fill(Color.sharkPrimaryLight)
-                            .stroke(Color.sharksSadowTone, lineWidth: 2)
-                    )
-                    .overlay(
-                        Circle()
-                            .stroke(Color.sharksSadowTone, lineWidth: 2)
-                    )
-                    .padding(10)
                 VStack {
-                    HStack {
-                        Text(viewModel.displayName)
-                            .font(.title)
-                            .bold()
+                    HStack(alignment: .center) {
+                        Menu {
+                            ForEach(viewModel.caregiverManager.babies) { baby in
+                                Button {
+                                    viewModel.babyChangeButtonDidTap(baby: baby)
+                                } label: {
+                                    Spacer()
+                                    Text(baby.name)
+                                        .foregroundStyle(.primary)
+                                }
+                            }
+                            NavigationLink(destination: RegisterBabyView()) {
+                                Text("아이 추가")
+                            }
+                        } label: {
+                            HStack(spacing: 8) {
+                                Text(viewModel.displayName)
+                                    .foregroundColor(.primary)
+                                    .font(.title3)
+                                    .bold()
+                                Text(viewModel.displayGender)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.gray)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 2)
+                                    .background(
+                                        Capsule()
+                                            .fill(Color.gray.opacity(0.1))
+                                    )
+                                Image(systemName: "chevron.down")
+                                    .foregroundStyle(Color.primary)
+                            }
+                        }
                         Spacer()
-                    }
-                    HStack {
-                        Text(viewModel.displayBirthDate)
-                            .font(.body)
-                        Spacer()
-                    }
-                }
-                .padding()
-                .padding(.leading)
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading) {
-                        Text("성별")
+                        Image(systemName: "bell.fill")
                             .font(.title2)
-                            .fontWeight(.medium)
-                        Text(viewModel.displayGender)
-                            .font(.body)
-                            .padding(.bottom)
-                        Text("성장 단계")
-                            .font(.title2)
-                            .fontWeight(.medium)
+                            .foregroundStyle(Color.gray)
+                    }
+                    HStack(alignment: .center) {
                         Text(viewModel.displayDevelopmentalStage)
-                            .font(.body)
-                        
-                    }
-                    .padding(.leading)
-                    Spacer()
-                    VStack(alignment: .leading) {
-                        Text("키 / 몸무게")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.button)
+                            .fontWeight(.semibold)
+                        Spacer()
+                        Text("태어난지")
+                            .fontWeight(.semibold)
+                        Text(viewModel.displayDayCount)
                             .font(.title2)
-                            .fontWeight(.medium)
-                        Text(viewModel.displayHeightWeight)
-                            .font(.body)
-                            .padding(.bottom)
-                        Text("혈액형")
-                            .font(.title2)
-                            .fontWeight(.medium)
-                        Text(viewModel.displayBloodType)
-                            .font(.body)
+                            .bold()
+                            .foregroundColor(.button)
                     }
-                    Spacer()
                 }
-                .padding([.leading, .bottom])
             }
-            .frame(width: 300, height: 430)
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(uiColor: .tertiarySystemBackground))
-            )
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
+            
+            Divider()
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+            
+            HStack {
+                InfoItem(title: "생년월일", value: viewModel.displayBirthDate)
+                Spacer()
+                InfoItem(title: "키/몸무게", value: viewModel.displayHeightWeight)
+                Spacer()
+                InfoItem(title: "혈액형", value: viewModel.displayBloodType)
+            }
+            .padding([.bottom, .horizontal])
         }
+        .background(RoundedRectangle(cornerRadius: 16).fill(Color(uiColor: .tertiarySystemBackground)))
     }
     private var dateSection: some View {
         ZStack {
@@ -325,7 +246,7 @@ struct HomeView: View {
                             index: index,
                             totalCount: viewModel.filteredRecords.count
                         )
-                        .padding(.horizontal)
+                        .padding(.leading)
                         .contentShape(Rectangle())
                         .onTapGesture {
                             viewModel.recordToEdit = record
@@ -359,6 +280,16 @@ struct HomeView: View {
                     EditRecordView(record: record)
                         .presentationDetents(detents)
                 }
+                .alert("기록 삭제", isPresented: $viewModel.showDeleteAlert) {
+                    Button("취소", role: .cancel) {
+                        viewModel.cancelDelete()
+                    }
+                    Button("삭제", role: .destructive) {
+                        viewModel.confirmDelete()
+                    }
+                } message: {
+                    Text("이 기록을 삭제하시겠습니까?")
+                }
             }
         }
         .padding(.horizontal)
@@ -374,12 +305,7 @@ struct HomeView: View {
     }
 }
 
-struct GridItemCategory: Identifiable {
-    let id: UUID = UUID()
-    let name: String
-    let category: TitleCategory
-    let image: UIImage
-}
+
 
 #Preview {
     HomeView()

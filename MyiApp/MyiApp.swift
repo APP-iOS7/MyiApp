@@ -15,9 +15,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         FirebaseApp.configure()
         
         if AuthService.shared.user == nil {
-                    DatabaseService.shared.hasBabyInfo = false
-                    CaregiverManager.shared.logout()
-                }
+            DatabaseService.shared.hasBabyInfo = false
+            CaregiverManager.shared.logout()
+        }
         
         // 알림 설정
         UNUserNotificationCenter.current().delegate = self
@@ -25,6 +25,18 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         // 알림 권한 상태 확인
         NotificationService.shared.checkAuthorizationStatus()
         
+        let backButtonAppearance = UIBarButtonItemAppearance()
+        let appearance = UINavigationBarAppearance()
+        let backImage = UIImage(systemName: "chevron.left")?
+            .withTintColor(UIColor(Color.primary.opacity(0.8)), renderingMode: .alwaysOriginal)
+        backButtonAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        appearance.configureWithOpaqueBackground()
+        appearance.setBackIndicatorImage(backImage, transitionMaskImage: backImage)
+        appearance.backButtonAppearance = backButtonAppearance
+        appearance.shadowColor = .clear
+        appearance.backgroundColor = .customBackground
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
         return true
     }
     
