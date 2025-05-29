@@ -17,19 +17,8 @@ struct NoteView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            VStack(spacing: 0) {
-                SafeAreaPaddingView()
-                    .frame(height: getTopSafeAreaHeight())
-                    .background(Color("customBackgroundColor"))
-                
-                HStack {
-                    Text("육아 수첩")
-                        .font(.system(size: 17, weight: .semibold))
-                        .frame(maxWidth: .infinity)
-                }
-                .frame(height: 44)
-                .background(Color("customBackgroundColor"))
-            }
+            
+            CustomNavigationHeader(title: "육아 수첩")
             
             ScrollView {
                 VStack(spacing: 0) {
