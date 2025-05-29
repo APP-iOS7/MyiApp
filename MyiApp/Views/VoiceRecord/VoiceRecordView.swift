@@ -44,17 +44,63 @@ struct VoiceRecordView: View {
     @StateObject private var viewModel: VoiceRecordViewModel = .init()
     @State private var navigationPath = NavigationPath()
     
+    // 선택 모드 관련 상태
+    @State private var isSelectionMode = false
+    @State private var selectedRecords: Set<UUID> = []
+    @State private var showDeleteAlert = false
+    
     var body: some View {
         NavigationStack(path: $navigationPath) {
             VStack {
                 // 헤더
                 HStack {
                     Text("울음분석")
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.title)
+                        .bold()
+                    
                     Spacer()
+                    
+                    // 선택/취소/삭제 버튼
+                    if !viewModel.recordResults.isEmpty {
+                        if isSelectionMode {
+                            HStack(spacing: 12) {
+                                // 삭제 버튼 (선택된 항목이 있을 때만 활성화)
+                                Button {
+                                    showDeleteAlert = true
+                                } label: {
+                                    Image(systemName: "trash")
+                                        .font(.title2)
+                                        .padding(.horizontal, 10)
+                                        .foregroundColor(.red)
+                                }
+                                .disabled(selectedRecords.isEmpty)
+                                
+                                // 취소 버튼
+                                Button {
+                                    exitSelectionMode()
+                                } label: {
+                                    Image(systemName: "x.circle")
+                                }
+                                .font(.title2)
+                                .padding(.horizontal, 10)
+                                .foregroundColor(.primary)
+                            }
+                        } else {
+                            // 선택 버튼
+                            Button {
+                                enterSelectionMode()
+                            } label: {
+                                Image(systemName: "checkmark.circle")
+                                    .font(.title2)
+                                    .padding(.horizontal, 10)
+                                    .foregroundColor(.primary)
+                            }
+                        }
+                    }
                 }
                 .padding([.top, .horizontal])
-
+                .animation(.easeInOut(duration: 0.2), value: isSelectionMode)
+                
                 // 결과 리스트
                 if viewModel.recordResults.isEmpty {
                     VStack(spacing: 16) {
@@ -72,44 +118,101 @@ struct VoiceRecordView: View {
                     .padding(.top, 80)
                 } else {
                     ScrollView {
-                        VStack(spacing: 8) {
-                            ForEach(viewModel.recordResults) { result in
-                                VoiceRecordResultCard(result: result)
+                        VStack(spacing: 0) {
+                            ForEach(Array(viewModel.recordResults.enumerated()), id: \.element.id) { index, result in
+                                let isFirst = index == 0
+                                let isLast = index == viewModel.recordResults.count - 1
+
+                                Button {
+                                    if isSelectionMode {
+                                        toggleSelection(for: result.id)
+                                    } else {
+                                        // navigate to detail if needed
+                                    }
+                                } label: {
+                                    HStack(alignment: .center, spacing: 12) {
+                                        if isSelectionMode {
+                                            Image(systemName: selectedRecords.contains(result.id) ? "checkmark.circle.fill" : "circle")
+                                                .foregroundColor(selectedRecords.contains(result.id) ? .blue : .gray)
+                                                .font(.title3)
+                                        }
+
+                                        Image(result.firstLabel.rawImageName)
+                                            .resizable()
+                                            .frame(width: 40, height: 40)
+                                            .cornerRadius(8)
+
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text("새로운 분석")
+                                                .font(.headline)
+                                                .foregroundColor(.primary)
+
+                                            Text(result.firstLabel.displayName)
+                                                .font(.subheadline)
+                                                .foregroundColor(.secondary)
+
+                                            Text(dateString(from: result.createdAt))
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                        }
+
+                                        Spacer()
+                                    }
+                                    .padding()
+                                    .background(
+                                        (selectedRecords.contains(result.id) && isSelectionMode
+                                         ? Color.blue.opacity(0.1)
+                                         : Color(.systemBackground))
+                                        .overlay(
+                                            isLast ? nil :
+                                            Divider()
+                                                .padding(.leading, isSelectionMode ? 88 : 52),
+                                            alignment: .bottom
+                                        )
+                                    )
+                                    .cornerRadius(
+                                        viewModel.recordResults.count == 1 ? 12 : (isFirst ? 12 : isLast ? 12 : 0),
+                                        corners: viewModel.recordResults.count == 1 ? .allCorners : (isFirst ? [.topLeft, .topRight] : isLast ? [.bottomLeft, .bottomRight] : [])
+                                    )
+                                    .padding(.horizontal)
+                                }
                             }
                         }
-                        .padding(.top, 8)
                     }
                 }
-
-                // 분석 시작 버튼
-                Button(action: {
-                    viewModel.resetAnalysisState()
-                    viewModel.startAnalysis()
-                    navigationPath = NavigationPath()
-                    navigationPath.append(CryRoute.processing())
-                }) {
-                    Text("분석 시작")
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .font(.headline)
-                        .frame(height: 50)
-                        .background(Color("buttonColor"))
-                        .cornerRadius(12)
+                
+                // 분석 시작 버튼 (선택 모드가 아닐 때만 표시)
+                if !isSelectionMode {
+                    Button(action: {
+                        viewModel.resetAnalysisState()
+                        viewModel.startAnalysis()
+                        navigationPath = NavigationPath()
+                        navigationPath.append(CryRoute.processing())
+                    }) {
+                        Text("분석 시작")
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .font(.headline)
+                            .frame(height: 50)
+                            .background(Color("buttonColor"))
+                            .cornerRadius(12)
+                    }
+                    .contentShape(Rectangle())
+                    .padding(.horizontal)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
-                .contentShape(Rectangle())
-                .padding(.horizontal)
             }
             .padding(.bottom, 15)
             .background(Color(UIColor.systemGroupedBackground))
             .navigationDestination(for: CryRoute.self) { route in
                 switch route {
-                case .processing(let id):  // UUID 꺼냄
+                case .processing(let id):
                     CryAnalysisProcessingView(viewModel: viewModel) { result in
                         navigationPath.removeLast()
                         navigationPath.append(CryRoute.result(emotion: result, id: UUID()))
                     }
                     .id(id)
-
+                    
                 case .result(let emotion, _):
                     CryAnalysisResultView(
                         viewModel: viewModel,
@@ -130,39 +233,116 @@ struct VoiceRecordView: View {
                     }
                 }
             }
+            .alert("선택한 항목을 삭제하시겠습니까?", isPresented: $showDeleteAlert) {
+                Button("취소", role: .cancel) { }
+                Button("삭제", role: .destructive) {
+                    deleteSelectedRecords()
+                }
+            } message: {
+                Text("\(selectedRecords.count)개의 분석 결과가 삭제됩니다.")
+            }
         }
+    }
+    
+    // MARK: - Selection Mode Functions
+    private func enterSelectionMode() {
+        isSelectionMode = true
+        selectedRecords.removeAll()
+    }
+    
+    private func exitSelectionMode() {
+        isSelectionMode = false
+        selectedRecords.removeAll()
+    }
+    
+    private func toggleSelection(for recordId: UUID) {
+        if selectedRecords.contains(recordId) {
+            selectedRecords.remove(recordId)
+        } else {
+            selectedRecords.insert(recordId)
+        }
+    }
+    
+    private func deleteSelectedRecords() {
+        viewModel.deleteRecords(with: selectedRecords)
+        exitSelectionMode()
     }
 }
 
 private struct VoiceRecordResultCard: View {
     let result: VoiceRecord
-
+    let isSelectionMode: Bool
+    let isSelected: Bool
+    let onSelectionToggle: () -> Void
+    @EnvironmentObject private var viewModel: VoiceRecordViewModel
+    
+    @State private var offset: CGFloat = 0
+    @State private var isSwiped = false
+    @State private var showingDeleteAlert = false
+    
+    private let deleteWidth: CGFloat = -70
+    
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(result.firstLabel.rawImageName)
-                .resizable()
-                .frame(width: 48, height: 48)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text("새로운 분석")
-                    .font(.headline)
-                    .bold()
-                Text(result.firstLabel.displayName)
-                    .foregroundColor(.gray)
-                    .font(.subheadline)
-                Text(dateString(from: result.createdAt))
-                    .foregroundColor(.gray)
-                    .font(.caption)
+        ZStack {
+            HStack {
+                Spacer()
+                Button {
+                    showingDeleteAlert = true
+                } label: {
+                    Image(systemName: "trash")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                        .frame(width: 70)
+                        .frame(maxHeight: .infinity)
+                        .background(Color.red.opacity(0.7))
+                        .cornerRadius(20)
+                }
             }
-            Spacer()
+            .opacity(offset < -10 ? 1 : 0)
+            
+            HStack(alignment: .top, spacing: 12) {
+                if isSelectionMode {
+                    VStack {
+                        Spacer()
+                        Button(action: onSelectionToggle) {
+                            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                                .foregroundColor(isSelected ? .blue : .gray)
+                                .font(.system(size: 24))
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        Spacer()
+                    }
+                    .frame(maxHeight: .infinity)
+                }
+                
+                Image(result.firstLabel.rawImageName)
+                    .resizable()
+                    .frame(width: 48, height: 48)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("새로운 분석")
+                        .font(.headline)
+                        .bold()
+                    Text(result.firstLabel.displayName)
+                        .foregroundColor(.gray)
+                        .font(.subheadline)
+                    Text(dateString(from: result.createdAt))
+                        .foregroundColor(.gray)
+                        .font(.caption)
+                }
+                Spacer()
+            }
+            .padding()
+            .background(
+                Color(.tertiarySystemBackground)
+                    .overlay(isSelected ? Color.blue.opacity(0.1) : Color.clear)
+            )
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+            .offset(x: offset)
         }
-        .padding()
-        .background(Color(.tertiarySystemBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
-        .padding(.horizontal)
     }
-
+    
     private func dateString(from date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy. M. d a h:mm:ss"
@@ -173,4 +353,29 @@ private struct VoiceRecordResultCard: View {
 
 #Preview {
     VoiceRecordView()
+}
+
+    // Helper for date string formatting (moved from VoiceRecordResultCard)
+    private func dateString(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy. M. d a h:mm:ss"
+        formatter.locale = Locale(identifier: "ko_KR")
+        return formatter.string(from: date)
+    }
+
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
+    }
+}
+
+struct RoundedCorner: Shape {
+    var radius: CGFloat = 0
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners,
+                                cornerRadii: CGSize(width: radius, height: radius))
+        return Path(path.cgPath)
+    }
 }

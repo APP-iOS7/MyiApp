@@ -7,6 +7,7 @@ class EditRecordViewModel: ObservableObject {
     @Published var isRightMinutesPickerActionSheetPresent = false
     @Published var isMLPickerActionSheetPresent = false
     @Published var isTMPickerActionSheetPresent = false
+    @Published var showDeleteAlert = false
     let caregiverManager = CaregiverManager.shared
     
     init(record: Record) {
@@ -49,6 +50,9 @@ class EditRecordViewModel: ObservableObject {
     
     func saveRecord() {
         let babyId = caregiverManager.selectedBaby?.id.uuidString ?? ""
+        if record.title == .sleep {
+            record.createdAt = record.sleepStart!
+        }
         let _ = Firestore.firestore().collection("babies").document(babyId).collection("records").document(record.id.uuidString).setData(from: record)
         if record.title == .heightWeight {
             saveHeightWeight()
@@ -64,6 +68,12 @@ class EditRecordViewModel: ObservableObject {
     
     func saveHeightWeight() {
         guard let babyId = caregiverManager.selectedBaby?.id.uuidString else { return }
+                let records = caregiverManager.records.filter { $0.title == .heightWeight }
+        if let latestRecord = records.first,
+           latestRecord.createdAt > record.createdAt {
+            return
+        }
+        
         var updateData: [String: Any] = [:]
         if let height = record.height {
             updateData["height"] = height

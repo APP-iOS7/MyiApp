@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct NoteEventList: View {
     @EnvironmentObject private var viewModel: NoteViewModel
@@ -21,23 +22,26 @@ struct NoteEventList: View {
         if filteredEvents.isEmpty {
             emptyStateView
         } else {
-            LazyVStack(spacing: 8) {
+            List {
                 ForEach(filteredEvents) { event in
-                    NoteEventRow(event: event)
+                    NoteEventListRow(event: event)
+                        .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                         .onTapGesture {
                             onSelectEvent(event)
                         }
-                        .contextMenu {
-                            Button(role: .destructive) {
-                                noteToDelete = event
-                                showingDeleteAlert = true
-                            } label: {
-                                Label("삭제", systemImage: "trash")
-                            }
-                        }
                 }
-                .padding(.bottom, 16)
+                .onDelete { indexSet in
+                    if let index = indexSet.first {
+                        noteToDelete = filteredEvents[index]
+                        showingDeleteAlert = true
+                    }
+                }
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
             .alert("삭제 확인", isPresented: $showingDeleteAlert) {
                 Button("취소", role: .cancel) {
                     noteToDelete = nil
@@ -59,12 +63,12 @@ struct NoteEventList: View {
     }
     
     private func deleteNote(_ note: Note) {
-        // 일정인 경우 알림 취소
+        // MARK: - 일정인 경우 알림 취소
         if note.category == .일정 {
             NotificationService.shared.cancelNotification(with: note.id.uuidString)
         }
         
-        // 삭제 토스트 메시지 설정
+        // MARK: - 삭제 토스트 메시지 설정
         let category = note.category == .일지 ? "일지" : "일정"
         let particle = note.category == .일지 ? "가" : "이"
         viewModel.toastMessage = ToastMessage(
@@ -72,7 +76,7 @@ struct NoteEventList: View {
             type: .info
         )
         
-        // 노트 삭제
+        // MARK: - 노트 삭제
         viewModel.deleteNote(note: note)
     }
     
@@ -104,179 +108,101 @@ struct NoteEventList: View {
     }
 }
 
-struct NoteEventRow: View {
+// MARK: - List Row View
+struct NoteEventListRow: View {
     var event: Note
-    var onTap: (() -> Void)? = nil
     @EnvironmentObject private var viewModel: NoteViewModel
-    @State private var showingDeleteAlert = false
-    @State private var offset: CGFloat = 0
-    @State private var isSwiped = false
-    @GestureState private var isDragging = false
-    
-    private let deleteWidth: CGFloat = -70
+    @State private var imageRefreshId = UUID()
     
     var body: some View {
-        ZStack {
-            // 삭제 버튼 배경
-            HStack(spacing: 0) {
-                Spacer()
-                
-                Button {
-                    showingDeleteAlert = true
-                } label: {
-                    VStack {
-                        Image(systemName: "trash")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                    }
-                    .frame(width: 70, height: 70)
-                    .background(Color.red.opacity(0.7))
-                }
-                .cornerRadius(20)
-            }
-            .opacity(offset < -10 ? 1 : 0)
-            
-            // 메인 콘텐츠
-            HStack(spacing: 12) {
-                if event.category == .일지 && (!event.imageURLs.isEmpty || event.localImages?.isEmpty == false) {
-                    if let localImages = event.localImages, !localImages.isEmpty {
-                        Image(uiImage: localImages[0])
-                            .resizable()
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
-                    } else {
-                        CustomAsyncImageView(imageUrlString: event.imageURLs[0])
-                            .frame(width: 40, height: 40)
-                            .clipShape(Circle())
-                    }
-                } else {
-                    Image(systemName: categoryIcon(for: event.category))
-                        .foregroundColor(categoryColor(for: event.category))
-                        .font(.system(size: 24))
+        HStack(spacing: 12) {
+            // MARK: - 이미지 또는 아이콘
+            if event.category == .일지 && (!event.imageURLs.isEmpty || event.localImages?.isEmpty == false) {
+                if let localImages = event.localImages, !localImages.isEmpty {
+                    Image(uiImage: localImages[0])
+                        .resizable()
                         .frame(width: 40, height: 40)
-                        .background(
-                            Circle()
-                                .fill(categoryColor(for: event.category).opacity(0.2))
-                        )
+                        .clipShape(Circle())
+                } else {
+                    KFImage.url(URL(string: event.imageURLs[0]))
+                        .placeholder {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: Color("sharkPrimaryColor")))
+                                .frame(width: 40, height: 40)
+                        }
+                        .onFailure { error in
+                            print("리스트 이미지 로드 실패: \(error)")
+                        }
+                        .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 80, height: 80)))
+                        .scaleFactor(UIScreen.main.scale)
+                        .fade(duration: 0.25)
+                        .forceRefresh()
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 40, height: 40)
+                        .clipShape(Circle())
+                        .id(imageRefreshId)
                 }
+            } else {
+                Image(systemName: categoryIcon(for: event.category))
+                    .foregroundColor(categoryColor(for: event.category))
+                    .font(.system(size: 24))
+                    .frame(width: 40, height: 40)
+                    .background(
+                        Circle()
+                            .fill(categoryColor(for: event.category).opacity(0.2))
+                    )
+            }
+            
+            // MARK: - 콘텐츠
+            VStack(alignment: .leading, spacing: 4) {
+                Text(event.title)
+                    .font(.headline)
+                    .fontWeight(.medium)
                 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(event.title)
-                        .font(.headline)
-                        .fontWeight(.medium)
-                    
-                    if !event.description.isEmpty {
-                        Text(event.description)
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .lineLimit(2)
-                    }
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text(event.timeString)
-                        .font(.caption)
+                if !event.description.isEmpty {
+                    Text(event.description)
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
-                    
-                    if event.category == .일지 && event.imageURLs.count > 0 {
-                        HStack(spacing: 4) {
-                            Image(systemName: "photo")
-                                .font(.system(size: 10))
-                            Text("\(event.imageURLs.count)")
-                                .font(.system(size: 10))
-                        }
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(
-                            Capsule()
-                                .fill(Color(UIColor.systemGray6))
-                        )
-                    }
+                        .lineLimit(2)
                 }
             }
-            .padding()
-            .background(Color(UIColor.tertiarySystemBackground))
-            .cornerRadius(10)
-            .contentShape(Rectangle())
-            .offset(x: offset)
-            .gesture(
-                DragGesture(minimumDistance: 15, coordinateSpace: .local)
-                    .updating($isDragging) { _, state, _ in
-                        state = true
+            
+            Spacer()
+            
+            // MARK: - 시간 및 사진 개수
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(event.timeString)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                if event.category == .일지 && event.imageURLs.count > 0 {
+                    HStack(spacing: 4) {
+                        Image(systemName: "photo")
+                            .font(.system(size: 10))
+                        Text("\(event.imageURLs.count)")
+                            .font(.system(size: 10))
                     }
-                    .onChanged { value in
-                        if value.translation.width < 0 {
-                            offset = max(value.translation.width, deleteWidth)
-                        }
-                    }
-                    .onEnded { value in
-                        if value.translation.width < deleteWidth/2 {
-                            withAnimation(.easeOut(duration: 0.2)) {
-                                offset = deleteWidth
-                                isSwiped = true
-                            }
-                        } else {
-                            withAnimation(.easeOut(duration: 0.2)) {
-                                offset = 0
-                                isSwiped = false
-                            }
-                        }
-                    }
-            )
-            .simultaneousGesture(
-                TapGesture()
-                    .onEnded { _ in
-                        if isSwiped {
-                            withAnimation(.spring()) {
-                                offset = 0
-                                isSwiped = false
-                            }
-                        } else {
-                            onTap?()
-                        }
-                    }
-            )
-        }
-        .alert("삭제 확인", isPresented: $showingDeleteAlert) {
-            Button("취소", role: .cancel) {
-                withAnimation(.spring()) {
-                    offset = 0
-                    isSwiped = false
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(
+                        Capsule()
+                            .fill(Color(UIColor.systemGray6))
+                    )
                 }
             }
-            Button("삭제", role: .destructive) {
-                deleteNote()
-            }
-        } message: {
-            Text("\(event.title)을(를) 삭제하시겠습니까?")
         }
+        .padding()
+        .background(Color(UIColor.tertiarySystemBackground))
+        .cornerRadius(10)
+        .contentShape(Rectangle())
         .padding(.horizontal)
-        .onAppear {
-            offset = 0
-            isSwiped = false
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("NoteImageUpdated"))) { notification in
+            if let noteId = notification.object as? UUID, noteId == event.id {
+                imageRefreshId = UUID()
+            }
         }
-        .onDisappear {
-            offset = 0
-            isSwiped = false
-        }
-    }
-    
-    private func deleteNote() {
-        if event.category == .일정 {
-            NotificationService.shared.cancelNotification(with: event.id.uuidString)
-        }
-        
-        let category = event.category == .일지 ? "일지" : "일정"
-        let particle = event.category == .일지 ? "가" : "이"
-        viewModel.toastMessage = ToastMessage(
-            message: "\(category)\(particle) 삭제되었습니다.",
-            type: .info
-        )
-        
-        viewModel.deleteNote(note: event)
     }
     
     private func categoryColor(for category: NoteCategory) -> Color {
