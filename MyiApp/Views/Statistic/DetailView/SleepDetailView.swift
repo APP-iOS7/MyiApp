@@ -56,24 +56,9 @@ struct SleepDetailView: View {
     var body: some View {
         ZStack {
             Color("customBackgroundColor")
-                .ignoresSafeArea(.container, edges: .top)
+                .ignoresSafeArea()
             mainScrollView
         }
-        .gesture(
-            DragGesture()
-                .onEnded { value in
-                    let horizontalAmount = value.translation.width
-                    if let currentIndex = modes.firstIndex(of: selectedMode) {
-                        if horizontalAmount < -50 {
-                            let nextIndex = (currentIndex + 1) % modes.count
-                            selectedMode = modes[nextIndex]
-                        } else if horizontalAmount > 50 {
-                            let prevIndex = (currentIndex - 1 + modes.count) % modes.count
-                            selectedMode = modes[prevIndex]
-                        }
-                    }
-                }
-        )
         .navigationTitle("수면 통계")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
