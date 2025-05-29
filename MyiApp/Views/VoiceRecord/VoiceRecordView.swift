@@ -68,10 +68,14 @@ struct VoiceRecordView: View {
                                 Button {
                                     showDeleteAlert = true
                                 } label: {
-                                    Image(systemName: "trash")
-                                        .font(.title2)
-                                        .padding(.horizontal, 10)
-                                        .foregroundColor(.red)
+                                    Text("삭제")
+                                        .font(.caption)
+                                        .foregroundColor(.white)
+                                        .bold()
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(Color.red.opacity(0.85))
+                                        .clipShape(Capsule())
                                 }
                                 .disabled(selectedRecords.isEmpty)
                                 
@@ -79,22 +83,31 @@ struct VoiceRecordView: View {
                                 Button {
                                     exitSelectionMode()
                                 } label: {
-                                    Image(systemName: "x.circle")
+                                    Text("취소")
+                                        .font(.caption)
+                                        .foregroundColor(.white)
+                                        .bold()
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(Color("buttonColor"))
+                                        .clipShape(Capsule())
                                 }
-                                .font(.title2)
-                                .padding(.horizontal, 10)
-                                .foregroundColor(.primary)
+                                .buttonStyle(PlainButtonStyle())
                             }
                         } else {
-                            // 선택 버튼
                             Button {
                                 enterSelectionMode()
                             } label: {
-                                Image(systemName: "checkmark.circle")
-                                    .font(.title2)
-                                    .padding(.horizontal, 10)
-                                    .foregroundColor(.primary)
+                                Text("선택")
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .bold()
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(Color("buttonColor"))
+                                    .clipShape(Capsule())
                             }
+                            .buttonStyle(PlainButtonStyle())
                         }
                     }
                 }
