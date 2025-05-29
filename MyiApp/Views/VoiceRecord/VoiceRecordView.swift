@@ -118,21 +118,66 @@ struct VoiceRecordView: View {
                     .padding(.top, 80)
                 } else {
                     ScrollView {
-                        VStack(spacing: 8) {
-                            ForEach(viewModel.recordResults) { result in
-                                VoiceRecordResultCard(
-                                    result: result,
-                                    isSelectionMode: isSelectionMode,
-                                    isSelected: selectedRecords.contains(result.id),
-                                    onSelectionToggle: {
+                        VStack(spacing: 0) {
+                            ForEach(Array(viewModel.recordResults.enumerated()), id: \.element.id) { index, result in
+                                let isFirst = index == 0
+                                let isLast = index == viewModel.recordResults.count - 1
+
+                                Button {
+                                    if isSelectionMode {
                                         toggleSelection(for: result.id)
+                                    } else {
+                                        // navigate to detail if needed
                                     }
-                                )
-                                .environmentObject(viewModel)
+                                } label: {
+                                    HStack(alignment: .center, spacing: 12) {
+                                        if isSelectionMode {
+                                            Image(systemName: selectedRecords.contains(result.id) ? "checkmark.circle.fill" : "circle")
+                                                .foregroundColor(selectedRecords.contains(result.id) ? .blue : .gray)
+                                                .font(.title3)
+                                        }
+
+                                        Image(result.firstLabel.rawImageName)
+                                            .resizable()
+                                            .frame(width: 40, height: 40)
+                                            .cornerRadius(8)
+
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text("새로운 분석")
+                                                .font(.headline)
+                                                .foregroundColor(.primary)
+
+                                            Text(result.firstLabel.displayName)
+                                                .font(.subheadline)
+                                                .foregroundColor(.secondary)
+
+                                            Text(dateString(from: result.createdAt))
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                        }
+
+                                        Spacer()
+                                    }
+                                    .padding()
+                                    .background(
+                                        (selectedRecords.contains(result.id) && isSelectionMode
+                                         ? Color.blue.opacity(0.1)
+                                         : Color(.systemBackground))
+                                        .overlay(
+                                            isLast ? nil :
+                                            Divider()
+                                                .padding(.leading, isSelectionMode ? 88 : 52),
+                                            alignment: .bottom
+                                        )
+                                    )
+                                    .cornerRadius(
+                                        viewModel.recordResults.count == 1 ? 12 : (isFirst ? 12 : isLast ? 12 : 0),
+                                        corners: viewModel.recordResults.count == 1 ? .allCorners : (isFirst ? [.topLeft, .topRight] : isLast ? [.bottomLeft, .bottomRight] : [])
+                                    )
+                                    .padding(.horizontal)
+                                }
                             }
                         }
-                        .padding(.top, 8)
-                        .padding(.horizontal)
                     }
                 }
                 
@@ -295,59 +340,6 @@ private struct VoiceRecordResultCard: View {
             .cornerRadius(16)
             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
             .offset(x: offset)
-            .gesture(
-                DragGesture(minimumDistance: 15)
-                    .onChanged { value in
-                        guard !isSelectionMode else { return }
-                        if value.translation.width < 0 {
-                            offset = max(value.translation.width, deleteWidth)
-                        }
-                    }
-                    .onEnded { value in
-                        guard !isSelectionMode else { return }
-                        withAnimation(.easeOut(duration: 0.2)) {
-                            if value.translation.width < deleteWidth / 2 {
-                                offset = deleteWidth
-                                isSwiped = true
-                            } else {
-                                offset = 0
-                                isSwiped = false
-                            }
-                        }
-                    }
-            )
-            .simultaneousGesture(
-                TapGesture()
-                    .onEnded {
-                        if isSwiped {
-                            withAnimation(.spring()) {
-                                offset = 0
-                                isSwiped = false
-                            }
-                        } else if isSelectionMode {
-                            onSelectionToggle()
-                        }
-                    }
-            )
-        }
-        .alert("삭제 확인", isPresented: $showingDeleteAlert) {
-            Button("취소", role: .cancel) {
-                withAnimation(.spring()) {
-                    offset = 0
-                    isSwiped = false
-                }
-            }
-            Button("삭제", role: .destructive) {
-                withAnimation {
-                    viewModel.deleteRecords(with: [result.id])
-                }
-            }
-        } message: {
-            Text("이 분석 결과를 삭제하시겠습니까?")
-        }
-        .onAppear {
-            offset = 0
-            isSwiped = false
         }
     }
     
@@ -361,4 +353,29 @@ private struct VoiceRecordResultCard: View {
 
 #Preview {
     VoiceRecordView()
+}
+
+    // Helper for date string formatting (moved from VoiceRecordResultCard)
+    private func dateString(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy. M. d a h:mm:ss"
+        formatter.locale = Locale(identifier: "ko_KR")
+        return formatter.string(from: date)
+    }
+
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
+    }
+}
+
+struct RoundedCorner: Shape {
+    var radius: CGFloat = 0
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners,
+                                cornerRadii: CGSize(width: radius, height: radius))
+        return Path(path.cgPath)
+    }
 }
