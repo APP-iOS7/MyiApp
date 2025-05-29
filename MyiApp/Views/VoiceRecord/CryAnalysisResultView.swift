@@ -153,8 +153,9 @@ struct CryAnalysisResultView: View {
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(Color.gray.opacity(0.2))
-                .foregroundColor(.primary)
+                .font(.headline)
+                .background(Color("buttonColor"))
+                .foregroundColor(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .padding(.horizontal)
                 .padding(.bottom, 20)

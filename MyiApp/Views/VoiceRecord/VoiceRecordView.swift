@@ -305,9 +305,17 @@ private struct VoiceRecordResultCard: View {
                     VStack {
                         Spacer()
                         Button(action: onSelectionToggle) {
-                            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(isSelected ? .blue : .gray)
-                                .font(.system(size: 24))
+                            Text("선택")
+                                .font(.caption)
+                                .foregroundColor(isSelected ? .white : .blue)
+                                .padding(.vertical, 6)
+                                .padding(.horizontal, 12)
+                                .background(isSelected ? Color.blue : Color.gray)
+                                .cornerRadius(15)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .stroke(Color.blue, lineWidth: 1)
+                                )
                         }
                         .buttonStyle(PlainButtonStyle())
                         Spacer()
@@ -342,26 +350,7 @@ private struct VoiceRecordResultCard: View {
             .offset(x: offset)
         }
     }
-    
-    private func dateString(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy. M. d a h:mm:ss"
-        formatter.locale = Locale(identifier: "ko_KR")
-        return formatter.string(from: date)
-    }
 }
-
-#Preview {
-    VoiceRecordView()
-}
-
-    // Helper for date string formatting (moved from VoiceRecordResultCard)
-    private func dateString(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy. M. d a h:mm:ss"
-        formatter.locale = Locale(identifier: "ko_KR")
-        return formatter.string(from: date)
-    }
 
 extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
@@ -379,3 +368,11 @@ struct RoundedCorner: Shape {
         return Path(path.cgPath)
     }
 }
+
+private func dateString(from date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy. M. d a h:mm:ss"
+    formatter.locale = Locale(identifier: "ko_KR")
+    return formatter.string(from: date)
+}
+
