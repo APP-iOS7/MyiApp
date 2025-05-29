@@ -35,4 +35,21 @@ extension Date {
         formatter.dateFormat = "yyyy년 MM월 dd일 (E)"
         return formatter.string(from: self)
     }
+    
+    func replacingDate(with date: Date) -> Date {
+        let calendar = Calendar.current
+        let timeComponents = calendar.dateComponents([.hour, .minute, .second, .nanosecond], from: self)
+        let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+        
+        var newComponents = DateComponents()
+        newComponents.year = dateComponents.year
+        newComponents.month = dateComponents.month
+        newComponents.day = dateComponents.day
+        newComponents.hour = timeComponents.hour
+        newComponents.minute = timeComponents.minute
+        newComponents.second = timeComponents.second
+        newComponents.nanosecond = timeComponents.nanosecond
+        
+        return calendar.date(from: newComponents) ?? self
+    }
 }

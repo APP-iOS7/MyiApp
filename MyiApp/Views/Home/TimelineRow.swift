@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseFirestore
 
 struct TimelineRow: View {
     let record: Record
@@ -129,44 +130,45 @@ struct TimelineRow: View {
     }
     
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Text(record.createdAt.to24HourTimeString())
-                .font(.system(size: 16))
-                .frame(width: 50, alignment: .leading)
-            VStack(spacing: 0) {
-                Rectangle()
-                    .fill(showTopLine ? Color.gray.opacity(0.4) : Color(uiColor: .tertiarySystemBackground))
-                    .frame(width: 2, height: 25)
-                Circle()
-                    .fill(circleColor)
-                    .frame(width: 10, height: 10)
-                Rectangle()
-                    .fill(showBottomLine ? Color.gray.opacity(0.4) : Color(uiColor: .tertiarySystemBackground))
-                    .frame(width: 2, height: 25)
-            }
-            HStack(spacing: 8) {
-                Image(uiImage: iconName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 40, height: 40)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                    Text(subtitle)
-                        .font(.caption2)
-                        .foregroundColor(.gray)
+            HStack(alignment: .center, spacing: 12) {
+                Text(record.createdAt.to24HourTimeString())
+                    .font(.subheadline)
+                    .frame(width: 50, alignment: .leading)
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .fill(showTopLine ? Color.gray.opacity(0.4) : Color(uiColor: .tertiarySystemBackground))
+                        .frame(width: 2, height: 25)
+                    Circle()
+                        .fill(circleColor)
+                        .frame(width: 10, height: 10)
+                    Rectangle()
+                        .fill(showBottomLine ? Color.gray.opacity(0.4) : Color(uiColor: .tertiarySystemBackground))
+                        .frame(width: 2, height: 25)
                 }
+                HStack(spacing: 8) {
+                    Image(uiImage: iconName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 40, height: 40)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(title)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        Text(subtitle)
+                            .font(.caption2)
+                            .foregroundColor(.gray)
+                    }
+                }
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.gray)
             }
-            Spacer()
-            
-            Image(systemName: "chevron.right")
-                .foregroundColor(.gray)
+            .background(Color(UIColor.tertiarySystemBackground))
+            .cornerRadius(10)
+            .contentShape(Rectangle())
         }
-        .padding(.horizontal, 5)
-    }
 }
-
 
 #Preview {
     //    TimelineRow(record: Record.mockRecords[0])

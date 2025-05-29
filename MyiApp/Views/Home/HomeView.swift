@@ -7,13 +7,9 @@
 
 import SwiftUI
 import Kingfisher
-/*
- 헤더 사이즈 줄이기.
- */
 
 struct HomeView: View {
     @StateObject var viewModel: HomeViewModel = .init()
-    @State private var isPresented = false
     
     var body: some View {
         ZStack {
@@ -22,9 +18,12 @@ struct HomeView: View {
                     .frame(height: getTopSafeAreaHeight())
                     .background(Color.customBackground)
                 ScrollView {
-                    VStack(spacing: 15) {
-                        //                        header
+                    VStack(spacing: 0) {
+                        header
+                            .padding(.horizontal, 7)
+                            .padding(.bottom, 5)
                         babyInfoCard
+                            .padding(.bottom, 7)
                         VStack {
                             dateSection
                             gridItems
@@ -34,16 +33,25 @@ struct HomeView: View {
                         }
                         .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
                     }
-                    .padding()
+                    .padding([.horizontal, .bottom])
                 }
             }
             .background(Color.customBackground)
-            .blur(radius: isPresented ? 10 : 0)
-            .id(isPresented ? "blurred" : "normal")
-            if isPresented { babyFullScreenCard }
+            .blur(radius: viewModel.isPresented ? 10 : 0)
+            .id(viewModel.isPresented ? "blurred" : "normal")
+            if viewModel.isPresented { babyFullScreenCard }
+        }
+        .alert("기록 삭제", isPresented: $viewModel.showDeleteAlert) {
+            Button("취소", role: .cancel) {
+                viewModel.cancelDelete()
+            }
+            Button("삭제", role: .destructive) {
+                viewModel.confirmDelete()
+            }
+        } message: {
+            Text("이 기록을 삭제하시겠습니까?")
         }
     }
-    
     
     private var header: some View {
         HStack {
@@ -52,35 +60,35 @@ struct HomeView: View {
                     Button {
                         viewModel.babyChangeButtonDidTap(baby: baby)
                     } label: {
+                        Spacer()
                         Text(baby.name)
                             .foregroundStyle(.primary)
                     }
                 }
+                Divider()
+                NavigationLink(destination: RegisterBabyView()) {
+                    Text("아이 추가")
+                }
             } label: {
                 HStack(spacing: 4) {
-                    Text(viewModel.baby?.name ?? "아기 선택")
-                        .font(.headline)
+                    Text(viewModel.displayName)
                     Image(systemName: "chevron.down")
-                        .font(.subheadline)
                 }
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.gray.opacity(0.15))
-                )
+
             }
-            
+            .font(.title3)
+            .bold()
+            .foregroundColor(.primary)
             Spacer()
             
             Button {
                 // TODO: 알림 상황일 때.
             } label: {
                 Image(systemName: "bell.fill")
-                    .font(.body)
+                    .font(.title2)
                     .foregroundColor(.gray)
-                    .padding(10)
             }
         }
-        .padding(.horizontal)
     }
     private var babyInfoCard: some View {
         HStack {
@@ -104,19 +112,19 @@ struct HomeView: View {
                 )
                 .padding(10)
                 .padding(.leading, 10)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(viewModel.displayName)
-                    .font(.headline)
-                    .padding(.leading, 4)
-                HStack(spacing: 0) {
+//            VStack(alignment: .leading, spacing: 3) {
+//                Text(viewModel.displayName)
+//                    .font(.headline)
+//                    .padding(.leading, 4)
+//                HStack(spacing: 0) {
                     Image(.homeCalendar)
                         .resizable()
                         .frame(width: 30, height: 30)
                     Text(viewModel.displayDayCount)
-                }
-            }
+//                }
+//            }
             Spacer()
-            Button(action: {isPresented = true}) {
+            Button(action: viewModel.toggleBabyFullScreenCard) {
                 Image(systemName: "list.bullet.rectangle.portrait.fill")
                     .resizable()
                     .frame(width: 15, height: 20)
@@ -134,7 +142,7 @@ struct HomeView: View {
         Group {
             Color.black.opacity(0.3)
                 .ignoresSafeArea()
-                .onTapGesture { isPresented = false }
+                .onTapGesture { viewModel.toggleBabyFullScreenCard() }
             VStack {
                 HStack {
                     Spacer()
@@ -224,7 +232,7 @@ struct HomeView: View {
         ZStack {
             HStack(spacing: 6) {
                 Button(action: {
-                    viewModel.selectedDate = Calendar.current.date(byAdding: .day, value: -1, to: viewModel.selectedDate) ?? viewModel.selectedDate
+                    viewModel.updateSelectedDate(by: -1)
                 }) {
                     Image(systemName: "chevron.left")
                         .font(.body)
@@ -238,7 +246,7 @@ struct HomeView: View {
                     .font(.body)
                 Spacer()
                 Button(action: {
-                    viewModel.selectedDate = Calendar.current.date(byAdding: .day, value: +1, to: viewModel.selectedDate) ?? viewModel.selectedDate
+                    viewModel.updateSelectedDate(by: 1)
                 }) {
                     Image(systemName: "chevron.right")
                         .font(.body)
@@ -286,7 +294,7 @@ struct HomeView: View {
                                     .frame(width: 70, height: 70)
                             )
                         Text(item.name)
-                            .font(.system(size: 12))
+                            .font(.footnote)
                             .foregroundStyle(.foreground)
                     }
                     .frame(width: 90, height: 100)
@@ -298,7 +306,6 @@ struct HomeView: View {
     }
     private var timeline: some View {
         VStack(spacing: 0) {
-            
             if viewModel.filteredRecords.isEmpty {
                 VStack(spacing: 10) {
                     Image(systemName: "doc.text.magnifyingglass")
@@ -310,19 +317,36 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 50)
             } else {
-                ForEach(viewModel.filteredRecords.indices, id: \.self) { index in
-                    let record = viewModel.filteredRecords[index]
-                    TimelineRow(
-                        record: record,
-                        index: index,
-                        totalCount: viewModel.filteredRecords.count
-                    )
-                    .frame(maxWidth: .infinity)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        viewModel.recordToEdit = record
+                List {
+                    ForEach(viewModel.filteredRecords.indices, id: \.self) { index in
+                        let record = viewModel.filteredRecords[index]
+                        TimelineRow(
+                            record: record,
+                            index: index,
+                            totalCount: viewModel.filteredRecords.count
+                        )
+                        .padding(.horizontal)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.recordToEdit = record
+                        }
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .cancel) {
+                                viewModel.showDeleteConfirmation(for: record)
+                            } label: {
+                                Label("삭제", systemImage: "trash")
+                                    .foregroundColor(.red)
+                            }
+                            .tint(.red)
+                        }
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                     }
                 }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .frame(height: CGFloat(viewModel.filteredRecords.count * 60))
                 .sheet(item: $viewModel.recordToEdit) { record in
                     let detents: Set<PresentationDetent> = {
                         switch record.title {
