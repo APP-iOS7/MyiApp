@@ -97,7 +97,9 @@ struct NoteView: View {
             }
             .background(Color("customBackgroundColor"))
         }
-        .sheet(isPresented: $showingNoteEditor) {
+        .sheet(isPresented: $showingNoteEditor, onDismiss: {
+            viewModel.objectWillChange.send()
+        }) {
             NoteEditorView(selectedDate: viewModel.selectedDay?.date ?? Date())
                 .environmentObject(viewModel)
         }
