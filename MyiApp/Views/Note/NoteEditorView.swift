@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import Kingfisher
 
 struct NoteEditorView: View {
     @Environment(\.dismiss) private var dismiss
@@ -513,7 +514,22 @@ struct ActiveImagePreviewGrid: View {
             LazyHStack(spacing: 10) {
                 ForEach(activeImages, id: \.0) { originalIndex, url in
                     ZStack(alignment: .topTrailing) {
-                        CustomAsyncImageView(imageUrlString: url)
+                        KFImage(URL(string: url))
+                            .placeholder {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.gray.opacity(0.1))
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle())
+                                        .scaleEffect(0.8)
+                                }
+                            }
+                            .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 200, height: 200)))
+                            .scaleFactor(UIScreen.main.scale)
+                            .fade(duration: 0.25)
+                            .cacheMemoryOnly()
+                            .resizable()
+                            .scaledToFill()
                             .frame(width: 100, height: 100)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .overlay(
@@ -552,7 +568,22 @@ struct DeletedImagePreviewGrid: View {
             LazyHStack(spacing: 10) {
                 ForEach(deletedImages, id: \.0) { originalIndex, url in
                     ZStack {
-                        CustomAsyncImageView(imageUrlString: url)
+                        KFImage(URL(string: url))
+                            .placeholder {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.gray.opacity(0.1))
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle())
+                                        .scaleEffect(0.8)
+                                }
+                            }
+                            .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 200, height: 200)))
+                            .scaleFactor(UIScreen.main.scale)
+                            .fade(duration: 0.25)
+                            .cacheMemoryOnly()
+                            .resizable()
+                            .scaledToFill()
                             .frame(width: 100, height: 100)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .opacity(0.3)
