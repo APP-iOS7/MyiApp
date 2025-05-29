@@ -66,18 +66,19 @@ struct HomeView: View {
                     }
                 }
                 Divider()
-                Button("아이 추가", action: {})
+                NavigationLink(destination: RegisterBabyView()) {
+                    Text("아이 추가")
+                }
             } label: {
                 HStack(spacing: 4) {
-                    Text("아이 선택")
+                    Text(viewModel.displayName)
                     Image(systemName: "chevron.down")
                 }
 
             }
             .font(.title3)
             .bold()
-            .foregroundColor(.gray)
-            .menuStyle(.button)
+            .foregroundColor(.primary)
             Spacer()
             
             Button {
@@ -111,17 +112,17 @@ struct HomeView: View {
                 )
                 .padding(10)
                 .padding(.leading, 10)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(viewModel.displayName)
-                    .font(.headline)
-                    .padding(.leading, 4)
-                HStack(spacing: 0) {
+//            VStack(alignment: .leading, spacing: 3) {
+//                Text(viewModel.displayName)
+//                    .font(.headline)
+//                    .padding(.leading, 4)
+//                HStack(spacing: 0) {
                     Image(.homeCalendar)
                         .resizable()
                         .frame(width: 30, height: 30)
                     Text(viewModel.displayDayCount)
-                }
-            }
+//                }
+//            }
             Spacer()
             Button(action: viewModel.toggleBabyFullScreenCard) {
                 Image(systemName: "list.bullet.rectangle.portrait.fill")
