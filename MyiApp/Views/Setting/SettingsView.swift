@@ -95,14 +95,39 @@ struct SettingsView: View {
                                         .foregroundColor(.primary.opacity(0.6))
                                         .padding()
                                 } else {
-                                    ForEach(caregiverManager.babies, id: \.id) { baby in
-                                        NavigationLink(destination: BabyProfileView(baby: baby)) {
-                                            Text(baby.name)
-                                                .foregroundColor(.primary.opacity(0.6))
+                                    VStack {
+                                        ForEach(caregiverManager.babies, id: \.id) { baby in
+                                            NavigationLink(destination: BabyProfileView(baby: baby)) {
+                                                HStack {
+                                                    Image(systemName: "arrow.turn.down.right")
+                                                        .foregroundColor(.primary.opacity(0.6))
+                                                        .padding(.leading, 43)
+                                                    Text(baby.name)
+                                                        .foregroundColor(.primary.opacity(0.6))
+                                                        .padding(.leading, 8)
+                                                    
+                                                    Spacer()
+                                                    
+                                                    Image(systemName: "chevron.right")
+                                                        .foregroundColor(.primary.opacity(0.6))
+                                                        .font(.system(size: 12))
+                                                        .padding(.trailing, 8)
+                                                }
                                                 .padding()
-                                                .padding(.leading, 44)
-                                            
-                                            Spacer()
+                                            }
+                                        }
+                                        NavigationLink(destination: RegisterBabyView()) {
+                                            HStack {
+                                                Image(systemName: "plus.circle.fill")
+                                                    .foregroundColor(Color("buttonColor"))
+                                                    .padding(.leading, 5)
+                                                Text("새 아이 추가")
+                                                    .foregroundColor(.primary.opacity(0.6))
+                                                    .padding(.leading, 10)
+                                                
+                                                Spacer()
+                                            }
+                                            .padding()
                                         }
                                     }
                                 }
