@@ -65,14 +65,27 @@ struct StatisticView: View {
     var body: some View {
         ZStack {
             Color("customBackgroundColor")
-                .ignoresSafeArea(.container, edges: .top)
+                .ignoresSafeArea()
             VStack(spacing: 0) {
                 SafeAreaPaddingView()
                     .frame(height: getTopSafeAreaHeight())
                 ScrollView {
+                    
                     VStack(spacing: 15) {
-                        heightWeightButton
-                        
+                        HStack {
+                            Text("통계")
+                                .font(.title)
+                                .bold()
+                            Spacer()
+                            NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
+                                Image(systemName: "chart.xyaxis.line")
+                                    .foregroundColor(.primary)
+                                    .font(.title2)
+                            }
+                            
+                        }
+                        .padding(.horizontal)
+                        .padding(.trailing, 7)
                         VStack(spacing: 10) {
                             toggleMode
                                 .padding(.vertical, 10)
@@ -201,23 +214,6 @@ struct StatisticView: View {
             .blendMode(.destinationOver)
         }
         
-    }
-    private var heightWeightButton: some View {
-        NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
-            HStack {
-                Text("성장곡선")
-                    .font(.headline)
-                    .foregroundColor(.primary)
-                
-                Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.primary)
-            }
-            .padding()
-            .background(Color(.tertiarySystemBackground))
-            .cornerRadius(12)
-        }
     }
     private var chartView: some View {
         Group {
