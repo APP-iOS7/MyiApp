@@ -19,8 +19,6 @@ class NoteViewModel: ObservableObject {
     private let caregiverManager = CaregiverManager.shared
     private var cancellables = Set<AnyCancellable>()
     
-    @Published var babyInfo: Baby?
-    
     @Published var selectedMonth: Date = Date()
     @Published var days: [CalendarDay] = []
     @Published var weekdays: [String] = ["일", "월", "화", "수", "목", "금", "토"]
@@ -39,9 +37,7 @@ class NoteViewModel: ObservableObject {
     }
     
     init() {
-        fetchBabyInfo()
         fetchCalendarDays()
-        setupListeners()
         
         caregiverManager.$notes
             .receive(on: RunLoop.main)
@@ -68,10 +64,6 @@ class NoteViewModel: ObservableObject {
         
         self.events = newEvents
         self.isLoading = false
-    }
-    
-    private func fetchBabyInfo() {
-        self.babyInfo = caregiverManager.selectedBaby
     }
     
     func addNoteLocallyWithImages(_ note: Note, localImages: [UIImage]) {
@@ -124,7 +116,7 @@ class NoteViewModel: ObservableObject {
     }
     
     func saveNoteToFirestoreOnly(_ note: Note) async throws {
-        guard let baby = babyInfo else {
+        guard let baby = caregiverManager.selectedBaby else {
             throw NSError(domain: "BabyInfo", code: 0, userInfo: [NSLocalizedDescriptionKey: "아기 정보가 없습니다"])
         }
         
@@ -146,7 +138,7 @@ class NoteViewModel: ObservableObject {
     }
     
     func updateNote(note: Note) {
-        guard let baby = babyInfo else { return }
+        guard let baby = caregiverManager.selectedBaby else { return }
         
         isLoading = true
         
@@ -180,7 +172,7 @@ class NoteViewModel: ObservableObject {
     func deleteNote(note: Note) {
         cancelNotificationForNote(note)
         
-        guard let baby = babyInfo else { return }
+        guard let baby = caregiverManager.selectedBaby else { return }
         
         isLoading = true
         
@@ -204,16 +196,6 @@ class NoteViewModel: ObservableObject {
         guard let date = day.date else { return [] }
         let startOfDay = Calendar.current.startOfDay(for: date)
         return (events[startOfDay] ?? []).sorted { $0.date < $1.date }
-    }
-    
-    func setupListeners() {
-        databaseService.$hasBabyInfo
-            .sink { [weak self] hasBabyInfoOptional in
-                if let hasBabyInfo = hasBabyInfoOptional, hasBabyInfo {
-                    self?.fetchBabyInfo()
-                }
-            }
-            .store(in: &cancellables)
     }
     
     func fetchCalendarDays() {
@@ -293,7 +275,7 @@ class NoteViewModel: ObservableObject {
     }
     
     func isBirthday(_ date: Date?) -> Bool {
-        guard let date = date, let birthDate = babyInfo?.birthDate else { return false }
+        guard let date = date, let birthDate = caregiverManager.selectedBaby?.birthDate else { return false }
         
         let calendar = Calendar.current
         let birthDay = calendar.component(.day, from: birthDate)
@@ -306,7 +288,7 @@ class NoteViewModel: ObservableObject {
     }
     
     func is100Days(_ date: Date?) -> Bool {
-        guard let date = date, let birthDate = babyInfo?.birthDate else { return false }
+        guard let date = date, let birthDate = caregiverManager.selectedBaby?.birthDate else { return false }
         
         let calendar = Calendar.current
         if let hundredDaysDate = calendar.date(byAdding: .day, value: 99, to: birthDate) {
@@ -316,7 +298,7 @@ class NoteViewModel: ObservableObject {
     }
     
     func isFirstBirthday(_ date: Date?) -> Bool {
-        guard let date = date, let birthDate = babyInfo?.birthDate else { return false }
+        guard let date = date, let birthDate = caregiverManager.selectedBaby?.birthDate else { return false }
         
         let calendar = Calendar.current
         if let firstBirthdayDate = calendar.date(byAdding: .year, value: 1, to: birthDate) {
@@ -356,7 +338,6 @@ class NoteViewModel: ObservableObject {
     }
     
     func refreshData() {
-        fetchBabyInfo()
         selectToday()
     }
     
@@ -387,6 +368,7 @@ class NoteViewModel: ObservableObject {
     }
 }
 
+// MARK: - Image Upload Extension
 extension NoteViewModel {
     func uploadImage(_ image: UIImage, completion: @escaping (Result<String, Error>) -> Void) {
         guard let imageData = image.jpegData(compressionQuality: 0.7) else {
@@ -394,7 +376,7 @@ extension NoteViewModel {
             return
         }
         
-        guard authService.user != nil, let babyId = babyInfo?.id else {
+        guard authService.user != nil, let babyId = caregiverManager.selectedBaby?.id else {
             completion(.failure(NSError(domain: "AuthError", code: 0, userInfo: [NSLocalizedDescriptionKey: "인증 정보가 없음"])))
             return
         }
@@ -524,6 +506,7 @@ extension NoteViewModel {
     }
 }
 
+// MARK: - Notification Extension
 extension NoteViewModel {
     func scheduleNotificationForNote(_ note: Note, minutesBefore: Int) -> Bool {
         guard note.category == .일정 else { return false }
