@@ -14,7 +14,6 @@ class HomeViewModel: ObservableObject {
     @Published var baby: Baby?
     @Published var records: [Record] = []
     @Published var selectedDate: Date = Date()
-    @Published var selectedCategory: GridItemCategory?
     @Published var recordToEdit: Record?
     @Published var showDeleteAlert: Bool = false
     @Published var recordToDelete: Record?
@@ -91,7 +90,7 @@ class HomeViewModel: ObservableObject {
     }
     var displayDayCount: String {
         let days = Calendar.current.dateComponents([.day], from: baby?.birthDate ?? Date(), to: Date()).day ?? 0
-        return "+ \(days + 1)일"
+        return "\(days + 1)일"
     }
     var filteredRecords: [Record] {
         let calendar = Calendar.current

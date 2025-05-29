@@ -448,17 +448,6 @@ struct NewBabyRegisterView: View {
             .disabled(!isButtonEnabled)
             .navigationTitle("아이 정보 등록")
             .background(Color("customBackgroundColor"))
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(.primary.opacity(0.8))
-                    }
-                }
-            }
         }
         .onTapGesture {
             dismissKeyboard()

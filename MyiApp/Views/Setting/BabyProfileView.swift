@@ -251,20 +251,6 @@ struct BabyProfileView: View {
             .background(Color(UIColor.tertiarySystemBackground))
             .navigationTitle("\(viewModel.baby.name)님의 정보")
             .navigationBarTitleDisplayMode(.inline)
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        if !isLoading {
-                            dismiss()
-                        }
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(.primary.opacity(isLoading ? 0.3 : 0.8))
-                    }
-                    .disabled(isLoading)
-                }
-            }
             .task {
                 await viewModel.loadBabyProfileImage()
             }

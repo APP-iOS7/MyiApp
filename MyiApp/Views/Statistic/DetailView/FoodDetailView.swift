@@ -61,17 +61,6 @@ struct FoodDetailView: View {
         }
         .navigationTitle("분유/수유/이유식 통계")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    dismiss()
-                }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.primary.opacity(0.8))
-                }
-            }
-        }
     }
     
     var mainScrollView: some View {

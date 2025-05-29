@@ -210,17 +210,6 @@ struct PrivacyPolicyView: View {
         .background(Color("customBackgroundColor"))
         .navigationTitle("개인정보 처리 방침")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    dismiss()
-                }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.primary.opacity(0.8))
-                }
-            }
-        }
     }
 }
 

@@ -61,17 +61,6 @@ struct SnackDetailView: View {
         }
         .navigationTitle("간식 통계")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    dismiss()
-                }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.primary.opacity(0.8))
-                }
-            }
-        }
     }
     
     var mainScrollView: some View {

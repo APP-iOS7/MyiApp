@@ -242,17 +242,6 @@ struct TermsOfServiceView: View {
         .background(Color("customBackgroundColor"))
         .navigationTitle("이용약관")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    dismiss()
-                }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.primary.opacity(0.8))
-                }
-            }
-        }
     }
 }
 

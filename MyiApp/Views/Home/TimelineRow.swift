@@ -88,9 +88,9 @@ struct TimelineRow: View {
                 if let start = record.sleepStart, let end = record.sleepEnd {
                     return "\(start.to24HourTimeString()) - \(end.to24HourTimeString())"
                 } else if let start = record.sleepStart {
-                    return "\(start.to24HourTimeString()) - (종료 시간 없음)"
+                    return "\(start.to24HourTimeString()) - (종료 기록 없음)"
                 } else if let end = record.sleepEnd {
-                    return "(시작 시간 없음) - \(end.to24HourTimeString())"
+                    return "(시작 기록 없음) - \(end.to24HourTimeString())"
                 } else {
                     return "시간 미기록"
                 }

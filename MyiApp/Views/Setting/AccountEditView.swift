@@ -90,17 +90,6 @@ struct AccountEditView: View {
         .background(Color(UIColor.tertiarySystemBackground))
         .navigationTitle("사용자 프로필")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    dismiss()
-                }) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.primary.opacity(0.8))
-                }
-            }
-        }
         .safeAreaInset(edge: .bottom) {
             if keyboardHeight > 0 {
                 VStack {
