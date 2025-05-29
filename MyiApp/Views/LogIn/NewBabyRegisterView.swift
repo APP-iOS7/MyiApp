@@ -106,7 +106,6 @@ struct NewBabyRegisterView: View {
                             HStack {
                                 Text("AB 형")
                                     .foregroundColor(.primary.opacity(0.6))
-                                    .padding(.leading, 5)
                                 
                                 Spacer()
                                 
@@ -174,15 +173,20 @@ struct NewBabyRegisterView: View {
                                         isWeightEntered = !filtered.isEmpty
                                     }
                                 if isWeightEntered {
-                                    Button(action: {
-                                        withAnimation(.easeInOut(duration: 0.2)) {
-                                            viewModel.weight = ""
-                                            focusedField = .weight
+                                    HStack(spacing: 15) {
+                                        Text("kg")
+                                            .foregroundColor(.primary.opacity(0.6))
+                                            .font(.title2)
+                                        Button(action: {
+                                            withAnimation(.easeInOut(duration: 0.2)) {
+                                                viewModel.weight = ""
+                                                focusedField = .weight
+                                            }
+                                        }) {
+                                            Image(systemName: "xmark.circle.fill")
+                                                .foregroundColor(.gray)
+                                                .padding(.trailing, 10)
                                         }
-                                    }) {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundColor(.gray)
-                                            .padding(.trailing, 20)
                                     }
                                 }
                             }
@@ -229,15 +233,20 @@ struct NewBabyRegisterView: View {
                                         isHeightEntered = !filtered.isEmpty
                                     }
                                 if !viewModel.height.isEmpty {
-                                    Button(action: {
-                                        withAnimation(.easeInOut(duration: 0.2)) {
-                                            viewModel.height = ""
-                                            focusedField = .height
+                                    HStack(spacing: 15) {
+                                        Text("cm")
+                                            .foregroundColor(.primary.opacity(0.6))
+                                            .font(.title2)
+                                        Button(action: {
+                                            withAnimation(.easeInOut(duration: 0.2)) {
+                                                viewModel.height = ""
+                                                focusedField = .height
+                                            }
+                                        }) {
+                                            Image(systemName: "xmark.circle.fill")
+                                                .foregroundColor(.gray)
+                                                .padding(.trailing, 10)
                                         }
-                                    }) {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundColor(.gray)
-                                            .padding(.trailing, 20)
                                     }
                                 }
                             }
@@ -328,7 +337,7 @@ struct NewBabyRegisterView: View {
                     
                     if isGenderSelected {
                         VStack(alignment: .leading, spacing: 0) {
-                            Text("이름")
+                            Text("이름 / 태명")
                                 .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundColor(.primary.opacity(0.8))
@@ -363,7 +372,7 @@ struct NewBabyRegisterView: View {
                                     }) {
                                         Image(systemName: "xmark.circle.fill")
                                             .foregroundColor(.gray)
-                                            .padding(.trailing, 20)
+                                            .padding(.trailing, 10)
                                     }
                                 }
                             }
