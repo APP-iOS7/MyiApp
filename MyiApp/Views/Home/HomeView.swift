@@ -4,7 +4,8 @@
 //
 //  Created by 최범수 on 2025-05-08.
 //
-
+// 테스트
+// 왜 주석은 안됌?
 import SwiftUI
 import Kingfisher
 
