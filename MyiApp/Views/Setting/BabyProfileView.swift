@@ -215,7 +215,7 @@ struct BabyProfileView: View {
                     }
                     
                     HStack {
-                        Text("아이 공유 코드")
+                        Text("아이 정보 공유 코드")
                             .font(.headline)
                             .fontWeight(.semibold)
                             .foregroundColor(.primary.opacity(0.8))

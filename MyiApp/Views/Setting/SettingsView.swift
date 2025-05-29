@@ -91,7 +91,7 @@ struct SettingsView: View {
                         DisclosureGroup(isExpanded: $topExpanded) {
                             VStack(alignment: .leading, spacing: 10) {
                                 if caregiverManager.babies.isEmpty {
-                                    Text("아기 정보가 없습니다.")
+                                    Text("아이 정보가 없습니다.")
                                         .foregroundColor(.primary.opacity(0.6))
                                         .padding()
                                 } else {
@@ -121,7 +121,7 @@ struct SettingsView: View {
                                                 Image(systemName: "plus.circle.fill")
                                                     .foregroundColor(Color("buttonColor"))
                                                     .padding(.leading, 5)
-                                                Text("새 아이 추가")
+                                                Text("새 아이 정보 추가")
                                                     .foregroundColor(.primary.opacity(0.6))
                                                     .padding(.leading, 10)
                                                 

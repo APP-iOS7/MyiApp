@@ -24,7 +24,7 @@ struct RegisterBabyView: View {
             
             VStack {
                 HStack {
-                    Text("새로운 아이 등록")
+                    Text("새로운 아이 정보 등록")
                         .font(.title3)
                     
                     Spacer()
@@ -40,7 +40,7 @@ struct RegisterBabyView: View {
                 }
                 
                 HStack {
-                    Text("기존 아이 등록")
+                    Text("기존 아이 정보 등록")
                         .font(.title3)
                     
                     Spacer()
