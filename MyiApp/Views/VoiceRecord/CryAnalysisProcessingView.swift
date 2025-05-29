@@ -69,7 +69,7 @@ private struct ProcessingStateView: View {
             
             EqualizerView()
                 .padding(.horizontal, 24)
-                .frame(height: 140)
+                .frame(height: 123)
 
             Image("CryAnalysisProcessingShark")
                 .resizable()
@@ -86,6 +86,9 @@ private struct ProcessingStateView: View {
                 .font(.system(size: 14))
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal)
             
             Spacer()
             
@@ -113,6 +116,7 @@ private struct ProcessingStateView: View {
             .contentShape(Rectangle())
             .padding(.horizontal)
         }
+        .padding(.bottom, 20)
         .frame(maxHeight: .infinity, alignment: .top)
         .onReceive(dotTimer) { _ in
             dotCount = (dotCount + 1) % 4 

@@ -55,7 +55,9 @@ struct VoiceRecordView: View {
                 // 헤더
                 HStack {
                     Text("울음분석")
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.title)
+                        .bold()
+                    
                     Spacer()
                     
                     // 선택/취소/삭제 버튼
@@ -63,42 +65,36 @@ struct VoiceRecordView: View {
                         if isSelectionMode {
                             HStack(spacing: 12) {
                                 // 삭제 버튼 (선택된 항목이 있을 때만 활성화)
-                                Button("삭제") {
+                                Button {
                                     showDeleteAlert = true
+                                } label: {
+                                    Image(systemName: "trash")
+                                        .font(.title2)
+                                        .padding(.horizontal, 10)
+                                        .foregroundColor(.red)
                                 }
-                                .font(.subheadline)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
-                                .foregroundColor(selectedRecords.isEmpty ? .primary : .red)
-                                .background(
-                                    Capsule().stroke(Color.primary, lineWidth: 1)
-                                )
                                 .disabled(selectedRecords.isEmpty)
                                 
                                 // 취소 버튼
-                                Button("취소") {
+                                Button {
                                     exitSelectionMode()
+                                } label: {
+                                    Image(systemName: "x.circle")
                                 }
-                                .font(.subheadline)
+                                .font(.title2)
                                 .padding(.horizontal, 10)
-                                .padding(.vertical, 5)
                                 .foregroundColor(.primary)
-                                .background(
-                                    Capsule().stroke(Color.primary, lineWidth: 1)
-                                )
                             }
                         } else {
                             // 선택 버튼
-                            Button("선택") {
+                            Button {
                                 enterSelectionMode()
+                            } label: {
+                                Image(systemName: "checkmark.circle")
+                                    .font(.title2)
+                                    .padding(.horizontal, 10)
+                                    .foregroundColor(.primary)
                             }
-                            .font(.subheadline)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .foregroundColor(.primary)
-                            .background(
-                                Capsule().stroke(Color.primary, lineWidth: 1)
-                            )
                         }
                     }
                 }
