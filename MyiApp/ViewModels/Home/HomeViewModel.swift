@@ -210,7 +210,7 @@ class HomeViewModel: ObservableObject {
     }
     
     func babyChangeButtonDidTap(baby: Baby) {
-        
+        caregiverManager.selectedBaby = baby
     }
     
     func deleteRecord(_ record: Record, completion: ((Error?) -> Void)? = nil) {

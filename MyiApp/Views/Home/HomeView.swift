@@ -84,11 +84,18 @@ struct HomeView: View {
                                 Button {
                                     viewModel.babyChangeButtonDidTap(baby: baby)
                                 } label: {
-                                    Spacer()
-                                    Text(baby.name)
-                                        .foregroundStyle(.primary)
+                                    HStack {
+                                        Text(baby.name)
+                                            .foregroundStyle(.primary)
+                                        if baby.id == viewModel.baby?.id {
+                                            Image(systemName: "checkmark")
+                                                .foregroundStyle(.blue)
+                                        }
+                                        Spacer()
+                                    }
                                 }
                             }
+                            Divider()
                             NavigationLink(destination: RegisterBabyView()) {
                                 Text("아이 추가")
                             }
