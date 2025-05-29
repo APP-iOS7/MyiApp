@@ -43,7 +43,7 @@ struct ContentView: View {
                 .overlay(updateAlertOverlay)
                 
             } else {
-                ProgressView("케어기버및 아기 정보를 불러오는 중...")
+                ProgressView("케어기버 및 아기 정보를 불러오는 중...")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.customBackground.ignoresSafeArea())
             }

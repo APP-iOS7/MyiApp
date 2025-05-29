@@ -19,7 +19,7 @@ struct EditRecordView: View {
         NavigationView {
             Form {
                 content(record: viewModel.record)
-                recordTimeSection
+                if viewModel.record.title != .sleep { recordTimeSection }
                 deleteSection
             }
             .navigationTitle(viewModel.navigationTitle)
@@ -57,16 +57,24 @@ struct EditRecordView: View {
     
     private var recordTimeSection: some View {
         Section {
-            DatePicker("기록 시간", selection: $viewModel.record.createdAt, displayedComponents: [.date, .hourAndMinute])
+            DatePicker("시간", selection: $viewModel.record.createdAt, displayedComponents: [.date, .hourAndMinute])
         }
     }
     
     private var deleteSection: some View {
         Section {
             Button("기록 삭제", role: .destructive, action: {
+                viewModel.showDeleteAlert = true
+            })
+        }
+        .alert("기록 삭제", isPresented: $viewModel.showDeleteAlert) {
+            Button("취소", role: .cancel) { }
+            Button("삭제", role: .destructive) {
                 viewModel.deleteRecord()
                 dismiss()
-            })
+            }
+        } message: {
+            Text("정말로 이 기록을 삭제하시겠습니까?")
         }
     }
     

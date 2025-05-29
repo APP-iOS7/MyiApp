@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import Combine
+//import Combine
 import FirebaseFirestore
 
 class HomeViewModel: ObservableObject {
@@ -16,6 +16,9 @@ class HomeViewModel: ObservableObject {
     @Published var selectedDate: Date = Date()
     @Published var selectedCategory: GridItemCategory?
     @Published var recordToEdit: Record?
+    @Published var showDeleteAlert: Bool = false
+    @Published var recordToDelete: Record?
+    @Published var isPresented: Bool = false
 
     var displaySharkImage: UIImage {
         guard let birthDate = baby?.birthDate else {
@@ -42,7 +45,6 @@ class HomeViewModel: ObservableObject {
         }
     }
     let caregiverManager = CaregiverManager.shared
-    private var cancellables = Set<AnyCancellable>()
     var displayName: String {
         baby?.name ?? "loading..."
     }
@@ -165,7 +167,7 @@ class HomeViewModel: ObservableObject {
                     saveRecord(record: Record(title: .pee))
                 }
             case .sleep:
-                saveRecord(record: Record(title: .sleep))
+                saveRecord(record: Record(title: .sleep, sleepStart: Date()))
             case .heightWeight:
                 saveRecord(record: Record(title: .heightWeight))
             case .bath:
@@ -211,23 +213,50 @@ class HomeViewModel: ObservableObject {
     func babyChangeButtonDidTap(baby: Baby) {
         
     }
-}
-
-extension Date {
-    func replacingDate(with date: Date) -> Date {
-        let calendar = Calendar.current
-        let timeComponents = calendar.dateComponents([.hour, .minute, .second, .nanosecond], from: self)
-        let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
-        
-        var newComponents = DateComponents()
-        newComponents.year = dateComponents.year
-        newComponents.month = dateComponents.month
-        newComponents.day = dateComponents.day
-        newComponents.hour = timeComponents.hour
-        newComponents.minute = timeComponents.minute
-        newComponents.second = timeComponents.second
-        newComponents.nanosecond = timeComponents.nanosecond
-        
-        return calendar.date(from: newComponents) ?? self
+    
+    func deleteRecord(_ record: Record, completion: ((Error?) -> Void)? = nil) {
+        guard let baby else { return }
+        Firestore.firestore().collection("babies").document(baby.id.uuidString).collection("records").document(record.id.uuidString).delete { error in
+            if let error = error {
+                print("Error deleting record: \(error.localizedDescription)")
+                completion?(error)
+            } else {
+                print("Record successfully deleted")
+                completion?(nil)
+            }
+        }
+    }
+    
+    func showDeleteConfirmation(for record: Record) {
+        recordToDelete = record
+        showDeleteAlert = true
+    }
+    
+    func cancelDelete() {
+        recordToDelete = nil
+        showDeleteAlert = false
+    }
+    
+    func confirmDelete() {
+        if let record = recordToDelete {
+            deleteRecord(record) { error in
+                if error == nil {
+                    self.recordToDelete = nil
+                    self.showDeleteAlert = false
+                }
+            }
+        }
+    }
+    
+    func updateSelectedDate(by days: Int) {
+        if let newDate = Calendar.current.date(byAdding: .day, value: days, to: selectedDate) {
+            selectedDate = newDate
+        }
+    }
+    
+    func toggleBabyFullScreenCard() {
+        isPresented.toggle()
     }
 }
+
+

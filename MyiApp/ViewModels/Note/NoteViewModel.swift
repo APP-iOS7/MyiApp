@@ -10,6 +10,7 @@ import FirebaseFirestore
 import Combine
 import FirebaseStorage
 import UIKit
+import Kingfisher
 
 @MainActor
 class NoteViewModel: ObservableObject {
@@ -18,8 +19,6 @@ class NoteViewModel: ObservableObject {
     private let databaseService = DatabaseService.shared
     private let caregiverManager = CaregiverManager.shared
     private var cancellables = Set<AnyCancellable>()
-    
-    @Published var babyInfo: Baby?
     
     @Published var selectedMonth: Date = Date()
     @Published var days: [CalendarDay] = []
@@ -39,9 +38,7 @@ class NoteViewModel: ObservableObject {
     }
     
     init() {
-        fetchBabyInfo()
         fetchCalendarDays()
-        setupListeners()
         
         caregiverManager.$notes
             .receive(on: RunLoop.main)
@@ -68,10 +65,6 @@ class NoteViewModel: ObservableObject {
         
         self.events = newEvents
         self.isLoading = false
-    }
-    
-    private func fetchBabyInfo() {
-        self.babyInfo = caregiverManager.selectedBaby
     }
     
     func addNoteLocallyWithImages(_ note: Note, localImages: [UIImage]) {
@@ -103,6 +96,8 @@ class NoteViewModel: ObservableObject {
     func saveNoteOptimistically(_ note: Note, images: [UIImage] = [], isEditing: Bool = false, imagesToDelete: [String] = []) async throws {
         if !images.isEmpty && note.category == .일지 {
             if isEditing {
+                invalidateImageCache(for: note.imageURLs)
+                
                 updateNoteWithImagesAndDeletions(
                     note: note,
                     newImages: images,
@@ -116,6 +111,8 @@ class NoteViewModel: ObservableObject {
             }
         } else {
             if isEditing {
+                invalidateImageCache(for: imagesToDelete)
+                
                 updateNoteWithDeletions(note: note, imagesToDelete: imagesToDelete)
             } else {
                 try await saveNoteToFirestoreOnly(note)
@@ -123,8 +120,21 @@ class NoteViewModel: ObservableObject {
         }
     }
     
+    private func invalidateImageCache(for urls: [String]) {
+        urls.forEach { urlString in
+            guard let url = URL(string: urlString) else { return }
+            
+            let resource = KF.ImageResource(downloadURL: url)
+            KingfisherManager.shared.cache.removeImage(
+                forKey: resource.cacheKey,
+                fromMemory: true,
+                fromDisk: true
+            )
+        }
+    }
+    
     func saveNoteToFirestoreOnly(_ note: Note) async throws {
-        guard let baby = babyInfo else {
+        guard let baby = caregiverManager.selectedBaby else {
             throw NSError(domain: "BabyInfo", code: 0, userInfo: [NSLocalizedDescriptionKey: "아기 정보가 없습니다"])
         }
         
@@ -146,7 +156,7 @@ class NoteViewModel: ObservableObject {
     }
     
     func updateNote(note: Note) {
-        guard let baby = babyInfo else { return }
+        guard let baby = caregiverManager.selectedBaby else { return }
         
         isLoading = true
         
@@ -180,7 +190,7 @@ class NoteViewModel: ObservableObject {
     func deleteNote(note: Note) {
         cancelNotificationForNote(note)
         
-        guard let baby = babyInfo else { return }
+        guard let baby = caregiverManager.selectedBaby else { return }
         
         isLoading = true
         
@@ -204,16 +214,6 @@ class NoteViewModel: ObservableObject {
         guard let date = day.date else { return [] }
         let startOfDay = Calendar.current.startOfDay(for: date)
         return (events[startOfDay] ?? []).sorted { $0.date < $1.date }
-    }
-    
-    func setupListeners() {
-        databaseService.$hasBabyInfo
-            .sink { [weak self] hasBabyInfoOptional in
-                if let hasBabyInfo = hasBabyInfoOptional, hasBabyInfo {
-                    self?.fetchBabyInfo()
-                }
-            }
-            .store(in: &cancellables)
     }
     
     func fetchCalendarDays() {
@@ -293,7 +293,7 @@ class NoteViewModel: ObservableObject {
     }
     
     func isBirthday(_ date: Date?) -> Bool {
-        guard let date = date, let birthDate = babyInfo?.birthDate else { return false }
+        guard let date = date, let birthDate = caregiverManager.selectedBaby?.birthDate else { return false }
         
         let calendar = Calendar.current
         let birthDay = calendar.component(.day, from: birthDate)
@@ -306,7 +306,7 @@ class NoteViewModel: ObservableObject {
     }
     
     func is100Days(_ date: Date?) -> Bool {
-        guard let date = date, let birthDate = babyInfo?.birthDate else { return false }
+        guard let date = date, let birthDate = caregiverManager.selectedBaby?.birthDate else { return false }
         
         let calendar = Calendar.current
         if let hundredDaysDate = calendar.date(byAdding: .day, value: 99, to: birthDate) {
@@ -316,7 +316,7 @@ class NoteViewModel: ObservableObject {
     }
     
     func isFirstBirthday(_ date: Date?) -> Bool {
-        guard let date = date, let birthDate = babyInfo?.birthDate else { return false }
+        guard let date = date, let birthDate = caregiverManager.selectedBaby?.birthDate else { return false }
         
         let calendar = Calendar.current
         if let firstBirthdayDate = calendar.date(byAdding: .year, value: 1, to: birthDate) {
@@ -356,7 +356,6 @@ class NoteViewModel: ObservableObject {
     }
     
     func refreshData() {
-        fetchBabyInfo()
         selectToday()
     }
     
@@ -387,6 +386,7 @@ class NoteViewModel: ObservableObject {
     }
 }
 
+// MARK: - Image Upload Extension
 extension NoteViewModel {
     func uploadImage(_ image: UIImage, completion: @escaping (Result<String, Error>) -> Void) {
         guard let imageData = image.jpegData(compressionQuality: 0.7) else {
@@ -394,7 +394,7 @@ extension NoteViewModel {
             return
         }
         
-        guard authService.user != nil, let babyId = babyInfo?.id else {
+        guard authService.user != nil, let babyId = caregiverManager.selectedBaby?.id else {
             completion(.failure(NSError(domain: "AuthError", code: 0, userInfo: [NSLocalizedDescriptionKey: "인증 정보가 없음"])))
             return
         }
@@ -466,6 +466,9 @@ extension NoteViewModel {
                     self.updateNote(note: updatedNote)
                     self.deleteImagesFromStorage(imageURLs: imagesToDelete)
                     
+                    self.invalidateImageCache(for: note.imageURLs)
+                    self.refreshNoteInUI(noteId: note.id)
+                    
                     self.isLoading = false
                     let category = note.category == .일지 ? "일지" : "일정"
                     let particle = note.category == .일지 ? "가" : "이"
@@ -488,6 +491,15 @@ extension NoteViewModel {
                 }
             }
         }
+    }
+    
+    private func refreshNoteInUI(noteId: UUID) {
+        objectWillChange.send()
+        
+        NotificationCenter.default.post(
+            name: Notification.Name("NoteImageUpdated"),
+            object: noteId
+        )
     }
     
     func updateNoteWithDeletions(note: Note, imagesToDelete: [String]) {
@@ -524,6 +536,7 @@ extension NoteViewModel {
     }
 }
 
+// MARK: - Notification Extension
 extension NoteViewModel {
     func scheduleNotificationForNote(_ note: Note, minutesBefore: Int) -> Bool {
         guard note.category == .일정 else { return false }
