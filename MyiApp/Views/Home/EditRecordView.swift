@@ -190,10 +190,22 @@ struct EditRecordView: View {
                         get: { viewModel.record.sleepStart ?? Date() },
                         set: { viewModel.record.sleepStart = $0 }
                     ))
-                    DatePicker("종료", selection: Binding(
-                        get: { viewModel.record.sleepEnd ?? Date() },
-                        set: { viewModel.record.sleepEnd = $0 }
-                    ))
+                    if let sleepEnd = viewModel.record.sleepEnd {
+                        DatePicker("종료", selection: Binding(
+                            get: { sleepEnd },
+                            set: { viewModel.record.sleepEnd = $0 }
+                        ))
+                    } else {
+                        HStack {
+                            Text("종료")
+                            Spacer()
+                            Button("현재 시간 기록") {
+                                viewModel.record.sleepEnd = Date()
+                            }
+                            .buttonStyle(.bordered)
+                            .foregroundStyle(Color.primary)
+                        }
+                    }
                 } header: {
                     Text("수면 시간")
                 }
