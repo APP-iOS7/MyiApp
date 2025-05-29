@@ -52,11 +52,11 @@ struct NoteDetailView: View {
             }
             
             ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 16) {
+                HStack(spacing: 12) {
                     Button(action: {
                         showingEditSheet = true
                     }) {
-                        Image(systemName: "pencil")
+                        Image(systemName: "square.and.pencil")
                             .foregroundColor(Color.button)
                     }
                     

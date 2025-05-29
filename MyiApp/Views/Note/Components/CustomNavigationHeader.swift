@@ -18,7 +18,7 @@ struct CustomNavigationHeader: View {
             
             HStack {
                 Text(title)
-                    .font(.largeTitle)
+                    .font(.title)
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
