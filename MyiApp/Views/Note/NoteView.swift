@@ -7,18 +7,6 @@
 
 import SwiftUI
 
-struct SafeAreaPaddingView: UIViewRepresentable {
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView()
-        view.backgroundColor = .clear
-        return view
-    }
-    
-    func updateUIView(_ uiView: UIView, context: Context) {
-        
-    }
-}
-
 struct NoteView: View {
     @StateObject private var viewModel = NoteViewModel()
     @State private var showingNoteEditor = false
@@ -28,101 +16,94 @@ struct NoteView: View {
     @State private var isFirstAppear = true
     
     var body: some View {
-        ZStack {
-            Color("customBackgroundColor").ignoresSafeArea(.container, edges: .top)
-            
-            
+        VStack(spacing: 0) {
             VStack(spacing: 0) {
                 SafeAreaPaddingView()
                     .frame(height: getTopSafeAreaHeight())
+                    .background(Color("customBackgroundColor"))
                 
-                ScrollView {
+                HStack {
+                    Text("육아 수첩")
+                        .font(.system(size: 17, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                }
+                .frame(height: 44)
+                .background(Color("customBackgroundColor"))
+            }
+            
+            ScrollView {
+                VStack(spacing: 0) {
                     VStack(spacing: 0) {
-                        if let babyInfo = viewModel.babyInfo {
-                            BabyBirthdayInfoView(babyName: babyInfo.name, birthDate: babyInfo.birthDate)
-                                .padding(.horizontal)
-                        } else {
-                            Text("아기 정보를 불러오는 중...")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding(.vertical, 16)
-                                .padding(.horizontal)
-                        }
+                        // 캘린더 헤더
+                        calendarHeaderSection
                         
-                        VStack(spacing: 0) {
-                            // 캘린더 헤더
-                            calendarHeaderSection
-                            
-                            // 캘린더 그리드
-                            calendarGridSection
-                                .padding(.bottom, 8)
-                        }
-                        .background(Color(UIColor.tertiarySystemBackground))
-                        .cornerRadius(12)
-                        .padding(.horizontal)
-                        .padding(.top, 8)
-                        .padding(.bottom, 15)
-                        
-                        // 선택된 날짜 이벤트 섹션
-                        VStack(spacing: 0) {
-                            if let selectedDay = viewModel.selectedDay, let date = selectedDay.date {
-                                VStack(spacing: 12) {
-                                    HStack {
-                                        Text("\(date.formattedFullKoreanDateString())")
-                                            .font(.headline)
-                                        
-                                        if let anniversary = viewModel.getAnniversaryType(date) {
-                                            Text("\(anniversary.emoji) \(anniversary.text)")
-                                                .font(.subheadline)
-                                                .fontWeight(.medium)
-                                                .foregroundColor(anniversary.color)
-                                                .padding(.horizontal, 8)
-                                                .background(
-                                                    Capsule()
-                                                        .fill(anniversary.color.opacity(0.1))
-                                                )
-                                        }
-                                        
-                                        Spacer()
-                                        
-                                        Button(action: {
-                                            showingNoteEditor = true
-                                        }) {
-                                            Label("추가", systemImage: "plus.circle.fill")
-                                                .font(.subheadline)
-                                                .foregroundColor(Color("sharkPrimaryDark"))
-                                        }
-                                    }
-                                    .padding(.horizontal)
-                                    .padding(.top, 16)
-                                    
-                                    // 카테고리 필터
-                                    categoryFilterSection
-                                        .padding(.top, 4)
-                                        .padding(.horizontal)
-                                    
-                                    // 이벤트 목록
-                                    eventsListView(for: date)
-                                        .padding(.top, 8)
-                                        .padding(.bottom, 16)
-                                }
-                            } else {
-                                emptyEventsView
-                                    .padding(.top, 16)
-                            }
-                        }
-                        .background(Color(UIColor.tertiarySystemBackground))
-                        .cornerRadius(12)
-                        .padding(.horizontal)
-                        .padding(.top, 8)
-                        .padding(.bottom, 16)
+                        // 캘린더 그리드
+                        calendarGridSection
+                            .padding(.bottom, 8)
                     }
+                    .background(Color(UIColor.tertiarySystemBackground))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                    .padding(.bottom, 15)
+                    
+                    // MARK: - 선택된 날짜 이벤트 섹션
+                    VStack(spacing: 0) {
+                        if let selectedDay = viewModel.selectedDay, let date = selectedDay.date {
+                            VStack(spacing: 12) {
+                                HStack {
+                                    Text("\(date.formattedFullKoreanDateString())")
+                                        .font(.headline)
+                                    
+                                    if let anniversary = viewModel.getAnniversaryType(date) {
+                                        Text("\(anniversary.emoji) \(anniversary.text)")
+                                            .font(.subheadline)
+                                            .fontWeight(.medium)
+                                            .foregroundColor(anniversary.color)
+                                            .padding(.horizontal, 8)
+                                            .background(
+                                                Capsule()
+                                                    .fill(anniversary.color.opacity(0.1))
+                                            )
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Button(action: {
+                                        showingNoteEditor = true
+                                    }) {
+                                        Label("추가", systemImage: "plus.circle.fill")
+                                            .font(.subheadline)
+                                            .foregroundColor(Color("sharkPrimaryDark"))
+                                    }
+                                }
+                                .padding(.horizontal)
+                                .padding(.top, 16)
+                                
+                                // MARK: - 카테고리 필터
+                                categoryFilterSection
+                                    .padding(.top, 4)
+                                    .padding(.horizontal)
+                                
+                                // MARK: - 이벤트 목록
+                                eventsListView(for: date)
+                                    .padding(.top, 8)
+                                    .padding(.bottom, 16)
+                            }
+                        } else {
+                            emptyEventsView
+                                .padding(.top, 16)
+                        }
+                    }
+                    .background(Color(UIColor.tertiarySystemBackground))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+                    .padding(.bottom, 16)
                 }
             }
+            .background(Color("customBackgroundColor"))
         }
-        .navigationTitle("육아 수첩")
-        .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingNoteEditor) {
             NoteEditorView(selectedDate: viewModel.selectedDay?.date ?? Date())
                 .environmentObject(viewModel)
@@ -140,17 +121,7 @@ struct NoteView: View {
         .toast(message: $viewModel.toastMessage)
     }
     
-    private func getTopSafeAreaHeight() -> CGFloat {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first else {
-            return 0
-        }
-        
-        let height = window.safeAreaInsets.top
-        return height * 0.1
-    }
-    
-    // 오늘 날짜 선택
+    // MARK: - 오늘 날짜 선택
     private func selectToday() {
         let today = Date()
         selectedDate = today
@@ -361,15 +332,43 @@ struct NoteView: View {
                 )
             } else {
                 return AnyView(
-                    VStack(spacing: 10) {
-                        ForEach(filteredEvents, id: \.id) { event in
-                            NoteEventRow(event: event) {
-                                selectedEvent = event
+                    List {
+                        ForEach(filteredEvents) { event in
+                            NoteEventListRow(event: event)
+                                .environmentObject(viewModel)
+                                .id(event.id)
+                                .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
+                                .onTapGesture {
+                                    selectedEvent = event
+                                }
+                        }
+                        .onDelete { indexSet in
+                            if let index = indexSet.first {
+                                let noteToDelete = filteredEvents[index]
+                                // MARK: - 삭제 처리
+                                if noteToDelete.category == .일정 {
+                                    NotificationService.shared.cancelNotification(with: noteToDelete.id.uuidString)
+                                }
+                                
+                                let category = noteToDelete.category == .일지 ? "일지" : "일정"
+                                let particle = noteToDelete.category == .일지 ? "가" : "이"
+                                viewModel.toastMessage = ToastMessage(
+                                    message: "\(category)\(particle) 삭제되었습니다.",
+                                    type: .info
+                                )
+                                
+                                viewModel.deleteNote(note: noteToDelete)
                             }
-                            .environmentObject(viewModel)
-                            .id(event.id)
                         }
                     }
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
+                        .background(Color.clear)
+                        .frame(minHeight: CGFloat(filteredEvents.count) * 85)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .scrollDisabled(true)
                 )
             }
         }
@@ -392,5 +391,15 @@ struct NoteView: View {
         .frame(maxWidth: .infinity)
         .frame(height: 97)
         .padding(.vertical, 8)
+    }
+    
+    private func getTopSafeAreaHeight() -> CGFloat {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else {
+            return 0
+        }
+        
+        let height = window.safeAreaInsets.top
+        return height * 0.1
     }
 }
