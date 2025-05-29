@@ -86,7 +86,17 @@ struct TimelineRow: View {
                 return "왼쪽 \(left)분, 오른쪽 \(right)분"
             case .sleep:
                 if let start = record.sleepStart, let end = record.sleepEnd {
-                    return "\(start.to24HourTimeString()) - \(end.to24HourTimeString())"
+                    let calendar = Calendar.current
+                    let startDay = calendar.startOfDay(for: start)
+                    let endDay = calendar.startOfDay(for: end)
+                    
+                    if startDay == endDay {
+                        return "\(start.to24HourTimeString()) - \(end.to24HourTimeString())"
+                    } else {
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateFormat = "MM/dd"
+                        return "\(start.to24HourTimeString()) (\(dateFormatter.string(from: start))) - \(end.to24HourTimeString()) (\(dateFormatter.string(from: end)))"
+                    }
                 } else if let start = record.sleepStart {
                     return "\(start.to24HourTimeString()) - (종료 기록 없음)"
                 } else if let end = record.sleepEnd {

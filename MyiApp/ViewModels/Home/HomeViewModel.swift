@@ -96,8 +96,24 @@ class HomeViewModel: ObservableObject {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: selectedDate)
         guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return [] }
+        
         let filtered = records.filter { record in
-            return record.createdAt >= startOfDay && record.createdAt < endOfDay
+            // 기본적인 날짜 필터링
+            let isInSelectedDay = record.createdAt >= startOfDay && record.createdAt < endOfDay
+            
+            // 수면 기록의 경우, 시작 시간이 선택된 날짜이고 종료 시간이 다음날인 경우도 포함
+            if record.title == .sleep,
+               let sleepStart = record.sleepStart,
+               let sleepEnd = record.sleepEnd {
+                let sleepStartDay = calendar.startOfDay(for: sleepStart)
+                let sleepEndDay = calendar.startOfDay(for: sleepEnd)
+                
+                return isInSelectedDay || 
+                       (sleepStartDay == startOfDay && sleepEndDay > startOfDay) ||
+                       (sleepEndDay == startOfDay && sleepStartDay < startOfDay)
+            }
+            
+            return isInSelectedDay
         }
         return filtered.sorted { $0.createdAt > $1.createdAt }
     }
@@ -210,7 +226,7 @@ class HomeViewModel: ObservableObject {
     }
     
     func babyChangeButtonDidTap(baby: Baby) {
-        
+        caregiverManager.selectedBaby = baby
     }
     
     func deleteRecord(_ record: Record, completion: ((Error?) -> Void)? = nil) {

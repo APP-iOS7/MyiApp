@@ -14,6 +14,7 @@ struct Caregiver: Codable, Identifiable {
     var email: String?
     var provider: String?
     var babies: [DocumentReference]
+    var lastSelectedBabyId: String?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -21,5 +22,6 @@ struct Caregiver: Codable, Identifiable {
         case email
         case provider
         case babies
+        case lastSelectedBabyId
     }
 }

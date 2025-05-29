@@ -16,6 +16,11 @@ class CaregiverManager: ObservableObject {
     @Published var babies: [Baby] = []
     @Published var selectedBaby: Baby? {
         didSet {
+            if let selectedBaby = selectedBaby {
+                Task {
+                    await updateLastSelectedBaby(selectedBaby.id.uuidString)
+                }
+            }
             cancellables.removeAll()
             subscribeToRecords()
             subscribeToNotes()
@@ -44,7 +49,15 @@ class CaregiverManager: ObservableObject {
             await MainActor.run {
                 self.caregiver = caregiver
                 self.babies = babies
-                self.selectedBaby = babies.first
+                
+                // 마지막으로 선택된 아기 ID 불러오기
+                if let lastSelectedBabyId = caregiver.lastSelectedBabyId,
+                   let lastSelectedBaby = babies.first(where: { $0.id.uuidString == lastSelectedBabyId }) {
+                    self.selectedBaby = lastSelectedBaby
+                } else {
+                    self.selectedBaby = babies.first
+                }
+                
                 self.userName = caregiver.name
                 self.email = caregiver.email
                 self.provider = caregiver.provider
@@ -220,5 +233,11 @@ class CaregiverManager: ObservableObject {
             print("아기 데이터 삭제 실패: \(error)")
             throw error
         }
+    }
+    
+    private func updateLastSelectedBaby(_ babyId: String) async {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let userRef = db.collection("users").document(uid)
+        try? await userRef.updateData(["lastSelectedBabyId": babyId])
     }
 }
