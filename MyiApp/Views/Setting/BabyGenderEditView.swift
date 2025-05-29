@@ -55,7 +55,7 @@ struct BabyGenderEditView: View {
                 .padding()
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    selectedGender = .  female
+                    selectedGender = .female
                 }
             }
             
