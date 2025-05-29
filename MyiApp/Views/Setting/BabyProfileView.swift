@@ -73,7 +73,7 @@ struct BabyProfileView: View {
                     // 아기 정보
                     NavigationLink(destination: BabyNameEditView(viewModel: viewModel)) {
                         HStack {
-                            Text("이름")
+                            Text("이름 / 태명")
                                 .font(.headline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(.primary.opacity(0.8))
