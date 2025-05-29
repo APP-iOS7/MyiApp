@@ -187,4 +187,38 @@ class CaregiverManager: ObservableObject {
         
         print("회원 데이터 및 관련 아기 데이터 삭제 성공")
     }
+    
+    // 아기 데이터 삭제
+    func deleteBaby(_ baby: Baby) async throws {
+        guard let userId = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "로그인 상태가 아닙니다."])
+        }
+        let userRef = db.collection("users").document(userId)
+        let babyRef = db.collection("babies").document(baby.id.uuidString)
+        
+        do {
+            _ = try await db.runTransaction { transaction, errorPointer in
+                transaction.deleteDocument(babyRef)
+                transaction.updateData(["babies": FieldValue.arrayRemove([babyRef])], forDocument: userRef)
+                return nil
+            }
+            let collections = ["records", "notes", "voiceRecords"]
+            for collection in collections {
+                let querySnapshot = try await babyRef.collection(collection).getDocuments()
+                for document in querySnapshot.documents {
+                    try await document.reference.delete()
+                }
+            }
+            await MainActor.run {
+                self.babies.removeAll { $0.id == baby.id }
+                if self.selectedBaby?.id == baby.id {
+                    self.selectedBaby = self.babies.first
+                }
+            }
+            print("아기 데이터 삭제 성공: \(baby.name)")
+        } catch {
+            print("아기 데이터 삭제 실패: \(error)")
+            throw error
+        }
+    }
 }

@@ -19,10 +19,12 @@ struct BabyProfileView: View {
     @StateObject private var viewModel: BabyProfileViewModel
     @State private var showPhotoActionSheet = false
     @State private var showPhotoPicker = false
-    @State private var uploadError: String?
-    @State private var showAlert: Bool = false
     @State private var showDeleteConfirmation = false
-    @State private var isUploading: Bool = false
+    @State private var isLoading: Bool = false
+    @State private var showingBabyDeleteAlert = false
+    @State private var showingErrorAlert = false
+    @State private var errorMessage: String?
+    @State private var babyToDelete: Baby?
     @Environment(\.dismiss) private var dismiss
     
     let baby: Baby
@@ -212,7 +214,37 @@ struct BabyProfileView: View {
                         .padding()
                     }
                     
+                    HStack {
+                        Text("아이 공유 코드")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary.opacity(0.8))
+                        
+                        Spacer()
+                        
+                        Text("\(viewModel.baby.id)")
+                            .foregroundColor(.primary.opacity(0.6))
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.8)
+                            .multilineTextAlignment(.trailing)
+                        Image(systemName: "doc.on.doc")
+                            .foregroundColor(.primary.opacity(0.6))
+                            .font(.system(size: 12))
+                    }
+                    .padding()
+                    
                     Spacer()
+                    
+                    Button(action: {
+                        babyToDelete = baby
+                        showingBabyDeleteAlert = true
+                    }) {
+                        Text("아이 정보 삭제")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                            .padding(.vertical, 20)
+                            .underline()
+                    }
                 }
             }
             .padding()
@@ -223,14 +255,14 @@ struct BabyProfileView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button(action: {
-                        if !isUploading {
+                        if !isLoading {
                             dismiss()
                         }
                     }) {
                         Image(systemName: "chevron.left")
-                            .foregroundColor(.primary.opacity(isUploading ? 0.3 : 0.8))
+                            .foregroundColor(.primary.opacity(isLoading ? 0.3 : 0.8))
                     }
-                    .disabled(isUploading)
+                    .disabled(isLoading)
                 }
             }
             .task {
@@ -238,10 +270,10 @@ struct BabyProfileView: View {
             }
             .onChange(of: viewModel.selectedImage) {
                 Task {
-                    isUploading = true
+                    isLoading = true
                     await viewModel.loadSelectedBabyImage()
                     await viewModel.saveBabyImage()
-                    isUploading = false
+                    isLoading = false
                 }
             }
             .confirmationDialog("프로필 사진 변경", isPresented: $showPhotoActionSheet, titleVisibility: .visible) {
@@ -256,27 +288,51 @@ struct BabyProfileView: View {
             .alert("프로필 사진을 삭제하시겠습니까?", isPresented: $showDeleteConfirmation) {
                 Button("삭제", role: .destructive) {
                     Task {
-                        isUploading = true
+                        isLoading = true
                         viewModel.babyImage = nil
                         viewModel.selectedImage = nil
                         await viewModel.saveBabyImage()
-                        uploadError = "프로필 사진이 삭제되었습니다."
-                        showAlert = true
-                        isUploading = false
+                        errorMessage = "프로필 사진이 삭제되었습니다."
+                        showingErrorAlert = true
+                        isLoading = false
                     }
                 }
                 Button("취소", role: .cancel) {}
             }
+            .alert("아이 정보 삭제", isPresented: $showingBabyDeleteAlert) {
+                Button("삭제", role: .destructive) {
+                    if let babyToDelete = babyToDelete {
+                        Task {
+                            isLoading = true
+                            try await CaregiverManager.shared.deleteBaby(babyToDelete)
+                            print("아이 삭제 성공")
+                            await MainActor.run { dismiss() }
+                            isLoading = false
+                            self.babyToDelete = nil
+                        }
+                    }
+                }
+                Button("취소", role: .cancel) {
+                    babyToDelete = nil
+                }
+            } message: {
+                Text("'\(babyToDelete?.name ?? "")' 아기 정보를 삭제하시겠습니까?")
+            }
+            .alert("오류", isPresented: $showingErrorAlert) {
+                Button("확인", role: .cancel) {}
+            } message: {
+                Text(errorMessage ?? "알 수 없는 오류가 발생했습니다.")
+            }
             .photosPicker(isPresented: $showPhotoPicker, selection: $viewModel.selectedImage, matching: .images)
             
-            if isUploading {
+            if isLoading {
                 Color.black.opacity(0.4)
                     .ignoresSafeArea()
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle())
                     .scaleEffect(1.5)
-                    .opacity(isUploading ? 1 : 0)
-                    .animation(.easeInOut(duration: 0.3), value: isUploading)
+                    .opacity(isLoading ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.3), value: isLoading)
             }
         }
     }

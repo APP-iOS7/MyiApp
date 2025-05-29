@@ -77,17 +77,6 @@ struct RegisterBabyView: View {
             .navigationDestination(isPresented: $navigateToNextView) {
                 destinationView()
             }
-            .navigationBarBackButtonHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                            dismiss()
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .foregroundColor(.primary.opacity(0.8))
-                    }
-                }
-            }
         }
         .background(Color(UIColor.tertiarySystemBackground))
     }
