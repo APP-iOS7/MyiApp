@@ -132,7 +132,7 @@ struct TimelineRow: View {
     var body: some View {
             HStack(alignment: .center, spacing: 12) {
                 Text(record.createdAt.to24HourTimeString())
-                    .font(.system(size: 16))
+                    .font(.subheadline)
                     .frame(width: 50, alignment: .leading)
                 VStack(spacing: 0) {
                     Rectangle()

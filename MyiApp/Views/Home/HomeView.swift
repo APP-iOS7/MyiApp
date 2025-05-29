@@ -7,9 +7,6 @@
 
 import SwiftUI
 import Kingfisher
-/*
- 헤더 사이즈 줄이기.
- */
 
 struct HomeView: View {
     @StateObject var viewModel: HomeViewModel = .init()
@@ -21,8 +18,12 @@ struct HomeView: View {
                     .frame(height: getTopSafeAreaHeight())
                     .background(Color.customBackground)
                 ScrollView {
-                    VStack(spacing: 15) {
+                    VStack(spacing: 0) {
+                        header
+                            .padding(.horizontal, 7)
+                            .padding(.bottom, 5)
                         babyInfoCard
+                            .padding(.bottom, 7)
                         VStack {
                             dateSection
                             gridItems
@@ -32,7 +33,7 @@ struct HomeView: View {
                         }
                         .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
                     }
-                    .padding()
+                    .padding([.horizontal, .bottom])
                 }
             }
             .background(Color.customBackground)
@@ -59,35 +60,34 @@ struct HomeView: View {
                     Button {
                         viewModel.babyChangeButtonDidTap(baby: baby)
                     } label: {
+                        Spacer()
                         Text(baby.name)
                             .foregroundStyle(.primary)
                     }
                 }
+                Divider()
+                Button("아이 추가", action: {})
             } label: {
                 HStack(spacing: 4) {
-                    Text(viewModel.baby?.name ?? "아기 선택")
-                        .font(.headline)
+                    Text("아이 선택")
                     Image(systemName: "chevron.down")
-                        .font(.subheadline)
                 }
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.gray.opacity(0.15))
-                )
+
             }
-            
+            .font(.title3)
+            .bold()
+            .foregroundColor(.gray)
+            .menuStyle(.button)
             Spacer()
             
             Button {
                 // TODO: 알림 상황일 때.
             } label: {
                 Image(systemName: "bell.fill")
-                    .font(.body)
+                    .font(.title2)
                     .foregroundColor(.gray)
-                    .padding(10)
             }
         }
-        .padding(.horizontal)
     }
     private var babyInfoCard: some View {
         HStack {
@@ -123,7 +123,7 @@ struct HomeView: View {
                 }
             }
             Spacer()
-            Button(action: { viewModel.toggleBabyFullScreenCard() }) {
+            Button(action: viewModel.toggleBabyFullScreenCard) {
                 Image(systemName: "list.bullet.rectangle.portrait.fill")
                     .resizable()
                     .frame(width: 15, height: 20)
@@ -293,7 +293,7 @@ struct HomeView: View {
                                     .frame(width: 70, height: 70)
                             )
                         Text(item.name)
-                            .font(.system(size: 12))
+                            .font(.footnote)
                             .foregroundStyle(.foreground)
                     }
                     .frame(width: 90, height: 100)
@@ -329,7 +329,7 @@ struct HomeView: View {
                         .onTapGesture {
                             viewModel.recordToEdit = record
                         }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button(role: .cancel) {
                                 viewModel.showDeleteConfirmation(for: record)
                             } label: {
