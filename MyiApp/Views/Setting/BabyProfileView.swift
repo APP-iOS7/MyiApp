@@ -213,6 +213,7 @@ struct BabyProfileView: View {
                         }
                         .padding()
                     }
+
                     
                     Spacer()
                     
@@ -221,7 +222,7 @@ struct BabyProfileView: View {
                         showingBabyDeleteAlert = true
                     }) {
                         Text("아이 정보 삭제")
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundColor(.red)
                             .padding(.vertical, 20)
                             .underline()
