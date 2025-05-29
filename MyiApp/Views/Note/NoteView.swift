@@ -17,19 +17,8 @@ struct NoteView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            VStack(spacing: 0) {
-                SafeAreaPaddingView()
-                    .frame(height: getTopSafeAreaHeight())
-                    .background(Color("customBackgroundColor"))
-                
-                HStack {
-                    Text("육아 수첩")
-                        .font(.system(size: 17, weight: .semibold))
-                        .frame(maxWidth: .infinity)
-                }
-                .frame(height: 44)
-                .background(Color("customBackgroundColor"))
-            }
+            
+            CustomNavigationHeader(title: "육아 수첩")
             
             ScrollView {
                 VStack(spacing: 0) {
@@ -72,9 +61,13 @@ struct NoteView: View {
                                     Button(action: {
                                         showingNoteEditor = true
                                     }) {
-                                        Label("추가", systemImage: "plus.circle.fill")
-                                            .font(.subheadline)
-                                            .foregroundColor(Color("sharkPrimaryDark"))
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "plus.circle.fill")
+                                                .font(.system(size: 20))
+                                            Text("일지/일정 추가")
+                                                .font(.system(size: 16, weight: .medium))
+                                        }
+                                        .foregroundColor(Color.button)
                                     }
                                 }
                                 .padding(.horizontal)
@@ -343,24 +336,14 @@ struct NoteView: View {
                                 .onTapGesture {
                                     selectedEvent = event
                                 }
-                        }
-                        .onDelete { indexSet in
-                            if let index = indexSet.first {
-                                let noteToDelete = filteredEvents[index]
-                                // MARK: - 삭제 처리
-                                if noteToDelete.category == .일정 {
-                                    NotificationService.shared.cancelNotification(with: noteToDelete.id.uuidString)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button(role: .destructive) {
+                                        deleteNote(event)
+                                    } label: {
+                                        Label("삭제", systemImage: "trash")
+                                    }
+                                    .tint(.red)
                                 }
-                                
-                                let category = noteToDelete.category == .일지 ? "일지" : "일정"
-                                let particle = noteToDelete.category == .일지 ? "가" : "이"
-                                viewModel.toastMessage = ToastMessage(
-                                    message: "\(category)\(particle) 삭제되었습니다.",
-                                    type: .info
-                                )
-                                
-                                viewModel.deleteNote(note: noteToDelete)
-                            }
                         }
                     }
                         .listStyle(.plain)
@@ -391,6 +374,22 @@ struct NoteView: View {
         .frame(maxWidth: .infinity)
         .frame(height: 97)
         .padding(.vertical, 8)
+    }
+    
+    private func deleteNote(_ note: Note) {
+        // MARK: - 삭제 처리
+        if note.category == .일정 {
+            NotificationService.shared.cancelNotification(with: note.id.uuidString)
+        }
+        
+        let category = note.category == .일지 ? "일지" : "일정"
+        let particle = note.category == .일지 ? "가" : "이"
+        viewModel.toastMessage = ToastMessage(
+            message: "\(category)\(particle) 삭제되었습니다.",
+            type: .info
+        )
+        
+        viewModel.deleteNote(note: note)
     }
     
     private func getTopSafeAreaHeight() -> CGFloat {
