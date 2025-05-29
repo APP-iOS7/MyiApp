@@ -185,7 +185,7 @@ struct NoteReminderView: View {
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(Color("sharkPrimaryColor"))
+                .background(Color.button)
                 .foregroundColor(.white)
                 .cornerRadius(10)
             }
