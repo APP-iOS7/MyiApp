@@ -121,7 +121,7 @@ struct SettingsView: View {
                                                 Image(systemName: "plus.circle.fill")
                                                     .foregroundColor(Color("buttonColor"))
                                                     .padding(.leading, 5)
-                                                Text("새 아이 추가")
+                                                Text("새 아이 정보 추가")
                                                     .foregroundColor(.primary.opacity(0.6))
                                                     .padding(.leading, 10)
                                                 
