@@ -13,9 +13,19 @@ struct ImageGallery: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            if imageURLs.count > 1 {
-                HStack {
-                    Spacer()
+            ZStack(alignment: .topTrailing) {
+                TabView(selection: $currentIndex) {
+                    ForEach(Array(imageURLs.enumerated()), id: \.element) { index, url in
+                        CustomAsyncImageView(imageUrlString: url)
+                            .scaledToFill()
+                            .tag(index)
+                    }
+                }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                .frame(height: UIScreen.main.bounds.width)
+                .clipped()
+                
+                if imageURLs.count > 1 {
                     Text("\(currentIndex + 1)/\(imageURLs.count)")
                         .font(.caption)
                         .foregroundColor(.white)
@@ -25,29 +35,19 @@ struct ImageGallery: View {
                         .padding(.trailing, 12)
                         .padding(.top, 8)
                 }
-                .zIndex(1)
             }
-            
-            TabView(selection: $currentIndex) {
-                ForEach(Array(imageURLs.enumerated()), id: \.element) { index, url in
-                    CustomAsyncImageView(imageUrlString: url)
-                        .scaledToFill()
-                        .tag(index)
-                }
-            }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-            .frame(height: UIScreen.main.bounds.width)
-            .clipped()
             
             if imageURLs.count > 1 {
-                HStack(spacing: 4) {
+                HStack(spacing: 6) {
                     ForEach(0..<imageURLs.count, id: \.self) { index in
                         Circle()
                             .fill(currentIndex == index ? Color("sharkPrimaryColor") : Color.gray.opacity(0.3))
-                            .frame(width: 6, height: 6)
+                            .frame(width: 8, height: 8)
+                            .animation(.easeInOut(duration: 0.2), value: currentIndex)
                     }
                 }
-                .padding(.top, 8)
+                .padding(.top, 12)
+                .padding(.bottom, 8)
             }
         }
     }
