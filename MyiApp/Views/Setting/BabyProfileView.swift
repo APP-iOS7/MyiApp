@@ -213,7 +213,25 @@ struct BabyProfileView: View {
                         }
                         .padding()
                     }
-
+                    
+                    HStack {
+                        Text("아이 공유 코드")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary.opacity(0.8))
+                        
+                        Spacer()
+                        
+                        Text("\(viewModel.baby.id)")
+                            .foregroundColor(.primary.opacity(0.6))
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.8)
+                            .multilineTextAlignment(.trailing)
+                        Image(systemName: "doc.on.doc")
+                            .foregroundColor(.primary.opacity(0.6))
+                            .font(.system(size: 12))
+                    }
+                    .padding()
                     
                     Spacer()
                     
