@@ -168,6 +168,27 @@ struct TermsOfServiceView: View {
                 .background(Color(uiColor: .tertiarySystemBackground))
                 .cornerRadius(10)
                 
+                // 제8조의2 (울음분석 기능)
+                DisclosureGroup {
+                    Text("""
+                    1. 본 앱은 아기의 울음소리를 분석하여 감정 상태 또는 추정 원인을 안내하는 기능(이하 "울음분석 기능")을 제공합니다. 해당 기능은 머신러닝 기반 알고리즘 및 사운드 분석 기술을 활용하여 통계적으로 유의미한 패턴을 분석하지만, 의료적 진단 또는 전문가의 판단을 대체하지 않습니다.
+
+                    2. 울음분석 결과는 참고 정보로만 제공되며, 아기의 건강, 안전, 또는 양육 방식에 관한 모든 판단은 보호자의 고유한 책임하에 이루어져야 합니다. 앱에서 제공하는 분석 결과에 따라 발생한 직접적 또는 간접적인 피해, 손실, 오판 등에 대해서 개발자는 일체의 책임을 지지 않습니다.
+
+                    3. 울음소리의 환경적 변수(소음, 녹음 품질 등)에 따라 분석 결과가 다를 수 있으며, 이러한 한계를 사용자 스스로 인지하고 이용해 주시기 바랍니다.
+                    """)
+                    .foregroundColor(.primary.opacity(0.6))
+                } label: {
+                    Text("제8조의2 (울음분석 기능)")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary.opacity(0.8))
+                }
+                .tint(.primary.opacity(0.8))
+                .padding()
+                .background(Color(uiColor: .tertiarySystemBackground))
+                .cornerRadius(10)
+                
                 // 제9조 (서비스 이용 제한)
                 DisclosureGroup {
                     Text("""
