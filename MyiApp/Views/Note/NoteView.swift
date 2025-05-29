@@ -361,15 +361,43 @@ struct NoteView: View {
                 )
             } else {
                 return AnyView(
-                    VStack(spacing: 10) {
-                        ForEach(filteredEvents, id: \.id) { event in
-                            NoteEventRow(event: event) {
-                                selectedEvent = event
+                    List {
+                        ForEach(filteredEvents) { event in
+                            NoteEventListRow(event: event)
+                                .environmentObject(viewModel)
+                                .id(event.id)
+                                .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                                .listRowSeparator(.hidden)
+                                .listRowBackground(Color.clear)
+                                .onTapGesture {
+                                    selectedEvent = event
+                                }
+                        }
+                        .onDelete { indexSet in
+                            if let index = indexSet.first {
+                                let noteToDelete = filteredEvents[index]
+                                // MARK: - 삭제 처리
+                                if noteToDelete.category == .일정 {
+                                    NotificationService.shared.cancelNotification(with: noteToDelete.id.uuidString)
+                                }
+                                
+                                let category = noteToDelete.category == .일지 ? "일지" : "일정"
+                                let particle = noteToDelete.category == .일지 ? "가" : "이"
+                                viewModel.toastMessage = ToastMessage(
+                                    message: "\(category)\(particle) 삭제되었습니다.",
+                                    type: .info
+                                )
+                                
+                                viewModel.deleteNote(note: noteToDelete)
                             }
-                            .environmentObject(viewModel)
-                            .id(event.id)
                         }
                     }
+                    .listStyle(.plain)
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
+                    .frame(minHeight: CGFloat(filteredEvents.count) * 85)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .scrollDisabled(true)
                 )
             }
         }
