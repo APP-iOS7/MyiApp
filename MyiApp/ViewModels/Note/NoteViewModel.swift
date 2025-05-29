@@ -10,6 +10,7 @@ import FirebaseFirestore
 import Combine
 import FirebaseStorage
 import UIKit
+import Kingfisher
 
 @MainActor
 class NoteViewModel: ObservableObject {
@@ -95,6 +96,8 @@ class NoteViewModel: ObservableObject {
     func saveNoteOptimistically(_ note: Note, images: [UIImage] = [], isEditing: Bool = false, imagesToDelete: [String] = []) async throws {
         if !images.isEmpty && note.category == .일지 {
             if isEditing {
+                invalidateImageCache(for: note.imageURLs)
+                
                 updateNoteWithImagesAndDeletions(
                     note: note,
                     newImages: images,
@@ -108,10 +111,25 @@ class NoteViewModel: ObservableObject {
             }
         } else {
             if isEditing {
+                invalidateImageCache(for: imagesToDelete)
+                
                 updateNoteWithDeletions(note: note, imagesToDelete: imagesToDelete)
             } else {
                 try await saveNoteToFirestoreOnly(note)
             }
+        }
+    }
+    
+    private func invalidateImageCache(for urls: [String]) {
+        urls.forEach { urlString in
+            guard let url = URL(string: urlString) else { return }
+            
+            let resource = KF.ImageResource(downloadURL: url)
+            KingfisherManager.shared.cache.removeImage(
+                forKey: resource.cacheKey,
+                fromMemory: true,
+                fromDisk: true
+            )
         }
     }
     
@@ -448,6 +466,9 @@ extension NoteViewModel {
                     self.updateNote(note: updatedNote)
                     self.deleteImagesFromStorage(imageURLs: imagesToDelete)
                     
+                    self.invalidateImageCache(for: note.imageURLs)
+                    self.refreshNoteInUI(noteId: note.id)
+                    
                     self.isLoading = false
                     let category = note.category == .일지 ? "일지" : "일정"
                     let particle = note.category == .일지 ? "가" : "이"
@@ -470,6 +491,15 @@ extension NoteViewModel {
                 }
             }
         }
+    }
+    
+    private func refreshNoteInUI(noteId: UUID) {
+        objectWillChange.send()
+        
+        NotificationCenter.default.post(
+            name: Notification.Name("NoteImageUpdated"),
+            object: noteId
+        )
     }
     
     func updateNoteWithDeletions(note: Note, imagesToDelete: [String]) {

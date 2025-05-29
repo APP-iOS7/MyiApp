@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import Kingfisher
 
 struct PhotoPicker: UIViewControllerRepresentable {
     @Binding var selectedImages: [UIImage]
@@ -117,7 +118,25 @@ struct URLImagePreviewGrid: View {
             LazyHStack(spacing: 10) {
                 ForEach(Array(imageURLs.enumerated()), id: \.element) { index, url in
                     ZStack(alignment: .topTrailing) {
-                        CustomAsyncImageView(imageUrlString: url)
+                        KFImage(URL(string: url))
+                            .placeholder {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.gray.opacity(0.1))
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle())
+                                        .scaleEffect(0.8)
+                                }
+                            }
+                            .onFailure { error in
+                                print("프리뷰 이미지 로드 실패: \(error)")
+                            }
+                            .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 200, height: 200)))
+                            .scaleFactor(UIScreen.main.scale)
+                            .fade(duration: 0.25)
+                            .cacheMemoryOnly()
+                            .resizable()
+                            .scaledToFill()
                             .frame(width: 100, height: 100)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .overlay(

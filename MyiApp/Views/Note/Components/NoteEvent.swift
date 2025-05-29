@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct NoteEventList: View {
     @EnvironmentObject private var viewModel: NoteViewModel
@@ -111,6 +112,7 @@ struct NoteEventList: View {
 struct NoteEventListRow: View {
     var event: Note
     @EnvironmentObject private var viewModel: NoteViewModel
+    @State private var imageRefreshId = UUID()
     
     var body: some View {
         HStack(spacing: 12) {
@@ -122,9 +124,24 @@ struct NoteEventListRow: View {
                         .frame(width: 40, height: 40)
                         .clipShape(Circle())
                 } else {
-                    CustomAsyncImageView(imageUrlString: event.imageURLs[0])
+                    KFImage.url(URL(string: event.imageURLs[0]))
+                        .placeholder {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: Color("sharkPrimaryColor")))
+                                .frame(width: 40, height: 40)
+                        }
+                        .onFailure { error in
+                            print("리스트 이미지 로드 실패: \(error)")
+                        }
+                        .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 80, height: 80)))
+                        .scaleFactor(UIScreen.main.scale)
+                        .fade(duration: 0.25)
+                        .forceRefresh()
+                        .resizable()
+                        .scaledToFill()
                         .frame(width: 40, height: 40)
                         .clipShape(Circle())
+                        .id(imageRefreshId)
                 }
             } else {
                 Image(systemName: categoryIcon(for: event.category))
@@ -181,6 +198,11 @@ struct NoteEventListRow: View {
         .cornerRadius(10)
         .contentShape(Rectangle())
         .padding(.horizontal)
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("NoteImageUpdated"))) { notification in
+            if let noteId = notification.object as? UUID, noteId == event.id {
+                imageRefreshId = UUID()
+            }
+        }
     }
     
     private func categoryColor(for category: NoteCategory) -> Color {
