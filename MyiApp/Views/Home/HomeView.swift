@@ -19,8 +19,6 @@ struct HomeView: View {
                 .background(Color.customBackground)
             ScrollView {
                 VStack(spacing: 15) {
-                    header
-                        .padding(.horizontal, 7)
                     babyInfoCard
                     VStack {
                         dateSection
@@ -35,101 +33,102 @@ struct HomeView: View {
             }
         }
         .background(Color.customBackground)
-        .alert("기록 삭제", isPresented: $viewModel.showDeleteAlert) {
-            Button("취소", role: .cancel) {
-                viewModel.cancelDelete()
-            }
-            Button("삭제", role: .destructive) {
-                viewModel.confirmDelete()
-            }
-        } message: {
-            Text("이 기록을 삭제하시겠습니까?")
-        }
+
     }
-    
-    private var header: some View {
-        HStack {
-            
-            
-            
-            
-            Spacer()
-            
-            Button {
-                // TODO: 알림 상황일 때.
-            } label: {
-                Image(systemName: "bell.fill")
-                    .font(.title2)
+    private struct GridItemCategory: Identifiable {
+        let id: UUID = UUID()
+        let name: String
+        let category: TitleCategory
+        let image: UIImage
+    }
+    private struct InfoItem: View {
+        let title: String
+        let value: String
+        
+        var body: some View {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.caption)
                     .foregroundColor(.gray)
+                Text(value)
+                    .font(.subheadline)
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
             }
         }
     }
     private var babyInfoCard: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 16) {
-                NavigationLink(destination: BabyProfileView(baby: viewModel.baby!)) {
-                    KFImage(URL(string: viewModel.baby?.photoURL ?? ""))
-                        .placeholder({
-                            ProgressView()
-                        })
-                        .onFailureImage(viewModel.displaySharkImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 70, height: 70)
-                        .clipShape(.circle)
-                        .background(Circle().fill(Color.sharkPrimaryLight))
-                        .overlay(Circle().stroke(Color.sharksSadowTone, lineWidth: 2))
+            HStack(spacing: 0) {
+                if let baby = viewModel.baby {
+                    NavigationLink(destination: BabyProfileView(baby: baby)) {
+                        KFImage(URL(string: baby.photoURL ?? ""))
+                            .placeholder({
+                                ProgressView()
+                            })
+                            .onFailureImage(viewModel.displaySharkImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 70, height: 70)
+                            .clipShape(.circle)
+                            .background(Circle().fill(Color.sharkPrimaryLight))
+                            .overlay(Circle().stroke(Color.sharksSadowTone, lineWidth: 2))
+                    }
+                    .padding(.trailing, 16)
                 }
                 
-                VStack(alignment: .leading, spacing: 6) {
-                    Menu {
-                        ForEach(viewModel.caregiverManager.babies) { baby in
-                            Button {
-                                viewModel.babyChangeButtonDidTap(baby: baby)
-                            } label: {
-                                Spacer()
-                                Text(baby.name)
-                                    .foregroundStyle(.primary)
+                VStack {
+                    HStack(alignment: .center) {
+                        Menu {
+                            ForEach(viewModel.caregiverManager.babies) { baby in
+                                Button {
+                                    viewModel.babyChangeButtonDidTap(baby: baby)
+                                } label: {
+                                    Spacer()
+                                    Text(baby.name)
+                                        .foregroundStyle(.primary)
+                                }
+                            }
+                            NavigationLink(destination: RegisterBabyView()) {
+                                Text("아이 추가")
+                            }
+                        } label: {
+                            HStack(spacing: 8) {
+                                Text(viewModel.displayName)
+                                    .foregroundColor(.primary)
+                                    .font(.title3)
+                                    .bold()
+                                Text(viewModel.displayGender)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.gray)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 2)
+                                    .background(
+                                        Capsule()
+                                            .fill(Color.gray.opacity(0.1))
+                                    )
+                                Image(systemName: "chevron.down")
+                                    .foregroundStyle(Color.primary)
                             }
                         }
-                        NavigationLink(destination: RegisterBabyView()) {
-                            Text("아이 추가")
-                        }
-                    } label: {
-                        HStack(spacing: 8) {
-                            Text(viewModel.displayName)
-                                .foregroundColor(.primary)
-                                .font(.title3)
-                                .bold()
-                            Text(viewModel.displayGender)
-                                .font(.subheadline)
-                                .foregroundStyle(.gray)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 2)
-                                .background(
-                                    Capsule()
-                                        .fill(Color.gray.opacity(0.1))
-                                )
-                            Image(systemName: "chevron.down")
-                                .foregroundStyle(Color.primary)
-                        }
+                        Spacer()
+                        Image(systemName: "bell.fill")
+                            .font(.title2)
+                            .foregroundStyle(Color.gray)
                     }
-                    
-                    Text(viewModel.displayDevelopmentalStage)
-                        .font(.subheadline)
-                        .foregroundStyle(Color.button)
-                        .fontWeight(.semibold)
-                }
-                
-                Spacer()
-                
-                VStack(spacing: 4) {
-                    Text("태어난지")
-                        .fontWeight(.semibold)
-                    Text(viewModel.displayDayCount)
-                        .font(.title2)
-                        .bold()
-                        .foregroundColor(.button)
+                    HStack(alignment: .center) {
+                        Text(viewModel.displayDevelopmentalStage)
+                            .font(.subheadline)
+                            .foregroundStyle(Color.button)
+                            .fontWeight(.semibold)
+                        Spacer()
+                        Text("태어난지")
+                            .fontWeight(.semibold)
+                        Text(viewModel.displayDayCount)
+                            .font(.title2)
+                            .bold()
+                            .foregroundColor(.button)
+                    }
                 }
             }
             .padding(.horizontal, 16)
@@ -150,24 +149,6 @@ struct HomeView: View {
         }
         .background(RoundedRectangle(cornerRadius: 16).fill(Color(uiColor: .tertiarySystemBackground)))
     }
-    
-    private struct InfoItem: View {
-        let title: String
-        let value: String
-        
-        var body: some View {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                Text(value)
-                    .font(.subheadline)
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
-            }
-        }
-    }
-    
     private var dateSection: some View {
         ZStack {
             HStack(spacing: 6) {
@@ -299,6 +280,16 @@ struct HomeView: View {
                     EditRecordView(record: record)
                         .presentationDetents(detents)
                 }
+                .alert("기록 삭제", isPresented: $viewModel.showDeleteAlert) {
+                    Button("취소", role: .cancel) {
+                        viewModel.cancelDelete()
+                    }
+                    Button("삭제", role: .destructive) {
+                        viewModel.confirmDelete()
+                    }
+                } message: {
+                    Text("이 기록을 삭제하시겠습니까?")
+                }
             }
         }
         .padding(.horizontal)
@@ -314,12 +305,7 @@ struct HomeView: View {
     }
 }
 
-struct GridItemCategory: Identifiable {
-    let id: UUID = UUID()
-    let name: String
-    let category: TitleCategory
-    let image: UIImage
-}
+
 
 #Preview {
     HomeView()
