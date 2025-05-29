@@ -146,21 +146,19 @@ struct CryAnalysisResultView: View {
             .accessibilityElement(children: .combine)
             .accessibilityLabel(accessibilityTipsLabel)
 
-            Spacer()
-
-            Button(action: {
-                onDismiss()
-            }) {
-                Text("완료")
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .font(.headline)
-                    .frame(height: 50)
-                    .background(Color("buttonColor"))
-                    .cornerRadius(12)
+            VStack {
+                Spacer()
+                Button("완료") {
+                    onDismiss()
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.gray.opacity(0.2))
+                .foregroundColor(.primary)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.horizontal)
+                .padding(.bottom, 20)
             }
-            .padding(.horizontal)
-            .contentShape(Rectangle())
         }
         .background(Color(UIColor.systemBackground))
         .navigationBarBackButtonHidden(true)
