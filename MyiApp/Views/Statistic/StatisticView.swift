@@ -113,7 +113,9 @@ struct StatisticView: View {
                                     }
                                 }
                         }
-                        .padding([.vertical, .horizontal])
+                        .padding(.top, 14)
+                        .padding(.bottom, 10)
+                        .padding(.horizontal)
                         
                         VStack(spacing: 15) {
                             VStack(spacing: 0) {
