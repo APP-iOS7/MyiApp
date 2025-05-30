@@ -110,10 +110,9 @@ struct VoiceRecordView: View {
 
                     Spacer(minLength: 16)
                 }
-                .padding(.bottom, 8)
-                .background(Color.white)
-                .cornerRadius(20)
-                .padding(.top, 8)
+                .background(Color(UIColor.tertiarySystemBackground))
+                .cornerRadius(12)
+                .padding(.top, 16)
 
                 Spacer()
             }
