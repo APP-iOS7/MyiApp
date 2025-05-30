@@ -169,7 +169,7 @@ struct NoteView: View {
                 )
                 .datePickerStyle(.compact)
                 .labelsHidden()
-                .frame(width: 180, height: 44)
+                .frame(width: 140, height: 44)
                 .accentColor(.clear)
                 .colorMultiply(.clear)
                 .overlay(
@@ -322,22 +322,18 @@ struct NoteView: View {
             
             if filteredEvents.isEmpty {
                 return AnyView(
-                    VStack {
-                        Image(systemName: "magnifyingglass")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 40, height: 40)
-                            .foregroundColor(Color("sharkPrimaryLight"))
-                            .padding(.top, 20)
+                    VStack(spacing: 10) {
+                        Image(systemName: "doc.text.magnifyingglass")
+                            .font(.largeTitle)
+                            .foregroundColor(.gray)
                         
                         Text("해당 카테고리의 기록이 없습니다.")
-                            .font(.headline)
                             .foregroundColor(.gray)
                             .frame(maxWidth: .infinity)
-                            .padding(.top, 8)
                     }
-                        .frame(height: 150)
-                        .padding(.vertical, 12)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 97)
+                        .padding(.vertical, 8)
                 )
             } else {
                 return AnyView(
@@ -352,7 +348,7 @@ struct NoteView: View {
                                 .onTapGesture {
                                     selectedEvent = event
                                 }
-                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
                                         deleteNote(event)
                                     } label: {
@@ -374,18 +370,12 @@ struct NoteView: View {
     }
     
     private var emptyEventsView: some View {
-        VStack {
-            Image(systemName: "note.text")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 50, height: 50)
+        VStack(spacing: 10) {
+            Image(systemName: "doc.text.magnifyingglass")
+                .font(.largeTitle)
                 .foregroundColor(.gray)
-                .padding(.top, 4)
-            
-            Text("기록된 일지가 없습니다.")
-                .font(.headline)
+            Text("기록된 일지가 없습니다")
                 .foregroundColor(.gray)
-                .padding(.top, 8)
         }
         .frame(maxWidth: .infinity)
         .frame(height: 97)
