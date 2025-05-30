@@ -16,86 +16,93 @@ struct NoteView: View {
     @State private var isFirstAppear = true
     
     var body: some View {
-        VStack(spacing: 0) {
-            
-            CustomNavigationHeader(title: "육아 수첩")
-            
-            ScrollView {
-                VStack(spacing: 0) {
-                    VStack(spacing: 0) {
-                        // 캘린더 헤더
-                        calendarHeaderSection
-                        
-                        // 캘린더 그리드
-                        calendarGridSection
-                            .padding(.bottom, 8)
-                    }
-                    .background(Color(UIColor.tertiarySystemBackground))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                    .padding(.bottom, 15)
+        ZStack {
+            Color("customBackgroundColor")
+                .ignoresSafeArea()
+            VStack(spacing: 0) {
+                SafeAreaPaddingView()
+                    .frame(height: getTopSafeAreaHeight())
+                ScrollView {
                     
-                    // MARK: - 선택된 날짜 이벤트 섹션
-                    VStack(spacing: 0) {
-                        if let selectedDay = viewModel.selectedDay, let date = selectedDay.date {
-                            VStack(spacing: 12) {
-                                HStack {
-                                    Text("\(date.formattedFullKoreanDateString())")
-                                        .font(.headline)
-                                    
-                                    if let anniversary = viewModel.getAnniversaryType(date) {
-                                        Text("\(anniversary.emoji) \(anniversary.text)")
-                                            .font(.subheadline)
-                                            .fontWeight(.medium)
-                                            .foregroundColor(anniversary.color)
-                                            .padding(.horizontal, 8)
-                                            .background(
-                                                Capsule()
-                                                    .fill(anniversary.color.opacity(0.1))
-                                            )
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Button(action: {
-                                        showingNoteEditor = true
-                                    }) {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: "plus.circle.fill")
-                                                .font(.system(size: 20))
-                                            Text("일지/일정 추가")
-                                                .font(.system(size: 16, weight: .medium))
-                                        }
-                                        .foregroundColor(Color.button)
-                                    }
-                                }
-                                .padding(.horizontal)
-                                .padding(.top, 16)
+                    VStack(spacing: 15) {
+                        HStack {
+                            Text("육아 수첩")
+                                .font(.title)
+                                .bold()
+                            Spacer()
+                        }
+                        
+                        VStack(spacing: 15) {
+                            VStack(spacing: 0) {
+                                // 캘린더 헤더
+                                calendarHeaderSection
                                 
-                                // MARK: - 카테고리 필터
-                                categoryFilterSection
-                                    .padding(.top, 4)
-                                    .padding(.horizontal)
-                                
-                                // MARK: - 이벤트 목록
-                                eventsListView(for: date)
-                                    .padding(.top, 8)
-                                    .padding(.bottom, 16)
+                                // 캘린더 그리드
+                                calendarGridSection
+                                    .padding(.bottom, 8)
                             }
-                        } else {
-                            emptyEventsView
-                                .padding(.top, 16)
+                            .background(Color(UIColor.tertiarySystemBackground))
+                            .cornerRadius(12)
+                            
+                            // MARK: - 선택된 날짜 이벤트 섹션
+                            VStack(spacing: 0) {
+                                if let selectedDay = viewModel.selectedDay, let date = selectedDay.date {
+                                    VStack(spacing: 12) {
+                                        HStack {
+                                            Text("\(date.formattedFullKoreanDateString())")
+                                                .font(.headline)
+                                            
+                                            if let anniversary = viewModel.getAnniversaryType(date) {
+                                                Text("\(anniversary.emoji) \(anniversary.text)")
+                                                    .font(.subheadline)
+                                                    .fontWeight(.medium)
+                                                    .foregroundColor(anniversary.color)
+                                                    .padding(.horizontal, 8)
+                                                    .background(
+                                                        Capsule()
+                                                            .fill(anniversary.color.opacity(0.1))
+                                                    )
+                                            }
+                                            
+                                            Spacer()
+                                            
+                                            Button(action: {
+                                                showingNoteEditor = true
+                                            }) {
+                                                HStack(spacing: 4) {
+                                                    Image(systemName: "plus.circle.fill")
+                                                        .font(.system(size: 20))
+                                                    Text("일지/일정 추가")
+                                                        .font(.system(size: 16, weight: .medium))
+                                                }
+                                                .foregroundColor(Color.button)
+                                            }
+                                        }
+                                        .padding(.horizontal)
+                                        .padding(.top, 16)
+                                        
+                                        // MARK: - 카테고리 필터
+                                        categoryFilterSection
+                                            .padding(.top, 4)
+                                            .padding(.horizontal)
+                                        
+                                        // MARK: - 이벤트 목록
+                                        eventsListView(for: date)
+                                            .padding(.top, 8)
+                                            .padding(.bottom, 16)
+                                    }
+                                } else {
+                                    emptyEventsView
+                                        .padding(.top, 16)
+                                }
+                            }
+                            .background(Color(UIColor.tertiarySystemBackground))
+                            .cornerRadius(12)
                         }
                     }
-                    .background(Color(UIColor.tertiarySystemBackground))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                    .padding(.bottom, 16)
+                    .padding()
                 }
             }
-            .background(Color("customBackgroundColor"))
         }
         .sheet(isPresented: $showingNoteEditor, onDismiss: {
             viewModel.objectWillChange.send()
