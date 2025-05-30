@@ -169,7 +169,7 @@ struct NoteView: View {
                 )
                 .datePickerStyle(.compact)
                 .labelsHidden()
-                .frame(width: 180, height: 44)
+                .frame(width: 140, height: 44)
                 .accentColor(.clear)
                 .colorMultiply(.clear)
                 .overlay(
