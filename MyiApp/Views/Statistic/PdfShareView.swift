@@ -1,14 +1,14 @@
 //
-//  StatisticView.swift
+//  PdfShare.swift
 //  MyiApp
 //
-//  Created by 최범수 on 2025-05-08.
+//  Created by 이민서 on 5/30/25.
 //
 
 import SwiftUI
 import UIKit
 
-struct StatisticView: View {
+struct PdfShareView: View {
     @ObservedObject var viewModel = StatisticViewModel()
     @State private var selectedCategories: [String] = ["수유\n이유식", "기저귀", "배변", "수면", "목욕", "간식"]
     
@@ -63,15 +63,9 @@ struct StatisticView: View {
         }
     }
     
+    
     @State private var previewImage: UIImage? = nil
     @State private var isShowingPreview = false
-    @State private var fileNameInput: String = ""
-
-    private var defaultFileName: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd"
-        return "\(formatter.string(from: Date()))_통계"
-    }
 
     var body: some View {
         ZStack {
@@ -91,17 +85,24 @@ struct StatisticView: View {
                             .foregroundColor(.primary)
                             .font(.title2)
                             .onTapGesture {
+                                    let size = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 1.5)
+
+                                    let image = self.asUIImage(size: size)
+                                    self.previewImage = image
+                                    self.isShowingPreview = true
+                                }
+                            .onTapGesture {
                                 let size = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 1.5)
-                                let image = self.asUIImage(size: size)
-                                self.previewImage = image
-
-                                let formatter = DateFormatter()
-                                formatter.dateFormat = "yyyyMMdd"
-                                self.fileNameInput = "\(formatter.string(from: Date()))_통계"
-
-                                self.isShowingPreview = true
+                                self.exportPDF(fileName: "통계", size: size) { url in
+                                    if let url = url {
+                                        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                                        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                           let rootVC = scene.windows.first?.rootViewController {
+                                            rootVC.present(activityVC, animated: true, completion: nil)
+                                        }
+                                    }
+                                }
                             }
-
                         NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
                             Image(systemName: "chart.xyaxis.line")
                                 .foregroundColor(.primary)
@@ -109,21 +110,18 @@ struct StatisticView: View {
                         }
                         
                     }
-                    .background(Color.red)
                     .padding([.top, .horizontal])
-                    
-                    VStack() {
-                        toggleMode
-                        Spacer()
-                        dateMove
-                    }
-                    .padding(.horizontal)
-                    .background(Color.blue)
                     VStack(spacing: 15) {
                         
-                        
-                        
                         VStack(spacing: 10) {
+                            toggleMode
+                                .padding(.vertical, 10)
+                            
+                            dateMove
+                                .padding(.vertical, 10)
+                            
+                            
+                            
                             iconGrid
                                 .padding(.bottom, 20)
                             
@@ -135,6 +133,7 @@ struct StatisticView: View {
                         .background(Color(.tertiarySystemBackground))
                         .cornerRadius(12)
                         VStack(spacing: 15) {
+                            
                             statisticList
                         }
                     }
@@ -154,59 +153,6 @@ struct StatisticView: View {
                     }
                 }
         )
-        .sheet(isPresented: $isShowingPreview) {
-            NavigationView {
-                VStack {
-                    if let image = previewImage {
-                        ScrollView([.vertical, .horizontal]) {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
-                                .padding()
-                        }
-
-                        TextField("파일 이름", text: $fileNameInput)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .padding()
-
-                        Button("PDF로 저장 및 공유하기") {
-                            let finalName = fileNameInput.isEmpty ? "통계" : fileNameInput
-                            let size = image.size
-
-                            self.exportPDF(fileName: finalName, size: size) { url in
-                                if let url = url {
-                                    DispatchQueue.main.async {
-                                        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-                                        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                                           let rootVC = scene.windows.first?.rootViewController {
-                                            rootVC.present(activityVC, animated: true, completion: nil)
-                                        }
-                                    }
-                                    
-                                }
-                            }
-
-                            self.isShowingPreview = false
-                        }
-                        .padding()
-                    } else {
-                        Text("미리보기 이미지를 불러올 수 없습니다.")
-                    }
-                }
-                .padding()
-                .navigationTitle("PDF 미리보기")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("취소") {
-                            self.isShowingPreview = false
-                        }
-                    }
-                }
-            }
-            
-        }
-
 
     }
     var iconGrid: some View {
@@ -246,8 +192,8 @@ struct StatisticView: View {
             }
         }
         .pickerStyle(.segmented)
-        //.padding(.bottom)
-        .frame(width: 200)
+        .padding()
+        .frame(width: 200, height: 50)
     }
     private func getTopSafeAreaHeight() -> CGFloat {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -370,93 +316,5 @@ struct StatisticView: View {
             }
         }
         
-    }
-}
-
-struct IconItem: View {
-    let title: String
-    let image: UIImage
-    let isSelected: Bool
-    let selectedColor: Color
-    
-    var body: some View {
-        HStack(spacing: 8) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill((Color(.tertiarySystemBackground)))
-                    .frame(width: 30, height: 30)
-                
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 25, height: 25)
-            }
-            
-            Text(title)
-                .font(.caption)
-                .fontWeight(.bold)
-                .foregroundColor(.primary)
-                .multilineTextAlignment(.center)
-            Spacer()
-        }
-        .padding(.leading, 10)
-        .frame(height: 60)
-        .background(isSelected ? selectedColor.opacity(0.5) : Color.gray.opacity(0.1))
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(isSelected ? selectedColor : Color(.tertiarySystemBackground), lineWidth: 2)
-        )
-        
-    }
-}
-extension TitleCategory {
-    var displayName: String {
-        switch self {
-        case .formula, .babyFood, .pumpedMilk, .breastfeeding:
-            return "수유\n이유식"
-        case .diaper:
-            return "기저귀"
-        case .poop, .pee, .pottyAll:
-            return "배변"
-        case .sleep:
-            return "수면"
-        case .bath:
-            return "목욕"
-        case .snack:
-            return "간식"
-        default:
-            return ""
-        }
-    }
-}
-
-extension View {
-    func asUIImage(size: CGSize) -> UIImage {
-        let controller = UIHostingController(rootView: self)
-        controller.view.bounds = CGRect(origin: .zero, size: size)
-
-        let renderer = UIGraphicsImageRenderer(size: size)
-        return renderer.image { context in
-            controller.view.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
-        }
-    }
-    
-    func exportPDF(fileName: String, size: CGSize, completion: @escaping (URL?) -> Void) {
-        let image = self.asUIImage(size: size)
-        let pdfRenderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: size))
-        
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(fileName).pdf")
-        
-        do {
-            try pdfRenderer.writePDF(to: url) { context in
-                context.beginPage()
-                image.draw(in: CGRect(origin: .zero, size: size))
-            }
-            completion(url)
-        } catch {
-            print("PDF 생성 실패:", error)
-            completion(nil)
-        }
     }
 }
