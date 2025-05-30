@@ -18,105 +18,113 @@ struct BabyBloodEditView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("혈액형")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.primary.opacity(0.8))
-                .padding()
-                .padding(.top, 10)
-            
-            VStack {
-                HStack {
-                    Text("A 형")
-                        .font(.title3)
-                    
-                    Spacer()
-                    
-                    Image(systemName: selectedBloodType == .A ? "checkmark.circle.fill" : "checkmark.circle")
-                        .font(.title2)
-                        .foregroundColor(selectedBloodType == .A ? Color("buttonColor") : .primary.opacity(0.6))
-                }
-                .padding()
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    selectedBloodType = .A
-                }
+        VStack {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("혈액형")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary.opacity(0.8))
+                    .padding()
+                    .padding(.top, 10)
                 
-                HStack {
-                    Text("B 형")
-                        .font(.title3)
-                    
-                    Spacer()
-                    
-                    Image(systemName: selectedBloodType == .B ? "checkmark.circle.fill" : "checkmark.circle")
-                        .font(.title2)
-                        .foregroundColor(selectedBloodType == .B ? Color("buttonColor") : .primary.opacity(0.6))
-                }
-                .padding()
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    selectedBloodType = .B
-                }
-                
-                HStack {
-                    Text("O 형")
-                        .font(.title3)
-                    
-                    Spacer()
-                    
-                    Image(systemName: selectedBloodType == .O ? "checkmark.circle.fill" : "checkmark.circle")
-                        .font(.title2)
-                        .foregroundColor(selectedBloodType == .O ? Color("buttonColor") : .primary.opacity(0.6))
-                }
-                .padding()
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    selectedBloodType = .O
-                }
-                
-                HStack {
-                    Text("AB 형")
-                        .font(.title3)
-                    
-                    Spacer()
-                    
-                    Image(systemName: selectedBloodType == .AB ? "checkmark.circle.fill" : "checkmark.circle")
-                        .font(.title2)
-                        .foregroundColor(selectedBloodType == .AB ? Color("buttonColor") : .primary.opacity(0.6))
-                }
-                .padding()
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    selectedBloodType = .AB
-                }
-                
-            }
-            
-            Spacer()
-            
-            VStack {
-                Button(action: {
-                    viewModel.baby.bloodType = selectedBloodType
-                    Task {
-                        await viewModel.saveProfileEdits()
-                        dismiss()
+                VStack {
+                    HStack {
+                        Text("A 형")
+                            .font(.title3)
+                        
+                        Spacer()
+                        
+                        Image(systemName: selectedBloodType == .A ? "checkmark.circle.fill" : "checkmark.circle")
+                            .font(.title2)
+                            .foregroundColor(selectedBloodType == .A ? Color("buttonColor") : .primary.opacity(0.6))
                     }
-                }) {
-                    Text("완료")
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .font(.headline)
-                        .background(Color("buttonColor"))
-                        .cornerRadius(12)
+                    .padding()
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectedBloodType = .A
+                    }
+                    
+                    HStack {
+                        Text("B 형")
+                            .font(.title3)
+                        
+                        Spacer()
+                        
+                        Image(systemName: selectedBloodType == .B ? "checkmark.circle.fill" : "checkmark.circle")
+                            .font(.title2)
+                            .foregroundColor(selectedBloodType == .B ? Color("buttonColor") : .primary.opacity(0.6))
+                    }
+                    .padding()
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectedBloodType = .B
+                    }
+                    
+                    HStack {
+                        Text("O 형")
+                            .font(.title3)
+                        
+                        Spacer()
+                        
+                        Image(systemName: selectedBloodType == .O ? "checkmark.circle.fill" : "checkmark.circle")
+                            .font(.title2)
+                            .foregroundColor(selectedBloodType == .O ? Color("buttonColor") : .primary.opacity(0.6))
+                    }
+                    .padding()
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectedBloodType = .O
+                    }
+                    
+                    HStack {
+                        Text("AB 형")
+                            .font(.title3)
+                        
+                        Spacer()
+                        
+                        Image(systemName: selectedBloodType == .AB ? "checkmark.circle.fill" : "checkmark.circle")
+                            .font(.title2)
+                            .foregroundColor(selectedBloodType == .AB ? Color("buttonColor") : .primary.opacity(0.6))
+                    }
+                    .padding()
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectedBloodType = .AB
+                    }
+                    
                 }
-                .contentShape(Rectangle())
-                .padding(.horizontal)
+                
+                Spacer()
+                
+                VStack {
+                    Button(action: {
+                        viewModel.baby.bloodType = selectedBloodType
+                        Task {
+                            await viewModel.saveProfileEdits()
+                            dismiss()
+                        }
+                    }) {
+                        Text("완료")
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .font(.headline)
+                            .background(Color("buttonColor"))
+                            .cornerRadius(12)
+                    }
+                    .contentShape(Rectangle())
+                    .padding()
+                }
             }
+            .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(UIColor.tertiarySystemBackground))
+                )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .background(Color(UIColor.tertiarySystemBackground))
-        .navigationBarTitleDisplayMode(.inline)
+        .padding()
+        .background(Color("customBackgroundColor"))
     }
 }
 

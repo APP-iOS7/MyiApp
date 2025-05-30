@@ -19,46 +19,55 @@ struct BabyBirthDayEditView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("출생일")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.primary.opacity(0.8))
+        VStack {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("출생일")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary.opacity(0.8))
+                    .padding()
+                    .padding(.top, 10)
+                DatePicker(
+                    "출생일",
+                    selection: $selectedDate,
+                    displayedComponents: [.date]
+                )
+                .tint(Color("buttonColor"))
+                .datePickerStyle(.graphical)
                 .padding()
-                .padding(.top, 10)
-            DatePicker(
-                "출생일",
-                selection: $selectedDate,
-                displayedComponents: [.date]
-            )
-            .datePickerStyle(.graphical)
-            .padding()
-            .foregroundColor(.primary.opacity(0.6))
-            
-            Spacer()
-            
-            VStack {
-                Button(action: {
-                    viewModel.baby.birthDate = selectedDate
-                    Task {
-                        await viewModel.saveProfileEdits()
-                        dismiss()
+                .foregroundColor(.primary.opacity(0.6))
+                
+                Spacer()
+                
+                VStack {
+                    Button(action: {
+                        viewModel.baby.birthDate = selectedDate
+                        Task {
+                            await viewModel.saveProfileEdits()
+                            dismiss()
+                        }
+                    }) {
+                        Text("완료")
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .font(.headline)
+                            .frame(height: 50)
+                            .background(Color("buttonColor"))
+                            .cornerRadius(12)
                     }
-                }) {
-                    Text("완료")
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .font(.headline)
-                        .frame(height: 50)
-                        .background(Color("buttonColor"))
-                        .cornerRadius(12)
+                    .contentShape(Rectangle())
+                    .padding()
                 }
-                .contentShape(Rectangle())
-                .padding(.horizontal)
             }
+            .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(UIColor.tertiarySystemBackground))
+                )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .background(Color(UIColor.tertiarySystemBackground))
-        .navigationBarTitleDisplayMode(.inline)
+        .padding()
+        .background(Color("customBackgroundColor"))
     }
 }
 
