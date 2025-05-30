@@ -113,6 +113,7 @@ struct NoteReminderView: View {
                                     .foregroundColor(.blue)
                             }
                         }
+                        .buttonStyle(PlainButtonStyle())
                     }
                     
                     // 알림 시간 표시
@@ -137,6 +138,7 @@ struct NoteReminderView: View {
                         .background(Color("sharkCardBackground"))
                         .cornerRadius(10)
                     }
+                    .buttonStyle(PlainButtonStyle())
                     .sheet(isPresented: $showTimePicker) {
                         timePickerSheet
                     }
