@@ -56,15 +56,11 @@ struct BabyInfoCardView: View {
                 .frame(height: 500)
             chartfoodSection()
                 .frame(height: 500)
-            sectionGroup(title: "수유 분석", items: ["분유", "유축 수유", "모유 수유", "이유식"])
-                .frame(height: 250)
             sectionGroup(title: "배변 분석", items: ["소변", "대변"])
                 .frame(height: 250)
             sectionGroup(title: "수면 분석", items: ["수면 횟수", "수면 시간"])
                 .frame(height: 250)
             sectionGroup(title: "기타 관리", items: ["기저귀", "목욕", "간식"])
-                .frame(height: 250)
-            sectionGroup(title: "성장곡선", items: ["키", "몸무게"])
                 .frame(height: 250)
             Spacer(minLength: 20)
         }
@@ -115,14 +111,13 @@ struct BabyInfoCardView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.headline)
-                .padding(.bottom, 4)
             
-            let columns = Array(repeating: GridItem(.flexible(), spacing: 15), count: items.count)
-            
-            LazyVGrid(columns: columns, spacing: 15) {
+            HStack(alignment: .top, spacing: 15) {
                 ForEach(items, id: \.self) { item in
                     sectionCard(title: item)
+                        .frame(maxWidth: .infinity)
                 }
+                
             }
         }
     }
@@ -135,7 +130,7 @@ struct BabyInfoCardView: View {
             if title == "일별" {
                 DailyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: ["수유\n이유식", "기저귀", "배변", "수면", "목욕", "간식"])
                     .scaleEffect(0.7, anchor: .center)
-                    .frame(width: 150, height: 130)
+                    .frame(width: 250, height: 130)
                     .padding()
             } else if title == "주별" {
                 WeeklyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: ["수유\n이유식", "기저귀", "배변", "수면", "목욕", "간식"])
@@ -150,7 +145,7 @@ struct BabyInfoCardView: View {
                 )
                 .frame(width: 450, height: 300)
                 .scaleEffect(0.3, anchor: .center)
-                .frame(width: 450/3, height: 100)
+                .frame(width: 250, height: 100)
                 .padding()
             } else if title == "몸무게" {
                 WeightChartView(
@@ -161,7 +156,7 @@ struct BabyInfoCardView: View {
                 )
                 .frame(width: 450, height: 300)
                 .scaleEffect(0.3, anchor: .center)
-                .frame(width: 450/3, height: 100)
+                .frame(width: 250, height: 100)
                 .padding()
 
             } else if title == "분유" {
@@ -173,7 +168,7 @@ struct BabyInfoCardView: View {
                 )
                 .frame(width: 450, height: 300)
                 .scaleEffect(0.3, anchor: .center)
-                .frame(width: 450/3, height: 100)
+                .frame(width: 300, height: 100)
                 .padding()
 
             } else if title == "모유 수유" {
@@ -185,7 +180,7 @@ struct BabyInfoCardView: View {
                 )
                 .frame(width: 450, height: 300)
                 .scaleEffect(0.3, anchor: .center)
-                .frame(width: 450/3, height: 100)
+                .frame(width: 300, height: 100)
                 .padding()
 
             } else if title == "유축 수유" {
@@ -197,7 +192,7 @@ struct BabyInfoCardView: View {
                 )
                 .frame(width: 450, height: 300)
                 .scaleEffect(0.3, anchor: .center)
-                .frame(width: 450/3, height: 100)
+                .frame(width: 300, height: 100)
                 .padding()
 
             } else if title == "이유식" {
@@ -209,7 +204,91 @@ struct BabyInfoCardView: View {
                 )
                 .frame(width: 450, height: 300)
                 .scaleEffect(0.3, anchor: .center)
-                .frame(width: 450/3, height: 100)
+                .frame(width: 300, height: 100)
+                .padding()
+
+            } else if title == "소변" {
+                WeightChartView(
+                    data: weightData,
+                    startDate: startDate,
+                    endDate: endDate,
+                    selectedEntry: $selectedWeightEntry
+                )
+                .frame(width: 450, height: 300)
+                .scaleEffect(0.3, anchor: .center)
+                .frame(width: 300, height: 100)
+                .padding()
+
+            } else if title == "대변" {
+                WeightChartView(
+                    data: weightData,
+                    startDate: startDate,
+                    endDate: endDate,
+                    selectedEntry: $selectedWeightEntry
+                )
+                .frame(width: 450, height: 300)
+                .scaleEffect(0.3, anchor: .center)
+                .frame(width: 300, height: 100)
+                .padding()
+
+            } else if title == "수면 횟수" {
+                WeightChartView(
+                    data: weightData,
+                    startDate: startDate,
+                    endDate: endDate,
+                    selectedEntry: $selectedWeightEntry
+                )
+                .frame(width: 450, height: 300)
+                .scaleEffect(0.3, anchor: .center)
+                .frame(width: 300, height: 100)
+                .padding()
+
+            } else if title == "수면 시간" {
+                WeightChartView(
+                    data: weightData,
+                    startDate: startDate,
+                    endDate: endDate,
+                    selectedEntry: $selectedWeightEntry
+                )
+                .frame(width: 450, height: 300)
+                .scaleEffect(0.3, anchor: .center)
+                .frame(width: 300, height: 100)
+                .padding()
+
+            } else if title == "기저귀" {
+                WeightChartView(
+                    data: weightData,
+                    startDate: startDate,
+                    endDate: endDate,
+                    selectedEntry: $selectedWeightEntry
+                )
+                .frame(width: 450, height: 300)
+                .scaleEffect(0.3, anchor: .center)
+                .frame(width: 200, height: 100)
+                .padding()
+
+            } else if title == "목욕" {
+                WeightChartView(
+                    data: weightData,
+                    startDate: startDate,
+                    endDate: endDate,
+                    selectedEntry: $selectedWeightEntry
+                )
+                .frame(width: 450, height: 300)
+                .scaleEffect(0.3, anchor: .center)
+                .frame(width: 200, height: 100)
+                .padding()
+
+            } else if title == "간식" {
+                WeightChartView(
+                    data: weightData,
+                    startDate: startDate,
+                    endDate: endDate,
+                    selectedEntry: $selectedWeightEntry
+                )
+                .frame(width: 450, height: 300)
+                .scaleEffect(0.3, anchor: .center)
+                .frame(width: 200, height: 100)
                 .padding()
 
             }
