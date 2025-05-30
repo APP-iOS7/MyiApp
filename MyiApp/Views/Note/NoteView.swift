@@ -348,7 +348,7 @@ struct NoteView: View {
                                 .onTapGesture {
                                     selectedEvent = event
                                 }
-                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
                                         deleteNote(event)
                                     } label: {
