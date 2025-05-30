@@ -149,61 +149,18 @@ struct NoteView: View {
     // MARK: - 캘린더 헤더 섹션
     private var calendarHeaderSection: some View {
         VStack(spacing: 0) {
-            ZStack {
-                HStack {
-                    Button(action: {
-                        viewModel.changeMonth(by: -1)
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .font(.title3)
-                            .foregroundColor(.primary)
-                    }
-                    
-                    Spacer()
-                    
-                    HStack {
-                        Image(systemName: "calendar")
-                            .foregroundColor(.primary)
-                        
-                        Text(viewModel.currentMonth)
-                            .font(.title3)
-                            .foregroundColor(.primary)
-                    }
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        viewModel.changeMonth(by: 1)
-                    }) {
-                        Image(systemName: "chevron.right")
-                            .font(.title3)
-                            .foregroundColor(.primary)
-                    }
-                    
-                    Spacer()
-                    Spacer()
-                    
-                    VStack {
-                        if viewModel.selectedDay?.date != nil &&
-                            !Calendar.current.isDateInToday(viewModel.selectedDay?.date ?? Date()) {
-                            Button(action: {
-                                selectToday()
-                            }) {
-                                Text("오늘")
-                                    .font(.subheadline)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
-                                    .foregroundColor(.primary)
-                                    .background(
-                                        Capsule().stroke(Color.primary, lineWidth: 1)
-                                    )
-                            }
-                        } else {
-                            Text("")
-                        }
-                    }
-                    .frame(width: 60)
+            HStack(spacing: 0) {
+                Button(action: {
+                    viewModel.changeMonth(by: -1)
+                }) {
+                    Image(systemName: "chevron.left")
+                        .font(.title3)
+                        .foregroundColor(.primary)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
+                
+                Spacer()
                 
                 DatePicker(
                     "",
@@ -212,10 +169,60 @@ struct NoteView: View {
                 )
                 .datePickerStyle(.compact)
                 .labelsHidden()
-                .frame(width: 200, height: 30)
-                .blendMode(.destinationOver)
+                .frame(width: 180, height: 44)
+                .accentColor(.clear)
+                .colorMultiply(.clear)
+                .overlay(
+                    HStack(spacing: 4) {
+                        Image(systemName: "calendar")
+                            .foregroundColor(.primary)
+                        
+                        Text(viewModel.currentMonth)
+                            .font(.title3)
+                            .foregroundColor(.primary)
+                    }
+                    .allowsHitTesting(false)
+                    .background(Color(UIColor.tertiarySystemBackground))
+                )
                 .onChange(of: viewModel.selectedMonth) {
                     viewModel.fetchCalendarDays()
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    viewModel.changeMonth(by: 1)
+                }) {
+                    Image(systemName: "chevron.right")
+                        .font(.title3)
+                        .foregroundColor(.primary)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                
+                Spacer()
+                Spacer()
+                
+                Group {
+                    if viewModel.selectedDay?.date != nil &&
+                        !Calendar.current.isDateInToday(viewModel.selectedDay?.date ?? Date()) {
+                        Button(action: {
+                            selectToday()
+                        }) {
+                            Text("오늘")
+                                .font(.subheadline)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .foregroundColor(.primary)
+                                .background(
+                                    Capsule().stroke(Color.primary, lineWidth: 1)
+                                )
+                        }
+                        .frame(width: 60)
+                    } else {
+                        Color.clear
+                            .frame(width: 60, height: 44)
+                    }
                 }
             }
             .padding(.horizontal)
