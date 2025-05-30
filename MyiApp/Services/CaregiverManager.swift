@@ -150,8 +150,10 @@ class CaregiverManager: ObservableObject {
                 }
             }
             var babies: [Baby] = []
-            for await baby in group where baby != nil {
-                babies.append(baby!)
+            for ref in refs {
+                if let baby = try? await ref.getDocument().data(as: Baby.self) {
+                    babies.append(baby)
+                }
             }
             return babies
         }

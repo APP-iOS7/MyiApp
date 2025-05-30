@@ -34,9 +34,6 @@ struct NewBabyRegisterView: View {
     
     var body: some View {
         VStack {
-            SafeAreaPaddingView()
-                .frame(height: getTopSafeAreaHeight())
-                .background(Color.customBackground)
             ScrollView {
                 VStack(spacing: 15) {
                     VStack(alignment: .leading, spacing: 0) {
@@ -80,7 +77,6 @@ struct NewBabyRegisterView: View {
                     }
                     .background(Color(UIColor.tertiarySystemBackground))
                     .cornerRadius(10)
-                    .padding(.horizontal)
                     .contentShape(Rectangle())
                     .onTapGesture {
                         viewModel.gender = .female
@@ -92,38 +88,167 @@ struct NewBabyRegisterView: View {
                         }
                     }
                     
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text("이름 / 태명")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.primary.opacity(0.8))
-                                .padding()
-                                .padding(.top, 8)
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("이름 / 태명")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding()
+                            .padding(.top, 8)
+                        
+                        ZStack(alignment: .trailing) {
+                            TextField("이름을 입력하세요", text: $viewModel.name)
+                                .multilineTextAlignment(.leading)
+                                .foregroundColor(.primary.opacity(0.6))
+                                .font(.title2)
+                                .padding(.vertical)
+                                .padding(.trailing, 40)
+                                .disableAutocorrection(true)
+                                .textInputAutocapitalization(.never)
+                                .background(
+                                    VStack {
+                                        Spacer()
+                                        Rectangle()
+                                            .frame(height: 1)
+                                            .foregroundColor(.primary.opacity(0.8))
+                                    }
+                                )
+                                .submitLabel(.done)
+                                .focused($focusedField, equals: .name)
                             
-                            ZStack(alignment: .trailing) {
-                                TextField("이름을 입력하세요", text: $viewModel.name)
-                                    .multilineTextAlignment(.leading)
-                                    .foregroundColor(.primary.opacity(0.6))
-                                    .font(.title2)
-                                    .padding(.vertical)
-                                    .padding(.trailing, 40)
-                                    .disableAutocorrection(true)
-                                    .textInputAutocapitalization(.never)
-                                    .background(
-                                        VStack {
-                                            Spacer()
-                                            Rectangle()
-                                                .frame(height: 1)
-                                                .foregroundColor(.primary.opacity(0.8))
-                                        }
+                            if isNameEntered {
+                                Button(action: {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        viewModel.name = ""
+                                    }
+                                }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.gray)
+                                        .padding(.trailing, 10)
+                                }
+                            }
+                        }
+                        .padding()
+                        .padding(.bottom, 8)
+                    }
+                    .background(Color(UIColor.tertiarySystemBackground))
+                    .cornerRadius(10)
+                    .onChange(of: viewModel.name) { _, newValue in
+                        isNameEntered = !newValue.isEmpty
+                    }
+                    .onSubmit {
+                        if !viewModel.name.isEmpty {
+                            withAnimation {
+                                isNameEntered = true
+                                focusedField = .birthDate
+                            }
+                        } else {
+                            isNameEntered = false
+                            focusedField = nil
+                        }
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("출생일")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding()
+                            .padding(.top, 8)
+                        HStack {
+                            DatePicker(
+                                "날짜",
+                                selection: Binding(
+                                    get: { viewModel.birthDate ?? Date() },
+                                    set: {
+                                        newValue in
+                                        viewModel.birthDate = newValue
+                                        isBirthDateSelected = true
+                                    }
+                                ),
+                                displayedComponents: .date
+                            )
+                            .focused($focusedField, equals: .birthDate)
+                        }
+                        .padding()
+                        .padding(.top, 5)
+                        .padding(.bottom, 5)
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Toggle("시간 입력", isOn: $viewModel.isTimeSelectionEnabled)
+                                .padding()
+                            if viewModel.isTimeSelectionEnabled {
+                                HStack {
+                                    DatePicker(
+                                        "시간",
+                                        selection: Binding(
+                                            get: { viewModel.birthDate ?? Date() },
+                                            set: { viewModel.birthDate = $0 }
+                                        ),
+                                        displayedComponents: .hourAndMinute
                                     )
-                                    .submitLabel(.done)
-                                    .focused($focusedField, equals: .name)
-                                
-                                if isNameEntered {
+                                    .focused($focusedField, equals: .birthDate)
+                                }
+                                .padding()
+                                .padding(.bottom, 8)
+                            }
+                        }
+                    }
+                    .background(Color(UIColor.tertiarySystemBackground))
+                    .cornerRadius(10)
+                    .onSubmit {
+                        if !isHeightEntered {
+                            withAnimation {
+                                isBirthDateSelected = true
+                                focusedField = .height
+                            }
+                        } else {
+                            focusedField = nil
+                        }
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("키")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding()
+                            .padding(.top, 8)
+                        ZStack(alignment: .trailing) {
+                            TextField("키를 입력하세요", text: $viewModel.height)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.leading)
+                                .foregroundColor(.primary.opacity(0.6))
+                                .font(.title2)
+                                .padding(.vertical)
+                                .padding(.trailing, 40)
+                                .disableAutocorrection(true)
+                                .textInputAutocapitalization(.never)
+                                .background(
+                                    VStack {
+                                        Spacer()
+                                        Rectangle()
+                                            .frame(height: 1)
+                                            .foregroundColor(.primary.opacity(0.8))
+                                    }
+                                )
+                                .focused($focusedField, equals: .height)
+                                .onChange(of: viewModel.height) { _, newValue in
+                                    let filtered = newValue.filter { $0.isNumber || $0 == "." }
+                                    if filtered != newValue {
+                                        viewModel.height = filtered
+                                    }
+                                    isHeightEntered = !filtered.isEmpty
+                                }
+                            if !viewModel.height.isEmpty {
+                                HStack(spacing: 15) {
+                                    Text("cm")
+                                        .foregroundColor(.primary.opacity(0.6))
+                                        .font(.title2)
                                     Button(action: {
                                         withAnimation(.easeInOut(duration: 0.2)) {
-                                            viewModel.name = ""
+                                            viewModel.height = ""
+                                            focusedField = .height
                                         }
                                     }) {
                                         Image(systemName: "xmark.circle.fill")
@@ -132,326 +257,195 @@ struct NewBabyRegisterView: View {
                                     }
                                 }
                             }
-                            .padding()
-                            .padding(.bottom, 8)
                         }
-                        .background(Color(UIColor.tertiarySystemBackground))
-                        .cornerRadius(10)
-                        .padding(.horizontal)
-                        .onChange(of: viewModel.name) { _, newValue in
-                            isNameEntered = !newValue.isEmpty
-                        }
-                        .onSubmit {
-                            if !viewModel.name.isEmpty {
-                                withAnimation {
-                                    isNameEntered = true
-                                    focusedField = .birthDate
-                                }
-                            } else {
-                                isNameEntered = false
-                                focusedField = nil
-                            }
-                        }
+                        .padding()
+                        .padding(.bottom, 8)
+                    }
+                    .background(Color(UIColor.tertiarySystemBackground))
+                    .cornerRadius(10)
                     
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("출생일")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.primary.opacity(0.8))
-                                .padding()
-                                .padding(.top, 8)
-                            HStack {
-                                DatePicker(
-                                    "날짜",
-                                    selection: Binding(
-                                        get: { viewModel.birthDate ?? Date() },
-                                        set: {
-                                            newValue in
-                                            viewModel.birthDate = newValue
-                                            isBirthDateSelected = true
-                                        }
-                                    ),
-                                    displayedComponents: .date
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("몸무게")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary.opacity(0.8))
+                            .padding()
+                            .padding(.top, 8)
+                        ZStack(alignment: .trailing) {
+                            TextField("몸무게를 입력하세요", text: $viewModel.weight)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.leading)
+                                .foregroundColor(.primary.opacity(0.6))
+                                .font(.title2)
+                                .padding(.vertical)
+                                .padding(.trailing, 40)
+                                .disableAutocorrection(true)
+                                .textInputAutocapitalization(.never)
+                                .background(
+                                    VStack {
+                                        Spacer()
+                                        Rectangle()
+                                            .frame(height: 1)
+                                            .foregroundColor(.primary.opacity(0.8))
+                                    }
                                 )
-                                .focused($focusedField, equals: .birthDate)
+                                .focused($focusedField, equals: .weight)
+                                .onChange(of: viewModel.weight) { _, newValue in
+                                    let filtered = newValue.filter { $0.isNumber || $0 == "." }
+                                    if filtered != newValue {
+                                        viewModel.weight = filtered
+                                    }
+                                    isWeightEntered = !filtered.isEmpty
+                                }
+                            if isWeightEntered {
+                                HStack(spacing: 15) {
+                                    Text("kg")
+                                        .foregroundColor(.primary.opacity(0.6))
+                                        .font(.title2)
+                                    Button(action: {
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            viewModel.weight = ""
+                                            focusedField = .weight
+                                        }
+                                    }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundColor(.gray)
+                                            .padding(.trailing, 10)
+                                    }
+                                }
                             }
+                        }
+                        .padding()
+                        .padding(.bottom, 8)
+                    }
+                    .background(Color(UIColor.tertiarySystemBackground))
+                    .cornerRadius(10)
+                    
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("혈액형")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary.opacity(0.8))
                             .padding()
-                            .padding(.top, 5)
-                            .padding(.bottom, 5)
+                            .padding(.top, 8)
+                        HStack {
+                            Text("A 형")
+                                .foregroundColor(.primary.opacity(0.6))
+                            Spacer()
                             
-                            VStack(alignment: .leading, spacing: 8) {
-                                Toggle("시간 입력", isOn: $viewModel.isTimeSelectionEnabled)
-                                    .padding()
-                                if viewModel.isTimeSelectionEnabled {
-                                    HStack {
-                                        DatePicker(
-                                            "시간",
-                                            selection: Binding(
-                                                get: { viewModel.birthDate ?? Date() },
-                                                set: { viewModel.birthDate = $0 }
-                                            ),
-                                            displayedComponents: .hourAndMinute
-                                        )
-                                        .focused($focusedField, equals: .birthDate)
-                                    }
-                                    .padding()
-                                    .padding(.bottom, 8)
-                                }
-                            }
+                            Image(systemName: viewModel.bloodType == .A ? "checkmark.circle.fill" : "checkmark.circle")
+                                .font(.title2)
+                                .foregroundColor(viewModel.bloodType == .A ? Color("buttonColor") : .primary.opacity(0.6))
                         }
-                        .background(Color(UIColor.tertiarySystemBackground))
-                        .cornerRadius(10)
-                        .padding(.horizontal)
-                        .onSubmit {
-                            if !isHeightEntered {
-                                withAnimation {
-                                    isBirthDateSelected = true
-                                    focusedField = .height
-                                }
-                            } else {
-                                focusedField = nil
-                            }
+                        .padding()
+                        .padding(.top, 5)
+                        .padding(.bottom, 5)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.bloodType = .A
+                            dismissKeyboard()
                         }
-                    
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text("키")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.primary.opacity(0.8))
-                                .padding()
-                                .padding(.top, 8)
-                            ZStack(alignment: .trailing) {
-                                TextField("키를 입력하세요", text: $viewModel.height)
-                                    .keyboardType(.decimalPad)
-                                    .multilineTextAlignment(.leading)
-                                    .foregroundColor(.primary.opacity(0.6))
-                                    .font(.title2)
-                                    .padding(.vertical)
-                                    .padding(.trailing, 40)
-                                    .disableAutocorrection(true)
-                                    .textInputAutocapitalization(.never)
-                                    .background(
-                                        VStack {
-                                            Spacer()
-                                            Rectangle()
-                                                .frame(height: 1)
-                                                .foregroundColor(.primary.opacity(0.8))
-                                        }
-                                    )
-                                    .focused($focusedField, equals: .height)
-                                    .onChange(of: viewModel.height) { _, newValue in
-                                        let filtered = newValue.filter { $0.isNumber || $0 == "." }
-                                        if filtered != newValue {
-                                            viewModel.height = filtered
-                                        }
-                                        isHeightEntered = !filtered.isEmpty
-                                    }
-                                if !viewModel.height.isEmpty {
-                                    HStack(spacing: 15) {
-                                        Text("cm")
-                                            .foregroundColor(.primary.opacity(0.6))
-                                            .font(.title2)
-                                        Button(action: {
-                                            withAnimation(.easeInOut(duration: 0.2)) {
-                                                viewModel.height = ""
-                                                focusedField = .height
-                                            }
-                                        }) {
-                                            Image(systemName: "xmark.circle.fill")
-                                                .foregroundColor(.gray)
-                                                .padding(.trailing, 10)
-                                        }
-                                    }
-                                }
-                            }
-                            .padding()
-                            .padding(.bottom, 8)
+                        
+                        HStack {
+                            Text("B 형")
+                                .foregroundColor(.primary.opacity(0.6))
+                            
+                            Spacer()
+                            
+                            Image(systemName: viewModel.bloodType == .B ? "checkmark.circle.fill" : "checkmark.circle")
+                                .font(.title2)
+                                .foregroundColor(viewModel.bloodType == .B ? Color("buttonColor") : .primary.opacity(0.6))
                         }
-                            .background(Color(UIColor.tertiarySystemBackground))
-                            .cornerRadius(10)
-                            .padding(.horizontal)
-                    
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text("몸무게")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.primary.opacity(0.8))
-                                .padding()
-                                .padding(.top, 8)
-                            ZStack(alignment: .trailing) {
-                                TextField("몸무게를 입력하세요", text: $viewModel.weight)
-                                    .keyboardType(.decimalPad)
-                                    .multilineTextAlignment(.leading)
-                                    .foregroundColor(.primary.opacity(0.6))
-                                    .font(.title2)
-                                    .padding(.vertical)
-                                    .padding(.trailing, 40)
-                                    .disableAutocorrection(true)
-                                    .textInputAutocapitalization(.never)
-                                    .background(
-                                        VStack {
-                                            Spacer()
-                                            Rectangle()
-                                                .frame(height: 1)
-                                                .foregroundColor(.primary.opacity(0.8))
-                                        }
-                                    )
-                                    .focused($focusedField, equals: .weight)
-                                    .onChange(of: viewModel.weight) { _, newValue in
-                                        let filtered = newValue.filter { $0.isNumber || $0 == "." }
-                                        if filtered != newValue {
-                                            viewModel.weight = filtered
-                                        }
-                                        isWeightEntered = !filtered.isEmpty
-                                    }
-                                if isWeightEntered {
-                                    HStack(spacing: 15) {
-                                        Text("kg")
-                                            .foregroundColor(.primary.opacity(0.6))
-                                            .font(.title2)
-                                        Button(action: {
-                                            withAnimation(.easeInOut(duration: 0.2)) {
-                                                viewModel.weight = ""
-                                                focusedField = .weight
-                                            }
-                                        }) {
-                                            Image(systemName: "xmark.circle.fill")
-                                                .foregroundColor(.gray)
-                                                .padding(.trailing, 10)
-                                        }
-                                    }
-                                }
-                            }
-                            .padding()
-                            .padding(.bottom, 8)
+                        .padding()
+                        .padding(.top, 5)
+                        .padding(.bottom, 5)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.bloodType = .B
+                            dismissKeyboard()
                         }
-                        .background(Color(UIColor.tertiarySystemBackground))
-                        .cornerRadius(10)
-                        .padding(.horizontal)
-                    
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text("혈액형")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.primary.opacity(0.8))
-                                .padding()
-                                .padding(.top, 8)
-                            HStack {
-                                Text("A 형")
-                                    .foregroundColor(.primary.opacity(0.6))
-                                Spacer()
-                                
-                                Image(systemName: viewModel.bloodType == .A ? "checkmark.circle.fill" : "checkmark.circle")
-                                    .font(.title2)
-                                    .foregroundColor(viewModel.bloodType == .A ? Color("buttonColor") : .primary.opacity(0.6))
-                            }
-                            .padding()
-                            .padding(.top, 5)
-                            .padding(.bottom, 5)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                viewModel.bloodType = .A
+                        
+                        HStack {
+                            Text("O 형")
+                                .foregroundColor(.primary.opacity(0.6))
+                            
+                            Spacer()
+                            
+                            Image(systemName: viewModel.bloodType == .O ? "checkmark.circle.fill" : "checkmark.circle")
+                                .font(.title2)
+                                .foregroundColor(viewModel.bloodType == .O ? Color("buttonColor") : .primary.opacity(0.6))
+                        }
+                        .padding()
+                        .padding(.top, 5)
+                        .padding(.bottom, 5)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.bloodType = .O
+                            dismissKeyboard()
+                        }
+                        
+                        HStack {
+                            Text("AB 형")
+                                .foregroundColor(.primary.opacity(0.6))
+                            
+                            Spacer()
+                            
+                            Image(systemName: viewModel.bloodType == .AB ? "checkmark.circle.fill" : "checkmark.circle")
+                                .font(.title2)
+                                .foregroundColor(viewModel.bloodType == .AB ? Color("buttonColor") : .primary.opacity(0.6))
+                        }
+                        .padding()
+                        .padding(.bottom, 8)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            viewModel.bloodType = .AB
+                            dismissKeyboard()
+                        }
+                        
+                    }
+                    .background(Color(UIColor.tertiarySystemBackground))
+                    .cornerRadius(10)
+                    .onChange(of: viewModel.bloodType) {
+                        if viewModel.bloodType != nil {
+                            withAnimation {
+                                isBloodTypeSelected = true
+                                focusedField = .submit
                                 dismissKeyboard()
                             }
-                            
-                            HStack {
-                                Text("B 형")
-                                    .foregroundColor(.primary.opacity(0.6))
-                                
-                                Spacer()
-                                
-                                Image(systemName: viewModel.bloodType == .B ? "checkmark.circle.fill" : "checkmark.circle")
-                                    .font(.title2)
-                                    .foregroundColor(viewModel.bloodType == .B ? Color("buttonColor") : .primary.opacity(0.6))
-                            }
-                            .padding()
-                            .padding(.top, 5)
-                            .padding(.bottom, 5)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                viewModel.bloodType = .B
-                                dismissKeyboard()
-                            }
-                            
-                            HStack {
-                                Text("O 형")
-                                    .foregroundColor(.primary.opacity(0.6))
-                                
-                                Spacer()
-                                
-                                Image(systemName: viewModel.bloodType == .O ? "checkmark.circle.fill" : "checkmark.circle")
-                                    .font(.title2)
-                                    .foregroundColor(viewModel.bloodType == .O ? Color("buttonColor") : .primary.opacity(0.6))
-                            }
-                            .padding()
-                            .padding(.top, 5)
-                            .padding(.bottom, 5)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                viewModel.bloodType = .O
-                                dismissKeyboard()
-                            }
-                            
-                            HStack {
-                                Text("AB 형")
-                                    .foregroundColor(.primary.opacity(0.6))
-                                
-                                Spacer()
-                                
-                                Image(systemName: viewModel.bloodType == .AB ? "checkmark.circle.fill" : "checkmark.circle")
-                                    .font(.title2)
-                                    .foregroundColor(viewModel.bloodType == .AB ? Color("buttonColor") : .primary.opacity(0.6))
-                            }
-                            .padding()
-                            .padding(.bottom, 8)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                viewModel.bloodType = .AB
-                                dismissKeyboard()
-                            }
-                            
+                        } else {
+                            isBloodTypeSelected = false
                         }
-                        .background(Color(UIColor.tertiarySystemBackground))
-                        .cornerRadius(10)
-                        .padding(.horizontal)
-                        .onChange(of: viewModel.bloodType) {
-                            if viewModel.bloodType != nil {
-                                withAnimation {
-                                    isBloodTypeSelected = true
-                                    focusedField = .submit
-                                    dismissKeyboard()
-                                }
-                            } else {
-                                isBloodTypeSelected = false
-                            }
-                        }
-                    
-                    Spacer()
-                    
+                    }
                 }
+                
+                Button(action: {
+                    dismissKeyboard()
+                    Task {
+                        await viewModel.registerBaby()
+                        if viewModel.isRegistered {
+                            DatabaseService.shared.hasBabyInfo = true
+                            popToRootViewController()
+                        } else if let error = viewModel.errorMessage {
+                            print("등록 실패: \(error)")
+                        }
+                    }
+                }) {
+                    Text("완료")
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .font(.headline)
+                        .background(isButtonEnabled ? Color("buttonColor") : Color.gray)
+                        .cornerRadius(12)
+                }
+                .disabled(!isButtonEnabled)
             }
-            Button(action: {
-                dismissKeyboard()
-                viewModel.registerBaby()
-                dismiss()
-            }) {
-                Text("완료")
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .font(.headline)
-                    .background(isButtonEnabled ? Color("buttonColor") : Color.gray)
-                    .cornerRadius(12)
-            }
-            .padding(.horizontal)
-            .padding(.bottom, 16)
-            .disabled(!isButtonEnabled)
-            .navigationTitle("아이 정보 등록")
-            .background(Color("customBackgroundColor"))
+            .padding()
         }
         .onTapGesture {
             dismissKeyboard()
         }
+        .navigationTitle("아이 정보 등록")
         .background(Color("customBackgroundColor"))
     }
     
@@ -460,14 +454,28 @@ struct NewBabyRegisterView: View {
         focusedField = nil
     }
     
-    private func getTopSafeAreaHeight() -> CGFloat {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first else {
-            return 0
+    private func popToRootViewController() {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first,
+           let navController = window.rootViewController?.findNavigationController() {
+            DispatchQueue.main.async {
+                navController.popToRootViewController(animated: true)
+            }
         }
-        
-        let height = window.safeAreaInsets.top
-        return height * 0.1
+    }
+}
+
+extension UIViewController {
+    func findNavigationController() -> UINavigationController? {
+        if let navController = self as? UINavigationController {
+            return navController
+        }
+        for child in children {
+            if let navController = child.findNavigationController() {
+                return navController
+            }
+        }
+        return nil
     }
 }
 
