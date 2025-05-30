@@ -455,8 +455,8 @@ struct NoteEditorView: View {
         let action = isEditing ? "수정" : "저장"
         let particle = selectedCategory == .일지 ? "가" : "이"
         let notificationText = selectedCategory == .일정 && withNotification
-        ? " 알림이 설정되었습니다."
-        : ""
+            ? " 알림이 설정되었습니다."
+            : ""
         
         viewModel.toastMessage = ToastMessage(
             message: "\(messagePrefix)\(category)\(particle) \(action)되었습니다.\(notificationText)",
