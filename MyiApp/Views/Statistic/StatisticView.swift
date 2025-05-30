@@ -109,7 +109,7 @@ struct StatisticView: View {
                                         
                                         let formatter = DateFormatter()
                                         formatter.dateFormat = "yyyyMMdd"
-                                        self.fileNameInput = "\(formatter.string(from: Date()))_통계"
+                                        self.fileNameInput = "\(formatter.string(from: selectedDate))_통계"
                                         
                                         self.isShowingPreview = true
                                     }
@@ -220,7 +220,12 @@ struct StatisticView: View {
                             }
                             .padding()
                         } else {
-                            Text("미리보기 이미지를 불러올 수 없습니다.")
+                            ProgressView("이미지를 불러오는 중입니다...")
+                                .padding()
+                            Button("다시 시도하기") {
+                                let babyInfoView = BabyInfoCardView(baby: baby, records: records, selectedDate: selectedDate)
+                                previewImage = babyInfoView.asUIImage()
+                            }
                         }
                     }
                     .navigationTitle("PDF 미리보기")
