@@ -161,134 +161,120 @@ struct BabyInfoCardView: View {
                 .padding()
 
             } else if title == "분유" {
-                WeightChartView(
-                    data: weightData,
-                    startDate: startDate,
-                    endDate: endDate,
-                    selectedEntry: $selectedWeightEntry
+                DailyFeedChartPDFView(
+                    weekDates: generateWeekDates(from: selectedDate),
+                    records: records,
+                    selectedType: .formula
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.3, anchor: .center)
+                .scaleEffect(0.7, anchor: .center)
                 .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "모유 수유" {
-                WeightChartView(
-                    data: weightData,
-                    startDate: startDate,
-                    endDate: endDate,
-                    selectedEntry: $selectedWeightEntry
+                DailyFeedChartPDFView(
+                    weekDates: generateWeekDates(from: selectedDate),
+                    records: records,
+                    selectedType: .breastfeeding
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.3, anchor: .center)
+                .scaleEffect(0.7, anchor: .center)
                 .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "유축 수유" {
-                WeightChartView(
-                    data: weightData,
-                    startDate: startDate,
-                    endDate: endDate,
-                    selectedEntry: $selectedWeightEntry
+                DailyFeedChartPDFView(
+                    weekDates: generateWeekDates(from: selectedDate),
+                    records: records,
+                    selectedType: .pumpedMilk
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.3, anchor: .center)
+                .scaleEffect(0.7, anchor: .center)
                 .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "이유식" {
-                WeightChartView(
-                    data: weightData,
-                    startDate: startDate,
-                    endDate: endDate,
-                    selectedEntry: $selectedWeightEntry
+                DailyFeedChartPDFView(
+                    weekDates: generateWeekDates(from: selectedDate),
+                    records: records,
+                    selectedType: .babyFood
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.3, anchor: .center)
+                .scaleEffect(0.7, anchor: .center)
                 .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "소변" {
-                WeightChartView(
-                    data: weightData,
-                    startDate: startDate,
-                    endDate: endDate,
-                    selectedEntry: $selectedWeightEntry
+                DailyPottyChartPDFView(
+                    weekDates: generateWeekDates(from: selectedDate),
+                    records: records,
+                    selectedType: .pee
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.3, anchor: .center)
+                .scaleEffect(0.7, anchor: .center)
                 .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "대변" {
-                WeightChartView(
-                    data: weightData,
-                    startDate: startDate,
-                    endDate: endDate,
-                    selectedEntry: $selectedWeightEntry
+                DailyPottyChartPDFView(
+                    weekDates: generateWeekDates(from: selectedDate),
+                    records: records,
+                    selectedType: .poop
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.3, anchor: .center)
+                .scaleEffect(0.7, anchor: .center)
                 .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "수면 횟수" {
-                WeightChartView(
-                    data: weightData,
-                    startDate: startDate,
-                    endDate: endDate,
-                    selectedEntry: $selectedWeightEntry
+                DailySleepChartPDFView(
+                    weekDates: generateWeekDates(from: selectedDate),
+                    records: records,
+                    selectedType: .count
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.3, anchor: .center)
+                .scaleEffect(0.7, anchor: .center)
                 .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "수면 시간" {
-                WeightChartView(
-                    data: weightData,
-                    startDate: startDate,
-                    endDate: endDate,
-                    selectedEntry: $selectedWeightEntry
+                DailySleepChartPDFView(
+                    weekDates: generateWeekDates(from: selectedDate),
+                    records: records,
+                    selectedType: .time
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.3, anchor: .center)
+                .scaleEffect(0.7, anchor: .center)
                 .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "기저귀" {
-                WeightChartView(
-                    data: weightData,
-                    startDate: startDate,
-                    endDate: endDate,
-                    selectedEntry: $selectedWeightEntry
+                DailyDiaperChartPDFView(
+                    weekDates: generateWeekDates(from: selectedDate),
+                    records: records
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.3, anchor: .center)
+                .scaleEffect(0.5, anchor: .center)
                 .frame(width: 200, height: 100)
                 .padding()
 
             } else if title == "목욕" {
-                WeightChartView(
-                    data: weightData,
-                    startDate: startDate,
-                    endDate: endDate,
-                    selectedEntry: $selectedWeightEntry
+                DailyBathChartPDFView(
+                    weekDates: generateWeekDates(from: selectedDate),
+                    records: records
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.3, anchor: .center)
+                .scaleEffect(0.5, anchor: .center)
                 .frame(width: 200, height: 100)
                 .padding()
 
             } else if title == "간식" {
-                WeightChartView(
-                    data: weightData,
-                    startDate: startDate,
-                    endDate: endDate,
-                    selectedEntry: $selectedWeightEntry
+                DailySnackChartPDFView(
+                    weekDates: generateWeekDates(from: selectedDate),
+                    records: records
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.3, anchor: .center)
+                .scaleEffect(0.5, anchor: .center)
                 .frame(width: 200, height: 100)
                 .padding()
 
@@ -303,5 +289,14 @@ struct BabyInfoCardView: View {
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "yyyy년 M월 d일"
         return formatter.string(from: date)
+    }
+    func generateWeekDates(from selectedDate: Date) -> [Date] {
+        var calendar = Calendar.current
+        calendar.firstWeekday = 2 // 월요일 시작
+        let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: selectedDate)?.start ?? selectedDate
+        
+        return (0..<7).compactMap { dayOffset in
+            calendar.date(byAdding: .day, value: dayOffset, to: startOfWeek)
+        }
     }
 }
