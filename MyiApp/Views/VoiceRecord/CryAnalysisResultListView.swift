@@ -9,59 +9,15 @@ import SwiftUI
 
 struct CryAnalysisResultListView: View {
     @EnvironmentObject var viewModel: VoiceRecordViewModel
-
+    
     var body: some View {
         NavigationStack {
             List {
                 if viewModel.recordResults.isEmpty {
-                    VStack {
-                        Spacer()
-                        VStack(spacing: 16) {
-                            Image(systemName: "magnifyingglass")
-                                .font(.system(size: 48))
-                                .foregroundColor(.gray)
-                            Text("아직 기록된 분석 결과가 없습니다.")
-                                .font(.body)
-                                .foregroundColor(.gray)
-                            Text("분석을 완료하면 결과가 이곳에 표시됩니다.")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height * 0.7)
-                        Spacer()
-                    }
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
+                    EmptyStateView()
                 } else {
                     ForEach(viewModel.recordResults, id: \.id) { result in
-                        HStack(spacing: 12) {
-                            Image(result.firstLabel.rawImageName)
-                                .resizable()
-                                .frame(width: 48, height: 48)
-                                .cornerRadius(8)
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("새로운 분석")
-                                    .font(.headline)
-                                    .foregroundColor(.primary)
-                                Text(result.firstLabel.displayName)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                Text(dateString(from: result.createdAt))
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                            }
-
-                            Spacer()
-                        }
-                        .padding(.vertical, 8)
-                    }
-                    .onDelete { indexSet in
-                        for index in indexSet {
-                            let record = viewModel.recordResults[index]
-                            viewModel.deleteRecord(with: record.id)
-                        }
+                        AnalysisResultRow(result: result, viewModel: viewModel)
                     }
                 }
             }
@@ -71,26 +27,75 @@ struct CryAnalysisResultListView: View {
     }
 }
 
-extension View {
-    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        clipShape(RoundedCorner(radius: radius, corners: corners))
+// 별도 컴포넌트로 분리하여 컴파일 최적화
+private struct AnalysisResultRow: View {
+    let result: VoiceRecord
+    let viewModel: VoiceRecordViewModel
+
+    var body: some View {
+        // HStack 전체를 하나의 View로 감싸고, modifier를 HStack 위에 적용
+        // Image의 frame/clipShape는 Image에만 적용
+        VStack { // workaround: outer View for modifier application
+            HStack(spacing: 12) {
+                Image(result.firstLabel.rawImageName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 48, height: 48)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("새로운 분석")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    Text(result.firstLabel.displayName)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Text(dateString(from: result.createdAt))
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+
+                Spacer()
+            }
+        }
+        .padding(.leading, 16)
+        .padding(.vertical, 8)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button("삭제", systemImage: "trash", role: .destructive) {
+                viewModel.deleteRecord(with: result.id)
+            }
+        }
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
     }
 }
 
-struct RoundedCorner: Shape {
-    var radius: CGFloat = 0
-    var corners: UIRectCorner = .allCorners
-
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners,
-                                cornerRadii: CGSize(width: radius, height: radius))
-        return Path(path.cgPath)
-    }
-}
 
 private func dateString(from date: Date) -> String {
     let formatter = DateFormatter()
     formatter.dateFormat = "yyyy. M. d a h:mm:ss"
     formatter.locale = Locale(identifier: "ko_KR")
     return formatter.string(from: date)
+}
+
+// 빈 상태 뷰 별도 컴포넌트로 분리
+private struct EmptyStateView: View {
+    var body: some View {
+        ZStack {
+            Color.clear
+            VStack {
+                Spacer()
+                ContentUnavailableView(
+                    "분석 결과가 없습니다",
+                    systemImage: "magnifyingglass",
+                    description: Text("분석을 완료하면 결과가 이곳에 표시됩니다.")
+                )
+                Spacer()
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height * 0.65)
+        .listRowSeparator(.hidden)
+        .listRowBackground(Color.clear)
+    }
 }

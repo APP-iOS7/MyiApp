@@ -53,9 +53,9 @@ struct WeightChartView: View {
                         if let entry = selectedEntry {
                             let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                             
-                            let toStart = abs(entry.date.timeIntervalSince(startDate))
-                            let toEnd = abs(entry.date.timeIntervalSince(endDate))
-                            let xOffset: CGFloat = toStart < toEnd ? 50 : -50
+                            let relativePosition = entry.date.timeIntervalSince(startDate) / dateRange
+                            let xOffset: CGFloat = relativePosition < 0.2 ? 70 :
+                                                   relativePosition > 0.8 ? -70 : 0
                             VStack(alignment: .leading) {
                                 Text("날짜 : \(longDate(entry.date))")
                                     .font(.footnote)
@@ -64,14 +64,14 @@ struct WeightChartView: View {
                             }
                             .padding(6)
                             .frame(minWidth: 150, minHeight: 80)
-                            .background(Color.white.opacity(0.1))
+                            .background(Color(.tertiarySystemBackground))
                             .cornerRadius(12)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 12)
                                     .stroke(Color("buttonColor"), lineWidth: 1)
                             )
                             .position(x: x + xOffset, y: 40)
-                            
+                            .zIndex(1)
                         }
                         VStack(spacing: 8) {
                             HStack(alignment: .top) {
@@ -128,12 +128,12 @@ struct WeightChartView: View {
                                             // 선택된 점의 선
                                             if let entry = selectedEntry {
                                                 let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
-                                                let y = height - ((CGFloat(entry.weight - minWeight) / CGFloat(weightRange)) * height)
+                                                let y = height + 50
                                                 
                                                 Rectangle()
                                                     .fill(Color.gray.opacity(0.3))
-                                                    .frame(width: 1, height: y - 10)
-                                                    .position(x: x, y: y / 2)
+                                                    .frame(width: 1, height: y)
+                                                    .position(x: x, y: y / 2 - 50)
                                                     .zIndex(-1)
                                             }
                                         }

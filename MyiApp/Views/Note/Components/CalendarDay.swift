@@ -54,15 +54,15 @@ struct CalendarDayView: View {
                     if isSelected {
                         Circle()
                             .fill(Color.button)
-                            .frame(width: 36, height: 36)
+                            .frame(width: 32, height: 32)
                     } else if day.isToday {
                         Circle()
                             .stroke(Color("sharkPrimaryDark"), lineWidth: 1.5)
-                            .frame(width: 36, height: 36)
+                            .frame(width: 32, height: 32)
                     } else if anniversaryType != nil {
                         Circle()
                             .stroke(anniversaryType!.color, lineWidth: 1.5)
-                            .frame(width: 36, height: 36)
+                            .frame(width: 32, height: 32)
                     }
                     
                     VStack(spacing: 0) {
@@ -73,7 +73,7 @@ struct CalendarDayView: View {
                         }
                         
                         Text(day.dayNumber)
-                            .font(.title3)
+                            .font(.body)
                             .foregroundColor(
                                 isSelected ? .white :
                                     anniversaryType != nil ? anniversaryType!.color :

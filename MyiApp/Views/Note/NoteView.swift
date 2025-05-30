@@ -159,7 +159,7 @@ struct NoteView: View {
                             .foregroundColor(.primary)
                         
                         Text(viewModel.currentMonth)
-                            .font(.title)
+                            .font(.title3)
                             .foregroundColor(.primary)
                     }
                     

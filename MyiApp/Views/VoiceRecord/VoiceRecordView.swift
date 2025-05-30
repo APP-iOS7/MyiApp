@@ -61,6 +61,7 @@ struct VoiceRecordView: View {
                     }) {
                         Image(systemName: "list.bullet")
                             .imageScale(.large)
+                            .foregroundColor(.primary)
                     }
                 }
                 .padding([.top, .horizontal])
