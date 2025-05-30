@@ -136,7 +136,7 @@ struct NoteEventListRow: View {
                         .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 80, height: 80)))
                         .scaleFactor(UIScreen.main.scale)
                         .fade(duration: 0.25)
-                        .forceRefresh()
+                        .cacheOriginalImage()
                         .resizable()
                         .scaledToFill()
                         .frame(width: 40, height: 40)
