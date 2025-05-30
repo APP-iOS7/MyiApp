@@ -34,7 +34,7 @@ struct lastWeightInfoView: View {
     var body: some View {
         if let recent = data.sorted(by: { $0.date > $1.date }).first {
             VStack(spacing: 4) {
-                Text("최근 키 측정")
+                Text("최근 몸무게 측정")
                     .font(.footnote)
                     .foregroundColor(.gray)
                 Text("\(longDate(recent.date)) / \(String(format: "%.1f", recent.weight))kg")

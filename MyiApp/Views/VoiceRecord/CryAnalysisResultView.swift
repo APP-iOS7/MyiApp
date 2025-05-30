@@ -148,17 +148,20 @@ struct CryAnalysisResultView: View {
 
             VStack {
                 Spacer()
-                Button("완료") {
+                Button {
                     onDismiss()
+                } label: {
+                    Text("완료")
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .font(.headline)
+                        .background(Color("buttonColor"))
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .padding(.horizontal)
+                        .padding(.bottom, 20)
                 }
-                .padding()
-                .frame(maxWidth: .infinity)
-                .font(.headline)
-                .background(Color("buttonColor"))
-                .foregroundColor(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .padding(.horizontal)
-                .padding(.bottom, 20)
+                
             }
         }
         .background(Color(UIColor.systemBackground))
