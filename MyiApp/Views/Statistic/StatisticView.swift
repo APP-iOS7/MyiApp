@@ -93,7 +93,7 @@ struct StatisticView: View {
                                 .font(.title2)
                                 .onTapGesture {
                                     DispatchQueue.main.async {
-                                        let babyInfoView = BabyInfoCardView(baby: baby, records: records)
+                                        let babyInfoView = BabyInfoCardView(baby: baby, records: records, selectedDate: selectedDate)
                                         let image = babyInfoView.asUIImage()
                                         
                                         self.previewImage = image
@@ -174,8 +174,6 @@ struct StatisticView: View {
                             .padding()
                         
                         Button("PDF로 저장 및 공유하기") {
-                            let finalName = fileNameInput.isEmpty ? "통계" : fileNameInput
-                            let size = image.size
                             
                             self.exportPDF(image: image, fileName: fileNameInput.isEmpty ? "통계" : fileNameInput) { url in
                                 if let url = url {
