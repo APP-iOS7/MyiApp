@@ -53,8 +53,6 @@ struct HeightChartView: View {
                         if let entry = selectedEntry {
                             let x = CGFloat(entry.date.timeIntervalSince(firstDate) / dateRange) * width
                             
-                            //let toStart = abs(entry.date.timeIntervalSince(startDate))
-                            //let toEnd = abs(entry.date.timeIntervalSince(endDate))
                             let relativePosition = entry.date.timeIntervalSince(startDate) / dateRange
                             let xOffset: CGFloat = relativePosition < 0.2 ? 70 :
                                                    relativePosition > 0.8 ? -70 : 0
