@@ -74,16 +74,19 @@ struct VoiceRecordView: View {
                     Image("CryAnalysisProcessingShark")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 200, height: 200)
+                        .frame(width: 270, height: 270)
                         .padding(.bottom, 20)
+                    
+                    Spacer()
 
-                    Text("시작 버튼을 누른 후 아이의 울음소리를 들려주세요")
-                        .font(.body)
+                    Text("시작 버튼을 누른 후 \n 아이의 울음소리를 들려주세요")
+                        .font(.title2)
                         .multilineTextAlignment(.center)
                         .lineSpacing(6)
-                        .padding(.bottom, 20)
+                        .padding(.bottom, 40)
+                    
 
-                    Text("녹음은 최대 7초 동안 진행됩니다.")
+                    Text("녹음은 7초 동안 진행됩니다.")
                         .font(.footnote)
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
@@ -106,14 +109,15 @@ struct VoiceRecordView: View {
 
                     Spacer(minLength: 16)
                 }
-                .frame(width: UIScreen.main.bounds.width - 40)
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
                 .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(12)
                 .padding(.top, 16)
 
                 Spacer()
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal)
             .background(Color("customBackgroundColor"))
             .safeAreaInset(edge: .bottom) {
                 Button(action: {
@@ -131,7 +135,7 @@ struct VoiceRecordView: View {
                         .frame(height: 50)
                         .background(Color("buttonColor"))
                         .cornerRadius(12)
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal)
                         .padding(.bottom, 8)
                 }
             }
