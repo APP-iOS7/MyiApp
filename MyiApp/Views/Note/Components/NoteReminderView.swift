@@ -173,23 +173,29 @@ struct NoteReminderView: View {
                 .labelsHidden()
             
             HStack {
-                Button("취소") {
+                Button(action: {
                     showTimePicker = false
+                }) {
+                    Text("취소")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.gray.opacity(0.2))
+                        .foregroundColor(.primary)
+                        .cornerRadius(10)
                 }
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.gray.opacity(0.2))
-                .foregroundColor(.primary)
-                .cornerRadius(10)
+                .buttonStyle(PlainButtonStyle())
                 
-                Button("확인") {
+                Button(action: {
                     validateAndSetCustomTime()
+                }) {
+                    Text("확인")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.button)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
                 }
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color("sharkPrimaryColor"))
-                .foregroundColor(.white)
-                .cornerRadius(10)
+                .buttonStyle(PlainButtonStyle())
             }
             .padding(.horizontal)
         }
