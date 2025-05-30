@@ -88,9 +88,16 @@ struct StatisticView: View {
                                 .font(.title)
                                 .bold()
                             Spacer()
+                            
+                            
+                            NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
+                                Image(systemName: "chart.xyaxis.line")
+                                    .foregroundColor(.primary)
+                                    .font(.headline)
+                            }
                             Image(systemName: "square.and.arrow.up")
                                 .foregroundColor(.primary)
-                                .font(.title2)
+                                .font(.headline)
                                 .onTapGesture {
                                     DispatchQueue.main.async {
                                         let babyInfoView = BabyInfoCardView(baby: baby, records: records, selectedDate: selectedDate)
@@ -105,33 +112,25 @@ struct StatisticView: View {
                                         self.isShowingPreview = true
                                     }
                                 }
-                            
-                            NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
-                                Image(systemName: "chart.xyaxis.line")
-                                    .foregroundColor(.primary)
-                                    .font(.title2)
-                            }
-                            
                         }
-                        .padding([.top, .horizontal])
-                        
+                        .padding([.vertical, .horizontal])
                         
                         VStack(spacing: 15) {
-                            
-                            VStack() {
-                                toggleMode
-                                Spacer()
-                                dateMove
-                            }
-                            .padding(.horizontal)
-                            
-                            VStack(spacing: 10) {
+                            VStack(spacing: 0) {
+                                VStack() {
+                                    toggleMode
+                                    Spacer()
+                                    dateMove
+                                }
+                                .padding(.horizontal)
+                                .padding(.bottom, 16)
                                 iconGrid
                                     .padding(.bottom, 20)
                                 
                                 chartView
-                                    .padding(.bottom, 20)
+                                    .padding(.top, 10)
                                 babyInfo
+                                    .padding(.bottom, 10)
                             }
                             .padding()
                             .background(Color(.tertiarySystemBackground))
@@ -306,14 +305,16 @@ struct StatisticView: View {
                 WeeklyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: selectedCategories)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(.trailing)
-                    .padding(.vertical, 20)
+                    .padding(.top, 9)
+                    .padding(.bottom, 40)
                 
             } else if selectedMode == "일" {
                 GeometryReader { geometry in
                     DailyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: selectedCategories)
                         .frame(width: geometry.size.width * 0.9, height: geometry.size.width * 0.9)
                         .padding(.horizontal)
-                        .padding(.vertical, 20)
+                        .padding(.top, 9)
+                        //.padding(.bottom, 8)
                 }
                 .frame(height: UIScreen.main.bounds.width * 0.9)
                 
