@@ -102,8 +102,13 @@ private struct ProcessingStateView: View {
                     .foregroundColor(.gray)
             }
             Button(action: {
+                print("[ProcessingView] 취소 버튼 클릭됨")
                 viewModel.cancel()
-                dismiss()
+                
+                // 약간의 지연 후 dismiss하여 상태 정리가 완료되도록 함
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    dismiss()
+                }
             }) {
                 Text("취소")
                     .foregroundColor(.white)
