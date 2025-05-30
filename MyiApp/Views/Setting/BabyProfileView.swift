@@ -217,7 +217,7 @@ struct BabyProfileView: View {
                         }
                         
                         HStack {
-                            Text("아이 정보\n공유 코드")
+                            Text("아이 정보 공유 코드")
                                 .font(.headline)
                                 .fontWeight(.semibold)
                                 .lineLimit(2)
@@ -226,11 +226,6 @@ struct BabyProfileView: View {
                             
                             Spacer()
                             
-                            Text("\(viewModel.baby.id)")
-                                .foregroundColor(.primary.opacity(0.6))
-                                .lineLimit(2)
-                                .minimumScaleFactor(0.8)
-                                .multilineTextAlignment(.trailing)
                             Image(systemName: "doc.on.doc")
                                 .foregroundColor(.primary.opacity(0.6))
                                 .font(.system(size: 12))

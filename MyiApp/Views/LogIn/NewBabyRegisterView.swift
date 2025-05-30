@@ -10,6 +10,7 @@ import SwiftUI
 struct NewBabyRegisterView: View {
     @StateObject private var viewModel = RegisterBabyViewModel()
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var databaseService: DatabaseService
     
     @FocusState private var focusedField: Field?
     private enum Field: Hashable {
@@ -420,8 +421,15 @@ struct NewBabyRegisterView: View {
                 
                 Button(action: {
                     dismissKeyboard()
-                    viewModel.registerBaby()
-                    dismiss()
+                    Task {
+                        await viewModel.registerBaby()
+                        if viewModel.isRegistered {
+                            databaseService.hasBabyInfo = true
+                            popToRootViewController()
+                        } else if let error = viewModel.errorMessage {
+                            print("등록 실패: \(error)")
+                        }
+                    }
                 }) {
                     Text("완료")
                         .foregroundColor(.white)
@@ -447,20 +455,35 @@ struct NewBabyRegisterView: View {
         focusedField = nil
     }
     
-    private func getTopSafeAreaHeight() -> CGFloat {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = windowScene.windows.first else {
-            return 0
+    private func popToRootViewController() {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first,
+           let navController = window.rootViewController?.findNavigationController() {
+            DispatchQueue.main.async {
+                navController.popToRootViewController(animated: true)
+            }
         }
-        
-        let height = window.safeAreaInsets.top
-        return height * 0.1
+    }
+}
+
+extension UIViewController {
+    func findNavigationController() -> UINavigationController? {
+        if let navController = self as? UINavigationController {
+            return navController
+        }
+        for child in children {
+            if let navController = child.findNavigationController() {
+                return navController
+            }
+        }
+        return nil
     }
 }
 
 #Preview {
     NavigationStack {
         NewBabyRegisterView()
+            .environmentObject(DatabaseService.shared)
     }
 }
 
