@@ -124,7 +124,7 @@ struct NoteEditorView: View {
                 }
                 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(isEditing ? "수정" : "저장") {
+                    Button("저장") {
                         saveNote()
                     }
                     .disabled(title.isEmpty || isSaving)
