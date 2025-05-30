@@ -8,6 +8,7 @@
 import Foundation
 import CoreML
 import Accelerate
+import AVFAudio
 
 final class CryAnalyzer {
     
@@ -16,7 +17,6 @@ final class CryAnalyzer {
     private let model: DeepInfant_V2
     
     // MARK: - Init
-    
     // 앱이 시작되면 Core ML 모델을 로딩
     init() {
         do {
@@ -37,8 +37,15 @@ final class CryAnalyzer {
         print("[CryAnalyzer] 분석 시작: 입력 샘플 수 = \(samples.count)")
 
         let processedSamples = prepareSamples(samples) // 샘플 보정
-        
-        // Core ML 입력 포맷으로 변환
+
+        // 무음 판별 로직 추가
+        if isSilent(samples: processedSamples) {
+            print("[CryAnalyzer] 무음 감지됨")
+            let result = EmotionResult(type: .unknown, confidence: 0.0)
+            completion(result)
+            return
+        }
+
         guard let inputArray = createMLMultiArray(from: processedSamples) else {
             print("[CryAnalyzer] MLMultiArray 생성 실패")
             completion(nil)
@@ -48,7 +55,6 @@ final class CryAnalyzer {
         print("[CryAnalyzer] MLMultiArray 구성 완료")
 
         do {
-            // 모델 입력 생성 및 추론 실행
             let input = DeepInfant_V2Input(audioSamples: inputArray)
             let output = try model.prediction(input: input)
 
@@ -57,9 +63,8 @@ final class CryAnalyzer {
                 print(" - \(label): \(prob)")
             }
 
-            // 예측 결과 추출 및 래핑
-            let label = output.target // 모델이 가장 가능성이 높다고 판단한 감정을 반환
-            let confidence = output.targetProbability[label] ?? 0.0 // 각 감정에 대해 모델이 예측한 확률, 만약 딕셔너리에 해당 키가 없다면 기본값 0.0을 넣음
+            let label = output.target
+            let confidence = output.targetProbability[label] ?? 0.0
             let result = EmotionResult(
                 type: EmotionType(rawValue: label) ?? .unknown,
                 confidence: confidence
@@ -94,4 +99,19 @@ final class CryAnalyzer {
         }
         return array
     }
+
+    private func isSilent(samples: [Float], threshold: Float = 0.001) -> Bool {
+        var rms: Float = 0.0
+        vDSP_rmsqv(samples, 1, &rms, vDSP_Length(samples.count))
+        return rms < threshold
+    }
+
+private func isSilent(buffer: AVAudioPCMBuffer, threshold: Float = 0.001) -> Bool {
+    guard let floatChannelData = buffer.floatChannelData else { return true }
+    let frameLength = Int(buffer.frameLength)
+
+    var rms: Float = 0.0
+    vDSP_rmsqv(floatChannelData[0], 1, &rms, vDSP_Length(frameLength))
+    return rms < threshold
+}
 }
