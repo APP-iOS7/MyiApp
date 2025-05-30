@@ -107,7 +107,8 @@ struct HeightChartView: View {
                                                     index == 0 ? path.move(to: CGPoint(x: x, y: y)) : path.addLine(to: CGPoint(x: x, y: y))
                                                 }
                                             }
-                                            .stroke(Color("buttonColor"), lineWidth: 2)
+                                            //.stroke(Color("buttonColor"), lineWidth: 2)
+                                            .stroke(Color.gray, lineWidth: 2)
 
                                             // 강조된 점
                                             ForEach(cappedData, id: \.id) { entry in
