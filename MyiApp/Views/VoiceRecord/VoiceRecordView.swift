@@ -88,7 +88,9 @@ struct VoiceRecordView: View {
                     viewModel.resetAnalysisState()
                     viewModel.startAnalysis()
                     navigationPath = NavigationPath()
-                    navigationPath.append(CryRoute.processing())
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        navigationPath.append(CryRoute.processing())
+                    }
                 }) {
                     Text("분석 시작")
                         .foregroundColor(.white)
