@@ -66,13 +66,13 @@ struct StatisticView: View {
     @State private var previewImage: UIImage? = nil
     @State private var isShowingPreview = false
     @State private var fileNameInput: String = ""
-
+    
     private var defaultFileName: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
         return "\(formatter.string(from: Date()))_통계"
     }
-
+    
     var body: some View {
         ZStack {
             Color("customBackgroundColor")
@@ -82,63 +82,67 @@ struct StatisticView: View {
                     .frame(height: getTopSafeAreaHeight())
                 
                 ScrollView {
-                    HStack(alignment: .bottom) {
-                        Text("통계")
-                            .font(.title)
-                            .bold()
-                        Spacer()
-                        Image(systemName: "square.and.arrow.up")
-                            .foregroundColor(.primary)
-                            .font(.title2)
-                            .onTapGesture {
-                                let size = CGSize(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height * 1.5)
-                                let image = self.asUIImage(size: size)
-                                self.previewImage = image
-
-                                let formatter = DateFormatter()
-                                formatter.dateFormat = "yyyyMMdd"
-                                self.fileNameInput = "\(formatter.string(from: Date()))_통계"
-
-                                self.isShowingPreview = true
-                            }
-
-                        NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
-                            Image(systemName: "chart.xyaxis.line")
+                    VStack(spacing: 5) {
+                        HStack(alignment: .bottom, spacing: 10) {
+                            Text("통계")
+                                .font(.title)
+                                .bold()
+                            Spacer()
+                            Image(systemName: "square.and.arrow.up")
                                 .foregroundColor(.primary)
                                 .font(.title2)
-                        }
-                        
-                    }
-                    .background(Color.red)
-                    .padding([.top, .horizontal])
-                    
-                    VStack() {
-                        toggleMode
-                        Spacer()
-                        dateMove
-                    }
-                    .padding(.horizontal)
-                    .background(Color.blue)
-                    VStack(spacing: 15) {
-                        
-                        
-                        
-                        VStack(spacing: 10) {
-                            iconGrid
-                                .padding(.bottom, 20)
+                                .onTapGesture {
+                                    DispatchQueue.main.async {
+                                        let babyInfoView = BabyInfoCardView(baby: baby, records: records)
+                                        let image = babyInfoView.asUIImage()
+                                        
+                                        self.previewImage = image
+                                        
+                                        let formatter = DateFormatter()
+                                        formatter.dateFormat = "yyyyMMdd"
+                                        self.fileNameInput = "\(formatter.string(from: Date()))_통계"
+                                        
+                                        self.isShowingPreview = true
+                                    }
+                                }
                             
-                            chartView
-                                .padding(.bottom, 20)
-                            babyInfo
+                            NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
+                                Image(systemName: "chart.xyaxis.line")
+                                    .foregroundColor(.primary)
+                                    .font(.title2)
+                            }
+                            
                         }
-                        .padding()
-                        .background(Color(.tertiarySystemBackground))
-                        .cornerRadius(12)
+                        .padding([.top, .horizontal])
+                        
+                        
                         VStack(spacing: 15) {
-                            statisticList
+                            
+                            VStack() {
+                                toggleMode
+                                Spacer()
+                                dateMove
+                            }
+                            .padding(.horizontal)
+                            
+                            VStack(spacing: 10) {
+                                iconGrid
+                                    .padding(.bottom, 20)
+                                
+                                chartView
+                                    .padding(.bottom, 20)
+                                babyInfo
+                            }
+                            .padding()
+                            .background(Color(.tertiarySystemBackground))
+                            .cornerRadius(12)
+                            VStack(spacing: 15) {
+                                statisticList
+                            }
                         }
+                        .padding([.bottom, .horizontal])
                     }
-                    .padding([.bottom, .horizontal])
+                    
                 }
             }
             
@@ -164,16 +168,16 @@ struct StatisticView: View {
                                 .scaledToFit()
                                 .padding()
                         }
-
+                        
                         TextField("파일 이름", text: $fileNameInput)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .padding()
-
+                        
                         Button("PDF로 저장 및 공유하기") {
                             let finalName = fileNameInput.isEmpty ? "통계" : fileNameInput
                             let size = image.size
-
-                            self.exportPDF(fileName: finalName, size: size) { url in
+                            
+                            self.exportPDF(image: image, fileName: fileNameInput.isEmpty ? "통계" : fileNameInput) { url in
                                 if let url = url {
                                     DispatchQueue.main.async {
                                         let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
@@ -185,7 +189,7 @@ struct StatisticView: View {
                                     
                                 }
                             }
-
+                            
                             self.isShowingPreview = false
                         }
                         .padding()
@@ -206,8 +210,8 @@ struct StatisticView: View {
             }
             
         }
-
-
+        
+        
     }
     var iconGrid: some View {
         let categories = [
@@ -246,7 +250,8 @@ struct StatisticView: View {
             }
         }
         .pickerStyle(.segmented)
-        //.padding(.bottom)
+        .padding(.top, 10)
+        .padding(.bottom, 20)
         .frame(width: 200)
     }
     private func getTopSafeAreaHeight() -> CGFloat {
@@ -432,31 +437,48 @@ extension TitleCategory {
 }
 
 extension View {
-    func asUIImage(size: CGSize) -> UIImage {
+    func asUIImage() -> UIImage {
         let controller = UIHostingController(rootView: self)
+        controller.view.backgroundColor = .clear
+        
+        let targetSize = CGSize(width: UIScreen.main.bounds.width, height: UIView.layoutFittingCompressedSize.height)
+        let size = controller.view.systemLayoutSizeFitting(targetSize,
+                                                           withHorizontalFittingPriority: .required,
+                                                           verticalFittingPriority: .fittingSizeLevel)
+        
         controller.view.bounds = CGRect(origin: .zero, size: size)
-
+        
+        let window = UIWindow(frame: controller.view.bounds)
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        
+        controller.view.setNeedsLayout()
+        controller.view.layoutIfNeeded()
+        
         let renderer = UIGraphicsImageRenderer(size: size)
         return renderer.image { context in
             controller.view.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
         }
     }
-    
-    func exportPDF(fileName: String, size: CGSize, completion: @escaping (URL?) -> Void) {
-        let image = self.asUIImage(size: size)
-        let pdfRenderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: size))
+
+
+    func exportPDF(image: UIImage, fileName: String, completion: @escaping (URL?) -> Void) {
+        let pdfSize = image.size
+        let pdfRenderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: pdfSize))
         
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(fileName).pdf")
         
         do {
             try pdfRenderer.writePDF(to: url) { context in
                 context.beginPage()
-                image.draw(in: CGRect(origin: .zero, size: size))
+                image.draw(in: CGRect(origin: .zero, size: pdfSize))
             }
             completion(url)
         } catch {
-            print("PDF 생성 실패:", error)
+            print("PDF 생성 실패: \(error)")
             completion(nil)
         }
     }
+
+
 }
