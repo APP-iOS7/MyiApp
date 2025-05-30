@@ -15,7 +15,6 @@ class HomeViewModel: ObservableObject {
     @Published var records: [Record] = []
     @Published var selectedDate: Date = Date()
     @Published var recordToEdit: Record?
-    @Published var showDeleteAlert: Bool = false
     @Published var recordToDelete: Record?
     @Published var isPresented: Bool = false
 
@@ -238,27 +237,6 @@ class HomeViewModel: ObservableObject {
             } else {
                 print("Record successfully deleted")
                 completion?(nil)
-            }
-        }
-    }
-    
-    func showDeleteConfirmation(for record: Record) {
-        recordToDelete = record
-        showDeleteAlert = true
-    }
-    
-    func cancelDelete() {
-        recordToDelete = nil
-        showDeleteAlert = false
-    }
-    
-    func confirmDelete() {
-        if let record = recordToDelete {
-            deleteRecord(record) { error in
-                if error == nil {
-                    self.recordToDelete = nil
-                    self.showDeleteAlert = false
-                }
             }
         }
     }
