@@ -46,11 +46,12 @@ struct BabyInfoCardView: View {
     @State private var selectedHeightEntry: HeightEntry? = nil
     @State private var selectedWeightEntry: WeightEntry? = nil
     var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
+        VStack(alignment: .center, spacing: 15) {
             Text("\(formattedDate(date: selectedDate)) \(baby.name)의 기록 분석")
                 .font(.title2)
                 .bold()
-                .padding(.bottom, 10)
+                .padding(.top, 30)
+                .padding(.bottom, 30)
             Spacer()
             chartComparisonSection()
                 .frame(height: 500)
@@ -129,12 +130,12 @@ struct BabyInfoCardView: View {
                 .foregroundColor(.gray)
             if title == "일별" {
                 DailyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: ["수유\n이유식", "기저귀", "배변", "수면", "목욕", "간식"])
-                    .scaleEffect(0.7, anchor: .center)
-                    .frame(width: 250, height: 130)
+                    .scaleEffect(0.4, anchor: .center)
+                    .frame(width: 320, height: 130)
                     .padding()
             } else if title == "주별" {
                 WeeklyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: ["수유\n이유식", "기저귀", "배변", "수면", "목욕", "간식"])
-                    .frame(height: 500)
+                    .frame(height: 505)
                     .padding(.vertical)
             } else if title == "키" {
                 HeightChartView(
@@ -144,8 +145,8 @@ struct BabyInfoCardView: View {
                     selectedEntry: $selectedHeightEntry
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.3, anchor: .center)
-                .frame(width: 250, height: 100)
+                .scaleEffect(0.5, anchor: .center)
+                .frame(width: 320, height: 100)
                 .padding()
             } else if title == "몸무게" {
                 WeightChartView(
@@ -155,8 +156,8 @@ struct BabyInfoCardView: View {
                     selectedEntry: $selectedWeightEntry
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.3, anchor: .center)
-                .frame(width: 250, height: 100)
+                .scaleEffect(0.5, anchor: .center)
+                .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "분유" {
@@ -168,7 +169,7 @@ struct BabyInfoCardView: View {
                 )
                 .frame(width: 450, height: 300)
                 .scaleEffect(0.3, anchor: .center)
-                .frame(width: 300, height: 100)
+                .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "모유 수유" {
@@ -180,7 +181,7 @@ struct BabyInfoCardView: View {
                 )
                 .frame(width: 450, height: 300)
                 .scaleEffect(0.3, anchor: .center)
-                .frame(width: 300, height: 100)
+                .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "유축 수유" {
@@ -192,7 +193,7 @@ struct BabyInfoCardView: View {
                 )
                 .frame(width: 450, height: 300)
                 .scaleEffect(0.3, anchor: .center)
-                .frame(width: 300, height: 100)
+                .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "이유식" {
@@ -204,7 +205,7 @@ struct BabyInfoCardView: View {
                 )
                 .frame(width: 450, height: 300)
                 .scaleEffect(0.3, anchor: .center)
-                .frame(width: 300, height: 100)
+                .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "소변" {
@@ -216,7 +217,7 @@ struct BabyInfoCardView: View {
                 )
                 .frame(width: 450, height: 300)
                 .scaleEffect(0.3, anchor: .center)
-                .frame(width: 300, height: 100)
+                .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "대변" {
@@ -228,7 +229,7 @@ struct BabyInfoCardView: View {
                 )
                 .frame(width: 450, height: 300)
                 .scaleEffect(0.3, anchor: .center)
-                .frame(width: 300, height: 100)
+                .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "수면 횟수" {
@@ -240,7 +241,7 @@ struct BabyInfoCardView: View {
                 )
                 .frame(width: 450, height: 300)
                 .scaleEffect(0.3, anchor: .center)
-                .frame(width: 300, height: 100)
+                .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "수면 시간" {
@@ -252,7 +253,7 @@ struct BabyInfoCardView: View {
                 )
                 .frame(width: 450, height: 300)
                 .scaleEffect(0.3, anchor: .center)
-                .frame(width: 300, height: 100)
+                .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "기저귀" {
