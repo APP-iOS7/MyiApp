@@ -258,9 +258,9 @@ struct HomeView: View {
                         .onTapGesture {
                             viewModel.recordToEdit = record
                         }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .cancel) {
-                                viewModel.showDeleteConfirmation(for: record)
+                                viewModel.deleteRecord(record)
                             } label: {
                                 Label("삭제", systemImage: "trash")
                                     .foregroundColor(.red)
@@ -287,16 +287,6 @@ struct HomeView: View {
                     EditRecordView(record: record)
                         .presentationDetents(detents)
                 }
-                .alert("기록 삭제", isPresented: $viewModel.showDeleteAlert) {
-                    Button("취소", role: .cancel) {
-                        viewModel.cancelDelete()
-                    }
-                    Button("삭제", role: .destructive) {
-                        viewModel.confirmDelete()
-                    }
-                } message: {
-                    Text("이 기록을 삭제하시겠습니까?")
-                }
             }
         }
         .padding(.horizontal)
@@ -311,8 +301,6 @@ struct HomeView: View {
         return height * 0.1
     }
 }
-
-
 
 #Preview {
     HomeView()

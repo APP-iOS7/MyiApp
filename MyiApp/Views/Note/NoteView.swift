@@ -16,86 +16,93 @@ struct NoteView: View {
     @State private var isFirstAppear = true
     
     var body: some View {
-        VStack(spacing: 0) {
-            
-            CustomNavigationHeader(title: "육아 수첩")
-            
-            ScrollView {
-                VStack(spacing: 0) {
-                    VStack(spacing: 0) {
-                        // 캘린더 헤더
-                        calendarHeaderSection
-                        
-                        // 캘린더 그리드
-                        calendarGridSection
-                            .padding(.bottom, 8)
-                    }
-                    .background(Color(UIColor.tertiarySystemBackground))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                    .padding(.bottom, 15)
+        ZStack {
+            Color("customBackgroundColor")
+                .ignoresSafeArea()
+            VStack(spacing: 0) {
+                SafeAreaPaddingView()
+                    .frame(height: getTopSafeAreaHeight())
+                ScrollView {
                     
-                    // MARK: - 선택된 날짜 이벤트 섹션
-                    VStack(spacing: 0) {
-                        if let selectedDay = viewModel.selectedDay, let date = selectedDay.date {
-                            VStack(spacing: 12) {
-                                HStack {
-                                    Text("\(date.formattedFullKoreanDateString())")
-                                        .font(.headline)
-                                    
-                                    if let anniversary = viewModel.getAnniversaryType(date) {
-                                        Text("\(anniversary.emoji) \(anniversary.text)")
-                                            .font(.subheadline)
-                                            .fontWeight(.medium)
-                                            .foregroundColor(anniversary.color)
-                                            .padding(.horizontal, 8)
-                                            .background(
-                                                Capsule()
-                                                    .fill(anniversary.color.opacity(0.1))
-                                            )
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Button(action: {
-                                        showingNoteEditor = true
-                                    }) {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: "plus.circle.fill")
-                                                .font(.system(size: 20))
-                                            Text("일지/일정 추가")
-                                                .font(.system(size: 16, weight: .medium))
-                                        }
-                                        .foregroundColor(Color.button)
-                                    }
-                                }
-                                .padding(.horizontal)
-                                .padding(.top, 16)
+                    VStack(spacing: 15) {
+                        HStack {
+                            Text("육아 수첩")
+                                .font(.title)
+                                .bold()
+                            Spacer()
+                        }
+                        
+                        VStack(spacing: 15) {
+                            VStack(spacing: 0) {
+                                // 캘린더 헤더
+                                calendarHeaderSection
                                 
-                                // MARK: - 카테고리 필터
-                                categoryFilterSection
-                                    .padding(.top, 4)
-                                    .padding(.horizontal)
-                                
-                                // MARK: - 이벤트 목록
-                                eventsListView(for: date)
-                                    .padding(.top, 8)
-                                    .padding(.bottom, 16)
+                                // 캘린더 그리드
+                                calendarGridSection
+                                    .padding(.bottom, 8)
                             }
-                        } else {
-                            emptyEventsView
-                                .padding(.top, 16)
+                            .background(Color(UIColor.tertiarySystemBackground))
+                            .cornerRadius(12)
+                            
+                            // MARK: - 선택된 날짜 이벤트 섹션
+                            VStack(spacing: 0) {
+                                if let selectedDay = viewModel.selectedDay, let date = selectedDay.date {
+                                    VStack(spacing: 12) {
+                                        HStack {
+                                            Text("\(date.formattedFullKoreanDateString())")
+                                                .font(.headline)
+                                            
+                                            if let anniversary = viewModel.getAnniversaryType(date) {
+                                                Text("\(anniversary.emoji) \(anniversary.text)")
+                                                    .font(.subheadline)
+                                                    .fontWeight(.medium)
+                                                    .foregroundColor(anniversary.color)
+                                                    .padding(.horizontal, 8)
+                                                    .background(
+                                                        Capsule()
+                                                            .fill(anniversary.color.opacity(0.1))
+                                                    )
+                                            }
+                                            
+                                            Spacer()
+                                            
+                                            Button(action: {
+                                                showingNoteEditor = true
+                                            }) {
+                                                HStack(spacing: 4) {
+                                                    Image(systemName: "plus.circle.fill")
+                                                        .font(.system(size: 20))
+                                                    Text("일지/일정 추가")
+                                                        .font(.system(size: 16, weight: .medium))
+                                                }
+                                                .foregroundColor(Color.button)
+                                            }
+                                        }
+                                        .padding(.horizontal)
+                                        .padding(.top, 16)
+                                        
+                                        // MARK: - 카테고리 필터
+                                        categoryFilterSection
+                                            .padding(.top, 4)
+                                            .padding(.horizontal)
+                                        
+                                        // MARK: - 이벤트 목록
+                                        eventsListView(for: date)
+                                            .padding(.top, 8)
+                                            .padding(.bottom, 16)
+                                    }
+                                } else {
+                                    emptyEventsView
+                                        .padding(.top, 16)
+                                }
+                            }
+                            .background(Color(UIColor.tertiarySystemBackground))
+                            .cornerRadius(12)
                         }
                     }
-                    .background(Color(UIColor.tertiarySystemBackground))
-                    .cornerRadius(12)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                    .padding(.bottom, 16)
+                    .padding()
                 }
             }
-            .background(Color("customBackgroundColor"))
         }
         .sheet(isPresented: $showingNoteEditor, onDismiss: {
             viewModel.objectWillChange.send()
@@ -142,61 +149,18 @@ struct NoteView: View {
     // MARK: - 캘린더 헤더 섹션
     private var calendarHeaderSection: some View {
         VStack(spacing: 0) {
-            ZStack {
-                HStack {
-                    Button(action: {
-                        viewModel.changeMonth(by: -1)
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .font(.title3)
-                            .foregroundColor(.primary)
-                    }
-                    
-                    Spacer()
-                    
-                    HStack {
-                        Image(systemName: "calendar")
-                            .foregroundColor(.primary)
-                        
-                        Text(viewModel.currentMonth)
-                            .font(.title3)
-                            .foregroundColor(.primary)
-                    }
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        viewModel.changeMonth(by: 1)
-                    }) {
-                        Image(systemName: "chevron.right")
-                            .font(.title3)
-                            .foregroundColor(.primary)
-                    }
-                    
-                    Spacer()
-                    Spacer()
-                    
-                    VStack {
-                        if viewModel.selectedDay?.date != nil &&
-                            !Calendar.current.isDateInToday(viewModel.selectedDay?.date ?? Date()) {
-                            Button(action: {
-                                selectToday()
-                            }) {
-                                Text("오늘")
-                                    .font(.subheadline)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
-                                    .foregroundColor(.primary)
-                                    .background(
-                                        Capsule().stroke(Color.primary, lineWidth: 1)
-                                    )
-                            }
-                        } else {
-                            Text("")
-                        }
-                    }
-                    .frame(width: 60)
+            HStack(spacing: 0) {
+                Button(action: {
+                    viewModel.changeMonth(by: -1)
+                }) {
+                    Image(systemName: "chevron.left")
+                        .font(.title3)
+                        .foregroundColor(.primary)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
                 }
+                
+                Spacer()
                 
                 DatePicker(
                     "",
@@ -205,10 +169,60 @@ struct NoteView: View {
                 )
                 .datePickerStyle(.compact)
                 .labelsHidden()
-                .frame(width: 200, height: 30)
-                .blendMode(.destinationOver)
+                .frame(width: 140, height: 44)
+                .accentColor(.clear)
+                .colorMultiply(.clear)
+                .overlay(
+                    HStack(spacing: 4) {
+                        Image(systemName: "calendar")
+                            .foregroundColor(.primary)
+                        
+                        Text(viewModel.currentMonth)
+                            .font(.title3)
+                            .foregroundColor(.primary)
+                    }
+                    .allowsHitTesting(false)
+                    .background(Color(UIColor.tertiarySystemBackground))
+                )
                 .onChange(of: viewModel.selectedMonth) {
                     viewModel.fetchCalendarDays()
+                }
+                
+                Spacer()
+                
+                Button(action: {
+                    viewModel.changeMonth(by: 1)
+                }) {
+                    Image(systemName: "chevron.right")
+                        .font(.title3)
+                        .foregroundColor(.primary)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+                
+                Spacer()
+                Spacer()
+                
+                Group {
+                    if viewModel.selectedDay?.date != nil &&
+                        !Calendar.current.isDateInToday(viewModel.selectedDay?.date ?? Date()) {
+                        Button(action: {
+                            selectToday()
+                        }) {
+                            Text("오늘")
+                                .font(.subheadline)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .foregroundColor(.primary)
+                                .background(
+                                    Capsule().stroke(Color.primary, lineWidth: 1)
+                                )
+                        }
+                        .frame(width: 60)
+                    } else {
+                        Color.clear
+                            .frame(width: 60, height: 44)
+                    }
                 }
             }
             .padding(.horizontal)
@@ -308,22 +322,18 @@ struct NoteView: View {
             
             if filteredEvents.isEmpty {
                 return AnyView(
-                    VStack {
-                        Image(systemName: "magnifyingglass")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 40, height: 40)
-                            .foregroundColor(Color("sharkPrimaryLight"))
-                            .padding(.top, 20)
+                    VStack(spacing: 10) {
+                        Image(systemName: "doc.text.magnifyingglass")
+                            .font(.largeTitle)
+                            .foregroundColor(.gray)
                         
                         Text("해당 카테고리의 기록이 없습니다.")
-                            .font(.headline)
                             .foregroundColor(.gray)
                             .frame(maxWidth: .infinity)
-                            .padding(.top, 8)
                     }
-                        .frame(height: 150)
-                        .padding(.vertical, 12)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 97)
+                        .padding(.vertical, 8)
                 )
             } else {
                 return AnyView(
@@ -338,7 +348,7 @@ struct NoteView: View {
                                 .onTapGesture {
                                     selectedEvent = event
                                 }
-                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
                                         deleteNote(event)
                                     } label: {
@@ -360,18 +370,12 @@ struct NoteView: View {
     }
     
     private var emptyEventsView: some View {
-        VStack {
-            Image(systemName: "note.text")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 50, height: 50)
+        VStack(spacing: 10) {
+            Image(systemName: "doc.text.magnifyingglass")
+                .font(.largeTitle)
                 .foregroundColor(.gray)
-                .padding(.top, 4)
-            
-            Text("기록된 일지가 없습니다.")
-                .font(.headline)
+            Text("기록된 일지가 없습니다")
                 .foregroundColor(.gray)
-                .padding(.top, 8)
         }
         .frame(maxWidth: .infinity)
         .frame(height: 97)

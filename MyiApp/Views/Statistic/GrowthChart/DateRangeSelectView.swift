@@ -46,7 +46,7 @@ struct DateRangeSelectView: View {
                     )
                     .datePickerStyle(.compact)
                     .labelsHidden()
-                    .frame(width: 180, height: 30)
+                    .frame(height: 30)
                     .blendMode(.destinationOver)
                 }
                 
@@ -78,7 +78,7 @@ struct DateRangeSelectView: View {
                     )
                     .datePickerStyle(.compact)
                     .labelsHidden()
-                    .frame(width: 180, height: 30)
+                    .frame(height: 30)
                     .blendMode(.destinationOver)
                 }
                 
