@@ -47,21 +47,24 @@ struct VoiceRecordView: View {
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            VStack {
-                HStack {
+            VStack(spacing: 0) {
+                SafeAreaPaddingView()
+                    .frame(height: getTopSafeAreaHeight())
+                
+                HStack(alignment: .center, spacing: 10) {
                     Text("울음분석")
                         .font(.title)
                         .bold()
 
                     Spacer()
 
-                    Button(action: {
-                        showResultList.toggle()
-                    }) {
-                        Image(systemName: "list.bullet")
-                            .imageScale(.large)
-                            .foregroundColor(.primary)
-                    }
+                    Image(systemName: "list.bullet")
+                        .foregroundColor(.primary)
+                        .font(.title2)
+                        .padding(.leading)
+                        .onTapGesture {
+                            showResultList.toggle()
+                        }
                 }
                 .padding([.top, .horizontal])
 
@@ -77,6 +80,7 @@ struct VoiceRecordView: View {
                     Text("시작 버튼을 누른 후 아이의 울음소리를 들려주세요")
                         .font(.body)
                         .multilineTextAlignment(.center)
+                        .lineSpacing(6)
                         .padding(.horizontal)
                         .padding(.bottom, 20)
 
@@ -84,6 +88,7 @@ struct VoiceRecordView: View {
                         .font(.footnote)
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
+                        .lineSpacing(4)
                         .padding(.horizontal)
                         .padding(.bottom, 10)
 
@@ -91,6 +96,7 @@ struct VoiceRecordView: View {
                         .font(.footnote)
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
+                        .lineSpacing(4)
                         .padding(.horizontal)
                         .padding(.bottom, 10)
 
@@ -98,6 +104,7 @@ struct VoiceRecordView: View {
                         .font(.footnote)
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
+                        .lineSpacing(4)
                         .padding(.horizontal)
                         .padding(.bottom, 20)
 
@@ -110,7 +117,7 @@ struct VoiceRecordView: View {
 
                 Spacer()
             }
-            .background(Color(UIColor.systemGroupedBackground))
+            .background(Color("customBackgroundColor"))
             .safeAreaInset(edge: .bottom) {
                 Button(action: {
                     viewModel.resetAnalysisState()
@@ -128,7 +135,7 @@ struct VoiceRecordView: View {
                         .background(Color("buttonColor"))
                         .cornerRadius(12)
                         .padding(.horizontal)
-                        .padding(.bottom, 16)
+                        .padding(.bottom, 8)
                 }
             }
             .navigationDestination(for: CryRoute.self) { route in
