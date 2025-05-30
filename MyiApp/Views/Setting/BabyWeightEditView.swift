@@ -62,6 +62,7 @@ struct BabyWeightEditView: View {
                                 .padding()
                         )
                         .focused($isTextFieldFocused)
+                        .padding(.bottom)
                     
                     if selectedWeight != nil {
                         HStack(spacing: 15) {
@@ -79,18 +80,19 @@ struct BabyWeightEditView: View {
                         .padding(.trailing, 20)
                     }
                 }
-                Spacer()
-                
             }
             .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(UIColor.tertiarySystemBackground))
-                )
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(UIColor.tertiarySystemBackground))
+            )
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .padding(.horizontal)
+            .navigationTitle(Text("몸무게"))
             .navigationBarTitleDisplayMode(.inline)
-            .safeAreaInset(edge: .bottom) {
-                if keyboardHeight > 0 {
+            
+            Spacer()
+            
+                .safeAreaInset(edge: .bottom) {
                     VStack {
                         Button(action: {
                             if let weight = selectedWeight, weight > 0 {
@@ -111,34 +113,19 @@ struct BabyWeightEditView: View {
                         .contentShape(Rectangle())
                         .disabled(!isButtonEnabled)
                     }
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(UIColor.tertiarySystemBackground))
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding()
                 }
-            }
-            .animation(.easeInOut, value: keyboardHeight)
-            .onAppear {
-                // 키보드 높이 감지
-                NotificationCenter.default.addObserver(
-                    forName: UIResponder.keyboardWillShowNotification,
-                    object: nil,
-                    queue: .main
-                ) { notification in
-                    if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                        keyboardHeight = keyboardFrame.height
-                    }
-                }
-                NotificationCenter.default.addObserver(
-                    forName: UIResponder.keyboardWillHideNotification,
-                    object: nil,
-                    queue: .main
-                ) { _ in
-                    keyboardHeight = 0
-                }
-            }
-            .onDisappear {
-                // 노티피케이션 제거
-                NotificationCenter.default.removeObserver(self)
-            }
         }
         .background(Color("customBackgroundColor"))
+        .contentShape(Rectangle())
+        .onTapGesture {
+            isTextFieldFocused = false
+        }
     }
 }
 

@@ -11,7 +11,6 @@ struct BabyNameEditView: View {
     @StateObject var viewModel: BabyProfileViewModel
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isTextFieldFocused: Bool
-    @State private var keyboardHeight: CGFloat = 0
     @State private var selectedName: String
     private var isButtonEnabled: Bool {
         selectedName.trimmingCharacters(in: .whitespaces).isEmpty == false
@@ -51,6 +50,7 @@ struct BabyNameEditView: View {
                             }
                                 .padding()
                         )
+                        .padding(.bottom)
                         .submitLabel(.done)
                         .onSubmit {
                             viewModel.baby.name = selectedName
@@ -80,19 +80,19 @@ struct BabyNameEditView: View {
                         .font(.caption)
                         .padding(.leading, 18)
                 }
-                
-                Spacer()
-                
             }
             .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(UIColor.tertiarySystemBackground))
-                )
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(UIColor.tertiarySystemBackground))
+            )
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .padding(.horizontal)
+            .navigationTitle(Text("이름 / 태명"))
             .navigationBarTitleDisplayMode(.inline)
-            .safeAreaInset(edge: .bottom) {
-                if keyboardHeight > 0 {
+            
+            Spacer()
+            
+                .safeAreaInset(edge: .bottom) {
                     VStack {
                         Button(action: {
                             viewModel.baby.name = selectedName
@@ -114,34 +114,19 @@ struct BabyNameEditView: View {
                         .contentShape(Rectangle())
                         .disabled(!isButtonEnabled)
                     }
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(UIColor.tertiarySystemBackground))
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding()
                 }
-            }
-            .animation(.easeInOut, value: keyboardHeight)
-            .onAppear {
-                // 키보드 높이 감지
-                NotificationCenter.default.addObserver(
-                    forName: UIResponder.keyboardWillShowNotification,
-                    object: nil,
-                    queue: .main
-                ) { notification in
-                    if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                        keyboardHeight = keyboardFrame.height
-                    }
-                }
-                NotificationCenter.default.addObserver(
-                    forName: UIResponder.keyboardWillHideNotification,
-                    object: nil,
-                    queue: .main
-                ) { _ in
-                    keyboardHeight = 0
-                }
-            }
-            .onDisappear {
-                // 노티피케이션 제거
-                NotificationCenter.default.removeObserver(self)
-            }
         }
         .background(Color("customBackgroundColor"))
+        .contentShape(Rectangle())
+        .onTapGesture {
+            isTextFieldFocused = false
+        }
     }
 }
 

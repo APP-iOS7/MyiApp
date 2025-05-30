@@ -31,42 +31,42 @@ struct BabyBirthTimeEditView: View {
                     DatePicker("출생 시간", selection: $selectedTime, displayedComponents: [.hourAndMinute])
                         .labelsHidden()
                         .datePickerStyle(.wheel)
+                        .tint(Color("buttonColor"))
                         .padding()
                         .foregroundColor(.primary.opacity(0.6))
                         .environment(\.locale, Locale(identifier: "ko_KR"))
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
-                
-                Spacer()
-                
-                VStack {
-                    Button(action: {
-                        viewModel.baby.birthDate = selectedTime
-                        Task {
-                            await viewModel.saveProfileEdits()
-                            dismiss()
-                        }
-                    }) {
-                        Text("완료")
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .font(.headline)
-                            .background(Color("buttonColor"))
-                            .cornerRadius(12)
-                    }
-                    .contentShape(Rectangle())
-                    .padding()
-                }
+                .padding()                
             }
             .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(UIColor.tertiarySystemBackground))
-                )
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(UIColor.tertiarySystemBackground))
+            )
+            
+            Spacer()
+            
+            Button(action: {
+                viewModel.baby.birthDate = selectedTime
+                Task {
+                    await viewModel.saveProfileEdits()
+                    dismiss()
+                }
+            }) {
+                Text("완료")
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .font(.headline)
+                    .background(Color("buttonColor"))
+                    .cornerRadius(12)
+            }
+            
+            .contentShape(Rectangle())
+            .navigationTitle(Text("출생 시간"))
             .navigationBarTitleDisplayMode(.inline)
         }
-        .padding()
+        .padding(.horizontal)
         .background(Color("customBackgroundColor"))
     }
 }

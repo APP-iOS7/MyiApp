@@ -59,37 +59,41 @@ struct BabyGenderEditView: View {
                         selectedGender = .female
                     }
                 }
-                
-                Spacer()
-                
-                VStack {
-                    Button(action: {
-                        viewModel.baby.gender = selectedGender
-                        Task {
-                            await viewModel.saveProfileEdits()
-                            dismiss()
-                        }
-                    }) {
-                        Text("완료")
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .font(.headline)
-                            .background(Color("buttonColor"))
-                            .cornerRadius(12)
-                    }
-                    .contentShape(Rectangle())
-                    .padding()
-                }
-            }
-            .background(
+                .padding(.bottom)
+                .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(Color(UIColor.tertiarySystemBackground))
                 )
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(UIColor.tertiarySystemBackground))
+            )
             .clipShape(RoundedRectangle(cornerRadius: 12))
+            .navigationTitle(Text("성별"))
             .navigationBarTitleDisplayMode(.inline)
+            
+            Spacer()
+            
+            Button(action: {
+                viewModel.baby.gender = selectedGender
+                Task {
+                    await viewModel.saveProfileEdits()
+                    dismiss()
+                }
+            }) {
+                Text("완료")
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .font(.headline)
+                    .background(Color("buttonColor"))
+                    .cornerRadius(12)
+            }
+            .contentShape(Rectangle())
         }
-        .padding()
+        .padding(.horizontal)
         .background(Color("customBackgroundColor"))
     }
 }

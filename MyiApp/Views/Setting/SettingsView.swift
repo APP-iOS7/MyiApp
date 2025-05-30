@@ -48,10 +48,6 @@ struct SettingsView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            SafeAreaPaddingView()
-                .frame(height: getTopSafeAreaHeight())
-                .background(Color.customBackground)
             ScrollView {
                 VStack(spacing: 15) {
                     NavigationLink(destination: AccountEditView(viewModel: viewModel)) {
@@ -174,7 +170,7 @@ struct SettingsView: View {
                         //                    }
                     }
                     .background(Color(UIColor.tertiarySystemBackground))
-                    .cornerRadius(10)
+                    .cornerRadius(12)
                     .padding(.horizontal)
                     
                     VStack(alignment: .leading, spacing: 0) {
@@ -223,7 +219,7 @@ struct SettingsView: View {
                         }
                     }
                     .background(Color(UIColor.tertiarySystemBackground))
-                    .cornerRadius(10)
+                    .cornerRadius(12)
                     .padding(.horizontal)
                     
                     VStack(alignment: .leading, spacing: 0) {
@@ -250,7 +246,7 @@ struct SettingsView: View {
                         .padding(.bottom, 10)
                     }
                     .background(Color(UIColor.tertiarySystemBackground))
-                    .cornerRadius(10)
+                    .cornerRadius(12)
                     .padding(.horizontal)
                     
                     VStack(spacing: -10) {
@@ -262,7 +258,7 @@ struct SettingsView: View {
                         }
                         .padding()
                         .background(Color(UIColor.tertiarySystemBackground))
-                        .cornerRadius(10)
+                        .cornerRadius(12)
                         .padding(.horizontal)
                         .padding(.bottom)
                         
@@ -322,7 +318,7 @@ struct SettingsView: View {
             .task {
                 await caregiverManager.loadCaregiverInfo()
             }
-        }
+        
     }
     private func getTopSafeAreaHeight() -> CGFloat {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
