@@ -10,7 +10,6 @@ import SwiftUI
 struct NewBabyRegisterView: View {
     @StateObject private var viewModel = RegisterBabyViewModel()
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var databaseService: DatabaseService
     
     @FocusState private var focusedField: Field?
     private enum Field: Hashable {
@@ -424,7 +423,7 @@ struct NewBabyRegisterView: View {
                     Task {
                         await viewModel.registerBaby()
                         if viewModel.isRegistered {
-                            databaseService.hasBabyInfo = true
+                            DatabaseService.shared.hasBabyInfo = true
                             popToRootViewController()
                         } else if let error = viewModel.errorMessage {
                             print("등록 실패: \(error)")
@@ -483,7 +482,6 @@ extension UIViewController {
 #Preview {
     NavigationStack {
         NewBabyRegisterView()
-            .environmentObject(DatabaseService.shared)
     }
 }
 

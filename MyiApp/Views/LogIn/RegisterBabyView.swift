@@ -12,7 +12,6 @@ struct RegisterBabyView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var selectedForm: RegistrationType? = nil
     @State private var navigateToNextView = false
-    @EnvironmentObject var databaseService: DatabaseService
     
     var body: some View {
         VStack {
@@ -82,7 +81,6 @@ struct RegisterBabyView: View {
                 .disabled(selectedForm == nil)
                 .navigationDestination(isPresented: $navigateToNextView) {
                     destinationView()
-                        .environmentObject(databaseService)
                 }
         }
         .padding(.horizontal)
@@ -99,10 +97,8 @@ struct RegisterBabyView: View {
         switch selectedForm {
         case .newBaby:
             NewBabyRegisterView()
-                .environmentObject(databaseService)
         case .existingBaby:
             ExistingBabyRegisterView()
-                .environmentObject(databaseService)
         case .none:
             EmptyView()
         }
