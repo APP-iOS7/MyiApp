@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct StatisticView: View {
     @ObservedObject var viewModel = StatisticViewModel()
@@ -62,6 +63,16 @@ struct StatisticView: View {
         }
     }
     
+    @State private var previewImage: UIImage? = nil
+    @State private var isShowingPreview = false
+    @State private var fileNameInput: String = ""
+    
+    private var defaultFileName: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        return "\(formatter.string(from: Date()))_통계"
+    }
+    
     var body: some View {
         ZStack {
             Color("customBackgroundColor")
@@ -71,48 +82,67 @@ struct StatisticView: View {
                     .frame(height: getTopSafeAreaHeight())
                 
                 ScrollView {
-                    HStack {
-                        Text("통계")
-                            .font(.title)
-                            .bold()
-                        Spacer()
-                        NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
-                            Image(systemName: "chart.xyaxis.line")
+                    VStack(spacing: 5) {
+                        HStack(alignment: .bottom, spacing: 10) {
+                            Text("통계")
+                                .font(.title)
+                                .bold()
+                            Spacer()
+                            Image(systemName: "square.and.arrow.up")
                                 .foregroundColor(.primary)
                                 .font(.title2)
+                                .onTapGesture {
+                                    DispatchQueue.main.async {
+                                        let babyInfoView = BabyInfoCardView(baby: baby, records: records)
+                                        let image = babyInfoView.asUIImage()
+                                        
+                                        self.previewImage = image
+                                        
+                                        let formatter = DateFormatter()
+                                        formatter.dateFormat = "yyyyMMdd"
+                                        self.fileNameInput = "\(formatter.string(from: Date()))_통계"
+                                        
+                                        self.isShowingPreview = true
+                                    }
+                                }
+                            
+                            NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
+                                Image(systemName: "chart.xyaxis.line")
+                                    .foregroundColor(.primary)
+                                    .font(.title2)
+                            }
+                            
                         }
+                        .padding([.top, .horizontal])
                         
-                    }
-                    //.padding(.bottom, 15)
-                    .padding([.top, .horizontal])
-                    //.padding(.horizontal)
-                    VStack(spacing: 15) {
                         
-                        VStack(spacing: 10) {
-                            toggleMode
-                                .padding(.vertical, 10)
-                            
-                            dateMove
-                                .padding(.vertical, 10)
-                            
-                            
-                            
-                            iconGrid
-                                .padding(.bottom, 20)
-                            
-                            chartView
-                                .padding(.bottom, 20)
-                            babyInfo
-                        }
-                        .padding()
-                        .background(Color(.tertiarySystemBackground))
-                        .cornerRadius(12)
                         VStack(spacing: 15) {
                             
-                            statisticList
+                            VStack() {
+                                toggleMode
+                                Spacer()
+                                dateMove
+                            }
+                            .padding(.horizontal)
+                            
+                            VStack(spacing: 10) {
+                                iconGrid
+                                    .padding(.bottom, 20)
+                                
+                                chartView
+                                    .padding(.bottom, 20)
+                                babyInfo
+                            }
+                            .padding()
+                            .background(Color(.tertiarySystemBackground))
+                            .cornerRadius(12)
+                            VStack(spacing: 15) {
+                                statisticList
+                            }
                         }
+                        .padding([.bottom, .horizontal])
                     }
-                    .padding([.bottom, .horizontal])
+                    
                 }
             }
             
@@ -128,6 +158,60 @@ struct StatisticView: View {
                     }
                 }
         )
+        .sheet(isPresented: $isShowingPreview) {
+            NavigationView {
+                VStack {
+                    if let image = previewImage {
+                        ScrollView([.vertical, .horizontal]) {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFit()
+                                .padding()
+                        }
+                        
+                        TextField("파일 이름", text: $fileNameInput)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .padding()
+                        
+                        Button("PDF로 저장 및 공유하기") {
+                            let finalName = fileNameInput.isEmpty ? "통계" : fileNameInput
+                            let size = image.size
+                            
+                            self.exportPDF(image: image, fileName: fileNameInput.isEmpty ? "통계" : fileNameInput) { url in
+                                if let url = url {
+                                    DispatchQueue.main.async {
+                                        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                                        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                           let rootVC = scene.windows.first?.rootViewController {
+                                            rootVC.present(activityVC, animated: true, completion: nil)
+                                        }
+                                    }
+                                    
+                                }
+                            }
+                            
+                            self.isShowingPreview = false
+                        }
+                        .padding()
+                    } else {
+                        Text("미리보기 이미지를 불러올 수 없습니다.")
+                    }
+                }
+                .padding()
+                .navigationTitle("PDF 미리보기")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("취소") {
+                            self.isShowingPreview = false
+                        }
+                    }
+                }
+            }
+            
+        }
+        
+        
     }
     var iconGrid: some View {
         let categories = [
@@ -166,8 +250,9 @@ struct StatisticView: View {
             }
         }
         .pickerStyle(.segmented)
-        .padding()
-        .frame(width: 200, height: 50)
+        .padding(.top, 10)
+        .padding(.bottom, 20)
+        .frame(width: 200)
     }
     private func getTopSafeAreaHeight() -> CGFloat {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -349,4 +434,51 @@ extension TitleCategory {
             return ""
         }
     }
+}
+
+extension View {
+    func asUIImage() -> UIImage {
+        let controller = UIHostingController(rootView: self)
+        controller.view.backgroundColor = .clear
+        
+        let targetSize = CGSize(width: UIScreen.main.bounds.width, height: UIView.layoutFittingCompressedSize.height)
+        let size = controller.view.systemLayoutSizeFitting(targetSize,
+                                                           withHorizontalFittingPriority: .required,
+                                                           verticalFittingPriority: .fittingSizeLevel)
+        
+        controller.view.bounds = CGRect(origin: .zero, size: size)
+        
+        let window = UIWindow(frame: controller.view.bounds)
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        
+        controller.view.setNeedsLayout()
+        controller.view.layoutIfNeeded()
+        
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { context in
+            controller.view.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
+        }
+    }
+
+
+    func exportPDF(image: UIImage, fileName: String, completion: @escaping (URL?) -> Void) {
+        let pdfSize = image.size
+        let pdfRenderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: pdfSize))
+        
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(fileName).pdf")
+        
+        do {
+            try pdfRenderer.writePDF(to: url) { context in
+                context.beginPage()
+                image.draw(in: CGRect(origin: .zero, size: pdfSize))
+            }
+            completion(url)
+        } catch {
+            print("PDF 생성 실패: \(error)")
+            completion(nil)
+        }
+    }
+
+
 }
