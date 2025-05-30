@@ -104,8 +104,8 @@ private struct ProcessingStateView: View {
             Button(action: {
                 print("[ProcessingView] 취소 버튼 클릭됨")
                 viewModel.cancel()
+                viewModel.resetAnalysisState()
                 
-                // 약간의 지연 후 dismiss하여 상태 정리가 완료되도록 함
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     dismiss()
                 }

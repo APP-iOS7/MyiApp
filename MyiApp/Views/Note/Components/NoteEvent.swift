@@ -83,12 +83,12 @@ struct NoteEventList: View {
     private var emptyStateView: some View {
         VStack {
             Spacer()
-            VStack(spacing: 16) {
+            VStack(spacing: 10) {
                 Image(systemName: "doc.text.magnifyingglass")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 50, height: 50)
-                    .foregroundColor(Color("sharkPrimaryLight"))
+                    .foregroundColor(Color.gray)
                 
                 Text(filteredCategory == nil ?
                      "이 날의 기록이 없습니다." :
@@ -136,7 +136,7 @@ struct NoteEventListRow: View {
                         .setProcessor(DownsamplingImageProcessor(size: CGSize(width: 80, height: 80)))
                         .scaleFactor(UIScreen.main.scale)
                         .fade(duration: 0.25)
-                        .forceRefresh()
+                        .cacheOriginalImage()
                         .resizable()
                         .scaledToFill()
                         .frame(width: 40, height: 40)
