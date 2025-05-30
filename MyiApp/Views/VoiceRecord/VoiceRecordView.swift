@@ -106,14 +106,15 @@ struct VoiceRecordView: View {
 
                     Spacer(minLength: 16)
                 }
-                .frame(width: UIScreen.main.bounds.width - 40)
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
                 .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(12)
                 .padding(.top, 16)
 
                 Spacer()
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal)
             .background(Color("customBackgroundColor"))
             .safeAreaInset(edge: .bottom) {
                 Button(action: {
@@ -131,7 +132,7 @@ struct VoiceRecordView: View {
                         .frame(height: 50)
                         .background(Color("buttonColor"))
                         .cornerRadius(12)
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal)
                         .padding(.bottom, 8)
                 }
             }
