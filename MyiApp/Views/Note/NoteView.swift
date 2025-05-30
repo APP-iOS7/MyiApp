@@ -323,7 +323,7 @@ struct NoteView: View {
             if filteredEvents.isEmpty {
                 return AnyView(
                     VStack(spacing: 10) {
-                        Image(systemName: "magnifyingglass")
+                        Image(systemName: "doc.text.magnifyingglass")
                             .font(.largeTitle)
                             .foregroundColor(.gray)
                         
