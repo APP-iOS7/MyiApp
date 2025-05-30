@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct StatisticView: View {
     @ObservedObject var viewModel = StatisticViewModel()
@@ -31,6 +32,8 @@ struct StatisticView: View {
     @State private var selectedDate = Date()
     @State private var selectedMode = "일"
     let modes = ["일", "주"]
+    
+    @FocusState private var isContentFieldFocused: Bool
     
     private var formattedDateString: String {
         let formatter = DateFormatter()
@@ -62,6 +65,16 @@ struct StatisticView: View {
         }
     }
     
+    @State private var previewImage: UIImage? = nil
+    @State private var isShowingPreview = false
+    @State private var fileNameInput: String = ""
+    
+    private var defaultFileName: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd"
+        return "\(formatter.string(from: Date()))_통계"
+    }
+    
     var body: some View {
         ZStack {
             Color("customBackgroundColor")
@@ -69,51 +82,72 @@ struct StatisticView: View {
             VStack(spacing: 0) {
                 SafeAreaPaddingView()
                     .frame(height: getTopSafeAreaHeight())
+                
                 ScrollView {
-                    
-                    VStack(spacing: 15) {
-                        HStack {
+                    VStack(spacing: 5) {
+                        HStack(alignment: .center, spacing: 15) {
                             Text("통계")
                                 .font(.title)
                                 .bold()
                             Spacer()
+                                                        
                             NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
                                 Image(systemName: "chart.xyaxis.line")
                                     .foregroundColor(.primary)
                                     .font(.title2)
                             }
                             
+                            Image(systemName: "square.and.arrow.up")
+                                .foregroundColor(.primary)
+                                .font(.title2)
+                                .onTapGesture {
+                                    DispatchQueue.main.async {
+                                        let babyInfoView = BabyInfoCardView(baby: baby, records: records, selectedDate: selectedDate)
+                                        let image = babyInfoView.asUIImage()
+                                        
+                                        self.previewImage = image
+                                        
+                                        let formatter = DateFormatter()
+                                        formatter.dateFormat = "yyyyMMdd"
+                                        self.fileNameInput = "\(formatter.string(from: selectedDate))_통계"
+                                        
+                                        self.isShowingPreview = true
+                                    }
+                                }
                         }
+                        .padding(.top, 14)
+                        .padding(.bottom, 10)
                         .padding(.horizontal)
-                        .padding(.trailing, 7)
-                        VStack(spacing: 10) {
-                            toggleMode
-                                .padding(.vertical, 10)
-                            
-                            dateMove
-                                .padding(.vertical, 10)
-                            
-                            
-                            
-                            iconGrid
-                                .padding(.bottom, 20)
-                            
-                            chartView
-                                .padding(.bottom, 20)
-                            babyInfo
-                        }
-                        .padding()
-                        .background(Color(.tertiarySystemBackground))
-                        .cornerRadius(12)
+                        
                         VStack(spacing: 15) {
-                            
-                            statisticList
+                            VStack(spacing: 0) {
+                                VStack() {
+                                    toggleMode
+                                    Spacer()
+                                    dateMove
+                                }
+                                .padding(.horizontal)
+                                .padding(.bottom, 16)
+                                iconGrid
+                                    .padding(.bottom, 20)
+                                
+                                chartView
+                                    .padding(.top, 10)
+                                babyInfo
+                                    .padding(.bottom, 10)
+                            }
+                            .padding()
+                            .background(Color(.tertiarySystemBackground))
+                            .cornerRadius(12)
+                            VStack(spacing: 15) {
+                                statisticList
+                            }
                         }
+                        .padding([.bottom, .horizontal])
                     }
-                    .padding()
+                    
                 }
             }
-            
         }
         .gesture(
             DragGesture()
@@ -126,7 +160,87 @@ struct StatisticView: View {
                     }
                 }
         )
+        .sheet(isPresented: $isShowingPreview) {
+            NavigationView {
+                ZStack {
+                    Color("customBackgroundColor")
+                        .ignoresSafeArea()
+                    VStack {
+                        if let image = previewImage {
+                            ScrollView([.vertical, .horizontal]) {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .padding()
+                            }
+                            .padding()
+                            Form {
+                                Section(header: Text("파일 이름")) {
+                                    TextField("파일 이름을 입력하세요", text: $fileNameInput)
+                                        .focused($isContentFieldFocused)
+                                        .toolbar {
+                                            ToolbarItemGroup(placement: .keyboard) {
+                                                Spacer()
+                                                Button {
+                                                    isContentFieldFocused = false
+                                                    hideKeyboard()
+                                                } label: {
+                                                    Text("완료")
+                                                }
+                                            }
+                                        }
+                                }
+                            }
+                            .frame(height: 100)
+                            Button(action: {
+                                self.exportPDF(image: image, fileName: fileNameInput.isEmpty ? "통계" : fileNameInput) { url in
+                                    if let url = url {
+                                        DispatchQueue.main.async {
+                                            let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                                            if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                               let rootVC = scene.windows.first?.rootViewController {
+                                                rootVC.present(activityVC, animated: true, completion: nil)
+                                            }
+                                        }
+                                        
+                                    }
+                                }
+                                
+                                self.isShowingPreview = false
+                            }) {
+                                Text("PDF로 저장 및 공유하기")
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .font(.headline)
+                                    .frame(height: 50)
+                                    .background(Color("buttonColor"))
+                                    .cornerRadius(12)
+                                    .padding(.bottom, 8)
+                            }
+                            .padding()
+                        } else {
+                            ProgressView("이미지를 불러오는 중입니다...")
+                                .padding()
+                            Button("다시 시도하기") {
+                                let babyInfoView = BabyInfoCardView(baby: baby, records: records, selectedDate: selectedDate)
+                                previewImage = babyInfoView.asUIImage()
+                            }
+                        }
+                    }
+                    .navigationTitle("PDF 미리보기")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button("취소") {
+                                self.isShowingPreview = false
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
+    
     var iconGrid: some View {
         let categories = [
             ("수유\n이유식", UIImage.colorMeal, Color("food")),
@@ -164,8 +278,9 @@ struct StatisticView: View {
             }
         }
         .pickerStyle(.segmented)
-        .padding()
-        .frame(width: 200, height: 50)
+        .padding(.top, 10)
+        .padding(.bottom, 20)
+        .frame(width: 200)
     }
     private func getTopSafeAreaHeight() -> CGFloat {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -221,14 +336,16 @@ struct StatisticView: View {
                 WeeklyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: selectedCategories)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(.trailing)
-                    .padding(.vertical, 20)
+                    .padding(.top, 9)
+                    .padding(.bottom, 40)
                 
             } else if selectedMode == "일" {
                 GeometryReader { geometry in
                     DailyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: selectedCategories)
                         .frame(width: geometry.size.width * 0.9, height: geometry.size.width * 0.9)
                         .padding(.horizontal)
-                        .padding(.vertical, 20)
+                        .padding(.top, 9)
+                    //.padding(.bottom, 8)
                 }
                 .frame(height: UIScreen.main.bounds.width * 0.9)
                 
@@ -250,7 +367,7 @@ struct StatisticView: View {
         let ageInYears = (ageComponents.year ?? 0) + 1
         let fullAge = getFullAge(from: baby.birthDate)
         
-        return Text("\(genderText) · \(months)개월 \(days)일, \(ageInYears)살(만 \(fullAge)세)")
+        return Text("\(baby.name) · \(genderText) · \(months)개월 \(days)일, \(ageInYears)살(만 \(fullAge)세)")
             .font(.subheadline)
             .foregroundColor(.gray)
             .padding(.horizontal)
@@ -300,7 +417,7 @@ struct IconItem: View {
     var body: some View {
         HStack(spacing: 8) {
             ZStack {
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 8)
                     .fill((Color(.tertiarySystemBackground)))
                     .frame(width: 30, height: 30)
                 
@@ -346,5 +463,57 @@ extension TitleCategory {
         default:
             return ""
         }
+    }
+}
+
+extension View {
+    func asUIImage() -> UIImage {
+        let controller = UIHostingController(rootView: self)
+        controller.view.backgroundColor = .clear
+        
+        let targetSize = CGSize(width: UIScreen.main.bounds.width, height: UIView.layoutFittingCompressedSize.height)
+        let size = controller.view.systemLayoutSizeFitting(targetSize,
+                                                           withHorizontalFittingPriority: .required,
+                                                           verticalFittingPriority: .fittingSizeLevel)
+        
+        controller.view.bounds = CGRect(origin: .zero, size: size)
+        
+        let window = UIWindow(frame: controller.view.bounds)
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        
+        controller.view.setNeedsLayout()
+        controller.view.layoutIfNeeded()
+        
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { context in
+            controller.view.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
+        }
+    }
+
+    func exportPDF(image: UIImage, fileName: String, completion: @escaping (URL?) -> Void) {
+        let pdfSize = image.size
+        let pdfRenderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: pdfSize))
+        
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(fileName).pdf")
+        
+        do {
+            try pdfRenderer.writePDF(to: url) { context in
+                context.beginPage()
+                image.draw(in: CGRect(origin: .zero, size: pdfSize))
+            }
+            completion(url)
+        } catch {
+            print("PDF 생성 실패: \(error)")
+            completion(nil)
+        }
+    }
+    
+    
+}
+extension View {
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                        to: nil, from: nil, for: nil)
     }
 }
