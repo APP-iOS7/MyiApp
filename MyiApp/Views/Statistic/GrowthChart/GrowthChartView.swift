@@ -111,6 +111,8 @@ struct GrowthChartView: View {
                     .background(Color(.tertiarySystemBackground))
                     .cornerRadius(12)
                     .padding(.horizontal)
+                    .animation(.easeInOut, value: selectedHeightEntry)
+                    .animation(.easeInOut, value: selectedWeightEntry)
                     
                     VStack(spacing: 10) {
                         if (selectedMode == "키") {
