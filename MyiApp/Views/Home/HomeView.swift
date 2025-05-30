@@ -29,7 +29,7 @@ struct HomeView: View {
                     }
                     .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
                 }
-                .padding([.horizontal, .bottom])
+                .padding()
             }
         }
         .background(Color.customBackground)
