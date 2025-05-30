@@ -223,10 +223,10 @@ struct NoteReminderView: View {
     }
     
     private func validateAndSetCustomTime() {
-        // 일정 시간 이전인지 확인
-        if tempReminderTime >= eventDate {
+        // 일정 시간 이후인지 확인
+        if tempReminderTime > eventDate {
             showInvalidTimeAlert = true
-            alertMessage = "알림 시간은 일정 시작 시간보다 이전이어야 합니다."
+            alertMessage = "알림 시간은 일정 시작 시간 이후일 수 없습니다."
             return
         }
         
