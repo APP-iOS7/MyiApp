@@ -91,39 +91,36 @@ struct BabyBloodEditView: View {
                     .onTapGesture {
                         selectedBloodType = .AB
                     }
-                    
-                }
-                
-                Spacer()
-                
-                VStack {
-                    Button(action: {
-                        viewModel.baby.bloodType = selectedBloodType
-                        Task {
-                            await viewModel.saveProfileEdits()
-                            dismiss()
-                        }
-                    }) {
-                        Text("완료")
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .font(.headline)
-                            .background(Color("buttonColor"))
-                            .cornerRadius(12)
-                    }
-                    .contentShape(Rectangle())
-                    .padding()
                 }
             }
             .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(UIColor.tertiarySystemBackground))
-                )
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(UIColor.tertiarySystemBackground))
+            )
             .clipShape(RoundedRectangle(cornerRadius: 12))
+            .navigationTitle(Text("혈액형"))
             .navigationBarTitleDisplayMode(.inline)
+            
+            Spacer()
+            
+            Button(action: {
+                viewModel.baby.bloodType = selectedBloodType
+                Task {
+                    await viewModel.saveProfileEdits()
+                    dismiss()
+                }
+            }) {
+                Text("완료")
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .font(.headline)
+                    .background(Color("buttonColor"))
+                    .cornerRadius(12)
+            }
+            .contentShape(Rectangle())
         }
-        .padding()
+        .padding(.horizontal)
         .background(Color("customBackgroundColor"))
     }
 }

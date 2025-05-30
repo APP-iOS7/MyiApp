@@ -27,46 +27,47 @@ struct BabyBirthDayEditView: View {
                     .foregroundColor(.primary.opacity(0.8))
                     .padding()
                     .padding(.top, 10)
-                DatePicker(
-                    "출생일",
-                    selection: $selectedDate,
-                    displayedComponents: [.date]
-                )
-                .tint(Color("buttonColor"))
-                .datePickerStyle(.graphical)
-                .padding()
-                .foregroundColor(.primary.opacity(0.6))
-                
-                Spacer()
-                
-                VStack {
-                    Button(action: {
-                        viewModel.baby.birthDate = selectedDate
-                        Task {
-                            await viewModel.saveProfileEdits()
-                            dismiss()
-                        }
-                    }) {
-                        Text("완료")
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .font(.headline)
-                            .frame(height: 50)
-                            .background(Color("buttonColor"))
-                            .cornerRadius(12)
-                    }
-                    .contentShape(Rectangle())
+                HStack {
+                    DatePicker(
+                        "출생일",
+                        selection: $selectedDate,
+                        displayedComponents: [.date]
+                    )
+                    .tint(Color("buttonColor"))
+                    .datePickerStyle(.graphical)
                     .padding()
+                    .foregroundColor(.primary.opacity(0.6))
                 }
+                .padding()
             }
             .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(UIColor.tertiarySystemBackground))
-                )
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(UIColor.tertiarySystemBackground))
+            )
             .clipShape(RoundedRectangle(cornerRadius: 12))
+            
+            Spacer()
+            
+            Button(action: {
+                viewModel.baby.birthDate = selectedDate
+                Task {
+                    await viewModel.saveProfileEdits()
+                    dismiss()
+                }
+            }) {
+                Text("완료")
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .font(.headline)
+                    .frame(height: 50)
+                    .background(Color("buttonColor"))
+                    .cornerRadius(12)
+            }
+            .contentShape(Rectangle())
+            .navigationTitle(Text("출생일"))
             .navigationBarTitleDisplayMode(.inline)
         }
-        .padding()
+        .padding(.horizontal)
         .background(Color("customBackgroundColor"))
     }
 }

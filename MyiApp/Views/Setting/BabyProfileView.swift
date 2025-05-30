@@ -236,19 +236,6 @@ struct BabyProfileView: View {
                                 .font(.system(size: 12))
                         }
                         .padding()
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            babyToDelete = baby
-                            showingBabyDeleteAlert = true
-                        }) {
-                            Text("아이 정보 삭제")
-                                .font(.caption)
-                                .foregroundColor(.red)
-                                .padding(.vertical, 20)
-                                .underline()
-                        }
                     }
                 }
                 .background(
@@ -328,8 +315,21 @@ struct BabyProfileView: View {
                         .animation(.easeInOut(duration: 0.3), value: isLoading)
                 }
             }
+            
+            Spacer()
+            
+            Button(action: {
+                babyToDelete = baby
+                showingBabyDeleteAlert = true
+            }) {
+                Text("아이 정보 삭제")
+                    .font(.caption)
+                    .foregroundColor(.red)
+                    .padding()
+                    .underline()
+            }
         }
-        .padding()
+        .padding(.horizontal)
         .background(Color("customBackgroundColor"))
     }
 }
