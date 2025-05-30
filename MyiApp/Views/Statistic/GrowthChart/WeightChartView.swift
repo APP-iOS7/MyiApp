@@ -131,7 +131,7 @@ struct WeightChartView: View {
                                                 let y = height + 50
                                                 
                                                 Rectangle()
-                                                    .fill(Color("buttonColor"))
+                                                    .fill(Color.gray.opacity(0.3))
                                                     .frame(width: 1, height: y)
                                                     .position(x: x, y: y / 2 - 50)
                                                     .zIndex(-1)
