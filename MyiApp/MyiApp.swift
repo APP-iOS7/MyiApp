@@ -93,7 +93,6 @@ struct MyiApp: App {
                         }
                     }
             }
-            .environmentObject(databaseService)
         }
     }
     
@@ -107,13 +106,10 @@ struct MyiApp: App {
                     .background(Color.customBackground.ignoresSafeArea())
             case .login:
                 LogInView()
-                .environmentObject(databaseService)
             case .content:
                 ContentView()
-                .environmentObject(databaseService)
             case .register:
                 RegisterBabyView()
-                .environmentObject(databaseService)
         }
     }
     
