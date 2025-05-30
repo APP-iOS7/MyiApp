@@ -19,46 +19,55 @@ struct BabyBirthTimeEditView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("출생 시간")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.primary.opacity(0.8))
-                .padding()
-                .padding(.top, 10)
-            HStack {
-                DatePicker("출생 시간", selection: $selectedTime, displayedComponents: [.hourAndMinute])
-                    .labelsHidden()
-                    .datePickerStyle(.wheel)
+        VStack {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("출생 시간")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary.opacity(0.8))
                     .padding()
-                    .foregroundColor(.primary.opacity(0.6))
-                    .environment(\.locale, Locale(identifier: "ko_KR"))
-            }
-            .frame(maxWidth: .infinity, alignment: .center)
-            
-            Spacer()
-            VStack {
-                Button(action: {
-                    viewModel.baby.birthDate = selectedTime
-                    Task {
-                        await viewModel.saveProfileEdits()
-                        dismiss()
-                    }
-                }) {
-                    Text("완료")
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .font(.headline)
-                        .background(Color("buttonColor"))
-                        .cornerRadius(12)
+                    .padding(.top, 10)
+                HStack {
+                    DatePicker("출생 시간", selection: $selectedTime, displayedComponents: [.hourAndMinute])
+                        .labelsHidden()
+                        .datePickerStyle(.wheel)
+                        .padding()
+                        .foregroundColor(.primary.opacity(0.6))
+                        .environment(\.locale, Locale(identifier: "ko_KR"))
                 }
-                .contentShape(Rectangle())
-                .padding(.horizontal)
+                .frame(maxWidth: .infinity, alignment: .center)
+                
+                Spacer()
+                
+                VStack {
+                    Button(action: {
+                        viewModel.baby.birthDate = selectedTime
+                        Task {
+                            await viewModel.saveProfileEdits()
+                            dismiss()
+                        }
+                    }) {
+                        Text("완료")
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .font(.headline)
+                            .background(Color("buttonColor"))
+                            .cornerRadius(12)
+                    }
+                    .contentShape(Rectangle())
+                    .padding()
+                }
             }
+            .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(UIColor.tertiarySystemBackground))
+                )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .background(Color(UIColor.tertiarySystemBackground))
-        .navigationBarTitleDisplayMode(.inline)
+        .padding()
+        .background(Color("customBackgroundColor"))
     }
 }
 
