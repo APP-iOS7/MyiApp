@@ -48,7 +48,6 @@ struct VoiceRecordView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             VStack {
-                // 상단 헤더
                 HStack {
                     Text("울음분석")
                         .font(.title)
@@ -66,21 +65,50 @@ struct VoiceRecordView: View {
                 }
                 .padding([.top, .horizontal])
 
+                VStack {
+                    Spacer()
+
+                    Image("CryAnalysisProcessingShark")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 200, height: 200)
+                        .padding(.bottom, 20)
+
+                    Text("시작 버튼을 누른 후 아이의 울음소리를 들려주세요")
+                        .font(.body)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                        .padding(.bottom, 20)
+
+                    Text("녹음은 최대 7초 동안 진행됩니다.")
+                        .font(.footnote)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                        .padding(.bottom, 10)
+
+                    Text("가장 뚜렷한 울음소리가 들릴 때 녹음을 시작해 주세요.")
+                        .font(.footnote)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                        .padding(.bottom, 10)
+
+                    Text("정확한 분석을 위해 조용한 환경에서 녹음해 주세요.")
+                        .font(.footnote)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                        .padding(.bottom, 20)
+
+                    Spacer(minLength: 16)
+                }
+                .padding(.bottom, 8)
+                .background(Color.white)
+                .cornerRadius(20)
+                .padding(.top, 8)
+
                 Spacer()
-
-                Image("CryAnalysisProcessingShark")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 200, height: 200)
-                    .padding(.bottom, 20)
-
-                Text("시작 버튼을 누른 후 아이의 울음소리를 들려주세요")
-                    .font(.body)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-                    .padding(.bottom, 20)
-
-                Spacer(minLength: 40)
             }
             .background(Color(UIColor.systemGroupedBackground))
             .safeAreaInset(edge: .bottom) {
@@ -100,7 +128,7 @@ struct VoiceRecordView: View {
                         .background(Color("buttonColor"))
                         .cornerRadius(12)
                         .padding(.horizontal)
-                        .padding(.bottom, 10)
+                        .padding(.bottom, 16)
                 }
             }
             .navigationDestination(for: CryRoute.self) { route in
