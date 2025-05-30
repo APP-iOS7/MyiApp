@@ -69,23 +69,25 @@ struct StatisticView: View {
             VStack(spacing: 0) {
                 SafeAreaPaddingView()
                     .frame(height: getTopSafeAreaHeight())
+                
                 ScrollView {
-                    
-                    VStack(spacing: 15) {
-                        HStack {
-                            Text("통계")
-                                .font(.title)
-                                .bold()
-                            Spacer()
-                            NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
-                                Image(systemName: "chart.xyaxis.line")
-                                    .foregroundColor(.primary)
-                                    .font(.title2)
-                            }
-                            
+                    HStack {
+                        Text("통계")
+                            .font(.title)
+                            .bold()
+                        Spacer()
+                        NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
+                            Image(systemName: "chart.xyaxis.line")
+                                .foregroundColor(.primary)
+                                .font(.title2)
                         }
-                        .padding(.horizontal)
-                        .padding(.trailing, 7)
+                        
+                    }
+                    //.padding(.bottom, 15)
+                    .padding([.top, .horizontal])
+                    //.padding(.horizontal)
+                    VStack(spacing: 15) {
+                        
                         VStack(spacing: 10) {
                             toggleMode
                                 .padding(.vertical, 10)
@@ -110,7 +112,7 @@ struct StatisticView: View {
                             statisticList
                         }
                     }
-                    .padding()
+                    .padding([.bottom, .horizontal])
                 }
             }
             
@@ -250,7 +252,7 @@ struct StatisticView: View {
         let ageInYears = (ageComponents.year ?? 0) + 1
         let fullAge = getFullAge(from: baby.birthDate)
         
-        return Text("\(genderText) · \(months)개월 \(days)일, \(ageInYears)살(만 \(fullAge)세)")
+        return Text("\(baby.name) · \(genderText) · \(months)개월 \(days)일, \(ageInYears)살(만 \(fullAge)세)")
             .font(.subheadline)
             .foregroundColor(.gray)
             .padding(.horizontal)
@@ -300,7 +302,7 @@ struct IconItem: View {
     var body: some View {
         HStack(spacing: 8) {
             ZStack {
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 8)
                     .fill((Color(.tertiarySystemBackground)))
                     .frame(width: 30, height: 30)
                 

@@ -51,6 +51,8 @@ struct GrowthChartView: View {
     @State private var selectedWeightEntry: WeightEntry? = nil
     var body: some View {
         ZStack {
+            Color("customBackgroundColor")
+                .ignoresSafeArea()
             mainScrollView
         }
         .navigationTitle("성장곡선")
@@ -63,60 +65,79 @@ struct GrowthChartView: View {
                     toggleMode
                 }
                 .padding(.horizontal)
-                .padding(.vertical, 10)
-                DateRangeSelectView(startDate: $startDate, endDate: $endDate)
+                .padding(.top, 10)
                 
-                VStack(spacing: 10) {
-                    if (selectedMode == "키") {
-                        HeightChartView(
-                            data: heightData,
-                            startDate: startDate,
-                            endDate: endDate,
-                            selectedEntry: $selectedHeightEntry
-                        )
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .padding(.horizontal)
-                            .padding(.vertical, 20)
-                    } else {
-                        WeightChartView(
-                            data: weightData,
-                            startDate: startDate,
-                            endDate: endDate,
-                            selectedEntry: $selectedWeightEntry
-                        )
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .padding(.horizontal)
-                            .padding(.vertical, 20)
-                    }
-                }
-                .frame(minHeight: 300)
-                Divider()
-                    .padding(.top, {
-                        if selectedMode == "키" {
-                            return selectedHeightEntry == nil ? 0 : 100
-                        } else {
-                            return selectedWeightEntry == nil ? 0 : 100
+                
+                VStack(spacing: 15) {
+                    VStack(spacing: 10) {
+                        DateRangeSelectView(startDate: $startDate, endDate: $endDate)
+                            .padding(.top)
+                        VStack(spacing: 10) {
+                            
+                            if (selectedMode == "키") {
+                                HeightChartView(
+                                    data: heightData,
+                                    startDate: startDate,
+                                    endDate: endDate,
+                                    selectedEntry: $selectedHeightEntry
+                                )
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .padding(.horizontal)
+                                    .padding(.vertical, 20)
+                            } else {
+                                WeightChartView(
+                                    data: weightData,
+                                    startDate: startDate,
+                                    endDate: endDate,
+                                    selectedEntry: $selectedWeightEntry
+                                )
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .padding(.horizontal)
+                                    .padding(.vertical, 20)
+                            }
                         }
-                    }())
-                VStack(spacing: 10) {
-                    if (selectedMode == "키") {
-                        lastHeightInfoView(
-                            data: heightData
-                        )
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .padding(.horizontal)
-                    } else {
-                        lastWeightInfoView(
-                            data: weightData
-                        )
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .padding(.horizontal)
+                        .frame(minHeight: 300)
+                        .padding(.bottom, {
+                            if selectedMode == "키" {
+                                return selectedHeightEntry == nil ? 0 : 100
+                            } else {
+                                return selectedWeightEntry == nil ? 0 : 100
+                            }
+                        }())
+                        .animation(.easeInOut, value: selectedHeightEntry)
+                        .animation(.easeInOut, value: selectedWeightEntry)
+
                     }
+                    .background(Color(.tertiarySystemBackground))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                    
+                    VStack(spacing: 10) {
+                        if (selectedMode == "키") {
+                            lastHeightInfoView(
+                                data: heightData
+                            )
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .padding(.horizontal)
+                                .padding(.vertical, 20)
+                        } else {
+                            lastWeightInfoView(
+                                data: weightData
+                            )
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .padding(.horizontal)
+                                .padding(.vertical, 20)
+                        }
+                    }
+                    .background(Color(.tertiarySystemBackground))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                    .animation(.easeInOut, value: selectedHeightEntry)
+                    .animation(.easeInOut, value: selectedWeightEntry)
+                    
                 }
-                .padding(.bottom, 40)
 
             }
-            .padding()
         }
         
     }
