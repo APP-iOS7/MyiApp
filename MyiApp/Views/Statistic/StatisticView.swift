@@ -85,21 +85,21 @@ struct StatisticView: View {
                 
                 ScrollView {
                     VStack(spacing: 5) {
-                        HStack(alignment: .bottom, spacing: 10) {
+                        HStack(alignment: .center, spacing: 15) {
                             Text("통계")
                                 .font(.title)
                                 .bold()
                             Spacer()
-                            
-                            
+                                                        
                             NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
                                 Image(systemName: "chart.xyaxis.line")
                                     .foregroundColor(.primary)
-                                    .font(.headline)
+                                    .font(.title2)
                             }
+                            
                             Image(systemName: "square.and.arrow.up")
                                 .foregroundColor(.primary)
-                                .font(.headline)
+                                .font(.title2)
                                 .onTapGesture {
                                     DispatchQueue.main.async {
                                         let babyInfoView = BabyInfoCardView(baby: baby, records: records, selectedDate: selectedDate)
@@ -148,7 +148,6 @@ struct StatisticView: View {
                     
                 }
             }
-            
         }
         .gesture(
             DragGesture()
@@ -240,9 +239,8 @@ struct StatisticView: View {
                 }
             }
         }
-        
-        
     }
+    
     var iconGrid: some View {
         let categories = [
             ("수유\n이유식", UIImage.colorMeal, Color("food")),
@@ -492,8 +490,7 @@ extension View {
             controller.view.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
         }
     }
-    
-    
+
     func exportPDF(image: UIImage, fileName: String, completion: @escaping (URL?) -> Void) {
         let pdfSize = image.size
         let pdfRenderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: pdfSize))
