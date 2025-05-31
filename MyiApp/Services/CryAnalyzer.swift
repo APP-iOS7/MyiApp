@@ -16,6 +16,8 @@ final class CryAnalyzer {
     private let mfccTargetSampleCount = 15600 // Core ML 모델에 넣을 입력 데이터 샘플 수
     private let model: DeepInfant_V2
     
+    private var silenceStartTime: Date?
+
     // MARK: - Init
     // 앱이 시작되면 Core ML 모델을 로딩
     init() {
@@ -40,10 +42,17 @@ final class CryAnalyzer {
 
         // 무음 판별 로직 추가
         if isSilent(samples: processedSamples) {
-            print("[CryAnalyzer] 무음 감지됨")
+            if silenceStartTime == nil {
+                silenceStartTime = Date()
+            }
+
+            let silenceDuration = Date().timeIntervalSince(silenceStartTime!)
+            print("[CryAnalyzer] 무음 감지됨 (지속시간: \(silenceDuration))")
             let result = EmotionResult(type: .unknown, confidence: 0.0)
             completion(result)
             return
+        } else {
+            silenceStartTime = nil
         }
 
         guard let inputArray = createMLMultiArray(from: processedSamples) else {
@@ -65,6 +74,15 @@ final class CryAnalyzer {
 
             let label = output.target
             let confidence = output.targetProbability[label] ?? 0.0
+
+            // confidence가 낮으면 unknown 처리
+            if confidence < 0.5 {
+                print("[CryAnalyzer] 예측 신뢰도 낮음 (\(confidence)), unknown 반환")
+                let result = EmotionResult(type: .unknown, confidence: confidence)
+                completion(result)
+                return
+            }
+
             let result = EmotionResult(
                 type: EmotionType(rawValue: label) ?? .unknown,
                 confidence: confidence
@@ -100,18 +118,77 @@ final class CryAnalyzer {
         return array
     }
 
-    private func isSilent(samples: [Float], threshold: Float = 0.001) -> Bool {
+    private func isSilent(samples: [Float], rmsThreshold: Float = 0.0005, zeroRatioThreshold: Float = 0.98) -> Bool {
         var rms: Float = 0.0
         vDSP_rmsqv(samples, 1, &rms, vDSP_Length(samples.count))
-        return rms < threshold
+
+        let silenceThreshold: Float = 0.001
+        var zeroLikeCount: Int = 0
+        for sample in samples {
+            if abs(sample) < silenceThreshold {
+                zeroLikeCount += 1
+            }
+        }
+        let zeroRatio = Float(zeroLikeCount) / Float(samples.count)
+
+        print("[isSilent] RMS: \(rms), ZeroRatio: \(zeroRatio)")
+
+        let energyBasedSilent = rms < rmsThreshold && zeroRatio > zeroRatioThreshold && isDominantFrequencyLow(samples: samples, thresholdHz: 200.0)
+        let patternBasedSilent = isNonCryLikeSignal(samples: samples) && rms < 0.001
+
+        return energyBasedSilent || patternBasedSilent
     }
 
-private func isSilent(buffer: AVAudioPCMBuffer, threshold: Float = 0.001) -> Bool {
+private func isSilent(buffer: AVAudioPCMBuffer, rmsThreshold: Float = 0.001, zeroRatioThreshold: Float = 0.95) -> Bool {
     guard let floatChannelData = buffer.floatChannelData else { return true }
     let frameLength = Int(buffer.frameLength)
+    let samples = Array(UnsafeBufferPointer(start: floatChannelData[0], count: frameLength))
 
     var rms: Float = 0.0
-    vDSP_rmsqv(floatChannelData[0], 1, &rms, vDSP_Length(frameLength))
-    return rms < threshold
+    vDSP_rmsqv(samples, 1, &rms, vDSP_Length(samples.count))
+
+    // 0에 가까운 값 비율 계산
+    let silenceThreshold: Float = 0.001
+    let zeroLikeCount = samples.filter { abs($0) < silenceThreshold }.count
+    let zeroRatio = Float(zeroLikeCount) / Float(samples.count)
+
+    return rms < rmsThreshold && zeroRatio > zeroRatioThreshold
 }
+
+private func isNonCryLikeSignal(samples: [Float], stddevThreshold: Float = 0.005) -> Bool {
+    var mean: Float = 0
+    var stddev: Float = 0
+    vDSP_normalize(samples, 1, nil, 1, &mean, &stddev, vDSP_Length(samples.count))
+    print("[isSilent] Signal StdDev: \(stddev)")
+    return stddev < stddevThreshold
+}
+}
+
+private func isDominantFrequencyLow(samples: [Float], thresholdHz: Float = 300.0, sampleRate: Float = 44100.0) -> Bool {
+    var windowedSamples = samples
+    var window = [Float](repeating: 0, count: samples.count)
+    vDSP_hann_window(&window, vDSP_Length(samples.count), Int32(vDSP_HANN_NORM))
+    vDSP_vmul(samples, 1, window, 1, &windowedSamples, 1, vDSP_Length(samples.count))
+
+    var real = windowedSamples
+    var imag = [Float](repeating: 0.0, count: samples.count)
+    var result = true
+    real.withUnsafeMutableBufferPointer { realPointer in
+        imag.withUnsafeMutableBufferPointer { imagPointer in
+            var splitComplex = DSPSplitComplex(realp: realPointer.baseAddress!, imagp: imagPointer.baseAddress!)
+            let log2n = vDSP_Length(log2(Float(samples.count)))
+            guard let fftSetup = vDSP_create_fftsetup(log2n, FFTRadix(kFFTRadix2)) else { return }
+
+            vDSP_fft_zip(fftSetup, &splitComplex, 1, log2n, FFTDirection(FFT_FORWARD))
+            vDSP_destroy_fftsetup(fftSetup)
+
+            let magnitudes = zip(realPointer, imagPointer).map { sqrt($0 * $0 + $1 * $1) }
+            if let maxIndex = magnitudes.firstIndex(of: magnitudes.max() ?? 0.0) {
+                let freq = Float(maxIndex) * sampleRate / Float(samples.count)
+                print("[isSilent] Dominant Frequency: \(freq) Hz")
+                result = freq < thresholdHz
+            }
+        }
+    }
+    return result
 }
