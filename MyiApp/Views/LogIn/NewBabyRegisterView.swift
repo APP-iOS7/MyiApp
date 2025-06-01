@@ -465,20 +465,6 @@ struct NewBabyRegisterView: View {
     }
 }
 
-extension UIViewController {
-    func findNavigationController() -> UINavigationController? {
-        if let navController = self as? UINavigationController {
-            return navController
-        }
-        for child in children {
-            if let navController = child.findNavigationController() {
-                return navController
-            }
-        }
-        return nil
-    }
-}
-
 #Preview {
     NavigationStack {
         NewBabyRegisterView()
