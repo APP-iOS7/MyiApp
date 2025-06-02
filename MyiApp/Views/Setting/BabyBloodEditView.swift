@@ -20,7 +20,7 @@ struct BabyBloodEditView: View {
     var body: some View {
         VStack {
             VStack(alignment: .leading, spacing: 20) {
-                Text("혈액형")
+                Text("혈액형을 선택하세요")
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.primary.opacity(0.8))
