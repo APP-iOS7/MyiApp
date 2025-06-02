@@ -197,6 +197,7 @@ struct StatisticView: View {
                         Button(action: {
                             self.exportPDF(image: identifiableImage.image, fileName: fileNameInput.isEmpty ? "통계" : fileNameInput) { url in
                                 if let url = url {
+                                    previewImage = nil
                                     DispatchQueue.main.async {
                                         let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
                                         if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -488,7 +489,8 @@ extension View {
         let pdfSize = image.size
         let pdfRenderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: pdfSize))
         
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(fileName).pdf")
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let url = documents.appendingPathComponent("\(fileName).pdf")
         
         do {
             try pdfRenderer.writePDF(to: url) { context in
