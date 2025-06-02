@@ -25,6 +25,8 @@ struct BabyProfileView: View {
     @State private var showingErrorAlert = false
     @State private var errorMessage: String?
     @State private var babyToDelete: Baby?
+    @State private var showToast: Bool = false
+    @State private var toastMessage: String = ""
     @Environment(\.dismiss) private var dismiss
     
     let baby: Baby
@@ -217,7 +219,7 @@ struct BabyProfileView: View {
                         }
                         
                         HStack {
-                            Text("아이 정보 공유 코드")
+                            Text("아이 정보 공유 코드 복사하기")
                                 .font(.headline)
                                 .fontWeight(.semibold)
                                 .lineLimit(2)
@@ -231,6 +233,15 @@ struct BabyProfileView: View {
                                 .font(.system(size: 12))
                         }
                         .padding()
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            UIPasteboard.general.string = viewModel.baby.id.uuidString
+                            toastMessage = "코드가 복사되었습니다"
+                            showToast = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                showToast = false
+                            }
+                        }
                     }
                 }
                 .background(
@@ -312,6 +323,21 @@ struct BabyProfileView: View {
             }
             
             Spacer()
+            
+            if showToast {
+                ZStack {
+                    Spacer()
+                    Text(toastMessage)
+                        .font(.subheadline)
+                        .padding()
+                        .background(Color.black.opacity(0.7))
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.bottom, 20)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .animation(.easeInOut(duration: 0.3), value: showToast)
+                }
+            }
             
             Button(action: {
                 babyToDelete = baby
