@@ -438,6 +438,7 @@ struct NewBabyRegisterView: View {
                         .background(isButtonEnabled ? Color("buttonColor") : Color.gray)
                         .cornerRadius(12)
                 }
+                .padding(.vertical)
                 .disabled(!isButtonEnabled)
             }
             .padding()
