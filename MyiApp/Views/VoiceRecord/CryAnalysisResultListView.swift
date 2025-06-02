@@ -7,11 +7,16 @@
 
 import SwiftUI
 
+enum DeleteAlertType {
+    case none, confirm, empty
+}
+
 struct CryAnalysisResultListView: View {
     @EnvironmentObject var viewModel: VoiceRecordViewModel
     @State private var isSelectionMode: Bool = false
     @State private var selectedItems: Set<UUID> = []
     @State private var showDeleteAlert: Bool = false
+    @State private var deleteAlertType: DeleteAlertType = .none
     
     var body: some View {
         NavigationStack {
@@ -51,14 +56,26 @@ struct CryAnalysisResultListView: View {
                 if isSelectionMode {
                     HStack {
                         Button("삭제", role: .destructive) {
-                            showDeleteAlert = true
+                            if selectedItems.isEmpty {
+                                deleteAlertType = .empty
+                            } else {
+                                deleteAlertType = .confirm
+                            }
                         }
                         .foregroundColor(.red)
-                        .alert("선택한 항목을 삭제하시겠습니까?", isPresented: $showDeleteAlert) {
+                        .alert("선택한 항목을 삭제하시겠습니까?", isPresented: .constant(deleteAlertType == .confirm)) {
                             Button("삭제", role: .destructive) {
                                 confirmDeletion()
+                                deleteAlertType = .none
                             }
-                            Button("취소", role: .cancel) {}
+                            Button("취소", role: .cancel) {
+                                deleteAlertType = .none
+                            }
+                        }
+                        .alert("선택된 항목이 없습니다", isPresented: .constant(deleteAlertType == .empty)) {
+                            Button("확인", role: .cancel) {
+                                deleteAlertType = .none
+                            }
                         }
                         
                         Button("취소") {
