@@ -9,6 +9,7 @@ import SwiftUI
 import FirebaseCore
 import GoogleSignIn
 import UserNotifications
+import FirebaseAuth
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
