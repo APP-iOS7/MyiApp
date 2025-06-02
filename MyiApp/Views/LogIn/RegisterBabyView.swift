@@ -14,50 +14,57 @@ struct RegisterBabyView: View {
     @State private var navigateToNextView = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("아이 등록")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.primary.opacity(0.8))
-                .padding()
-                .padding(.top, 10)
-            
-            VStack {
-                HStack {
-                    Text("새로운 아이 정보 등록")
-                        .font(.title3)
-                    
-                    Spacer()
-                    
-                    Image(systemName: selectedForm == .newBaby ? "checkmark.circle.fill" : "checkmark.circle")
-                        .font(.title2)
-                        .foregroundColor(selectedForm == .newBaby ? Color("buttonColor") : .primary.opacity(0.6))
-                }
-                .padding()
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    selectedForm = .newBaby
-                }
+        VStack {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("아이 등록")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary.opacity(0.8))
+                    .padding()
+                    .padding(.top, 10)
                 
-                HStack {
-                    Text("기존 아이 정보 등록")
-                        .font(.title3)
+                VStack {
+                    HStack {
+                        Text("새로운 아이 정보 등록")
+                            .font(.title3)
+                        
+                        Spacer()
+                        
+                        Image(systemName: selectedForm == .newBaby ? "checkmark.circle.fill" : "checkmark.circle")
+                            .font(.title2)
+                            .foregroundColor(selectedForm == .newBaby ? Color("buttonColor") : .primary.opacity(0.6))
+                    }
+                    .padding()
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectedForm = .newBaby
+                    }
                     
-                    Spacer()
-                    Image(systemName: selectedForm == .existingBaby ? "checkmark.circle.fill" : "checkmark.circle")
-                        .font(.title2)
-                        .foregroundColor(selectedForm == .existingBaby ? Color("buttonColor") : .primary.opacity(0.6))
-                }
-                .padding()
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    selectedForm = .existingBaby
+                    HStack {
+                        Text("기존 아이 정보 등록")
+                            .font(.title3)
+                        
+                        Spacer()
+                        Image(systemName: selectedForm == .existingBaby ? "checkmark.circle.fill" : "checkmark.circle")
+                            .font(.title2)
+                            .foregroundColor(selectedForm == .existingBaby ? Color("buttonColor") : .primary.opacity(0.6))
+                    }
+                    .padding()
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectedForm = .existingBaby
+                    }
                 }
             }
+            .padding(.bottom)
+            .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(UIColor.tertiarySystemBackground))
+                )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             
             Spacer()
             
-            VStack {
                 Button(action: {
                     if selectedForm != nil {
                         navigateToNextView = true
@@ -72,13 +79,12 @@ struct RegisterBabyView: View {
                         .cornerRadius(12)
                 }
                 .disabled(selectedForm == nil)
-                .padding(.horizontal)
-            }
-            .navigationDestination(isPresented: $navigateToNextView) {
-                destinationView()
-            }
+                .navigationDestination(isPresented: $navigateToNextView) {
+                    destinationView()
+                }
         }
-        .background(Color(UIColor.tertiarySystemBackground))
+        .padding(.horizontal)
+        .background(Color("customBackgroundColor"))
     }
     
     enum RegistrationType {
