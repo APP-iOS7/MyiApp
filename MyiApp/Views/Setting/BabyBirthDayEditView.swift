@@ -20,8 +20,8 @@ struct BabyBirthDayEditView: View {
     
     var body: some View {
         VStack {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("출생일")
+            VStack(alignment: .leading) {
+                Text("출생일을 선택하세요")
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.primary.opacity(0.8))
@@ -35,7 +35,6 @@ struct BabyBirthDayEditView: View {
                     )
                     .tint(Color("buttonColor"))
                     .datePickerStyle(.graphical)
-                    .padding()
                     .foregroundColor(.primary.opacity(0.6))
                 }
                 .padding()

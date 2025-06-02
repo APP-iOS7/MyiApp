@@ -20,8 +20,8 @@ struct BabyBirthTimeEditView: View {
     
     var body: some View {
         VStack {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("출생 시간")
+            VStack(alignment: .leading) {
+                Text("출생 시간을 선택하세요")
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.primary.opacity(0.8))
@@ -32,7 +32,6 @@ struct BabyBirthTimeEditView: View {
                         .labelsHidden()
                         .datePickerStyle(.wheel)
                         .tint(Color("buttonColor"))
-                        .padding()
                         .foregroundColor(.primary.opacity(0.6))
                         .environment(\.locale, Locale(identifier: "ko_KR"))
                 }

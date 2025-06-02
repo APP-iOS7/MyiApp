@@ -35,7 +35,7 @@ struct BabyWeightEditView: View {
     
     var body: some View {
         VStack {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading) {
                 Text("몸무게를 입력하세요")
                     .font(.title)
                     .fontWeight(.bold)
