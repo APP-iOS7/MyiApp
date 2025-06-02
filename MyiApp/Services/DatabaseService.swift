@@ -11,7 +11,7 @@ import FirebaseStorage
 
 @MainActor
 class DatabaseService: ObservableObject {
-    @Published var hasBabyInfo: Bool? = nil
+    @Published var hasBabyInfo: Bool? = false
     let auth = AuthService.shared
     let db = Firestore.firestore()
     let storage = Storage.storage()
