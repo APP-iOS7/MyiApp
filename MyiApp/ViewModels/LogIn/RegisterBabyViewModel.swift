@@ -23,7 +23,7 @@ class RegisterBabyViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isTimeSelectionEnabled: Bool = false
     
-    func registerBaby() {
+    func registerBaby() async {
         guard let gender = gender,
               let bloodType = bloodType,
               let birthDate = birthDate,
@@ -39,14 +39,13 @@ class RegisterBabyViewModel: ObservableObject {
                         height: heightValue,
                         weight: weightValue,
                         bloodType: bloodType)
-        Task {
             do {
                 try await databaseService.saveBabyInfo(baby: baby)
                 isRegistered = true
             } catch {
                 errorMessage = error.localizedDescription
+                isRegistered = false
             }
-        }
     }
 }
 

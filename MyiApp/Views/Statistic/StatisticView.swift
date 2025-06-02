@@ -33,6 +33,8 @@ struct StatisticView: View {
     @State private var selectedMode = "일"
     let modes = ["일", "주"]
     
+    @FocusState private var isContentFieldFocused: Bool
+    
     private var formattedDateString: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ko_KR")
@@ -83,55 +85,56 @@ struct StatisticView: View {
                 
                 ScrollView {
                     VStack(spacing: 5) {
-                        HStack(alignment: .bottom, spacing: 10) {
+                        HStack(alignment: .center, spacing: 15) {
                             Text("통계")
                                 .font(.title)
                                 .bold()
                             Spacer()
-                            Image(systemName: "square.and.arrow.up")
-                                .foregroundColor(.primary)
-                                .font(.title2)
-                                .onTapGesture {
-                                    DispatchQueue.main.async {
-                                        let babyInfoView = BabyInfoCardView(baby: baby, records: records)
-                                        let image = babyInfoView.asUIImage()
-                                        
-                                        self.previewImage = image
-                                        
-                                        let formatter = DateFormatter()
-                                        formatter.dateFormat = "yyyyMMdd"
-                                        self.fileNameInput = "\(formatter.string(from: Date()))_통계"
-                                        
-                                        self.isShowingPreview = true
-                                    }
-                                }
-                            
+                                                        
                             NavigationLink(destination: GrowthChartView(baby: baby, records: records)) {
                                 Image(systemName: "chart.xyaxis.line")
                                     .foregroundColor(.primary)
                                     .font(.title2)
                             }
                             
+                            Image(systemName: "square.and.arrow.up")
+                                .foregroundColor(.primary)
+                                .font(.title2)
+                                .onTapGesture {
+                                    DispatchQueue.main.async {
+                                        let babyInfoView = BabyInfoCardView(baby: baby, records: records, selectedDate: selectedDate)
+                                        let image = babyInfoView.asUIImage()
+                                        
+                                        self.previewImage = image
+                                        
+                                        let formatter = DateFormatter()
+                                        formatter.dateFormat = "yyyyMMdd"
+                                        self.fileNameInput = "\(formatter.string(from: selectedDate))_통계"
+                                        
+                                        self.isShowingPreview = true
+                                    }
+                                }
                         }
-                        .padding([.top, .horizontal])
-                        
+                        .padding(.top, 14)
+                        .padding(.bottom, 10)
+                        .padding(.horizontal)
                         
                         VStack(spacing: 15) {
-                            
-                            VStack() {
-                                toggleMode
-                                Spacer()
-                                dateMove
-                            }
-                            .padding(.horizontal)
-                            
-                            VStack(spacing: 10) {
+                            VStack(spacing: 0) {
+                                VStack() {
+                                    toggleMode
+                                    Spacer()
+                                    dateMove
+                                }
+                                .padding(.horizontal)
+                                .padding(.bottom, 16)
                                 iconGrid
                                     .padding(.bottom, 20)
                                 
                                 chartView
-                                    .padding(.bottom, 20)
+                                    .padding(.top, 10)
                                 babyInfo
+                                    .padding(.bottom, 10)
                             }
                             .padding()
                             .background(Color(.tertiarySystemBackground))
@@ -145,7 +148,6 @@ struct StatisticView: View {
                     
                 }
             }
-            
         }
         .gesture(
             DragGesture()
@@ -160,59 +162,85 @@ struct StatisticView: View {
         )
         .sheet(isPresented: $isShowingPreview) {
             NavigationView {
-                VStack {
-                    if let image = previewImage {
-                        ScrollView([.vertical, .horizontal]) {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
-                                .padding()
-                        }
-                        
-                        TextField("파일 이름", text: $fileNameInput)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                ZStack {
+                    Color("customBackgroundColor")
+                        .ignoresSafeArea()
+                    VStack {
+                        if let image = previewImage {
+                            ScrollView([.vertical, .horizontal]) {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .padding()
+                            }
                             .padding()
-                        
-                        Button("PDF로 저장 및 공유하기") {
-                            let finalName = fileNameInput.isEmpty ? "통계" : fileNameInput
-                            let size = image.size
-                            
-                            self.exportPDF(image: image, fileName: fileNameInput.isEmpty ? "통계" : fileNameInput) { url in
-                                if let url = url {
-                                    DispatchQueue.main.async {
-                                        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-                                        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                                           let rootVC = scene.windows.first?.rootViewController {
-                                            rootVC.present(activityVC, animated: true, completion: nil)
+                            Form {
+                                Section(header: Text("파일 이름")) {
+                                    TextField("파일 이름을 입력하세요", text: $fileNameInput)
+                                        .focused($isContentFieldFocused)
+                                        .toolbar {
+                                            ToolbarItemGroup(placement: .keyboard) {
+                                                Spacer()
+                                                Button {
+                                                    isContentFieldFocused = false
+                                                    hideKeyboard()
+                                                } label: {
+                                                    Text("완료")
+                                                }
+                                            }
                                         }
-                                    }
-                                    
                                 }
                             }
-                            
-                            self.isShowingPreview = false
+                            .frame(height: 100)
+                            Button(action: {
+                                self.exportPDF(image: image, fileName: fileNameInput.isEmpty ? "통계" : fileNameInput) { url in
+                                    if let url = url {
+                                        DispatchQueue.main.async {
+                                            let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+                                            if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                               let rootVC = scene.windows.first?.rootViewController {
+                                                rootVC.present(activityVC, animated: true, completion: nil)
+                                            }
+                                        }
+                                        
+                                    }
+                                }
+                                
+                                self.isShowingPreview = false
+                            }) {
+                                Text("PDF로 저장 및 공유하기")
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .font(.headline)
+                                    .frame(height: 50)
+                                    .background(Color("buttonColor"))
+                                    .cornerRadius(12)
+                                    .padding(.bottom, 8)
+                            }
+                            .padding()
+                        } else {
+                            ProgressView("이미지를 불러오는 중입니다...")
+                                .padding()
+                            Button("다시 시도하기") {
+                                let babyInfoView = BabyInfoCardView(baby: baby, records: records, selectedDate: selectedDate)
+                                previewImage = babyInfoView.asUIImage()
+                            }
                         }
-                        .padding()
-                    } else {
-                        Text("미리보기 이미지를 불러올 수 없습니다.")
                     }
-                }
-                .padding()
-                .navigationTitle("PDF 미리보기")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("취소") {
-                            self.isShowingPreview = false
+                    .navigationTitle("PDF 미리보기")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button("취소") {
+                                self.isShowingPreview = false
+                            }
                         }
                     }
                 }
             }
-            
         }
-        
-        
     }
+    
     var iconGrid: some View {
         let categories = [
             ("수유\n이유식", UIImage.colorMeal, Color("food")),
@@ -308,14 +336,16 @@ struct StatisticView: View {
                 WeeklyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: selectedCategories)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding(.trailing)
-                    .padding(.vertical, 20)
+                    .padding(.top, 9)
+                    .padding(.bottom, 40)
                 
             } else if selectedMode == "일" {
                 GeometryReader { geometry in
                     DailyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: selectedCategories)
                         .frame(width: geometry.size.width * 0.9, height: geometry.size.width * 0.9)
                         .padding(.horizontal)
-                        .padding(.vertical, 20)
+                        .padding(.top, 9)
+                    //.padding(.bottom, 8)
                 }
                 .frame(height: UIScreen.main.bounds.width * 0.9)
                 
@@ -461,7 +491,6 @@ extension View {
         }
     }
 
-
     func exportPDF(image: UIImage, fileName: String, completion: @escaping (URL?) -> Void) {
         let pdfSize = image.size
         let pdfRenderer = UIGraphicsPDFRenderer(bounds: CGRect(origin: .zero, size: pdfSize))
@@ -479,6 +508,12 @@ extension View {
             completion(nil)
         }
     }
-
-
+    
+    
+}
+extension View {
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+                                        to: nil, from: nil, for: nil)
+    }
 }

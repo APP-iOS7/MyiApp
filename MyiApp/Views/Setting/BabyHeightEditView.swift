@@ -11,7 +11,6 @@ struct BabyHeightEditView: View {
     @StateObject var viewModel: BabyProfileViewModel
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isTextFieldFocused: Bool
-    @State private var keyboardHeight: CGFloat = 0
     @State private var selectedHeight: Double?
     
     private var isButtonEnabled: Bool {
@@ -35,101 +34,96 @@ struct BabyHeightEditView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("키를 입력하세요")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.primary.opacity(0.8))
-                .padding()
-                .padding(.top, 10)
-            ZStack(alignment: .trailing) {
-                TextField("키를 입력하세요", value: $selectedHeight, formatter: numberFormatter)
-                    .multilineTextAlignment(.leading)
-                    .keyboardType(.decimalPad)
-                    .foregroundColor(.primary.opacity(0.6))
-                    .font(.title2)
+        VStack {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("키를 입력하세요")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary.opacity(0.8))
                     .padding()
-                    .padding(.vertical)
-                    .padding(.trailing, 70)
-                    .background(
-                        VStack {
-                            Spacer()
-                            Rectangle()
-                                .frame(height: 1)
-                                .foregroundColor(.primary.opacity(0.8))
-                        }
-                            .padding()
-                    )
-                    .focused($isTextFieldFocused)
-                
-                if selectedHeight != nil {
-                    HStack(spacing: 15) {
-                        Text("cm")
-                            .foregroundColor(.primary.opacity(0.6))
-                            .font(.title2)
-                        Button(action: {
-                            selectedHeight = nil
-                            isTextFieldFocused = true
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    .padding(.trailing, 20)
-                }
-            }
-            Spacer()
-            
-        }
-        .background(Color(UIColor.tertiarySystemBackground))
-        .navigationBarTitleDisplayMode(.inline)
-        .safeAreaInset(edge: .bottom) {
-            if keyboardHeight > 0 {
-                VStack {
-                    Button(action: {
-                        if let height = selectedHeight, height > 0 {
-                            viewModel.baby.height = height
-                            Task {
-                                await viewModel.saveProfileEdits()
-                                dismiss()
+                    .padding(.top, 10)
+                ZStack(alignment: .trailing) {
+                    TextField("키를 입력하세요", value: $selectedHeight, formatter: numberFormatter)
+                        .multilineTextAlignment(.leading)
+                        .keyboardType(.decimalPad)
+                        .foregroundColor(.primary.opacity(0.6))
+                        .font(.title2)
+                        .padding()
+                        .padding(.vertical)
+                        .padding(.trailing, 70)
+                        .background(
+                            VStack {
+                                Spacer()
+                                Rectangle()
+                                    .frame(height: 1)
+                                    .foregroundColor(.primary.opacity(0.8))
+                            }
+                                .padding()
+                        )
+                        .focused($isTextFieldFocused)
+                        .padding(.bottom)
+                    
+                    if selectedHeight != nil {
+                        HStack(spacing: 15) {
+                            Text("cm")
+                                .foregroundColor(.primary.opacity(0.6))
+                                .font(.title2)
+                            Button(action: {
+                                selectedHeight = nil
+                                isTextFieldFocused = true
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.gray)
                             }
                         }
-                    }) {
-                        Text("완료")
-                            .foregroundColor(isButtonEnabled ? .white : .primary)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .font(.headline)
-                            .background(isButtonEnabled ? Color("buttonColor") : Color.gray)
+                        .padding(.trailing, 20)
                     }
-                    .contentShape(Rectangle())
-                    .disabled(!isButtonEnabled)
                 }
             }
-        }
-        .animation(.easeInOut, value: keyboardHeight)
-        .onAppear {
-            // 키보드 높이 감지
-            NotificationCenter.default.addObserver(
-                forName: UIResponder.keyboardWillShowNotification,
-                object: nil,
-                queue: .main
-            ) { notification in
-                if let keyboardFrame = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect {
-                    keyboardHeight = keyboardFrame.height
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(UIColor.tertiarySystemBackground))
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .padding(.horizontal)
+            .navigationTitle(Text("키"))
+            .navigationBarTitleDisplayMode(.inline)
+            
+            Spacer()
+            
+                .safeAreaInset(edge: .bottom) {
+                    VStack {
+                        Button(action: {
+                            if let height = selectedHeight, height > 0 {
+                                viewModel.baby.height = height
+                                Task {
+                                    await viewModel.saveProfileEdits()
+                                    dismiss()
+                                }
+                            }
+                        }) {
+                            Text("완료")
+                                .foregroundColor(isButtonEnabled ? .white : .primary)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                                .font(.headline)
+                                .background(isButtonEnabled ? Color("buttonColor") : Color.gray)
+                        }
+                        .contentShape(Rectangle())
+                        .disabled(!isButtonEnabled)
+                    }
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(UIColor.tertiarySystemBackground))
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .padding()
                 }
-            }
-            NotificationCenter.default.addObserver(
-                forName: UIResponder.keyboardWillHideNotification,
-                object: nil,
-                queue: .main
-            ) { _ in
-                keyboardHeight = 0
-            }
         }
-        .onDisappear {
-            // 노티피케이션 제거
-            NotificationCenter.default.removeObserver(self)
+        .background(Color("customBackgroundColor"))
+        .contentShape(Rectangle())
+        .onTapGesture {
+            isTextFieldFocused = false
         }
     }
 }
