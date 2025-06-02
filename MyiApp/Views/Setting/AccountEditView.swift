@@ -83,7 +83,8 @@ struct AccountEditView: View {
                     Text(errorMessage)
                         .foregroundStyle(.red)
                         .font(.caption)
-                        .padding(.leading, 18)
+                        .padding(.horizontal)
+                        .padding(.bottom)
                 }
             }
             .background(

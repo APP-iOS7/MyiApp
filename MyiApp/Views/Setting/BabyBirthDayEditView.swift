@@ -67,7 +67,7 @@ struct BabyBirthDayEditView: View {
             .navigationTitle(Text("출생일"))
             .navigationBarTitleDisplayMode(.inline)
         }
-        .padding(.horizontal)
+        .padding()
         .background(Color("customBackgroundColor"))
     }
 }
