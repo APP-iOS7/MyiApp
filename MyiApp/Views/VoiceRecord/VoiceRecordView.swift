@@ -66,7 +66,7 @@ struct VoiceRecordView: View {
                             showResultList.toggle()
                         }
                 }
-                .padding([.top, .horizontal])
+                .padding(.top)
 
                 VStack {
                     Spacer()
@@ -74,22 +74,23 @@ struct VoiceRecordView: View {
                     Image("CryAnalysisProcessingShark")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 200, height: 200)
+                        .frame(width: 270, height: 270)
                         .padding(.bottom, 20)
+                    
+                    Spacer()
 
-                    Text("시작 버튼을 누른 후 아이의 울음소리를 들려주세요")
-                        .font(.body)
+                    Text("시작 버튼을 누른 후 \n 아이의 울음소리를 들려주세요")
+                        .font(.title2)
                         .multilineTextAlignment(.center)
                         .lineSpacing(6)
-                        .padding(.horizontal)
-                        .padding(.bottom, 20)
+                        .padding(.bottom, 40)
+                    
 
-                    Text("녹음은 최대 7초 동안 진행됩니다.")
+                    Text("녹음은 7초 동안 진행됩니다.")
                         .font(.footnote)
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
-                        .padding(.horizontal)
                         .padding(.bottom, 10)
 
                     Text("가장 뚜렷한 울음소리가 들릴 때 녹음을 시작해 주세요.")
@@ -97,7 +98,6 @@ struct VoiceRecordView: View {
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
-                        .padding(.horizontal)
                         .padding(.bottom, 10)
 
                     Text("정확한 분석을 위해 조용한 환경에서 녹음해 주세요.")
@@ -105,17 +105,19 @@ struct VoiceRecordView: View {
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
-                        .padding(.horizontal)
                         .padding(.bottom, 20)
 
                     Spacer(minLength: 16)
                 }
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity)
                 .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(12)
                 .padding(.top, 16)
 
                 Spacer()
             }
+            .padding(.horizontal)
             .background(Color("customBackgroundColor"))
             .safeAreaInset(edge: .bottom) {
                 Button(action: {
