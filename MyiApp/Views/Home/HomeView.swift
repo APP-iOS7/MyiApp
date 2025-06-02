@@ -105,23 +105,14 @@ struct HomeView: View {
                                     .foregroundColor(.primary)
                                     .font(.title3)
                                     .bold()
-                                Text(viewModel.displayGender)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.gray)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 2)
-                                    .background(
-                                        Capsule()
-                                            .fill(Color.gray.opacity(0.1))
-                                    )
+                                Image(uiImage: viewModel.displayGender)
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
                                 Image(systemName: "chevron.down")
                                     .foregroundStyle(Color.primary)
                             }
                         }
                         Spacer()
-                        Image(systemName: "bell.fill")
-                            .font(.title2)
-                            .foregroundStyle(Color.gray)
                     }
                     HStack(alignment: .center) {
                         Text(viewModel.displayDevelopmentalStage)
