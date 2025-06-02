@@ -93,7 +93,7 @@ struct BabyGenderEditView: View {
             }
             .contentShape(Rectangle())
         }
-        .padding(.horizontal)
+        .padding()
         .background(Color("customBackgroundColor"))
     }
 }
