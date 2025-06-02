@@ -137,7 +137,3 @@ struct ExistingBabyRegisterView: View {
         }
     }
 }
-
-//#Preview {
-//    ExistingBabyRegisterView()
-//}
