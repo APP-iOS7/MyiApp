@@ -20,10 +20,10 @@ struct CryAnalysisResultListView: View {
     
     var body: some View {
         NavigationStack {
-            Form {
-                if viewModel.recordResults.isEmpty {
-                    EmptyStateView()
-                } else {
+            if viewModel.recordResults.isEmpty {
+                EmptyStateView()
+            } else {
+                Form {
                     Section {
                         ForEach(viewModel.recordResults, id: \.id) { result in
                             AnalysisResultRow(
@@ -39,17 +39,18 @@ struct CryAnalysisResultListView: View {
                                     }
                                 }
                             )
-                                .background {
-                                    Color(UIColor.tertiarySystemBackground)
-                                }
+                            .background {
+                                Color(UIColor.tertiarySystemBackground)
+                            }
                         }
                     }
                 }
+                .listStyle(PlainListStyle())
+                .contentMargins(.top, 10)
+                .navigationTitle("분석 결과")
+                .scrollContentBackground(.hidden) // Form의 기본 배경 제거
+                .background(Color.customBackground)
             }
-            .listStyle(PlainListStyle())
-            .contentMargins(.top, 10)
-            .navigationTitle("분석 결과")
-            .background(Color.customBackground)
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -119,7 +120,7 @@ private struct AnalysisResultRow: View {
     let isSelectionMode: Bool
     let isSelected: Bool
     let onTap: () -> Void
-
+    
     var body: some View {
         HStack(spacing: 12) {
             if isSelectionMode {
@@ -128,13 +129,13 @@ private struct AnalysisResultRow: View {
                     .foregroundColor(.gray)
                     .transition(.move(edge: .leading).combined(with: .opacity))
             }
-
+            
             Image(result.firstLabel.rawImageName)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 48, height: 48)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
-
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text("새로운 분석")
                     .font(.headline)
@@ -146,7 +147,7 @@ private struct AnalysisResultRow: View {
                     .font(.caption)
                     .foregroundColor(.gray)
             }
-
+            
             Spacer()
         }
         .background(Color(UIColor.tertiarySystemBackground))
@@ -184,20 +185,15 @@ private func dateString(from date: Date) -> String {
 // 빈 상태 뷰 별도 컴포넌트로 분리
 private struct EmptyStateView: View {
     var body: some View {
-        ZStack {
-            Color.clear
-            VStack {
-                Spacer()
-                ContentUnavailableView(
-                    "분석 결과가 없습니다",
-                    systemImage: "magnifyingglass",
-                    description: Text("분석을 완료하면 결과가 이곳에 표시됩니다.")
-                )
-                Spacer()
-            }
+        VStack {
+            Spacer()
+            ContentUnavailableView(
+                "분석 결과가 없습니다",
+                systemImage: "magnifyingglass",
+                description: Text("분석을 완료하면 결과가 이곳에 표시됩니다.")
+            )
+            Spacer()
         }
-        .frame(maxWidth: .infinity, minHeight: UIScreen.main.bounds.height * 0.65)
-        .listRowSeparator(.hidden)
-        .listRowBackground(Color.clear)
+        .background(Color(.customBackground))
     }
 }
