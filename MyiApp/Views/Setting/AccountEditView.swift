@@ -54,7 +54,6 @@ struct AccountEditView: View {
                             }
                                 .padding()
                         )
-                        .padding(.bottom)
                         .submitLabel(.done)
                         .onSubmit {
                             viewModel.name = selectedName
@@ -87,6 +86,7 @@ struct AccountEditView: View {
                         .padding(.bottom)
                 }
             }
+            .padding()
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color(UIColor.tertiarySystemBackground))

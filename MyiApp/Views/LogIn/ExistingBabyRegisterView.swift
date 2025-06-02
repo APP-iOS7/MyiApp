@@ -18,7 +18,7 @@ struct ExistingBabyRegisterView: View {
     
     var body: some View {
         VStack {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading) {
                 Text("공유 코드를 입력하세요")
                     .font(.title)
                     .fontWeight(.bold)
@@ -45,7 +45,6 @@ struct ExistingBabyRegisterView: View {
                             }
                                 .padding()
                         )
-//                        .padding(.bottom)
                         .submitLabel(.done)
                         .onSubmit {
                             Task {
@@ -77,6 +76,7 @@ struct ExistingBabyRegisterView: View {
                         .padding(.bottom)
                 }
             }
+            .padding(.bottom)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color(UIColor.tertiarySystemBackground))
@@ -98,7 +98,7 @@ struct ExistingBabyRegisterView: View {
                                 }
                             }
                         }) {
-                            Text("아기 등록")
+                            Text("공유 코드를 등록하세요")
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 50)
