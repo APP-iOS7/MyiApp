@@ -81,6 +81,7 @@ struct VoiceRecordView: View {
 
                     Text("시작 버튼을 누른 후 \n 아이의 울음소리를 들려주세요")
                         .font(.title2)
+                        .fontWeight(.semibold)
                         .multilineTextAlignment(.center)
                         .lineSpacing(6)
                         .padding(.bottom, 40)
@@ -135,8 +136,8 @@ struct VoiceRecordView: View {
                         .frame(height: 50)
                         .background(Color("buttonColor"))
                         .cornerRadius(12)
-                        .padding(.horizontal)
-                        .padding(.bottom, 8)
+                        .padding()
+                        .padding(.bottom)
                 }
             }
             .navigationDestination(for: CryRoute.self) { route in

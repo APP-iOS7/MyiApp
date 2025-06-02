@@ -35,9 +35,9 @@ struct EditRecordView: View {
                         viewModel.saveRecord()
                         dismiss()
                     })
-                    
                 }
             }
+            .scrollContentBackground(.hidden)
             .background {
                 Color.customBackground
                 MinutesPickerActionSheet(isPresented: $viewModel.isRightMinutesPickerActionSheetPresent,
