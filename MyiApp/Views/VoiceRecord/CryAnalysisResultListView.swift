@@ -56,11 +56,7 @@ struct CryAnalysisResultListView: View {
                         .foregroundColor(.red)
                         .alert("선택한 항목을 삭제하시겠습니까?", isPresented: $showDeleteAlert) {
                             Button("삭제", role: .destructive) {
-                                for id in selectedItems {
-                                    viewModel.deleteRecord(with: id)
-                                }
-                                selectedItems.removeAll()
-                                isSelectionMode = false
+                                confirmDeletion()
                             }
                             Button("취소", role: .cancel) {}
                         }
@@ -87,6 +83,16 @@ struct CryAnalysisResultListView: View {
             }
         }
     }
+    
+    private func confirmDeletion() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            for id in selectedItems {
+                viewModel.deleteRecord(with: id)
+            }
+            selectedItems.removeAll()
+            isSelectionMode = false
+        }
+    }
 }
 
 // 별도 컴포넌트로 분리하여 컴파일 최적화
@@ -102,7 +108,7 @@ private struct AnalysisResultRow: View {
             if isSelectionMode {
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
-                    .foregroundColor(.blue)
+                    .foregroundColor(.gray)
                     .transition(.move(edge: .leading).combined(with: .opacity))
             }
 
