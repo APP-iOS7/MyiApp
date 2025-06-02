@@ -92,7 +92,7 @@ struct BabyProfileView: View {
                                             .foregroundColor(.primary.opacity(0.6))
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(.primary.opacity(0.6))
-                                            .font(.system(size: 12))
+                                            .font(.system(.caption))
                                     }
                                     .padding()
                                 }
@@ -109,7 +109,7 @@ struct BabyProfileView: View {
                                             .foregroundColor(.primary.opacity(0.6))
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(.primary.opacity(0.6))
-                                            .font(.system(size: 12))
+                                            .font(.system(.caption))
                                     }
                                     .padding()
                                 }
@@ -128,7 +128,7 @@ struct BabyProfileView: View {
                                                 .foregroundColor(.primary.opacity(0.6))
                                             Image(systemName: "chevron.right")
                                                 .foregroundColor(.primary.opacity(0.6))
-                                                .font(.system(size: 12))
+                                                .font(.system(.caption))
                                         }
                                         .padding()
                                     }
@@ -146,7 +146,7 @@ struct BabyProfileView: View {
                                                 .foregroundColor(.primary.opacity(0.6))
                                             Image(systemName: "chevron.right")
                                                 .foregroundColor(.primary.opacity(0.6))
-                                                .font(.system(size: 12))
+                                                .font(.system(.caption))
                                         }
                                         .padding()
                                     }
@@ -164,7 +164,7 @@ struct BabyProfileView: View {
                                             .foregroundColor(.primary.opacity(0.6))
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(.primary.opacity(0.6))
-                                            .font(.system(size: 12))
+                                            .font(.system(.caption))
                                     }
                                     .padding()
                                 }
@@ -181,7 +181,7 @@ struct BabyProfileView: View {
                                             .foregroundColor(.primary.opacity(0.6))
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(.primary.opacity(0.6))
-                                            .font(.system(size: 12))
+                                            .font(.system(.caption))
                                     }
                                     .padding()
                                 }
@@ -198,7 +198,7 @@ struct BabyProfileView: View {
                                             .foregroundColor(.primary.opacity(0.6))
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(.primary.opacity(0.6))
-                                            .font(.system(size: 12))
+                                            .font(.system(.caption))
                                     }
                                     .padding()
                                 }
@@ -215,7 +215,7 @@ struct BabyProfileView: View {
                                             .foregroundColor(.primary.opacity(0.6))
                                         Image(systemName: "chevron.right")
                                             .foregroundColor(.primary.opacity(0.6))
-                                            .font(.system(size: 12))
+                                            .font(.system(.caption))
                                     }
                                     .padding()
                                 }
@@ -224,13 +224,7 @@ struct BabyProfileView: View {
                                     Text("아이 정보 공유 코드 복사하기")
                                         .font(.headline)
                                         .fontWeight(.semibold)
-                                        .foregroundColor(.primary.opacity(0.8))
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "doc.on.doc")
-                                        .foregroundColor(.primary.opacity(0.6))
-                                        .font(.system(size: 12))
+                                        .foregroundColor(Color("buttonColor"))
                                 }
                                 .padding()
                                 .contentShape(Rectangle())
