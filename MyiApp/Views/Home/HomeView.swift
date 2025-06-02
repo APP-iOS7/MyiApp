@@ -100,7 +100,7 @@ struct HomeView: View {
                                 Text("아이 추가")
                             }
                         } label: {
-                            HStack(spacing: 8) {
+                            HStack(spacing: 4) {
                                 Text(viewModel.displayName)
                                     .foregroundColor(.primary)
                                     .font(.title3)
@@ -280,7 +280,7 @@ struct HomeView: View {
                 }
             }
         }
-        .padding(.horizontal)
+        .padding(.leading)
     }
     private func getTopSafeAreaHeight() -> CGFloat {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
