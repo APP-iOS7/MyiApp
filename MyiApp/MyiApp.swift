@@ -9,10 +9,14 @@ import SwiftUI
 import FirebaseCore
 import GoogleSignIn
 import UserNotifications
+import FirebaseAuth
 
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
+        
+        // 앱 첫 실행 체크
+        checkForFreshInstall()
         
         if AuthService.shared.user == nil {
             DatabaseService.shared.hasBabyInfo = false
@@ -58,6 +62,23 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         // 여기서 필요하다면 알림을 탭했을 때 특정 화면으로 이동하는 코드를 추가할 수 있음
         
         completionHandler()
+    }
+    
+    func checkForFreshInstall() {
+        let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
+        
+        if !hasLaunchedBefore {
+            // 앱 첫 실행이므로 강제로 로그아웃
+            do {
+                try Auth.auth().signOut()
+                print("앱 첫 실행: 강제 로그아웃 완료")
+            } catch let error {
+                print("로그아웃 오류: \(error.localizedDescription)")
+            }
+            
+            UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+            UserDefaults.standard.synchronize()
+        }
     }
 }
 
