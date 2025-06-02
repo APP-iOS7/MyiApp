@@ -83,7 +83,7 @@ struct RegisterBabyView: View {
                     destinationView()
                 }
         }
-        .padding(.horizontal)
+        .padding()
         .background(Color("customBackgroundColor"))
     }
     

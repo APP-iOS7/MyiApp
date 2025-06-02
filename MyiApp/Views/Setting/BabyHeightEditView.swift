@@ -35,7 +35,7 @@ struct BabyHeightEditView: View {
     
     var body: some View {
         VStack {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading) {
                 Text("키를 입력하세요")
                     .font(.title)
                     .fontWeight(.bold)
