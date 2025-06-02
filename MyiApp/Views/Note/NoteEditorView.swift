@@ -57,7 +57,7 @@ struct NoteEditorView: View {
                     }
                 }
             } else {
-                _isReminderEnabled = State(initialValue: note.category == .일정)
+                _isReminderEnabled = State(initialValue: false)
             }
             
             self.isEditing = true
@@ -169,7 +169,6 @@ struct NoteEditorView: View {
                     isSelected: selectedCategory == .일정
                 ) {
                     selectedCategory = .일정
-                    isReminderEnabled = true
                     reminderTime = date
                     reminderMinutesBefore = 0
                 }
