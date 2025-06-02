@@ -98,43 +98,53 @@ struct NoteEditorView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                categorySection
-                titleSection
-                dateSection
-                contentSection
+            ZStack {
+                Color("customBackgroundColor")
+                    .ignoresSafeArea()
                 
-                if selectedCategory == .일지 {
-                    imageSection
-                }
-                
-                if selectedCategory == .일정 {
-                    reminderSection
-                }
-            }
-            .navigationTitle(isEditing ? "내용 수정" : "새 \(selectedCategory.rawValue) 작성")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("취소") {
-                        imagesToDelete.removeAll()
-                        dismiss()
+                Form {
+                    categorySection
+                    titleSection
+                    dateSection
+                    contentSection
+                    
+                    if selectedCategory == .일지 {
+                        imageSection
                     }
-                    .disabled(isSaving)
-                }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("저장") {
-                        saveNote()
+                    
+                    if selectedCategory == .일정 {
+                        reminderSection
                     }
-                    .disabled(title.isEmpty || isSaving)
                 }
-            }
-            .overlay(loadingOverlay)
-            .alert("알림", isPresented: $showAlertMessage) {
-                Button("확인", role: .cancel) {}
-            } message: {
-                Text(alertMessage)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .navigationTitle(isEditing ? "내용 수정" : "새 \(selectedCategory.rawValue) 작성")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("취소") {
+                            imagesToDelete.removeAll()
+                            dismiss()
+                        }
+                        .disabled(isSaving)
+                    }
+                    
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("저장") {
+                            saveNote()
+                        }
+                        .disabled(title.isEmpty || isSaving)
+                    }
+                }
+                .overlay(loadingOverlay)
+                .alert("알림", isPresented: $showAlertMessage) {
+                    Button("확인", role: .cancel) {}
+                } message: {
+                    Text(alertMessage)
+                }
+                .sheet(isPresented: $showingPhotoPicker) {
+                    PhotoPicker(selectedImages: $selectedImages, selectionLimit: 10)
+                }
             }
         }
     }
@@ -276,9 +286,6 @@ struct NoteEditorView: View {
                 Image(systemName: "photo.on.rectangle.angled")
                 Text("이미지 추가")
             }
-        }
-        .sheet(isPresented: $showingPhotoPicker) {
-            PhotoPicker(selectedImages: $selectedImages, selectionLimit: 10)
         }
     }
     
@@ -456,8 +463,8 @@ struct NoteEditorView: View {
         let particle = selectedCategory == .일지 ? "가" : "이"
         
         let notificationText = selectedCategory == .일정 && withNotification
-            ? " 알림이 설정되었습니다."
-            : ""
+        ? " 알림이 설정되었습니다."
+        : ""
         
         viewModel.toastMessage = ToastMessage(
             message: "\(messagePrefix)\(category)\(particle) \(action)되었습니다.\(notificationText)",
