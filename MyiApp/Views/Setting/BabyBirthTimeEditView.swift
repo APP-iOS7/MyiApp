@@ -66,7 +66,7 @@ struct BabyBirthTimeEditView: View {
             .navigationTitle(Text("출생 시간"))
             .navigationBarTitleDisplayMode(.inline)
         }
-        .padding(.horizontal)
+        .padding()
         .background(Color("customBackgroundColor"))
     }
 }

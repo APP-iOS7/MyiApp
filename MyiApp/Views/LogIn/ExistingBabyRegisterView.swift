@@ -45,12 +45,14 @@ struct ExistingBabyRegisterView: View {
                             }
                                 .padding()
                         )
-                        .padding(.bottom)
+//                        .padding(.bottom)
                         .submitLabel(.done)
                         .onSubmit {
                             Task {
                                 await viewModel.registerExistingBaby()
-                                popToRootViewController()
+                                if viewModel.isRegistered {
+                                    popToRootViewController()
+                                }
                             }
                         }
                     
@@ -71,7 +73,8 @@ struct ExistingBabyRegisterView: View {
                     Text(errorMessage)
                         .foregroundStyle(.red)
                         .font(.caption)
-                        .padding(.leading, 18)
+                        .padding(.horizontal)
+                        .padding(.bottom)
                 }
             }
             .background(
@@ -88,8 +91,11 @@ struct ExistingBabyRegisterView: View {
                 .safeAreaInset(edge: .bottom) {
                     VStack {
                         Button(action: {
-                            Task { await viewModel.registerExistingBaby()
-                                popToRootViewController()
+                            Task {
+                                await viewModel.registerExistingBaby()
+                                if viewModel.isRegistered {
+                                    popToRootViewController()
+                                }
                             }
                         }) {
                             Text("아기 등록")
