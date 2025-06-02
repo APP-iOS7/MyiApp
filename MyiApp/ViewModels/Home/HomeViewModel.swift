@@ -46,8 +46,8 @@ class HomeViewModel: ObservableObject {
     var displayName: String {
         baby?.name ?? "loading..."
     }
-    var displayGender: String {
-        baby?.gender.rawValue == 1 ? "남아" : "여아"
+    var displayGender: UIImage {
+        baby?.gender.rawValue == 1 ? .babyMale : .babyFemale
     }
     var displayBirthDate: String {
         guard let baby else { return "알 수 없음" }
