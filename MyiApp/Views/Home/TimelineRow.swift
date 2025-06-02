@@ -177,6 +177,7 @@ struct TimelineRow: View {
             .background(Color(UIColor.tertiarySystemBackground))
             .cornerRadius(10)
             .contentShape(Rectangle())
+            .padding(.trailing)
         }
 }
 
