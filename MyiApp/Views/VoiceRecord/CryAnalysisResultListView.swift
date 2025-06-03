@@ -7,22 +7,25 @@
 
 import SwiftUI
 
+// 결과 리스트 삭제 시 표시한 alert 유형 정의
 enum DeleteAlertType {
     case none, confirm, empty
 }
 
+// MARK: CryAnalysisResultListView
 struct CryAnalysisResultListView: View {
     @EnvironmentObject var viewModel: VoiceRecordViewModel
-    @State private var isSelectionMode: Bool = false
-    @State private var selectedItems: Set<UUID> = []
-    @State private var showDeleteAlert: Bool = false
-    @State private var deleteAlertType: DeleteAlertType = .none
+    @State private var isSelectionMode: Bool = false // 현재 선택 모드인지 여부
+    @State private var selectedItems: Set<UUID> = [] // 선택된 결과 리스트의 ID 목록
+    @State private var showDeleteAlert: Bool = false // 분석 결과가 없을 때 alert 표시 여부
+    @State private var deleteAlertType: DeleteAlertType = .none // 현재 표시할 삭제 alert 유형
     
     var body: some View {
         NavigationStack {
             if viewModel.recordResults.isEmpty {
                 EmptyStateView()
             } else {
+                // 분석 결과 리스트 표시
                 Form {
                     Section {
                         ForEach(viewModel.recordResults, id: \.id) { result in
@@ -32,6 +35,8 @@ struct CryAnalysisResultListView: View {
                                 isSelectionMode: isSelectionMode,
                                 isSelected: selectedItems.contains(result.id),
                                 onTap: {
+                                    // 기본 모드: 선택 버튼 표시
+                                    // 선택 모드: 삭제/취소 버튼 표시
                                     if selectedItems.contains(result.id) {
                                         selectedItems.remove(result.id)
                                     } else {
@@ -108,6 +113,8 @@ struct CryAnalysisResultListView: View {
         }
     }
     
+    // 선택된 항목들을 삭제하고 선택모드를 종료하는 함수
+    // delay를 주어서 UI 충돌을 방지
     private func confirmDeletion() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             for id in selectedItems {
@@ -119,6 +126,7 @@ struct CryAnalysisResultListView: View {
     }
 }
 
+// 개별 분석 결과 셀
 // 별도 컴포넌트로 분리하여 컴파일 최적화
 private struct AnalysisResultRow: View {
     let result: VoiceRecord
@@ -188,7 +196,7 @@ private func dateString(from date: Date) -> String {
     return formatter.string(from: date)
 }
 
-// 빈 상태 뷰 별도 컴포넌트로 분리
+// 빈 상태 뷰를 별도 컴포넌트로 분리
 private struct EmptyStateView: View {
     var body: some View {
         VStack {
