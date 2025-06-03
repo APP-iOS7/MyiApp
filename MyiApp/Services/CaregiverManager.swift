@@ -242,4 +242,33 @@ class CaregiverManager: ObservableObject {
         let userRef = db.collection("users").document(uid)
         try? await userRef.updateData(["lastSelectedBabyId": babyId])
     }
+    
+    func registerBabyUUID(_ babyId: String) async throws {
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        
+        let babyRef = db.collection("babies").document(babyId)
+        let userRef = db.collection("users").document(userId)
+        
+        guard let baby = try? await babyRef.getDocument().data(as: Baby.self) else {
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "해당 코드를 가진 아기를 찾을 수 없습니다."])
+        }
+        
+        if babies.contains(where: { $0.id.uuidString == babyId }) {
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "이미 등록된 아기입니다."])
+        }
+        
+        try await userRef.updateData([
+                "babies": FieldValue.arrayUnion([babyRef])
+            ])
+            try await babyRef.updateData([
+                "caregivers": FieldValue.arrayUnion([userRef])
+            ])
+        
+        await MainActor.run {
+            self.babies.append(baby)
+            if self.selectedBaby == nil {
+                self.selectedBaby = baby
+            }
+        }
+    }
 }

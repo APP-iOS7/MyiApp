@@ -11,7 +11,6 @@ struct BabyWeightEditView: View {
     @StateObject var viewModel: BabyProfileViewModel
     @Environment(\.dismiss) private var dismiss
     @FocusState private var isTextFieldFocused: Bool
-    @State private var keyboardHeight: CGFloat = 0
     @State private var selectedWeight: Double?
     
     private var isButtonEnabled: Bool {
@@ -36,7 +35,7 @@ struct BabyWeightEditView: View {
     
     var body: some View {
         VStack {
-            VStack(alignment: .leading, spacing: 30) {
+            VStack(alignment: .leading) {
                 Text("몸무게를 입력하세요")
                     .font(.title)
                     .fontWeight(.bold)
