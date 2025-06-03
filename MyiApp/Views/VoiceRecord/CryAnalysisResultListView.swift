@@ -48,7 +48,9 @@ struct CryAnalysisResultListView: View {
                 .listStyle(PlainListStyle())
                 .contentMargins(.top, 10)
                 .navigationTitle("분석 결과")
-                .scrollContentBackground(.hidden) // Form의 기본 배경 제거
+                .navigationBarTitleDisplayMode(.inline)
+                // .id(isSelectionMode ? "selection" : "normal")
+                .scrollContentBackground(.hidden)
                 .background(Color.customBackground)
             }
         }
@@ -80,17 +82,21 @@ struct CryAnalysisResultListView: View {
                         }
                         
                         Button("취소") {
-                            selectedItems.removeAll()
-                            isSelectionMode = false
+                            withAnimation {
+                                selectedItems.removeAll()
+                                isSelectionMode = false
+                            }
                         }
                         .foregroundColor(.primary)
                     }
                 } else {
                     Button("선택") {
-                        if viewModel.recordResults.isEmpty {
-                            showDeleteAlert = true
-                        } else {
-                            isSelectionMode = true
+                        withAnimation {
+                            if viewModel.recordResults.isEmpty {
+                                showDeleteAlert = true
+                            } else {
+                                isSelectionMode = true
+                            }
                         }
                     }
                     .foregroundColor(.primary)
