@@ -32,7 +32,7 @@ extension CryRoute: Hashable {
 extension CryRoute: Equatable {
     static func == (lhs: CryRoute, rhs: CryRoute) -> Bool {
         switch (lhs, rhs) {
-            // processing은 매번 새로운 UUID가 붙지만 여기선 type만으로 같다고 판단 (navigation 목적상 같음)
+            // processing은 UUID는 매번 다르지만, '진행 중 화면'이라는 목적이 같으므로 같은 화면으로 처리함
         case (.processing, .processing):
             return true
             
