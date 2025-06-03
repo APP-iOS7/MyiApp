@@ -23,7 +23,7 @@ struct BabyNameEditView: View {
     
     var body: some View {
         VStack {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading) {
                 Text("이름을 입력하세요")
                     .font(.title)
                     .fontWeight(.bold)
@@ -50,7 +50,6 @@ struct BabyNameEditView: View {
                             }
                                 .padding()
                         )
-                        .padding(.bottom)
                         .submitLabel(.done)
                         .onSubmit {
                             viewModel.baby.name = selectedName
@@ -78,9 +77,11 @@ struct BabyNameEditView: View {
                     Text(errorMessage)
                         .foregroundStyle(.red)
                         .font(.caption)
-                        .padding(.leading, 18)
+                        .padding(.horizontal)
+                        .padding(.bottom)
                 }
             }
+            .padding(.bottom)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color(UIColor.tertiarySystemBackground))

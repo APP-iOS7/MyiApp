@@ -86,16 +86,20 @@ struct TimelineRow: View {
                 return "왼쪽 \(left)분, 오른쪽 \(right)분"
             case .sleep:
                 if let start = record.sleepStart, let end = record.sleepEnd {
-                    let calendar = Calendar.current
-                    let startDay = calendar.startOfDay(for: start)
-                    let endDay = calendar.startOfDay(for: end)
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.dateFormat = "MM/dd"
                     
-                    if startDay == endDay {
-                        return "\(start.to24HourTimeString()) - \(end.to24HourTimeString())"
+                    let startDateStr = dateFormatter.string(from: start)
+                    let endDateStr = dateFormatter.string(from: end)
+                    let startTimeStr = start.to24HourTimeString()
+                    let endTimeStr = end.to24HourTimeString()
+                    
+                    if startDateStr == endDateStr {
+                        // 같은 날: 05/10 22:30 - 01:20
+                        return "\(startDateStr) \(startTimeStr) - \(endTimeStr)"
                     } else {
-                        let dateFormatter = DateFormatter()
-                        dateFormatter.dateFormat = "MM/dd"
-                        return "\(start.to24HourTimeString()) (\(dateFormatter.string(from: start))) - \(end.to24HourTimeString()) (\(dateFormatter.string(from: end)))"
+                        // 다른 날: 05/10 22:30 - 05/11 01:20
+                        return "\(startDateStr) \(startTimeStr) - \(endDateStr) \(endTimeStr)"
                     }
                 } else if let start = record.sleepStart {
                     return "\(start.to24HourTimeString()) - (종료 기록 없음)"
@@ -125,7 +129,6 @@ struct TimelineRow: View {
                 return record.content ?? "기록 완료"
         }
     }
-    
     private var circleColor: Color {
         switch record.title {
             case .formula, .babyFood, .pumpedMilk, .breastfeeding: return .food
@@ -177,6 +180,7 @@ struct TimelineRow: View {
             .background(Color(UIColor.tertiarySystemBackground))
             .cornerRadius(10)
             .contentShape(Rectangle())
+            .padding(.trailing)
         }
 }
 
