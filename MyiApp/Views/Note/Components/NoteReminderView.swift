@@ -113,6 +113,7 @@ struct NoteReminderView: View {
                                     .foregroundColor(.blue)
                             }
                         }
+                        .buttonStyle(PlainButtonStyle())
                     }
                     
                     // 알림 시간 표시
@@ -137,6 +138,7 @@ struct NoteReminderView: View {
                         .background(Color("sharkCardBackground"))
                         .cornerRadius(10)
                     }
+                    .buttonStyle(PlainButtonStyle())
                     .sheet(isPresented: $showTimePicker) {
                         timePickerSheet
                     }
@@ -171,23 +173,37 @@ struct NoteReminderView: View {
                 .labelsHidden()
             
             HStack {
-                Button("취소") {
+                Button(action: {
                     showTimePicker = false
+                }) {
+                    Text("취소")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.gray.opacity(0.2))
+                        .foregroundColor(.primary)
+                        .cornerRadius(10)
                 }
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.gray.opacity(0.2))
-                .foregroundColor(.primary)
-                .cornerRadius(10)
+                .buttonStyle(PlainButtonStyle())
                 
-                Button("확인") {
+                Button(action: {
                     validateAndSetCustomTime()
+                }) {
+                    Text("확인")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.button)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
                 }
+<<<<<<< HEAD
                 .padding()
                 .frame(maxWidth: .infinity)
                 .background(Color.button)
                 .foregroundColor(.white)
                 .cornerRadius(10)
+=======
+                .buttonStyle(PlainButtonStyle())
+>>>>>>> origin/dev
             }
             .padding(.horizontal)
         }
@@ -215,10 +231,10 @@ struct NoteReminderView: View {
     }
     
     private func validateAndSetCustomTime() {
-        // 일정 시간 이전인지 확인
-        if tempReminderTime >= eventDate {
+        // 일정 시간 이후인지 확인
+        if tempReminderTime > eventDate {
             showInvalidTimeAlert = true
-            alertMessage = "알림 시간은 일정 시작 시간보다 이전이어야 합니다."
+            alertMessage = "알림 시간은 일정 시작 시간 이후일 수 없습니다."
             return
         }
         

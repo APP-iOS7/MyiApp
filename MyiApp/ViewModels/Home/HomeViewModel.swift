@@ -15,7 +15,6 @@ class HomeViewModel: ObservableObject {
     @Published var records: [Record] = []
     @Published var selectedDate: Date = Date()
     @Published var recordToEdit: Record?
-    @Published var showDeleteAlert: Bool = false
     @Published var recordToDelete: Record?
     @Published var isPresented: Bool = false
 
@@ -47,8 +46,8 @@ class HomeViewModel: ObservableObject {
     var displayName: String {
         baby?.name ?? "loading..."
     }
-    var displayGender: String {
-        baby?.gender.rawValue == 1 ? "남아" : "여아"
+    var displayGender: UIImage {
+        baby?.gender.rawValue == 1 ? .babyMale : .babyFemale
     }
     var displayBirthDate: String {
         guard let baby else { return "알 수 없음" }
@@ -238,27 +237,6 @@ class HomeViewModel: ObservableObject {
             } else {
                 print("Record successfully deleted")
                 completion?(nil)
-            }
-        }
-    }
-    
-    func showDeleteConfirmation(for record: Record) {
-        recordToDelete = record
-        showDeleteAlert = true
-    }
-    
-    func cancelDelete() {
-        recordToDelete = nil
-        showDeleteAlert = false
-    }
-    
-    func confirmDelete() {
-        if let record = recordToDelete {
-            deleteRecord(record) { error in
-                if error == nil {
-                    self.recordToDelete = nil
-                    self.showDeleteAlert = false
-                }
             }
         }
     }

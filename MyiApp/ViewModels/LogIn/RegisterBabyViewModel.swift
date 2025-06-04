@@ -10,6 +10,7 @@ import SwiftUI
 @MainActor
 class RegisterBabyViewModel: ObservableObject {
     private let databaseService = DatabaseService.shared
+    private let caregiverManager = CaregiverManager.shared
     
     @Published var name: String = ""
     @Published var birthDate: Date? = Calendar.current.startOfDay(for: Date())
@@ -22,8 +23,9 @@ class RegisterBabyViewModel: ObservableObject {
     @Published var shouldMoveToHeight: Bool = false
     @Published var errorMessage: String?
     @Published var isTimeSelectionEnabled: Bool = false
+    @Published var babyId: String = ""
     
-    func registerBaby() {
+    func registerBaby() async {
         guard let gender = gender,
               let bloodType = bloodType,
               let birthDate = birthDate,
@@ -39,13 +41,23 @@ class RegisterBabyViewModel: ObservableObject {
                         height: heightValue,
                         weight: weightValue,
                         bloodType: bloodType)
-        Task {
             do {
                 try await databaseService.saveBabyInfo(baby: baby)
                 isRegistered = true
             } catch {
                 errorMessage = error.localizedDescription
+                isRegistered = false
             }
+    }
+    
+    func registerExistingBaby() async {
+        do {
+            try await CaregiverManager.shared.registerBabyUUID(babyId)
+            databaseService.hasBabyInfo = true
+            isRegistered = true
+        } catch {
+            errorMessage = error.localizedDescription
+            isRegistered = false
         }
     }
 }

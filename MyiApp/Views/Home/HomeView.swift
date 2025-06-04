@@ -29,7 +29,7 @@ struct HomeView: View {
                     }
                     .background(RoundedRectangle(cornerRadius: 12).fill(Color(uiColor: .tertiarySystemBackground)))
                 }
-                .padding([.horizontal, .bottom])
+                .padding()
             }
         }
         .background(Color.customBackground)
@@ -100,28 +100,19 @@ struct HomeView: View {
                                 Text("아이 추가")
                             }
                         } label: {
-                            HStack(spacing: 8) {
+                            HStack(spacing: 4) {
                                 Text(viewModel.displayName)
                                     .foregroundColor(.primary)
                                     .font(.title3)
                                     .bold()
-                                Text(viewModel.displayGender)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.gray)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 2)
-                                    .background(
-                                        Capsule()
-                                            .fill(Color.gray.opacity(0.1))
-                                    )
+                                Image(uiImage: viewModel.displayGender)
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
                                 Image(systemName: "chevron.down")
                                     .foregroundStyle(Color.primary)
                             }
                         }
                         Spacer()
-                        Image(systemName: "bell.fill")
-                            .font(.title2)
-                            .foregroundStyle(Color.gray)
                     }
                     HStack(alignment: .center) {
                         Text(viewModel.displayDevelopmentalStage)
@@ -258,9 +249,9 @@ struct HomeView: View {
                         .onTapGesture {
                             viewModel.recordToEdit = record
                         }
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .cancel) {
-                                viewModel.showDeleteConfirmation(for: record)
+                                viewModel.deleteRecord(record)
                             } label: {
                                 Label("삭제", systemImage: "trash")
                                     .foregroundColor(.red)
@@ -287,19 +278,9 @@ struct HomeView: View {
                     EditRecordView(record: record)
                         .presentationDetents(detents)
                 }
-                .alert("기록 삭제", isPresented: $viewModel.showDeleteAlert) {
-                    Button("취소", role: .cancel) {
-                        viewModel.cancelDelete()
-                    }
-                    Button("삭제", role: .destructive) {
-                        viewModel.confirmDelete()
-                    }
-                } message: {
-                    Text("이 기록을 삭제하시겠습니까?")
-                }
             }
         }
-        .padding(.horizontal)
+        .padding(.leading)
     }
     private func getTopSafeAreaHeight() -> CGFloat {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -311,8 +292,6 @@ struct HomeView: View {
         return height * 0.1
     }
 }
-
-
 
 #Preview {
     HomeView()

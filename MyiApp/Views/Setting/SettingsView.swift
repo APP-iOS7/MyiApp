@@ -16,6 +16,14 @@ struct SettingsView: View {
     @State private var showingErrorAlert = false
     @State private var errorMessage = ""
     @State private var isLoading = false
+    
+    @State private var showUpdateAlert = false
+    @State private var latestVersion = ""
+    @State private var releaseNotes: String? = nil
+    @State private var isCheckingUpdate = false
+    @State private var updateCheckMessage = ""
+    @State private var showUpdateCheckAlert = false
+    
     // 앱 버전 표시
     private var appVersion: String {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
@@ -247,7 +255,35 @@ struct SettingsView: View {
                                 .padding(.trailing, 8)
                         }
                         .padding()
-                        .padding(.bottom, 10)
+                        .padding(.top, 5)
+                        .padding(.bottom, 5)
+                        
+                        Button(action: {
+                            checkForUpdate()
+                        }) {
+                            HStack {
+                                Image ("versionCheckIcon")
+                                    .resizable()
+                                    .frame(width: 30, height: 30)
+                                Text("업데이트 확인")
+                                    .foregroundColor(.primary.opacity(0.6))
+                                    .padding(.leading, 5)
+                                Spacer()
+                                if isCheckingUpdate {
+                                    ProgressView()
+                                        .scaleEffect(0.8)
+                                        .padding(.trailing, 8)
+                                } else {
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.primary.opacity(0.6))
+                                        .font(.system(size: 12))
+                                        .padding(.trailing, 8)
+                                }
+                            }
+                            .padding()
+                            .padding(.bottom, 10)
+                        }
+                        .disabled(isCheckingUpdate)
                     }
                     .background(Color(UIColor.tertiarySystemBackground))
                     .cornerRadius(10)
@@ -322,8 +358,82 @@ struct SettingsView: View {
             .task {
                 await caregiverManager.loadCaregiverInfo()
             }
+            .overlay(updateAlertOverlay)
+            .alert("알림", isPresented: $showUpdateCheckAlert) {
+                Button("확인", role: .cancel) {}
+            } message: {
+                Text(updateCheckMessage)
+            }
         }
     }
+    
+    @ViewBuilder
+    private var updateAlertOverlay: some View {
+        if showUpdateAlert {
+            ZStack {
+                Color.black.opacity(0.4)
+                    .edgesIgnoringSafeArea(.all)
+                    .onTapGesture {}
+                
+                UpdateAlertView(
+                    isPresented: $showUpdateAlert,
+                    currentVersion: appVersion,
+                    latestVersion: latestVersion,
+                    releaseNotes: releaseNotes,
+                    onUpdate: {
+                        openAppStore()
+                    },
+                    onLater: {
+
+                    }
+                )
+                .transition(.scale)
+                .animation(.easeInOut(duration: 0.3), value: showUpdateAlert)
+            }
+        }
+    }
+    
+    private func checkForUpdate() {
+        isCheckingUpdate = true
+        let currentVersion = AppUpdateService.shared.getCurrentAppVersion()
+        
+        Task {
+            let result = await AppUpdateService.shared.checkForUpdate()
+            
+            await MainActor.run {
+                isCheckingUpdate = false
+                
+                switch result {
+                case .success(let versionInfo):
+                    latestVersion = versionInfo.latestVersion
+                    releaseNotes = versionInfo.releaseNotes
+                    
+                    let updateAvailable = AppUpdateService.shared.isUpdateAvailable(
+                        currentVersion: currentVersion,
+                        latestVersion: latestVersion
+                    )
+                    
+                    if updateAvailable {
+                        showUpdateAlert = true
+                    } else {
+                        updateCheckMessage = "현재 최신 버전입니다."
+                        showUpdateCheckAlert = true
+                    }
+                    
+                case .failure(let error):
+                    updateCheckMessage = "업데이트 확인 실패: \(error.localizedDescription)"
+                    showUpdateCheckAlert = true
+                }
+            }
+        }
+    }
+    
+    private func openAppStore() {
+        if let url = URL(string: "itms-apps://itunes.apple.com/app/id\(AppUpdateService.appID)") {
+            UIApplication.shared.open(url)
+        }
+    }
+    
     private func getTopSafeAreaHeight() -> CGFloat {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let window = windowScene.windows.first else {

@@ -18,71 +18,83 @@ struct BabyGenderEditView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("성별")
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.primary.opacity(0.8))
-                .padding()
-                .padding(.top, 10)
-            
-            VStack {
-                HStack {
-                    Text("남자 아이")
-                        .font(.title3)
-                    
-                    Spacer()
-                    
-                    Image(systemName: selectedGender == .male ? "checkmark.circle.fill" : "checkmark.circle")
-                        .font(.title2)
-                        .foregroundColor(selectedGender == .male ? Color("buttonColor") : .primary.opacity(0.6))
-                }
-                .padding()
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    selectedGender = .male
-                }
+        VStack {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("성별을 선택하세요")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary.opacity(0.8))
+                    .padding()
+                    .padding(.top, 10)
                 
-                HStack {
-                    Text("여자 아이")
-                        .font(.title3)
+                VStack {
+                    HStack {
+                        Text("남자 아이")
+                            .font(.title3)
+                        
+                        Spacer()
+                        
+                        Image(systemName: selectedGender == .male ? "checkmark.circle.fill" : "checkmark.circle")
+                            .font(.title2)
+                            .foregroundColor(selectedGender == .male ? Color("buttonColor") : .primary.opacity(0.6))
+                    }
+                    .padding()
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectedGender = .male
+                    }
                     
-                    Spacer()
-                    Image(systemName: selectedGender == .female ? "checkmark.circle.fill" : "checkmark.circle")
-                        .font(.title2)
-                        .foregroundColor(selectedGender == .female ? Color("buttonColor") : .primary.opacity(0.6))
+                    HStack {
+                        Text("여자 아이")
+                            .font(.title3)
+                        
+                        Spacer()
+                        Image(systemName: selectedGender == .female ? "checkmark.circle.fill" : "checkmark.circle")
+                            .font(.title2)
+                            .foregroundColor(selectedGender == .female ? Color("buttonColor") : .primary.opacity(0.6))
+                    }
+                    .padding()
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        selectedGender = .female
+                    }
                 }
-                .padding()
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    selectedGender = .female
-                }
+                .padding(.bottom)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(UIColor.tertiarySystemBackground))
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             }
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(UIColor.tertiarySystemBackground))
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .navigationTitle(Text("성별"))
+            .navigationBarTitleDisplayMode(.inline)
             
             Spacer()
             
-            VStack {
-                Button(action: {
-                    viewModel.baby.gender = selectedGender
-                    Task {
-                        await viewModel.saveProfileEdits()
-                        dismiss()
-                    }
-                }) {
-                    Text("완료")
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .font(.headline)
-                        .background(Color("buttonColor"))
-                        .cornerRadius(12)
+            Button(action: {
+                viewModel.baby.gender = selectedGender
+                Task {
+                    await viewModel.saveProfileEdits()
+                    dismiss()
                 }
-                .contentShape(Rectangle())
-                .padding(.horizontal)
+            }) {
+                Text("완료")
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .font(.headline)
+                    .background(Color("buttonColor"))
+                    .cornerRadius(12)
             }
+            .contentShape(Rectangle())
         }
-        .background(Color(UIColor.tertiarySystemBackground))
-        .navigationBarTitleDisplayMode(.inline)
+        .padding()
+        .background(Color("customBackgroundColor"))
     }
 }
 
