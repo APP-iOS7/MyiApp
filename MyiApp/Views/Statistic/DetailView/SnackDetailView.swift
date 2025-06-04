@@ -59,7 +59,7 @@ struct SnackDetailView: View {
                 .ignoresSafeArea()
             mainScrollView
         }
-        .navigationTitle("간식 통계")
+        .navigationTitle("간식 기록 분석")
         .navigationBarTitleDisplayMode(.inline)
     }
     
@@ -305,7 +305,7 @@ struct DailySnackListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "일별 통계",
+            title: "일별 기록 분석",
             image: .colorSnack,
             color: Color("snack"),
             count: recordsCount(for: .snack, in: records, on: selectedDate),
@@ -466,7 +466,7 @@ struct WeeklySnackListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "주별 통계",
+            title: "주별 기록 분석",
             image: .colorSnack,
             color: Color("snack"),
             count: recordsCount(for: .snack, in: records, within: thisWeekRange),
@@ -623,7 +623,7 @@ struct MonthlySnackListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "월별 통계",
+            title: "월별 기록 분석",
             image: .colorSnack,
             color: Color("snack"),
             count: recordsCount(for: .snack, in: records, within: thisMonthRange),
