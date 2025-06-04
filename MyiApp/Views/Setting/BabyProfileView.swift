@@ -304,16 +304,6 @@ struct BabyProfileView: View {
                             Text(errorMessage ?? "알 수 없는 오류가 발생했습니다.")
                         }
                         .photosPicker(isPresented: $showPhotoPicker, selection: $viewModel.selectedImage, matching: .images)
-                        
-                        if isLoading {
-                            Color.black.opacity(0.4)
-                                .ignoresSafeArea()
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle())
-                                .scaleEffect(1.5)
-                                .opacity(isLoading ? 1 : 0)
-                                .animation(.easeInOut(duration: 0.3), value: isLoading)
-                        }
                     }
                 }
                 
@@ -332,6 +322,16 @@ struct BabyProfileView: View {
             }
             .padding(.horizontal)
             .background(Color("customBackgroundColor"))
+            
+            if isLoading {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .scaleEffect(1.5)
+                    .opacity(isLoading ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.3), value: isLoading)
+            }
             
             if showToast {
                 VStack {
