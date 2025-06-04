@@ -17,30 +17,26 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="My i" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="GJd-Yh-RWb">
-                                <rect key="frame" x="123" y="528" width="147" height="100"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="100" id="8sy-lH-GgZ"/>
-                                    <constraint firstAttribute="width" constant="147" id="vBD-Ve-uzH"/>
-                                </constraints>
+                                <rect key="frame" x="123" y="584" width="147" height="100"/>
                                 <fontDescription key="fontDescription" name="ChalkboardSE-Bold" family="Chalkboard SE" pointSize="70"/>
                                 <color key="textColor" name="LaunchScreenTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sharkToddler" translatesAutoresizingMaskIntoConstraints="NO" id="fyW-Ld-Cm0" userLabel="launchIcon">
-                                <rect key="frame" x="68.666666666666686" y="224" width="256" height="256"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="launchScreenImage" translatesAutoresizingMaskIntoConstraints="NO" id="IBd-dK-fW2">
+                                <rect key="frame" x="53" y="210.66666666666663" width="287" height="431"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="256" id="gFO-xn-OlR"/>
-                                    <constraint firstAttribute="height" constant="256" id="s3S-3R-uWD"/>
+                                    <constraint firstAttribute="width" constant="287" id="Wzf-0S-tcd"/>
+                                    <constraint firstAttribute="height" constant="431" id="bdq-Ih-qvI"/>
                                 </constraints>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
                         <color key="backgroundColor" name="LaunchScreenColor"/>
                         <constraints>
-                            <constraint firstItem="fyW-Ld-Cm0" firstAttribute="top" secondItem="Bcu-3y-fUS" secondAttribute="top" constant="106" id="D7r-eK-kPa"/>
-                            <constraint firstItem="GJd-Yh-RWb" firstAttribute="top" secondItem="fyW-Ld-Cm0" secondAttribute="bottom" constant="48" id="EeG-HZ-ORE"/>
-                            <constraint firstItem="fyW-Ld-Cm0" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="EnP-2t-oqj"/>
-                            <constraint firstItem="fyW-Ld-Cm0" firstAttribute="centerX" secondItem="GJd-Yh-RWb" secondAttribute="centerX" id="Sqr-Za-thI"/>
+                            <constraint firstItem="IBd-dK-fW2" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="ZJt-Le-zEx"/>
+                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="bottom" secondItem="GJd-Yh-RWb" secondAttribute="bottom" constant="100" id="gJB-i0-Uvl"/>
+                            <constraint firstItem="GJd-Yh-RWb" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="gi1-aw-yhH"/>
+                            <constraint firstItem="IBd-dK-fW2" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="wm3-5e-Ze5"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -50,7 +46,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="sharkToddler" width="48.5" height="48.5"/>
+        <image name="launchScreenImage" width="204" height="306"/>
         <namedColor name="LaunchScreenColor">
             <color red="0.94099998474121094" green="0.96100002527236938" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
