@@ -18,7 +18,7 @@ final class AudioEngineService {
     
     // MARK: - Private Properties
     private let fftBarCount = 8 // FFT 그래프 바 개수
-    private let fftNormalizationFactor: Float = 5000.0 // FTT 스케일 조정
+    private let fftNormalizationFactor: Float = 5000.0 // FFT 스케일 조정
     private let sampleRate: Double = 22050 // PCM 버퍼 변환 시 사용할 고정 샘플레이트
     
     // 오디오 캡쳐를 위한 객체
@@ -27,17 +27,18 @@ final class AudioEngineService {
     private var converter: AVAudioConverter?
     
     // MARK: - Public Methods
+    // 마이크 권한 요청 및 권한에 따라 녹음 시작 또는 실패 처리
     func startRecording(onPermissionResult: @escaping (Bool) -> Void) {
         AVAudioApplication.requestRecordPermission() { granted in
             DispatchQueue.main.async {
-                self.handlePermissionResult(granted, onPermissionResult: onPermissionResult)
+                self.handlePermissionResult(granted, onPermissionResult: onPermissionResult) // 권한 허용 여부를 클로저로 전달
             }
         }
     }
     
-    // 음성 권한이 허용되면 오디오 세션 설정, AVAudioEngin 설정, 녹음 시작을 하는 함수(실패하거나 거부 시 실패 반환)
+    // 음성 권한이 허용되면 오디오 세션 설정, AVAudioEngine 설정, 녹음 시작을 하는 함수(실패하거나 거부 시 실패 반환)
     private func handlePermissionResult(_ granted: Bool, onPermissionResult: @escaping (Bool) -> Void) {
-        if granted {
+        if granted { // granted: 마이크 권한 허용 여부
             do {
                 try self.configureAudioSession()
                 try self.configureEngine()
@@ -70,6 +71,8 @@ final class AudioEngineService {
         try session.setActive(true)
     }
     
+    // AVAduioEngine 초기화 및 입력 노드에 Tap 설치
+    // 입력 오디오를 지정된 포맷으로 변환하고 FFT 및 PCM 처리 진행
     private func configureEngine() throws {
         engine = AVAudioEngine()
         guard let engine = engine else { throw NSError(domain: "AudioEngineInit", code: -1) }
@@ -91,6 +94,7 @@ final class AudioEngineService {
         }
     }
     
+    // 수신된 AVAudioPCMBuffer를 FFT 및 PCM 샘플로 처리하는 ㅎ함수
     private func processBuffer(_ buffer: AVAudioPCMBuffer,
                                inputFormat: AVAudioFormat,
                                outputFormat: AVAudioFormat) {
@@ -153,10 +157,10 @@ final class AudioEngineService {
         vDSP_hann_window(&window, vDSP_Length(frameCount), Int32(vDSP_HANN_NORM))
         vDSP_vmul(channelData, 1, window, 1, &windowedSignal, 1, vDSP_Length(frameCount)) // vDSP_vmul: 각 샘플 x 윈도우 값
         
-        var real = [Float](repeating: 0, count: frameCount / 2)
-        var imag = [Float](repeating: 0, count: frameCount / 2)
-        var magnitudes = [Float](repeating: 0, count: frameCount / 2)
-        var normalizedMagnitudes = [Float](repeating: 0, count: fftBarCount)
+        var real = [Float](repeating: 0, count: frameCount / 2) // FFT 실수부
+        var imag = [Float](repeating: 0, count: frameCount / 2) // FFT 허수부
+        var magnitudes = [Float](repeating: 0, count: frameCount / 2) // FFT 결과 제곱 크기
+        var normalizedMagnitudes = [Float](repeating: 0, count: fftBarCount) // 이퀄라이저 바용 정규화된 값
         
         real.withUnsafeMutableBufferPointer { realPtr in
             imag.withUnsafeMutableBufferPointer { imagPtr in
@@ -171,7 +175,7 @@ final class AudioEngineService {
             }
         }
         
-        // 정규화 바 값 8개 생성
+        // FFT 결과를 fftbarCount 개수로 나누고 각 구간 평균을 RMS 형태로 계산 후 정규화
         let step = magnitudes.count / fftBarCount
         for i in 0..<fftBarCount {
             let slice = magnitudes[i * step ..< min((i + 1) * step, magnitudes.count)]
