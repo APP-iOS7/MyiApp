@@ -27,7 +27,7 @@ struct AccountEditView: View {
     
     var body: some View {
         VStack {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading) {
                 Text("사용자 이름을 입력하세요")
                     .font(.title)
                     .fontWeight(.bold)
@@ -86,7 +86,7 @@ struct AccountEditView: View {
                         .padding(.bottom)
                 }
             }
-            .padding()
+            .padding(.bottom)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color(UIColor.tertiarySystemBackground))
