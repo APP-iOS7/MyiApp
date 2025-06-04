@@ -60,7 +60,7 @@ struct BathDetailView: View {
                 .ignoresSafeArea()
             mainScrollView
         }
-        .navigationTitle("목욕 통계")
+        .navigationTitle("목욕 기록 분석")
         .navigationBarTitleDisplayMode(.inline)
     }
     
@@ -305,7 +305,7 @@ struct DailyBathListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "일별 통계",
+            title: "일별 기록 분석",
             image: .colorBath,
             color: Color("bath"),
             count: recordsCount(for: .bath, in: records, on: selectedDate),
@@ -466,7 +466,7 @@ struct WeeklyBathListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "주별 통계",
+            title: "주별 기록 분석",
             image: .colorBath,
             color: Color("bath"),
             count: recordsCount(for: .bath, in: records, within: thisWeekRange),
@@ -623,7 +623,7 @@ struct MonthlyBathListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "월별 통계",
+            title: "월별 기록 분석",
             image: .colorBath,
             color: Color("bath"),
             count: recordsCount(for: .bath, in: records, within: thisMonthRange),

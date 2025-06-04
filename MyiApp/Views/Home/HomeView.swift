@@ -4,8 +4,7 @@
 //
 //  Created by 최범수 on 2025-05-08.
 //
-// 테스트
-// 왜 주석은 안됌?
+
 import SwiftUI
 import Kingfisher
 
@@ -95,9 +94,9 @@ struct HomeView: View {
                                     }
                                 }
                             }
-                            Divider()
                             NavigationLink(destination: RegisterBabyView()) {
                                 Text("아이 추가")
+                                    .foregroundStyle(Color.button)
                             }
                         } label: {
                             HStack(spacing: 4) {
@@ -250,7 +249,7 @@ struct HomeView: View {
                             viewModel.recordToEdit = record
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .cancel) {
+                            Button(role: .destructive) {
                                 viewModel.deleteRecord(record)
                             } label: {
                                 Label("삭제", systemImage: "trash")
