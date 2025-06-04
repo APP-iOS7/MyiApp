@@ -43,7 +43,7 @@ struct ContentView: View {
                         }
                     NavigationStack { StatisticView() }
                         .tabItem {
-                            Label("통계", systemImage: "chart.bar.fill")
+                            Label("기록 분석", systemImage: "chart.bar.fill")
                         }
                     NavigationStack { SettingsView() }
                         .tabItem {

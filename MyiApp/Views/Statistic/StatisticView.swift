@@ -76,7 +76,7 @@ struct StatisticView: View {
     private var defaultFileName: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        return "\(formatter.string(from: Date()))_통계"
+        return "\(formatter.string(from: Date()))_기록 분석"
     }
     
     var body: some View {
@@ -90,7 +90,7 @@ struct StatisticView: View {
                 ScrollView {
                     VStack(spacing: 5) {
                         HStack(alignment: .center, spacing: 15) {
-                            Text("통계")
+                            Text("기록 분석")
                                 .font(.title)
                                 .bold()
                             Spacer()
@@ -113,7 +113,7 @@ struct StatisticView: View {
                                         
                                         let formatter = DateFormatter()
                                         formatter.dateFormat = "yyyyMMdd"
-                                        self.fileNameInput = "\(formatter.string(from: selectedDate))_통계"
+                                        self.fileNameInput = "\(formatter.string(from: selectedDate))_기록 분석"
                                     }
                                 }
                         }
@@ -195,7 +195,7 @@ struct StatisticView: View {
                         }
                         .frame(height: 100)
                         Button(action: {
-                            self.exportPDF(image: identifiableImage.image, fileName: fileNameInput.isEmpty ? "통계" : fileNameInput) { url in
+                            self.exportPDF(image: identifiableImage.image, fileName: fileNameInput.isEmpty ? "기록 분석" : fileNameInput) { url in
                                 if let url = url {
                                     previewImage = nil
                                     DispatchQueue.main.async {

@@ -221,7 +221,7 @@ struct BabyProfileView: View {
                                 }
                                 
                                 HStack {
-                                    Text("아이 정보 공유 코드 복사하기")
+                                    Text("아이 초대 코드 복사하기")
                                         .font(.headline)
                                         .fontWeight(.semibold)
                                         .foregroundColor(Color("buttonColor"))

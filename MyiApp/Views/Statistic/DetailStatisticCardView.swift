@@ -252,15 +252,15 @@ struct DetailPottyStatisticCardView: View {
                     .scaledToFit()
                     .frame(width: 32, height: 32)
                 if (mode == "daily") {
-                    Text("일별 통계")
+                    Text("일별 기록 분석")
                         .font(.headline)
                         .foregroundColor(.primary)
                 } else if (mode == "weekly") {
-                    Text("주별 통계")
+                    Text("주별 기록 분석")
                         .font(.headline)
                         .foregroundColor(.primary)
                 } else {
-                    Text("월별 통계")
+                    Text("월별 기록 분석")
                         .font(.headline)
                         .foregroundColor(.primary)
                 }

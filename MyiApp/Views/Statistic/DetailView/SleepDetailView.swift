@@ -59,7 +59,7 @@ struct SleepDetailView: View {
                 .ignoresSafeArea()
             mainScrollView
         }
-        .navigationTitle("수면 통계")
+        .navigationTitle("수면 기록 분석")
         .navigationBarTitleDisplayMode(.inline)
     }
     
@@ -322,7 +322,7 @@ struct DailySleepListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "일별 통계",
+            title: "일별 기록 분석",
             image: .colorSleep,
             color: Color("sleep"),
             count: recordsCount(for: .sleep, in: records, on: selectedDate),
@@ -535,7 +535,7 @@ struct WeeklySleepListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "주별 통계",
+            title: "주별 기록 분석",
             image: .colorSleep,
             color: Color("sleep"),
             count: recordsCount(for: .sleep, in: records, within: thisWeekRange),
@@ -740,7 +740,7 @@ struct MonthlySleepListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "월별 통계",
+            title: "월별 기록 분석",
             image: .colorSleep,
             color: Color("sleep"),
             count: recordsCount(for: .sleep, in: records, within: thisMonthRange),
