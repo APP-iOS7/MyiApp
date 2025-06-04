@@ -10,8 +10,8 @@ import SwiftUI
 struct CryAnalysisProcessingView: View {
     @Environment(\.dismiss) private var dismiss // 네비게이션에서 현재 뷰를 닫을 수 있는 Environment
     @ObservedObject var viewModel: VoiceRecordViewModel // 상태와 로직을 포함한 뷰 모델
-    @State private var result: EmotionResult? // 현재 표시 중인 결과 캐시
-    let onComplete: (EmotionResult) -> Void // 결과 전달 클로저
+    @State private var result: EmotionResult? // 화면에 이미 전달한 결과를 저장해서 중복 전달 방지
+    let onComplete: (EmotionResult) -> Void // 분석이 완료되었을 때 결과를 상위 뷰에 전달하는 클로저
 
     var body: some View {
         ZStack {
@@ -19,12 +19,14 @@ struct CryAnalysisProcessingView: View {
             // .recording, .processing이면 ProccessingStateView 렌더링
             case .recording, .processing:
                 ProcessingStateView(viewModel: viewModel, dismiss: dismiss)
-            // .result면 onAppear에서 onComplete 호출
+            // .result면 onAppear에서 onComplete 호출(결과를 onComplete 클로저를 통해 상위로 전달
             case .result(let res):
+                // onAppear 트리거를 위해 사용되는 투명한 배경 뷰
                 Color.clear
                     .onAppear {
                         print("[ProcessingView] result onAppear — 새 result 도착: \(res.type) / \(res.confidence)")
 
+                        // 동일한 결과가 중복 호출되지 않도록 이전 결과와 비교하여 변경이 있을 때만 onComplete 호출
                         if result?.type != res.type || result?.confidence != res.confidence {
                             self.result = res
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -42,7 +44,7 @@ struct CryAnalysisProcessingView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        // 뷰가 사라지면 내부 결과 초기화
+        // 뷰가 사라지면 내부 결과 초기화(결과 상태를 초기화하여 이후에 중복 전송되지 않도록 방지)
         .onDisappear {
             result = nil
         }
@@ -50,16 +52,16 @@ struct CryAnalysisProcessingView: View {
 }
 
 private struct ProcessingStateView: View {
-    @ObservedObject var viewModel: VoiceRecordViewModel
-    let dismiss: DismissAction
-    @State private var dotCount: Int = 0
-    @State private var dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+    @ObservedObject var viewModel: VoiceRecordViewModel // 분석 상태 및 제어 로직을 담은 뷰 모델
+    let dismiss: DismissAction // 현재 화면을 종료시키는 액션
+    @State private var dotCount: Int = 0 // dot 애니메이션의 현재 점 개수
+    @State private var dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect() // 0.5초마다 dot 개수를 갱신하는 타이머
     
-    @State private var progress: Double = 0.0
-    @State private var startTime: Date? = nil
-    private let totalDuration: Double = 7.0
-    private let updateInterval: Double = 0.05
-    private let progressTimer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect()
+    @State private var progress: Double = 0.0 // 분석 진행률
+    @State private var startTime: Date? = nil // 분석 시작 시간 기록
+    private let totalDuration: Double = 7.0 // 분석 소요 시간 (7초)
+    private let updateInterval: Double = 0.05 // Progress 진행률 갱신 간격
+    private let progressTimer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect() // 진행률 상태 갱신용 타이머
     
     var body: some View {
         VStack(spacing: 24) {
@@ -193,9 +195,3 @@ private struct ErrorStateView: View {
         }
     }
 }
-
-//#Preview {
-//    let mockViewModel = VoiceRecordViewModel()
-//    mockViewModel.step = .processing
-//    CryAnalysisProcessingView(viewModel: mockViewModel, onComplete: { _ in })
-//}
