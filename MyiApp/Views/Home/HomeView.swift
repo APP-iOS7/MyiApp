@@ -94,9 +94,9 @@ struct HomeView: View {
                                     }
                                 }
                             }
-                            Divider()
                             NavigationLink(destination: RegisterBabyView()) {
                                 Text("아이 추가")
+                                    .foregroundStyle(Color.button)
                             }
                         } label: {
                             HStack(spacing: 4) {

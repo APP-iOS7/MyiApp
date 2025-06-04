@@ -58,10 +58,10 @@ struct BabyInfoCardView: View {
             Spacer(minLength: 10)
             chartfoodSection()
                 .frame(height: 450)
-            sectionGroup(title: "배변 분석", items: ["소변", "대변"])
+            sectionGroup(title: "배변 기록 분석", items: ["소변", "대변"])
                 .frame(height: 200)
             Spacer(minLength: 10)
-            sectionGroup(title: "수면 분석", items: ["수면 횟수", "수면 시간"])
+            sectionGroup(title: "수면 기록 분석", items: ["수면 횟수", "수면 시간"])
                 .frame(height: 200)
             Spacer(minLength: 10)
             sectionGroup(title: "기타 관리", items: ["기저귀", "목욕", "간식"])
@@ -74,7 +74,7 @@ struct BabyInfoCardView: View {
     }
     private func chartfoodSection() -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("수유 분석")
+            Text("수유 / 이유식 기록 분석")
                 .font(.headline)
             
             HStack(alignment: .top, spacing: 15) {

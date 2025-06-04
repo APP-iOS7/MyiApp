@@ -59,7 +59,7 @@ struct PottyDetailView: View {
                 .ignoresSafeArea()
             mainScrollView
         }
-        .navigationTitle("배변 통계")
+        .navigationTitle("배변 기록 분석")
         .navigationBarTitleDisplayMode(.inline)
     }
     
