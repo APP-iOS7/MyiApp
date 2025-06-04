@@ -58,7 +58,7 @@ struct VoiceRecordView: View {
                     .frame(height: getTopSafeAreaHeight())
                 
                 HStack(alignment: .center, spacing: 10) {
-                    Text("울음분석")
+                    Text("울음 분석")
                         .font(.title)
                         .bold()
 
