@@ -57,11 +57,9 @@ private struct ProcessingStateView: View {
     @State private var dotCount: Int = 0 // dot 애니메이션의 현재 점 개수
     @State private var dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect() // 0.5초마다 dot 개수를 갱신하는 타이머
     
-    @State private var progress: Double = 0.0 // 분석 진행률
-    @State private var startTime: Date? = nil // 분석 시작 시간 기록
+    @State private var progress: Double = 0.0
+    @State private var startTime = Date()
     private let totalDuration: Double = 7.0 // 분석 소요 시간 (7초)
-    private let updateInterval: Double = 0.05 // Progress 진행률 갱신 간격
-    private let progressTimer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect() // 진행률 상태 갱신용 타이머
     
     var body: some View {
         VStack(spacing: 24) {
@@ -126,15 +124,42 @@ private struct ProcessingStateView: View {
         .padding(.bottom, 20)
         .frame(maxHeight: .infinity, alignment: .top)
         .onReceive(dotTimer) { _ in
-            dotCount = (dotCount + 1) % 4 
+            dotCount = (dotCount + 1) % 4
         }
         .onAppear {
+            dotCount = 0
+            progress = 0.0
             startTime = Date()
+            startSmoothProgress()
         }
-        .onReceive(progressTimer) { _ in
-            guard let start = startTime else { return }
-            let elapsed = Date().timeIntervalSince(start)
-            progress = min(elapsed / totalDuration, 1.0)
+    }
+    
+    private func easeOut(_ t: Double) -> Double {
+        return 1 - pow(1 - t, 3)
+    }
+
+    private func startSmoothProgress() {
+        let displayLink = CADisplayLink(target: DisplayLinkProxy { link in
+            let elapsed = Date().timeIntervalSince(startTime)
+            let t = min(elapsed / totalDuration, 1.0)
+            progress = easeOut(t)
+
+            if t >= 1.0 {
+                link.invalidate()
+            }
+        }, selector: #selector(DisplayLinkProxy.update(_:)))
+        displayLink.add(to: .main, forMode: .default)
+    }
+
+    private class DisplayLinkProxy {
+        let callback: (CADisplayLink) -> Void
+
+        init(_ callback: @escaping (CADisplayLink) -> Void) {
+            self.callback = callback
+        }
+
+        @objc func update(_ sender: CADisplayLink) {
+            callback(sender)
         }
     }
 }
