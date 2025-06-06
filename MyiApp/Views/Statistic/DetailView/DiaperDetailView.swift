@@ -59,7 +59,7 @@ struct DiaperDetailView: View {
                 .ignoresSafeArea()
             mainScrollView
         }
-        .navigationTitle("기저귀 통계")
+        .navigationTitle("기저귀 기록 분석")
         .navigationBarTitleDisplayMode(.inline)
     }
     
@@ -304,7 +304,7 @@ struct DailyDiaperListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "일별 통계",
+            title: "일별 기록 분석",
             image: .colorDiaper,
             color: Color("diaper"),
             count: recordsCount(for: .diaper, in: records, on: selectedDate),
@@ -465,7 +465,7 @@ struct WeeklyDiaperListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "주별 통계",
+            title: "주별 기록 분석",
             image: .colorDiaper,
             color: Color("diaper"),
             count: recordsCount(for: .diaper, in: records, within: thisWeekRange),
@@ -622,7 +622,7 @@ struct MonthlyDiaperListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "월별 통계",
+            title: "월별 기록 분석",
             image: .colorDiaper,
             color: Color("diaper"),
             count: recordsCount(for: .diaper, in: records, within: thisMonthRange),

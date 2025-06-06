@@ -41,7 +41,7 @@ struct WeeklyStatisticCardListView: View {
         
         Group {
             StatisticCardView(
-                title: "분유/수유/이유식 통계",
+                title: "분유/수유/이유식 기록 분석",
                 image: .colorMeal,
                 color: Color("food"),
                 count: combinedFeedCount(in: records, within: thisWeekRange),
@@ -56,7 +56,7 @@ struct WeeklyStatisticCardListView: View {
             )
             
             StatisticCardView(
-                title: "기저귀 통계",
+                title: "기저귀 기록 분석",
                 image: .colorDiaper,
                 color: Color("diaper"),
                 count: recordsCount(for: .diaper, in: records, within: thisWeekRange),
@@ -80,7 +80,7 @@ struct WeeklyStatisticCardListView: View {
             )
             
             StatisticCardView(
-                title: "수면 통계",
+                title: "수면 기록 분석",
                 image: .colorSleep,
                 color: Color("sleep"),
                 count: recordsCount(for: .sleep, in: records, within: thisWeekRange),
@@ -95,7 +95,7 @@ struct WeeklyStatisticCardListView: View {
             )
             
             StatisticCardView(
-                title: "목욕 통계",
+                title: "목욕 기록 분석",
                 image: .colorBath,
                 color: Color("bath"),
                 count: recordsCount(for: .bath, in: records, within: thisWeekRange),
@@ -110,7 +110,7 @@ struct WeeklyStatisticCardListView: View {
             )
             
             StatisticCardView(
-                title: "간식 통계",
+                title: "간식 기록 분석",
                 image: .colorSnack,
                 color: Color("snack"),
                 count: recordsCount(for: .snack, in: records, within: thisWeekRange),

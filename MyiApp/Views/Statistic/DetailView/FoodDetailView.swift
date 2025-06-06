@@ -59,7 +59,7 @@ struct FoodDetailView: View {
                 .ignoresSafeArea()
             mainScrollView
         }
-        .navigationTitle("분유/수유/이유식 통계")
+        .navigationTitle("분유/수유/이유식 기록 분석")
         .navigationBarTitleDisplayMode(.inline)
     }
     
@@ -340,7 +340,7 @@ struct DailyFeedListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "일별 통계",
+            title: "일별 기록 분석",
             image: .colorMeal,
             color: Color("food"),
             count: combinedFeedCount(in: records, on: selectedDate),
@@ -566,7 +566,7 @@ struct WeeklyFeedListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "주별 통계",
+            title: "주별 기록 분석",
             image: .colorMeal,
             color: Color("food"),
             count: combinedFeedCount(in: records, within: thisWeekRange),
@@ -786,7 +786,7 @@ struct MonthlyFeedListView: View {
     var body: some View {
         
         DetailStatisticCardView(
-            title: "월별 통계",
+            title: "월별 기록 분석",
             image: .colorMeal,
             color: Color("food"),
             count: combinedFeedCount(in: records, within: thisMonthRange),
