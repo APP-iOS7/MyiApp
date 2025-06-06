@@ -21,7 +21,7 @@ struct UpdateAlertView: View {
             VStack(spacing: 8) {
                 Image(systemName: "arrow.up.circle.fill")
                     .font(.system(size: 50))
-                    .foregroundColor(.blue)
+                    .foregroundColor(.button)
                 
                 Text("업데이트가 있습니다")
                     .font(.title2)
@@ -82,7 +82,7 @@ struct UpdateAlertView: View {
                             .fontWeight(.bold)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
-                            .background(Color.blue)
+                            .background(Color.button)
                             .foregroundColor(.white)
                             .cornerRadius(8)
                     }
