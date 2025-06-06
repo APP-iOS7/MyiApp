@@ -16,13 +16,13 @@ enum CryRoute {
 extension CryRoute: Hashable {
     func hash(into hasher: inout Hasher) {
         switch self {
-        case .processing:
+        case .processing:  // 'processing'은 항상 같은 화면으로 인식되도록 고정된 문자열만 해시에 포함시킴
             hasher.combine("processing")
-        case .result(let emotion, let id):
-            hasher.combine("result")
-            hasher.combine(emotion.type)
+        case .result(let emotion, let id): // 'result' 케이스는 감정 결과 및 UUID를 기준으로 고유하게 구분되도록 해시에 포함
+            hasher.combine("result")  // "result": 다른 케이스와 구분하기 위한 마커
+            hasher.combine(emotion.type) // emotion.type, confidence: 감정 결과 내용
             hasher.combine(emotion.confidence)
-            hasher.combine(id)
+            hasher.combine(id) // 같은 감정 결과라도 화면을 다르게 하기 위해 id 사용
         }
     }
 }
