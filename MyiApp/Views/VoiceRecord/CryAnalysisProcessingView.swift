@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct CryAnalysisProcessingView: View {
     @Environment(\.dismiss) private var dismiss // 네비게이션에서 현재 뷰를 닫을 수 있는 Environment
@@ -82,7 +83,7 @@ private struct ProcessingStateView: View {
                 .foregroundColor(.primary)
                 .padding(.top, 8)
             
-            Text("소음이 심한 경우 정확도가 \n 떨어질 수 있어요")
+            Text("소음이 심한 경우 정확도가 \n 떨어질 수 있어요.")
                 .font(.system(size: 14))
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
@@ -96,6 +97,7 @@ private struct ProcessingStateView: View {
                 ProgressView(value: progress)
                     .progressViewStyle(LinearProgressViewStyle())
                     .padding(.horizontal, 24)
+                    .tint(Color("buttonColor"))
 
                 Text("\(Int(progress * 100))%")
                     .font(.system(size: 18, weight: .medium))
@@ -130,36 +132,40 @@ private struct ProcessingStateView: View {
             dotCount = 0
             progress = 0.0
             startTime = Date()
-            startSmoothProgress()
+            startProgress()
         }
     }
     
+    // 부드러운 진행률 계산을 위한 easing 함수 (Cubic Ease-Out)
     private func easeOut(_ t: Double) -> Double {
         return 1 - pow(1 - t, 3)
     }
 
-    private func startSmoothProgress() {
+    // CADisplayLink를 사용하여 프레임마다 진행률을 계산하고 갱신
+    private func startProgress() {
         let displayLink = CADisplayLink(target: DisplayLinkProxy { link in
-            let elapsed = Date().timeIntervalSince(startTime)
-            let t = min(elapsed / totalDuration, 1.0)
-            progress = easeOut(t)
+            let elapsed = Date().timeIntervalSince(startTime) // 애니메이션 시작 후 경과 시간
+            let t = min(elapsed / totalDuration, 1.0)  // 전체 지속 시간 대비 현재 진행 비율 (0.0 ~ 1.0)
+            progress = easeOut(t)  // easing 커브를 적용한 진행률 값으로 업데이트
 
+            // 애니메이션 완료 시 displayLink 정지
             if t >= 1.0 {
                 link.invalidate()
             }
-        }, selector: #selector(DisplayLinkProxy.update(_:)))
-        displayLink.add(to: .main, forMode: .default)
+        }, selector: #selector(DisplayLinkProxy.update(_:))) // 프레임마다 실행될 함수 등록
+        displayLink.add(to: .main, forMode: .default) // 메인 런루프에 displayLink 등록 → 화면이 그려질 때마다 실행됨
     }
 
+    // CADisplayLink는 Objective-C 런타임과의 호환이 필요하므로 래퍼 클래스를 통해 클로저 실행
     private class DisplayLinkProxy {
-        let callback: (CADisplayLink) -> Void
+        let callback: (CADisplayLink) -> Void // 실제 작업을 수행할 클로저
 
         init(_ callback: @escaping (CADisplayLink) -> Void) {
-            self.callback = callback
+            self.callback = callback // 클로저 저장
         }
 
         @objc func update(_ sender: CADisplayLink) {
-            callback(sender)
+            callback(sender)  // CADisplayLink에 의해 호출되면 클로저 실행
         }
     }
 }
