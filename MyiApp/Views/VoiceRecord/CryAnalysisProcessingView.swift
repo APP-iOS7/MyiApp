@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct CryAnalysisProcessingView: View {
     @Environment(\.dismiss) private var dismiss // 네비게이션에서 현재 뷰를 닫을 수 있는 Environment
@@ -82,7 +83,7 @@ private struct ProcessingStateView: View {
                 .foregroundColor(.primary)
                 .padding(.top, 8)
             
-            Text("소음이 심한 경우 정확도가 \n 떨어질 수 있어요")
+            Text("소음이 심한 경우 정확도가 \n 떨어질 수 있어요.")
                 .font(.system(size: 14))
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
@@ -96,6 +97,7 @@ private struct ProcessingStateView: View {
                 ProgressView(value: progress)
                     .progressViewStyle(LinearProgressViewStyle())
                     .padding(.horizontal, 24)
+                    .tint(Color("buttonColor"))
 
                 Text("\(Int(progress * 100))%")
                     .font(.system(size: 18, weight: .medium))
