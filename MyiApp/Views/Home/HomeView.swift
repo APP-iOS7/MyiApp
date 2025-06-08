@@ -193,8 +193,8 @@ struct HomeView: View {
             .init(name: "키/몸무게", category: .heightWeight, image: .colorHeightWeight),
             .init(name: "목욕", category: .bath, image: .colorBath),
             .init(name: "간식", category: .snack, image: .colorSnack),
-            .init(name: "건강 관리", category: .temperature, image: .colorCheckList),
-            .init(name: "메모", category: .clinic, image: .colorMemo)
+            .init(name: "건강 관리", category: .temperature, image: .normalClinic),
+            .init(name: "메모", category: .clinic, image: .colorCheckList)
         ]
         let columns = Array(repeating: GridItem(.flexible()), count: 4)
         return LazyVGrid(columns: columns) {
