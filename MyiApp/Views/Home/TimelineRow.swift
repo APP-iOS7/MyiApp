@@ -36,7 +36,7 @@ struct TimelineRow: View {
             case .snack: return .colorSnack
             case .temperature: return .normalTemperature
             case .medicine: return .normalMedicine
-            case .clinic: return .normalClinic
+            case .clinic: return .colorMemo
             case .poop: return .normalPoop
             case .pee: return .normalPee
             case .pottyAll: return .normalPotty
@@ -67,7 +67,7 @@ struct TimelineRow: View {
             case .medicine:
                 "투약"
             case .clinic:
-                "병원"
+                "메모"
             case .poop:
                 "대변"
             case .pee:
@@ -137,7 +137,8 @@ struct TimelineRow: View {
             case .heightWeight: return .heightWeight
             case .bath: return .bath
             case .snack: return .snack
-            case .temperature, .medicine, .clinic: return .health
+            case .temperature, .medicine: return .health
+            case .clinic: return .diaper
             case .pottyAll, .poop, .pee: return .potty
         }
     }

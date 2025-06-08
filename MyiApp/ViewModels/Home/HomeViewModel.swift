@@ -137,7 +137,7 @@ class HomeViewModel: ObservableObject {
             .first
     }
     var recentHealth: Record? {
-        let healthCategories: [TitleCategory] = [.temperature, .medicine, .clinic]
+        let healthCategories: [TitleCategory] = [.temperature, .medicine]
         return records
             .filter { healthCategories.contains($0.title) }
             .sorted { $0.createdAt > $1.createdAt }
@@ -211,6 +211,8 @@ class HomeViewModel: ObservableObject {
                 } else {
                     saveRecord(record: Record(title: .temperature, temperature: 36.5))
                 }
+            case .clinic:
+                saveRecord(record: Record(title: .clinic))
             default:
                 print(title)
         }
