@@ -195,15 +195,7 @@ struct NoteReminderView: View {
                         .foregroundColor(.white)
                         .cornerRadius(10)
                 }
-<<<<<<< HEAD
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.button)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-=======
                 .buttonStyle(PlainButtonStyle())
->>>>>>> origin/dev
             }
             .padding(.horizontal)
         }
