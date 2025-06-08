@@ -135,8 +135,6 @@ func destinationView(for title: String, baby: Baby) -> some View {
     switch title {
     case "분유/수유/이유식 기록 분석":
         FoodDetailView(baby: baby)
-    case "기저귀 기록 분석":
-        DiaperDetailView(baby: baby)
     case "수면 기록 분석":
         SleepDetailView(baby: baby)
     case "목욕 기록 분석":
