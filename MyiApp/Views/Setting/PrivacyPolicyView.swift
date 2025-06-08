@@ -31,7 +31,7 @@ struct PrivacyPolicyView: View {
                         Text("- 아기 성장 기록 및 관리")
                         Text("- 일정 알림 제공")
                         Text("- 울음소리 분석을 통한 아기 상태 파악")
-                        Text("- 서비스 개선 및 통계 작성")
+                        Text("- 서비스 개선 및 기록 분석 작성")
                     }
                     .foregroundColor(.primary.opacity(0.6))
                 } label: {

@@ -4,8 +4,7 @@
 //
 //  Created by 최범수 on 2025-05-08.
 //
-// 테스트
-// 왜 주석은 안됌?
+
 import SwiftUI
 import Kingfisher
 
@@ -95,9 +94,9 @@ struct HomeView: View {
                                     }
                                 }
                             }
-                            Divider()
                             NavigationLink(destination: RegisterBabyView()) {
                                 Text("아이 추가")
+                                    .foregroundStyle(Color.button)
                             }
                         } label: {
                             HStack(spacing: 4) {
@@ -188,13 +187,14 @@ struct HomeView: View {
     private var gridItems: some View {
         let careItems: [GridItemCategory] = [
             .init(name: "수유/이유식", category: .breastfeeding, image: .colorMeal),
-            .init(name: "기저귀", category: .diaper, image: .colorDiaper),
+//            .init(name: "기저귀", category: .diaper, image: .colorDiaper),
             .init(name: "배변", category: .pee, image: .colorPotty),
             .init(name: "수면", category: .sleep, image: .colorSleep),
             .init(name: "키/몸무게", category: .heightWeight, image: .colorHeightWeight),
             .init(name: "목욕", category: .bath, image: .colorBath),
             .init(name: "간식", category: .snack, image: .colorSnack),
-            .init(name: "건강 관리", category: .temperature, image: .colorCheckList)
+            .init(name: "건강 관리", category: .temperature, image: .normalClinic),
+            .init(name: "메모", category: .clinic, image: .colorCheckList)
         ]
         let columns = Array(repeating: GridItem(.flexible()), count: 4)
         return LazyVGrid(columns: columns) {
@@ -250,7 +250,7 @@ struct HomeView: View {
                             viewModel.recordToEdit = record
                         }
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .cancel) {
+                            Button(role: .destructive) {
                                 viewModel.deleteRecord(record)
                             } label: {
                                 Label("삭제", systemImage: "trash")
@@ -269,7 +269,7 @@ struct HomeView: View {
                 .sheet(item: $viewModel.recordToEdit) { record in
                     let detents: Set<PresentationDetent> = {
                         switch record.title {
-                            case .babyFood, .formula, .breastfeeding, .pumpedMilk, .clinic, .temperature, .medicine:
+                            case .babyFood, .formula, .breastfeeding, .pumpedMilk, .temperature, .medicine:
                                 [.large]
                             default:
                                 [.medium]

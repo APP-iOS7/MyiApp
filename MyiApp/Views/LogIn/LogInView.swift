@@ -15,7 +15,8 @@ struct LogInView: View {
     
     var body: some View {
         ZStack {
-            VStack(spacing: 20) {
+            VStack {
+                
                 Spacer()
                 
                 Text("My i")
@@ -23,21 +24,20 @@ struct LogInView: View {
                     .fontWeight(.bold)
                     .foregroundColor(Color("LaunchScreenTextColor"))
                     .fontDesign(.rounded)
-                    .padding()
+                    .padding(.horizontal)
+                    .padding(.top, 100)
                 
                 Text("쉽고 편한 육아 기록 앱")
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(Color("LaunchScreenTextColor"))
-                    
-                Spacer()
+                    .padding(.bottom, 30)
                 
-                Image("launchIcon")
+                Image("launchScreenImage")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 256, height: 256)
-                
-                Spacer()
+                    .frame(width: 431, height: 431)
+                    .offset(y: -1)
                 
                 // Google 로그인 버튼
                 Button(action: {
@@ -73,6 +73,7 @@ struct LogInView: View {
                         .stroke(Color.black, lineWidth: 0.8))
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 50)
+                .offset(y: -20)
                 
                 // 애플 로그인 버튼
                 SignInWithAppleButton(.signIn) { request in
@@ -94,7 +95,7 @@ struct LogInView: View {
                 .signInWithAppleButtonStyle(.whiteOutline)
                 .frame(height: 50)
                 .padding(.horizontal, 50)
-                .padding(.bottom, 50)
+                .padding(.bottom, 150)
                 
                 Spacer()
             }

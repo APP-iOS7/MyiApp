@@ -10,7 +10,7 @@ import UIKit
 
 struct StatisticView: View {
     @ObservedObject var viewModel = StatisticViewModel()
-    @State private var selectedCategories: [String] = ["수유\n이유식", "기저귀", "배변", "수면", "목욕", "간식"]
+    @State private var selectedCategories: [String] = ["수유\n이유식", "배변", "수면", "목욕", "간식"]
     
     struct IdentifiableImage: Identifiable {
         let id = UUID()
@@ -76,7 +76,7 @@ struct StatisticView: View {
     private var defaultFileName: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyyMMdd"
-        return "\(formatter.string(from: Date()))_통계"
+        return "\(formatter.string(from: Date()))_기록 분석"
     }
     
     var body: some View {
@@ -90,7 +90,7 @@ struct StatisticView: View {
                 ScrollView {
                     VStack(spacing: 5) {
                         HStack(alignment: .center, spacing: 15) {
-                            Text("통계")
+                            Text("기록 분석")
                                 .font(.title)
                                 .bold()
                             Spacer()
@@ -113,7 +113,7 @@ struct StatisticView: View {
                                         
                                         let formatter = DateFormatter()
                                         formatter.dateFormat = "yyyyMMdd"
-                                        self.fileNameInput = "\(formatter.string(from: selectedDate))_통계"
+                                        self.fileNameInput = "\(formatter.string(from: selectedDate))_기록 분석"
                                     }
                                 }
                         }
@@ -195,7 +195,7 @@ struct StatisticView: View {
                         }
                         .frame(height: 100)
                         Button(action: {
-                            self.exportPDF(image: identifiableImage.image, fileName: fileNameInput.isEmpty ? "통계" : fileNameInput) { url in
+                            self.exportPDF(image: identifiableImage.image, fileName: fileNameInput.isEmpty ? "기록 분석" : fileNameInput) { url in
                                 if let url = url {
                                     previewImage = nil
                                     DispatchQueue.main.async {
@@ -238,7 +238,6 @@ struct StatisticView: View {
     var iconGrid: some View {
         let categories = [
             ("수유\n이유식", UIImage.colorMeal, Color("food")),
-            ("기저귀", UIImage.colorDiaper, Color("diaper")),
             ("배변", UIImage.colorPotty, Color("potty")),
             ("수면", UIImage.colorSleep, Color("sleep")),
             ("목욕", UIImage.colorBath, Color("bath")),
@@ -444,8 +443,6 @@ extension TitleCategory {
         switch self {
             case .formula, .babyFood, .pumpedMilk, .breastfeeding:
                 return "수유\n이유식"
-            case .diaper:
-                return "기저귀"
             case .poop, .pee, .pottyAll:
                 return "배변"
             case .sleep:
