@@ -42,21 +42,6 @@ struct DailyStatisticCardListView: View {
                 records: records
             )
             
-            StatisticCardView(
-                title: "기저귀 기록 분석",
-                image: .colorDiaper,
-                color: Color("diaper"),
-                count: recordsCount(for: .diaper, in: records, on: selectedDate),
-                lastcount: recordsCount(for: .diaper, in: records, on: yesterday),
-                amount: nil,
-                lastamount: nil,
-                time: nil,
-                lasttime: nil,
-                mode : "daily",
-                baby: baby,
-                records: records
-            )
-            
             PottyStatisticCardView(
                 small: pottyCount.small,
                 yesterdaysmall: yesterdaypottyCount.small,
