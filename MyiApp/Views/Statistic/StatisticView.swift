@@ -10,7 +10,7 @@ import UIKit
 
 struct StatisticView: View {
     @ObservedObject var viewModel = StatisticViewModel()
-    @State private var selectedCategories: [String] = ["수유\n이유식", "기저귀", "배변", "수면", "목욕", "간식"]
+    @State private var selectedCategories: [String] = ["수유\n이유식", "배변", "수면", "목욕", "간식"]
     
     struct IdentifiableImage: Identifiable {
         let id = UUID()
@@ -238,7 +238,6 @@ struct StatisticView: View {
     var iconGrid: some View {
         let categories = [
             ("수유\n이유식", UIImage.colorMeal, Color("food")),
-            ("기저귀", UIImage.colorDiaper, Color("diaper")),
             ("배변", UIImage.colorPotty, Color("potty")),
             ("수면", UIImage.colorSleep, Color("sleep")),
             ("목욕", UIImage.colorBath, Color("bath")),
@@ -444,8 +443,6 @@ extension TitleCategory {
         switch self {
             case .formula, .babyFood, .pumpedMilk, .breastfeeding:
                 return "수유\n이유식"
-            case .diaper:
-                return "기저귀"
             case .poop, .pee, .pottyAll:
                 return "배변"
             case .sleep:
