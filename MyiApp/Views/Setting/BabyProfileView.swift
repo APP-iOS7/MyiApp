@@ -369,17 +369,3 @@ struct BabyProfileView: View {
         }
     }
 }
-
-struct BabyProfileView_Previews: PreviewProvider {
-    static var previews: some View {
-        let sampleBaby = Baby(
-            name: "후추",
-            birthDate: Date(),
-            gender: .female,
-            height: 50,
-            weight: 3.2,
-            bloodType: .A
-        )
-        BabyProfileView(baby: sampleBaby)
-    }
-}
