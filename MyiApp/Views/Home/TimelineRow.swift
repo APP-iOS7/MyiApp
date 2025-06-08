@@ -67,7 +67,7 @@ struct TimelineRow: View {
             case .medicine:
                 "투약"
             case .clinic:
-                "병운"
+                "병원"
             case .poop:
                 "대변"
             case .pee:
