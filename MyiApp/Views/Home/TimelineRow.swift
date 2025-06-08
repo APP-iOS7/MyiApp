@@ -36,7 +36,7 @@ struct TimelineRow: View {
             case .snack: return .colorSnack
             case .temperature: return .normalTemperature
             case .medicine: return .normalMedicine
-            case .clinic: return .colorMemo
+            case .clinic: return .colorCheckList
             case .poop: return .normalPoop
             case .pee: return .normalPee
             case .pottyAll: return .normalPotty
