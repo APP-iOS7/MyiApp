@@ -82,7 +82,7 @@ struct DailyChartView: View {
         let calendar = Calendar.current
         let filteredRecords = records.filter { record in
             // 몸무게/키와 건강관리는 제외
-            guard record.title != .heightWeight && record.title != .temperature && record.title != .medicine && record.title != .clinic else { return false }
+            guard record.title != .heightWeight && record.title != .temperature && record.title != .medicine && record.title != .clinic && record.title != .diaper else { return false }
             
             guard selectedCategories.contains(record.title.displayName) else {
                 return false
