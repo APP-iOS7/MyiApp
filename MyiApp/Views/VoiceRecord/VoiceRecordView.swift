@@ -32,11 +32,11 @@ extension CryRoute: Hashable {
 extension CryRoute: Equatable {
     static func == (lhs: CryRoute, rhs: CryRoute) -> Bool {
         switch (lhs, rhs) {
-            // processing은 UUID는 매번 다르지만, '진행 중 화면'이라는 목적이 같으므로 같은 화면으로 처리함
+        // processing은 UUID는 매번 다르지만, '진행 중 화면'이라는 목적이 같으므로 같은 화면으로 처리함
         case (.processing, .processing):
             return true
             
-            // result는 type과 confidence, UUID가 모두 같을 때만 동일한 경로로 간주
+        // result는 type과 confidence, UUID가 모두 같을 때만 동일한 경로로 간주
         case (.result(let a, let lhsID), .result(let b, let rhsID)):
             return a.type == b.type && a.confidence == b.confidence && lhsID == rhsID
         // 나머지는 서로 다른 경로
@@ -50,7 +50,7 @@ struct VoiceRecordView: View {
     @StateObject private var viewModel: VoiceRecordViewModel = .init() // 분석 관련 상태와 동작을 관리하는 ViewModel
     @State private var navigationPath = NavigationPath() // NavigationStack의 경로를 추적
     @State private var showResultList = false // 결과 목록 화면을 보여줄지 여부를 제어
-
+    
     var body: some View {
         NavigationStack(path: $navigationPath) {
             VStack(spacing: 0) {
@@ -61,9 +61,9 @@ struct VoiceRecordView: View {
                     Text("울음 분석")
                         .font(.title)
                         .bold()
-
+                    
                     Spacer()
-
+                    
                     Image(systemName: "list.bullet")
                         .foregroundColor(.primary)
                         .font(.title2)
@@ -73,10 +73,10 @@ struct VoiceRecordView: View {
                         }
                 }
                 .padding(.top)
-
+                
                 VStack {
                     Spacer()
-
+                    
                     Image("CryAnalysisProcessingShark")
                         .resizable()
                         .scaledToFit()
@@ -84,7 +84,7 @@ struct VoiceRecordView: View {
                         .padding(.bottom, 20)
                     
                     Spacer()
-
+                    
                     Text("시작 버튼을 누른 후 \n 아이의 울음소리를 들려주세요")
                         .font(.title2)
                         .fontWeight(.semibold)
@@ -92,28 +92,28 @@ struct VoiceRecordView: View {
                         .lineSpacing(6)
                         .padding(.bottom, 40)
                     
-
+                    
                     Text("녹음은 7초 동안 진행됩니다.")
                         .font(.footnote)
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
                         .padding(.bottom, 10)
-
+                    
                     Text("가장 뚜렷한 울음소리가 들릴 때 녹음을 시작해 주세요.")
                         .font(.footnote)
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
                         .padding(.bottom, 10)
-
+                    
                     Text("정확한 분석을 위해 조용한 환경에서 녹음해 주세요.")
                         .font(.footnote)
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
                         .padding(.bottom, 20)
-
+                    
                     Spacer(minLength: 16)
                 }
                 .padding(.horizontal, 16)
@@ -121,7 +121,7 @@ struct VoiceRecordView: View {
                 .background(Color(UIColor.tertiarySystemBackground))
                 .cornerRadius(12)
                 .padding(.top, 16)
-
+                
                 Spacer()
             }
             .padding(.horizontal)
@@ -155,7 +155,7 @@ struct VoiceRecordView: View {
                         navigationPath.append(CryRoute.result(emotion: result, id: UUID()))
                     }
                     .id(id) // UUID로 뷰의 고유성을 보장하여 새 화면으로 렌더링
-
+                    
                 case .result(let emotion, _):
                     // 분석 결과 화면
                     CryAnalysisResultView(
