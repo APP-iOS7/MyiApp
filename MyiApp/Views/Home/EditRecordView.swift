@@ -258,7 +258,18 @@ struct EditRecordView: View {
                 } header: {
                     Text("내용")
                 }
-            case .temperature, .medicine, .clinic:
+            case .clinic:
+                Section {
+                    TextField("메모를 입력해 주세요",
+                              text: Binding(
+                                get: { viewModel.record.content ?? "" },
+                                set: { viewModel.record.content = $0 }
+                              )
+                    )
+                } header: {
+                    Text("내용")
+                }
+            case .temperature, .medicine:
                 Section {
                     HStack {
                         Image(systemName: record.title == .temperature ? "circle.inset.filled" : "circle")
@@ -285,19 +296,6 @@ struct EditRecordView: View {
                     }
                     .onTapGesture {
                         viewModel.updateRecordTitle(.medicine)
-                    }
-                    HStack {
-                        Image(systemName: record.title == .clinic ? "circle.inset.filled" : "circle")
-                            .foregroundStyle(Color.button)
-                        Image(.normalClinic)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 30)
-                            .padding(.horizontal)
-                        Text("기타")
-                    }
-                    .onTapGesture {
-                        viewModel.updateRecordTitle(.clinic)
                     }
                 } header: {
                     Text("카테고리")
