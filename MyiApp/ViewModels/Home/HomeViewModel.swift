@@ -96,24 +96,33 @@ class HomeViewModel: ObservableObject {
         let startOfDay = calendar.startOfDay(for: selectedDate)
         guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return [] }
         
-        let filtered = records.filter { record in
+        let filtered = records.compactMap { record -> Record? in
             // 기본적인 날짜 필터링
             let isInSelectedDay = record.createdAt >= startOfDay && record.createdAt < endOfDay
             
-            // 수면 기록의 경우, 시작 시간이 선택된 날짜이고 종료 시간이 다음날인 경우도 포함
+            // 수면 기록의 경우
             if record.title == .sleep,
                let sleepStart = record.sleepStart,
                let sleepEnd = record.sleepEnd {
                 let sleepStartDay = calendar.startOfDay(for: sleepStart)
                 let sleepEndDay = calendar.startOfDay(for: sleepEnd)
                 
-                return isInSelectedDay || 
-                       (sleepStartDay == startOfDay && sleepEndDay > startOfDay) ||
-                       (sleepEndDay == startOfDay && sleepStartDay < startOfDay)
+                // 시작 시간이 선택된 날짜인 경우
+                if sleepStartDay == startOfDay {
+                    return record
+                }
+                // 종료 시간이 선택된 날짜인 경우
+                if sleepEndDay == startOfDay {
+                    // 종료 시간을 기준으로 정렬하기 위해 새로운 Record 객체 생성
+                    var newRecord = record
+                    newRecord.createdAt = sleepEnd
+                    return newRecord
+                }
             }
             
-            return isInSelectedDay
+            return isInSelectedDay ? record : nil
         }
+        
         return filtered.sorted { $0.createdAt > $1.createdAt }
     }
     var recentMeal: Record? {
@@ -137,7 +146,7 @@ class HomeViewModel: ObservableObject {
             .first
     }
     var recentHealth: Record? {
-        let healthCategories: [TitleCategory] = [.temperature, .medicine, .clinic]
+        let healthCategories: [TitleCategory] = [.temperature, .medicine]
         return records
             .filter { healthCategories.contains($0.title) }
             .sorted { $0.createdAt > $1.createdAt }
@@ -211,6 +220,8 @@ class HomeViewModel: ObservableObject {
                 } else {
                     saveRecord(record: Record(title: .temperature, temperature: 36.5))
                 }
+            case .clinic:
+                saveRecord(record: Record(title: .clinic))
             default:
                 print(title)
         }

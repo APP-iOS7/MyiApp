@@ -106,7 +106,8 @@ struct WeeklyChartView: View {
                 guard record.title != .heightWeight,
                       record.title != .temperature,
                       record.title != .medicine,
-                      record.title != .clinic else {
+                      record.title != .clinic,
+                      record.title != .diaper else {
                     return false
                 }
                 

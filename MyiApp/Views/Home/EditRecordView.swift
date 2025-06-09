@@ -17,41 +17,42 @@ struct EditRecordView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                content(record: viewModel.record)
-                if viewModel.record.title != .sleep { recordTimeSection }
-                deleteSection
-            }
-            .navigationTitle(viewModel.navigationTitle)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("취소", role: .cancel, action: {
-                        dismiss()
-                    })
+                Form {
+                    content(record: viewModel.record)
+                    if viewModel.record.title != .sleep { recordTimeSection }
+                    deleteSection
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("저장", action: {
-                        viewModel.saveRecord()
-                        dismiss()
-                    })
+                .navigationTitle(viewModel.navigationTitle)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("취소", role: .cancel, action: {
+                            dismiss()
+                        })
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("저장", action: {
+                            viewModel.saveRecord()
+                            dismiss()
+                        })
+                    }
                 }
-            }
-            .scrollContentBackground(.hidden)
-            .background {
-                Color.customBackground
-                MinutesPickerActionSheet(isPresented: $viewModel.isRightMinutesPickerActionSheetPresent,
-                                         selectedAmount: $viewModel.record.breastfeedingRightMinutes)
-                MinutesPickerActionSheet(isPresented: $viewModel.isLeftMinutesPickerActionSheetPresent,
-                                         selectedAmount: $viewModel.record.breastfeedingLeftMinutes)
-                MLPickerActionSheet(isPresented: $viewModel.isMLPickerActionSheetPresent,
-                                    selectedAmount: $viewModel.record.mlAmount)
-                TMPPickerActionSheet(isPresented: $viewModel.isTMPickerActionSheetPresent,
-                                     selectedTemperature: Binding(
-                                        get: { viewModel.record.temperature ?? 36.5 },
-                                        set: { viewModel.record.temperature = $0 }
-                                     ))
-            }
+                .scrollContentBackground(.hidden)
+                .background {
+                    Color.customBackground.ignoresSafeArea()
+                    MinutesPickerActionSheet(isPresented: $viewModel.isRightMinutesPickerActionSheetPresent,
+                                             selectedAmount: $viewModel.record.breastfeedingRightMinutes)
+                    MinutesPickerActionSheet(isPresented: $viewModel.isLeftMinutesPickerActionSheetPresent,
+                                             selectedAmount: $viewModel.record.breastfeedingLeftMinutes)
+                    MLPickerActionSheet(isPresented: $viewModel.isMLPickerActionSheetPresent,
+                                        selectedAmount: $viewModel.record.mlAmount)
+                    TMPPickerActionSheet(isPresented: $viewModel.isTMPickerActionSheetPresent,
+                                         selectedTemperature: Binding(
+                                            get: { viewModel.record.temperature ?? 36.5 },
+                                            set: { viewModel.record.temperature = $0 }
+                                         ))
+                }
+            
         }
     }
     
@@ -257,7 +258,18 @@ struct EditRecordView: View {
                 } header: {
                     Text("내용")
                 }
-            case .temperature, .medicine, .clinic:
+            case .clinic:
+                Section {
+                    TextField("메모를 입력해 주세요",
+                              text: Binding(
+                                get: { viewModel.record.content ?? "" },
+                                set: { viewModel.record.content = $0 }
+                              )
+                    )
+                } header: {
+                    Text("내용")
+                }
+            case .temperature, .medicine:
                 Section {
                     HStack {
                         Image(systemName: record.title == .temperature ? "circle.inset.filled" : "circle")
@@ -284,19 +296,6 @@ struct EditRecordView: View {
                     }
                     .onTapGesture {
                         viewModel.updateRecordTitle(.medicine)
-                    }
-                    HStack {
-                        Image(systemName: record.title == .clinic ? "circle.inset.filled" : "circle")
-                            .foregroundStyle(Color.button)
-                        Image(.normalClinic)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 30)
-                            .padding(.horizontal)
-                        Text("기타")
-                    }
-                    .onTapGesture {
-                        viewModel.updateRecordTitle(.clinic)
                     }
                 } header: {
                     Text("카테고리")

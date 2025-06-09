@@ -15,7 +15,7 @@ struct EqualizerView: View {
         HStack(alignment: .center, spacing: 6) {
             ForEach(0..<numberOfBars, id: \.self) { index in
                 Capsule()
-                    .fill(Color.blue)
+                    .fill(Color("buttonColor"))
                     .frame(width: 8, height: heights[index])
             }
         }
