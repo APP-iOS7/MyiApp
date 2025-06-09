@@ -39,7 +39,6 @@ struct ConnectedUserView: View {
                         } else if CaregiverManager.shared.caregiver?.id == baby.mainCaregiver {
                             Button(action: {
                                 selectedCaregiver = caregiver
-                                showingDeleteAlert = true
                             }) {
                                 Image(systemName: "person.fill.xmark")
                                     .foregroundColor(.red)
