@@ -271,4 +271,32 @@ class CaregiverManager: ObservableObject {
             }
         }
     }
+    
+    // 아이 연결 끊기
+    func removeCaregiver(baby: Baby, caregiverId: String) async throws {
+        guard (Auth.auth().currentUser?.uid) != nil else {
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "로그인 상태가 아닙니다."])
+        }
+        
+        let babyRef = db.collection("babies").document(baby.id.uuidString)
+        let caregiverRef = db.collection("users").document(caregiverId)
+        
+        do {
+            _ = try await db.runTransaction { transaction, errorPointer in
+                transaction.updateData([
+                    "caregivers": FieldValue.arrayRemove([caregiverRef])
+                ], forDocument: babyRef)
+                transaction.updateData([
+                    "babies": FieldValue.arrayRemove([babyRef])
+                ], forDocument: caregiverRef)
+                return nil
+            }
+            
+            await MainActor.run {
+                if let index = self.babies.firstIndex(where: { $0.id == baby.id }) {
+                    self.babies[index].caregivers.removeAll { $0.documentID == caregiverId }
+                }
+            }
+        }
+    }
 }

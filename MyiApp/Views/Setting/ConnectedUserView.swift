@@ -12,6 +12,7 @@ struct ConnectedUserView: View {
     let baby: Baby
     @State private var caregivers: [Caregiver] = []
     @State private var selectedCaregiver: Caregiver?
+    @State private var showingDeleteAlert = false
     
     var body: some View {
         Form {
@@ -39,8 +40,9 @@ struct ConnectedUserView: View {
                         } else if CaregiverManager.shared.caregiver?.id == baby.mainCaregiver {
                             Button(action: {
                                 selectedCaregiver = caregiver
+                                showingDeleteAlert = true
                             }) {
-                                Image(systemName: "person.fill.xmark")
+                                Image(systemName: "person.fill.badge.minus")
                                     .foregroundColor(.red)
                             }
                         }
@@ -52,6 +54,22 @@ struct ConnectedUserView: View {
         .onAppear {
             loadCaregivers()
         }
+        .alert("보호자 삭제", isPresented: $showingDeleteAlert) {
+                    Button("삭제", role: .destructive) {
+                        if let caregiver = selectedCaregiver {
+                            Task {
+                                    try await CaregiverManager.shared.removeCaregiver(baby: baby, caregiverId: caregiver.id)
+                                    caregivers.removeAll { $0.id == caregiver.id }
+                                    selectedCaregiver = nil
+                            }
+                        }
+                    }
+                    Button("취소", role: .cancel) {
+                        selectedCaregiver = nil
+                    }
+                } message: {
+                    Text("'\(selectedCaregiver?.name ?? "알 수 없음")' 님을 보호자 목록에서 삭제하시겠습니까?")
+                }
     }
     
     private func loadCaregivers() {
