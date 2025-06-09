@@ -5,13 +5,6 @@
 //  Created by Yung Hak Lee on 5/13/25.
 //
 
-//
-//  BabyProfileView.swift
-//  MyiApp
-//
-//  Created by [Your Name] on 5/20/25.
-//
-
 import SwiftUI
 import Kingfisher
 
