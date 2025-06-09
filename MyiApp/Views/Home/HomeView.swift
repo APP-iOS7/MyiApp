@@ -77,7 +77,7 @@ struct HomeView: View {
                 }
                 
                 VStack {
-                    HStack(alignment: .center) {
+                    HStack {
                         Menu {
                             ForEach(viewModel.caregiverManager.babies) { baby in
                                 Button {
@@ -95,8 +95,12 @@ struct HomeView: View {
                                 }
                             }
                             NavigationLink(destination: RegisterBabyView()) {
-                                Text("아이 추가")
-                                    .foregroundStyle(Color.button)
+                                HStack {
+                                    Text("아이 추가")
+                                        .foregroundStyle(Color.button)
+                                    Image(systemName: "plus.circle")
+                                        .foregroundStyle(.blue)
+                                }
                             }
                         } label: {
                             HStack(spacing: 4) {
