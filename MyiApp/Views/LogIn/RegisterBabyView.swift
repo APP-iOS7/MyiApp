@@ -82,6 +82,7 @@ struct RegisterBabyView: View {
                 .navigationDestination(isPresented: $navigateToNextView) {
                     destinationView()
                 }
+                .padding()
         }
         .navigationTitle(Text("아이 등록"))
         .navigationBarTitleDisplayMode(.inline)
