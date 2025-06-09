@@ -21,7 +21,7 @@ struct ConnectedUserView: View {
             } else {
                 ForEach(caregivers, id: \.id) { caregiver in
                     HStack {
-                        VStack(alignment: .leading) {
+                        VStack {
                             Text(caregiver.name ?? "이름 없음")
                                 .font(.headline)
                             if let email = caregiver.email {
@@ -37,12 +37,15 @@ struct ConnectedUserView: View {
                             Text("(메인 보호자)")
                                 .font(.caption)
                                 .foregroundColor(.blue)
-                        } else if CaregiverManager.shared.caregiver?.id == baby.mainCaregiver {
-                            Button(action: {
+                        }
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        if caregiver.id != baby.mainCaregiver && CaregiverManager.shared.caregiver?.id == baby.mainCaregiver {
+                            Button(role: .destructive) {
                                 selectedCaregiver = caregiver
                                 showingDeleteAlert = true
-                            }) {
-                                Image(systemName: "person.fill.badge.minus")
+                            } label: {
+                                Image(systemName: "trash")
                                     .foregroundColor(.red)
                             }
                         }
@@ -55,33 +58,69 @@ struct ConnectedUserView: View {
             loadCaregivers()
         }
         .alert("보호자 삭제", isPresented: $showingDeleteAlert) {
-                    Button("삭제", role: .destructive) {
-                        if let caregiver = selectedCaregiver {
-                            Task {
-                                    try await CaregiverManager.shared.removeCaregiver(baby: baby, caregiverId: caregiver.id)
-                                    caregivers.removeAll { $0.id == caregiver.id }
-                                    selectedCaregiver = nil
-                            }
-                        }
-                    }
-                    Button("취소", role: .cancel) {
+            Button("삭제", role: .destructive) {
+                if let caregiver = selectedCaregiver {
+                    Task {
+                        try await CaregiverManager.shared.removeCaregiver(baby: baby, caregiverId: caregiver.id)
+                        caregivers.removeAll { $0.id == caregiver.id }
                         selectedCaregiver = nil
                     }
-                } message: {
-                    Text("'\(selectedCaregiver?.name ?? "알 수 없음")' 님을 보호자 목록에서 삭제하시겠습니까?")
                 }
+            }
+            Button("취소", role: .cancel) {
+                selectedCaregiver = nil
+            }
+        } message: {
+            Text("'\(selectedCaregiver?.name ?? "알 수 없음")' 님을 보호자 목록에서 삭제합니다.")
+        }
     }
     
     private func loadCaregivers() {
-        for ref in baby.caregivers {
-            ref.getDocument { document, error in
-                if let document = document,
-                   document.exists,
-                   let caregiver = try? document.data(as: Caregiver.self) {
-                    DispatchQueue.main.async {
-                        caregivers.append(caregiver)
+        let mainCaregiverId = baby.mainCaregiver
+        Task {
+            do {
+                let db = Firestore.firestore()
+                let userRef = db.collection("users").document(mainCaregiverId)
+                let userDoc = try await userRef.getDocument()
+                
+                guard let userData = userDoc.data(),
+                      let babiesRefs = userData["babies"] as? [DocumentReference] else {
+                    print("메인 보호자의 babies 배열 없음")
+                    return
+                }
+                
+                let babyRef = db.collection("babies").document(baby.id.uuidString)
+                let babyDoc = try await babyRef.getDocument()
+                guard let babyData = babyDoc.data(),
+                      let caregiverRefs = babyData["caregivers"] as? [DocumentReference] else {
+                    print("아기의 caregivers 배열 없음")
+                    return
+                }
+                
+                var loadedCaregivers: [Caregiver] = []
+                let caregiverIds = caregiverRefs.map { $0.documentID }
+                
+                for babyRef in babiesRefs {
+                    let babyDoc = try await babyRef.getDocument()
+                    if let babyData = babyDoc.data(),
+                       let caregivers = babyData["caregivers"] as? [DocumentReference] {
+                        for caregiverRef in caregivers {
+                            if caregiverIds.contains(caregiverRef.documentID),
+                               !loadedCaregivers.contains(where: { $0.id == caregiverRef.documentID }) {
+                                if let caregiver = try? await caregiverRef.getDocument().data(as: Caregiver.self) {
+                                    loadedCaregivers.append(caregiver)
+                                }
+                            }
+                        }
                     }
                 }
+                
+                // UI 업데이트
+                await MainActor.run {
+                    self.caregivers = loadedCaregivers
+                }
+            } catch {
+                print("보호자 로드 실패: \(error.localizedDescription)")
             }
         }
     }
