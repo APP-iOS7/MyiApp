@@ -17,10 +17,11 @@ struct Baby: Codable, Identifiable {
     var weight: Double
     var bloodType: BloodType
     var photoURL: String?
+    var mainCaregiver: String
     
     var caregivers: [DocumentReference]
     
-    init(name: String, birthDate: Date, gender: Gender, height: Double, weight: Double, bloodType: BloodType) {
+    init(name: String, birthDate: Date, gender: Gender, height: Double, weight: Double, bloodType: BloodType, mainCaregiver: String) {
         self.id = UUID()
         self.name = name
         self.birthDate = birthDate
@@ -30,19 +31,21 @@ struct Baby: Codable, Identifiable {
         self.bloodType = bloodType
         self.photoURL = nil
         self.caregivers = []
+        self.mainCaregiver = mainCaregiver
     }
     
     enum CodingKeys: String, CodingKey {
-            case id
-            case name
-            case birthDate = "birth_date"
-            case gender
-            case height
-            case weight
-            case bloodType = "blood_type"
-            case photoURL
-            case caregivers
-        }
+        case id
+        case name
+        case birthDate = "birth_date"
+        case gender
+        case height
+        case weight
+        case bloodType = "blood_type"
+        case photoURL
+        case caregivers
+        case mainCaregiver
+    }
 }
 
 enum BloodType: String, Codable {
