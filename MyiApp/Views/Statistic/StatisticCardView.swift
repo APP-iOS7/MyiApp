@@ -97,13 +97,13 @@ struct PottyStatisticCardView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            NavigationLink(destination: destinationView(for: "배변 통계", baby: baby)) {
+            NavigationLink(destination: destinationView(for: "배변 기록 분석", baby: baby)) {
                 HStack {
                     Image(uiImage: .colorPotty)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 32, height: 32)
-                    Text("배변 통계")
+                    Text("배변 기록 분석")
                         .font(.headline)
                         .foregroundColor(.primary)
                     Spacer()
@@ -133,17 +133,15 @@ struct PottyStatisticCardView: View {
 @ViewBuilder
 func destinationView(for title: String, baby: Baby) -> some View {
     switch title {
-    case "분유/수유/이유식 통계":
+    case "분유/수유/이유식 기록 분석":
         FoodDetailView(baby: baby)
-    case "기저귀 통계":
-        DiaperDetailView(baby: baby)
-    case "수면 통계":
+    case "수면 기록 분석":
         SleepDetailView(baby: baby)
-    case "목욕 통계":
+    case "목욕 기록 분석":
         BathDetailView(baby: baby)
-    case "간식 통계":
+    case "간식 기록 분석":
         SnackDetailView(baby: baby)
-    case "배변 통계":
+    case "배변 기록 분석":
         PottyDetailView(baby: baby)
     default:
         EmptyView()

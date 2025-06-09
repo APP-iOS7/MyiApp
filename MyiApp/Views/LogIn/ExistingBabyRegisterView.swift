@@ -19,14 +19,14 @@ struct ExistingBabyRegisterView: View {
     var body: some View {
         VStack {
             VStack(alignment: .leading) {
-                Text("공유 코드를 입력하세요")
+                Text("초대 코드를 입력하세요")
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.primary.opacity(0.8))
                     .padding()
                     .padding(.top, 10)
                 ZStack(alignment: .trailing) {
-                    TextField("공유 코드를 입력하세요", text: $viewModel.babyId)
+                    TextField("초대 코드를 입력하세요", text: $viewModel.babyId)
                         .multilineTextAlignment(.leading)
                         .foregroundColor(.primary.opacity(0.6))
                         .font(.title2)
@@ -83,7 +83,7 @@ struct ExistingBabyRegisterView: View {
             )
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .padding(.horizontal)
-            .navigationTitle(Text("공유 코드 등록"))
+            .navigationTitle(Text("초대 코드 등록"))
             .navigationBarTitleDisplayMode(.inline)
             
             Spacer()
@@ -98,7 +98,7 @@ struct ExistingBabyRegisterView: View {
                                 }
                             }
                         }) {
-                            Text("공유 코드를 등록하세요")
+                            Text("완료")
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 50)

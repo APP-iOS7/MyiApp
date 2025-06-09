@@ -11,7 +11,7 @@ import Combine
 import FirebaseFirestore
 
 class StatisticViewModel: ObservableObject {
-    @Published var baby: Baby = Baby(name: "", birthDate: Date(), gender: .male, height: 0, weight: 0, bloodType: .A)
+    @Published var baby: Baby = Baby(name: "", birthDate: Date(), gender: .male, height: 0, weight: 0, bloodType: .A, mainCaregiver: "dd")
     @Published var records: [Record] = []
     private var cancellables = Set<AnyCancellable>()
     

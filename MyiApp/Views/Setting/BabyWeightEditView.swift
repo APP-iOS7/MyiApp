@@ -127,16 +127,3 @@ struct BabyWeightEditView: View {
         }
     }
 }
-
-#Preview {
-    let sampleBaby = Baby(
-        name: "아기",
-        birthDate: Date(),
-        gender: .male,
-        height: 50.5,
-        weight: 3.5,
-        bloodType: .A
-    )
-    return BabyWeightEditView(viewModel: BabyProfileViewModel(baby: sampleBaby))
-}
-

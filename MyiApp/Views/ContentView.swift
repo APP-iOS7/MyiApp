@@ -1,5 +1,3 @@
-
-
 //
 //  ContentView.swift
 //  MyiApp
@@ -31,11 +29,26 @@ struct ContentView: View {
         Group {
             if caregiverManager.selectedBaby != nil {
                 TabView {
-                    Tab("홈", systemImage: "house.fill") { NavigationStack { HomeView() } }
-                    Tab("육아 수첩", systemImage: "book.fill") { NavigationStack { NoteView() } }
-                    Tab("울음 분석", systemImage: "waveform") { NavigationStack { VoiceRecordView() } }
-                    Tab("통계", systemImage: "chart.bar.fill") { NavigationStack { StatisticView() } }
-                    Tab("더 보기", systemImage: "line.3.horizontal") { NavigationStack { SettingsView() } }
+                    NavigationStack { HomeView() }
+                        .tabItem {
+                            Label("홈", systemImage: "house.fill")
+                        }
+                    NavigationStack { NoteView() }
+                        .tabItem {
+                            Label("육아 수첩", systemImage: "book.fill")
+                        }
+                    NavigationStack { VoiceRecordView() }
+                        .tabItem {
+                            Label("울음 분석", systemImage: "waveform")
+                        }
+                    NavigationStack { StatisticView() }
+                        .tabItem {
+                            Label("기록 분석", systemImage: "chart.bar.fill")
+                        }
+                    NavigationStack { SettingsView() }
+                        .tabItem {
+                            Label("더 보기", systemImage: "line.3.horizontal")
+                        }
                 }
                 .tabViewStyle(DefaultTabViewStyle())
                 .edgesIgnoringSafeArea(.bottom)

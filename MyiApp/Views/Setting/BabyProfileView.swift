@@ -5,13 +5,6 @@
 //  Created by Yung Hak Lee on 5/13/25.
 //
 
-//
-//  BabyProfileView.swift
-//  MyiApp
-//
-//  Created by [Your Name] on 5/20/25.
-//
-
 import SwiftUI
 import Kingfisher
 
@@ -221,7 +214,7 @@ struct BabyProfileView: View {
                                 }
                                 
                                 HStack {
-                                    Text("아이 정보 공유 코드 복사하기")
+                                    Text("아이 초대 코드 복사하기")
                                         .font(.headline)
                                         .fontWeight(.semibold)
                                         .foregroundColor(Color("buttonColor"))
@@ -304,34 +297,52 @@ struct BabyProfileView: View {
                             Text(errorMessage ?? "알 수 없는 오류가 발생했습니다.")
                         }
                         .photosPicker(isPresented: $showPhotoPicker, selection: $viewModel.selectedImage, matching: .images)
-                        
-                        if isLoading {
-                            Color.black.opacity(0.4)
-                                .ignoresSafeArea()
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle())
-                                .scaleEffect(1.5)
-                                .opacity(isLoading ? 1 : 0)
-                                .animation(.easeInOut(duration: 0.3), value: isLoading)
+                    }
+                    
+                    NavigationLink(destination: ConnectedUserView(baby: baby)) {
+                        VStack {
+                            HStack {
+                                Text("연결된 사용자")
+                                    .foregroundColor(.primary.opacity(0.6))
+                                    .padding(.leading, 5)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.primary.opacity(0.6))
+                                    .font(.system(size: 12))
+                                    .padding(.trailing, 8)
+                            }
+                            .padding()
                         }
+                        .background(Color(UIColor.tertiarySystemBackground))
+                        .cornerRadius(12)
+                        .padding(.vertical, 8)
                     }
                 }
-                
                 Spacer()
                 
-                Button(action: {
-                    babyToDelete = baby
-                    showingBabyDeleteAlert = true
-                }) {
-                    Text("아이 정보 삭제")
-                        .font(.caption)
-                        .foregroundColor(.red)
-                        .padding()
-                        .underline()
-                }
+//                Button(action: {
+//                    babyToDelete = baby
+//                    showingBabyDeleteAlert = true
+//                }) {
+//                    Text("아이 정보 삭제")
+//                        .font(.caption)
+//                        .foregroundColor(.red)
+//                        .padding()
+//                        .underline()
+//                }
             }
             .padding(.horizontal)
             .background(Color("customBackgroundColor"))
+            
+            if isLoading {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .scaleEffect(1.5)
+                    .opacity(isLoading ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.3), value: isLoading)
+            }
             
             if showToast {
                 VStack {
@@ -349,19 +360,5 @@ struct BabyProfileView: View {
                 .zIndex(1)
             }
         }
-    }
-}
-
-struct BabyProfileView_Previews: PreviewProvider {
-    static var previews: some View {
-        let sampleBaby = Baby(
-            name: "후추",
-            birthDate: Date(),
-            gender: .female,
-            height: 50,
-            weight: 3.2,
-            bloodType: .A
-        )
-        BabyProfileView(baby: sampleBaby)
     }
 }

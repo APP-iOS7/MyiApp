@@ -116,8 +116,6 @@ struct DetailStatisticCardView: View {
         switch image {
         case UIImage.colorMeal:
             return feedingComparisonMessage(count: count, lastCount: lastCount)
-        case UIImage.colorDiaper:
-            return diaperComparisonMessage(count: count, lastCount: lastCount)
         case UIImage.colorSleep:
             return sleepComparisonMessage(count: count, lastCount: lastCount)
         case UIImage.colorBath:
@@ -143,26 +141,6 @@ struct DetailStatisticCardView: View {
         let text = count > lastCount
         ? "\(label) 수유 횟수가 증가하였습니다."
         : "\(label) 수유 횟수가 감소하였습니다."
-        
-        return Text(text)
-            .font(.subheadline)
-            .foregroundColor(.gray)
-        
-    }
-    func diaperComparisonMessage(count: Int, lastCount: Int) -> Text {
-        let label: String
-        switch mode {
-        case "daily":
-            label = "어제보다"
-        case "weekly":
-            label = "지난주보다"
-        default:
-            label = "지난달보다"
-        }
-        
-        let text = count > lastCount
-        ? "\(label) 기저귀 교체 횟수가 증가하였습니다."
-        : "\(label) 기저귀 교체 횟수가 감소하였습니다."
         
         return Text(text)
             .font(.subheadline)
@@ -252,15 +230,15 @@ struct DetailPottyStatisticCardView: View {
                     .scaledToFit()
                     .frame(width: 32, height: 32)
                 if (mode == "daily") {
-                    Text("일별 통계")
+                    Text("일별 기록 분석")
                         .font(.headline)
                         .foregroundColor(.primary)
                 } else if (mode == "weekly") {
-                    Text("주별 통계")
+                    Text("주별 기록 분석")
                         .font(.headline)
                         .foregroundColor(.primary)
                 } else {
-                    Text("월별 통계")
+                    Text("월별 기록 분석")
                         .font(.headline)
                         .foregroundColor(.primary)
                 }
