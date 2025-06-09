@@ -302,7 +302,7 @@ struct BabyProfileView: View {
                     NavigationLink(destination: ConnectedUserView(baby: baby)) {
                         VStack {
                             HStack {
-                                Text("연결 된 사용자")
+                                Text("연결된 사용자")
                                     .foregroundColor(.primary.opacity(0.6))
                                     .padding(.leading, 5)
                                 Spacer()
