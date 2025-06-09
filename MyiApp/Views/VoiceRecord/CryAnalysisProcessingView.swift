@@ -6,26 +6,27 @@
 //
 
 import SwiftUI
+import Combine
 
 struct CryAnalysisProcessingView: View {
     @Environment(\.dismiss) private var dismiss // 네비게이션에서 현재 뷰를 닫을 수 있는 Environment
     @ObservedObject var viewModel: VoiceRecordViewModel // 상태와 로직을 포함한 뷰 모델
     @State private var result: EmotionResult? // 화면에 이미 전달한 결과를 저장해서 중복 전달 방지
     let onComplete: (EmotionResult) -> Void // 분석이 완료되었을 때 결과를 상위 뷰에 전달하는 클로저
-
+    
     var body: some View {
         ZStack {
             switch viewModel.step {
-            // .recording, .processing이면 ProccessingStateView 렌더링
+                // .recording, .processing이면 ProccessingStateView 렌더링
             case .recording, .processing:
                 ProcessingStateView(viewModel: viewModel, dismiss: dismiss)
-            // .result면 onAppear에서 onComplete 호출(결과를 onComplete 클로저를 통해 상위로 전달
+                // .result면 onAppear에서 onComplete 호출(결과를 onComplete 클로저를 통해 상위로 전달
             case .result(let res):
                 // onAppear 트리거를 위해 사용되는 투명한 배경 뷰
                 Color.clear
                     .onAppear {
                         print("[ProcessingView] result onAppear — 새 result 도착: \(res.type) / \(res.confidence)")
-
+                        
                         // 동일한 결과가 중복 호출되지 않도록 이전 결과와 비교하여 변경이 있을 때만 onComplete 호출
                         if result?.type != res.type || result?.confidence != res.confidence {
                             self.result = res
@@ -34,11 +35,11 @@ struct CryAnalysisProcessingView: View {
                             }
                         }
                     }
-            // .error면 ErrorStateView 렌더링
+                // .error면 ErrorStateView 렌더링
             case .error(let message):
                 ErrorStateView(message: message, dismiss: dismiss)
-            
-            // 나머지는 EmptyView 렌더링
+                
+                // 나머지는 EmptyView 렌더링
             default:
                 EmptyView()
             }
@@ -57,11 +58,9 @@ private struct ProcessingStateView: View {
     @State private var dotCount: Int = 0 // dot 애니메이션의 현재 점 개수
     @State private var dotTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect() // 0.5초마다 dot 개수를 갱신하는 타이머
     
-    @State private var progress: Double = 0.0 // 분석 진행률
-    @State private var startTime: Date? = nil // 분석 시작 시간 기록
+    @State private var progress: Double = 0.0
+    @State private var startTime = Date()
     private let totalDuration: Double = 7.0 // 분석 소요 시간 (7초)
-    private let updateInterval: Double = 0.05 // Progress 진행률 갱신 간격
-    private let progressTimer = Timer.publish(every: 0.05, on: .main, in: .common).autoconnect() // 진행률 상태 갱신용 타이머
     
     var body: some View {
         VStack(spacing: 24) {
@@ -72,7 +71,7 @@ private struct ProcessingStateView: View {
             EqualizerView()
                 .padding(.horizontal, 24)
                 .frame(height: 123)
-
+            
             Image("CryAnalysisProcessingShark")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -84,7 +83,7 @@ private struct ProcessingStateView: View {
                 .foregroundColor(.primary)
                 .padding(.top, 8)
             
-            Text("소음이 심한 경우 정확도가 \n 떨어질 수 있어요")
+            Text("소음이 심한 경우 정확도가 \n 떨어질 수 있어요.")
                 .font(.system(size: 14))
                 .foregroundColor(.gray)
                 .multilineTextAlignment(.center)
@@ -98,7 +97,8 @@ private struct ProcessingStateView: View {
                 ProgressView(value: progress)
                     .progressViewStyle(LinearProgressViewStyle())
                     .padding(.horizontal, 24)
-
+                    .tint(Color("buttonColor"))
+                
                 Text("\(Int(progress * 100))%")
                     .font(.system(size: 18, weight: .medium))
                     .foregroundColor(.gray)
@@ -126,15 +126,46 @@ private struct ProcessingStateView: View {
         .padding(.bottom, 20)
         .frame(maxHeight: .infinity, alignment: .top)
         .onReceive(dotTimer) { _ in
-            dotCount = (dotCount + 1) % 4 
+            dotCount = (dotCount + 1) % 4
         }
         .onAppear {
+            dotCount = 0
+            progress = 0.0
             startTime = Date()
+            startProgress()
         }
-        .onReceive(progressTimer) { _ in
-            guard let start = startTime else { return }
-            let elapsed = Date().timeIntervalSince(start)
-            progress = min(elapsed / totalDuration, 1.0)
+    }
+    
+    // 부드러운 진행률 계산을 위한 easing 함수 (Cubic Ease-Out)
+    private func easeOut(_ t: Double) -> Double {
+        return 1 - pow(1 - t, 3)
+    }
+    
+    // CADisplayLink를 사용하여 프레임마다 진행률을 계산하고 갱신
+    private func startProgress() {
+        let displayLink = CADisplayLink(target: DisplayLinkProxy { link in
+            let elapsed = Date().timeIntervalSince(startTime) // 애니메이션 시작 후 경과 시간
+            let t = min(elapsed / totalDuration, 1.0)  // 전체 지속 시간 대비 현재 진행 비율 (0.0 ~ 1.0)
+            progress = easeOut(t)  // easing 커브를 적용한 진행률 값으로 업데이트
+            
+            // 애니메이션 완료 시 displayLink 정지
+            if t >= 1.0 {
+                link.invalidate()
+            }
+        }, selector: #selector(DisplayLinkProxy.update(_:))) // 프레임마다 실행될 함수 등록
+        displayLink.add(to: .main, forMode: .default) // 메인 런루프에 displayLink 등록 → 화면이 그려질 때마다 실행됨
+    }
+    
+    // CADisplayLink는 Objective-C 런타임과의 호환이 필요하므로 래퍼 클래스를 통해 클로저 실행
+    private class DisplayLinkProxy {
+        let callback: (CADisplayLink) -> Void // 실제 작업을 수행할 클로저
+        
+        init(_ callback: @escaping (CADisplayLink) -> Void) {
+            self.callback = callback // 클로저 저장
+        }
+        
+        @objc func update(_ sender: CADisplayLink) {
+            callback(sender)  // CADisplayLink에 의해 호출되면 클로저 실행
         }
     }
 }
