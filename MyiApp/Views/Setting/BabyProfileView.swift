@@ -305,20 +305,38 @@ struct BabyProfileView: View {
                         }
                         .photosPicker(isPresented: $showPhotoPicker, selection: $viewModel.selectedImage, matching: .images)
                     }
+                    
+                    NavigationLink(destination: ConnectedUserView(baby: baby)) {
+                        VStack {
+                            HStack {
+                                Text("연결 된 사용자")
+                                    .foregroundColor(.primary.opacity(0.6))
+                                    .padding(.leading, 5)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.primary.opacity(0.6))
+                                    .font(.system(size: 12))
+                                    .padding(.trailing, 8)
+                            }
+                            .padding()
+                        }
+                        .background(Color(UIColor.tertiarySystemBackground))
+                        .cornerRadius(12)
+                        .padding(.vertical, 8)
+                    }
                 }
-                
                 Spacer()
                 
-                Button(action: {
-                    babyToDelete = baby
-                    showingBabyDeleteAlert = true
-                }) {
-                    Text("아이 정보 삭제")
-                        .font(.caption)
-                        .foregroundColor(.red)
-                        .padding()
-                        .underline()
-                }
+//                Button(action: {
+//                    babyToDelete = baby
+//                    showingBabyDeleteAlert = true
+//                }) {
+//                    Text("아이 정보 삭제")
+//                        .font(.caption)
+//                        .foregroundColor(.red)
+//                        .padding()
+//                        .underline()
+//                }
             }
             .padding(.horizontal)
             .background(Color("customBackgroundColor"))
@@ -349,19 +367,5 @@ struct BabyProfileView: View {
                 .zIndex(1)
             }
         }
-    }
-}
-
-struct BabyProfileView_Previews: PreviewProvider {
-    static var previews: some View {
-        let sampleBaby = Baby(
-            name: "후추",
-            birthDate: Date(),
-            gender: .female,
-            height: 50,
-            weight: 3.2,
-            bloodType: .A
-        )
-        BabyProfileView(baby: sampleBaby)
     }
 }

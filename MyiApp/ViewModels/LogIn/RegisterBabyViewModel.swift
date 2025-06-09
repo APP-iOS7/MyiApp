@@ -40,7 +40,8 @@ class RegisterBabyViewModel: ObservableObject {
                         gender: gender,
                         height: heightValue,
                         weight: weightValue,
-                        bloodType: bloodType)
+                        bloodType: bloodType,
+                        mainCaregiver: caregiverManager.caregiver?.id ?? "")
             do {
                 try await databaseService.saveBabyInfo(baby: baby)
                 isRegistered = true

@@ -28,10 +28,12 @@ class EditRecordViewModel: ObservableObject {
                 return "목욕 기록"
             case .snack:
                 return "간식 기록"
-            case .temperature, .medicine, .clinic:
+            case .temperature, .medicine:
                 return "건강 관리 기록"
             case .poop, .pee, .pottyAll:
                 return "배변 기록"
+            case .clinic:
+                return "메모"
         }
     }
 

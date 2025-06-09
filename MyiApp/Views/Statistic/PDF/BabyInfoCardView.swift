@@ -64,7 +64,7 @@ struct BabyInfoCardView: View {
             sectionGroup(title: "수면 기록 분석", items: ["수면 횟수", "수면 시간"])
                 .frame(height: 200)
             Spacer(minLength: 10)
-            sectionGroup(title: "기타 관리", items: ["기저귀", "목욕", "간식"])
+            sectionGroup(title: "기타 관리", items: ["목욕", "간식"])
                 .frame(height: 200)
             Spacer(minLength: 20)
         }
@@ -251,24 +251,14 @@ struct BabyInfoCardView: View {
                 .frame(width: 320, height: 100)
                 .padding()
 
-            } else if title == "기저귀" {
-                DailyDiaperChartPDFView(
-                    weekDates: generateWeekDates(from: selectedDate),
-                    records: records
-                )
-                .frame(width: 450, height: 300)
-                .scaleEffect(0.5, anchor: .center)
-                .frame(width: 200, height: 100)
-                .padding()
-
             } else if title == "목욕" {
                 DailyBathChartPDFView(
                     weekDates: generateWeekDates(from: selectedDate),
                     records: records
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.5, anchor: .center)
-                .frame(width: 200, height: 100)
+                .scaleEffect(0.7, anchor: .center)
+                .frame(width: 320, height: 100)
                 .padding()
 
             } else if title == "간식" {
@@ -277,8 +267,8 @@ struct BabyInfoCardView: View {
                     records: records
                 )
                 .frame(width: 450, height: 300)
-                .scaleEffect(0.5, anchor: .center)
-                .frame(width: 200, height: 100)
+                .scaleEffect(0.7, anchor: .center)
+                .frame(width: 320, height: 100)
                 .padding()
 
             }
