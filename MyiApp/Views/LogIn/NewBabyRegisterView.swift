@@ -441,12 +441,12 @@ struct NewBabyRegisterView: View {
                 .padding(.vertical)
                 .disabled(!isButtonEnabled)
             }
-            .padding()
+            .padding(.horizontal)
         }
         .onTapGesture {
             dismissKeyboard()
         }
-        .navigationTitle("아이 정보 등록")
+        .navigationTitle("새로운 아이 정보 등록")
         .background(Color("customBackgroundColor"))
     }
     

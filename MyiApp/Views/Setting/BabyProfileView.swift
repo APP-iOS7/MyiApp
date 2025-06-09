@@ -238,6 +238,43 @@ struct BabyProfileView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .navigationTitle("\(viewModel.baby.name)님의 정보")
                         .navigationBarTitleDisplayMode(.inline)
+                        .toolbar {
+                            if CaregiverManager.shared.caregiver?.id == baby.mainCaregiver {
+                                ToolbarItem(placement: .topBarTrailing) {
+                                    Button {
+                                        babyToDelete = baby
+                                        showingBabyDeleteAlert = true
+                                    } label: {
+                                        Image(systemName: "trash")
+                                            .foregroundStyle(.red)
+                                    }
+                                }
+                            }
+                        }
+                        .alert("아이 정보 삭제", isPresented: $showingBabyDeleteAlert) {
+                            Button("삭제", role: .destructive) {
+                                if let babyToDelete = babyToDelete {
+                                    Task {
+                                        isLoading = true
+                                        try await CaregiverManager.shared.deleteBaby(babyToDelete)
+                                        print("아이 삭제 성공")
+                                        await MainActor.run { dismiss() }
+                                        isLoading = false
+                                        self.babyToDelete = nil
+                                    }
+                                }
+                            }
+                            Button("취소", role: .cancel) {
+                                babyToDelete = nil
+                            }
+                        } message: {
+                            Text("'\(babyToDelete?.name ?? "")' 아기 정보를 삭제하시겠습니까?")
+                        }
+                        .alert("오류", isPresented: $showingErrorAlert) {
+                            Button("확인", role: .cancel) {}
+                        } message: {
+                            Text(errorMessage ?? "알 수 없는 오류가 발생했습니다.")
+                        }
                         .task {
                             await viewModel.loadBabyProfileImage()
                         }
@@ -272,30 +309,6 @@ struct BabyProfileView: View {
                             }
                             Button("취소", role: .cancel) {}
                         }
-                        .alert("아이 정보 삭제", isPresented: $showingBabyDeleteAlert) {
-                            Button("삭제", role: .destructive) {
-                                if let babyToDelete = babyToDelete {
-                                    Task {
-                                        isLoading = true
-                                        try await CaregiverManager.shared.deleteBaby(babyToDelete)
-                                        print("아이 삭제 성공")
-                                        await MainActor.run { dismiss() }
-                                        isLoading = false
-                                        self.babyToDelete = nil
-                                    }
-                                }
-                            }
-                            Button("취소", role: .cancel) {
-                                babyToDelete = nil
-                            }
-                        } message: {
-                            Text("'\(babyToDelete?.name ?? "")' 아기 정보를 삭제하시겠습니까?")
-                        }
-                        .alert("오류", isPresented: $showingErrorAlert) {
-                            Button("확인", role: .cancel) {}
-                        } message: {
-                            Text(errorMessage ?? "알 수 없는 오류가 발생했습니다.")
-                        }
                         .photosPicker(isPresented: $showPhotoPicker, selection: $viewModel.selectedImage, matching: .images)
                     }
                     
@@ -319,17 +332,6 @@ struct BabyProfileView: View {
                     }
                 }
                 Spacer()
-                
-//                Button(action: {
-//                    babyToDelete = baby
-//                    showingBabyDeleteAlert = true
-//                }) {
-//                    Text("아이 정보 삭제")
-//                        .font(.caption)
-//                        .foregroundColor(.red)
-//                        .padding()
-//                        .underline()
-//                }
             }
             .padding(.horizontal)
             .background(Color("customBackgroundColor"))

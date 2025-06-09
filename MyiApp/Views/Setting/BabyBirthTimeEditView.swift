@@ -26,7 +26,7 @@ struct BabyBirthTimeEditView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.primary.opacity(0.8))
                     .padding()
-                    .padding(.top, 10)
+                    .padding(.top)
                 HStack {
                     DatePicker("출생 시간", selection: $selectedTime, displayedComponents: [.hourAndMinute])
                         .labelsHidden()
@@ -65,7 +65,7 @@ struct BabyBirthTimeEditView: View {
             .navigationTitle(Text("출생 시간"))
             .navigationBarTitleDisplayMode(.inline)
         }
-        .padding()
+        .padding(.horizontal)
         .background(Color("customBackgroundColor"))
     }
 }

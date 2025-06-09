@@ -26,7 +26,7 @@ struct BabyBirthDayEditView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.primary.opacity(0.8))
                     .padding()
-                    .padding(.top, 10)
+                    .padding(.top)
                 HStack {
                     DatePicker(
                         "출생일",
@@ -66,7 +66,7 @@ struct BabyBirthDayEditView: View {
             .navigationTitle(Text("출생일"))
             .navigationBarTitleDisplayMode(.inline)
         }
-        .padding()
+        .padding(.horizontal)
         .background(Color("customBackgroundColor"))
     }
 }
