@@ -32,7 +32,7 @@ struct ConfidenceRingView: View {
     private var percentageText: String {
         return "\(Int(confidence * 100))%"
     }
-
+    
     var body: some View {
         ZStack {
             Circle()
@@ -40,7 +40,7 @@ struct ConfidenceRingView: View {
                     Color.gray.opacity(Constants.ringBackgroundOpacity),
                     lineWidth: Constants.ringStrokeWidth
                 )
-
+            
             if imageName.contains("Unknown") {
                 Circle()
                     .stroke(
@@ -66,7 +66,7 @@ struct ConfidenceRingView: View {
                         value: confidence
                     )
             }
-
+            
             VStack(spacing: 4) {
                 Image(imageName)
                     .resizable()
@@ -76,7 +76,7 @@ struct ConfidenceRingView: View {
                         height: Constants.iconSize
                     )
                     .accessibilityLabel(getAccessibilityLabel(for: imageName))
-
+                
                 if !imageName.contains("Unknown") {
                     Text(percentageText)
                         .font(.system(size: Constants.percentageFontSize, weight: .bold))
@@ -100,7 +100,7 @@ struct CryAnalysisResultView: View {
     @ObservedObject var viewModel: VoiceRecordViewModel
     @Environment(\.dismiss) private var dismiss
     @Environment(\.locale) private var locale
-
+    
     let emotionType: EmotionType
     let confidence: Float
     let onDismiss: () -> Void
@@ -110,7 +110,7 @@ struct CryAnalysisResultView: View {
     private var resultImageName: String {
         return emotionType.rawImageName
     }
-
+    
     // 감정 타입에 따라 표시할 추천 행동 목록을 반환
     private var localizedTips: [String] {
         return tips(for: emotionType)
@@ -123,21 +123,21 @@ struct CryAnalysisResultView: View {
                 .font(.system(size: Constants.titleFontSize, weight: .heavy))
                 .padding(.top)
                 .accessibilityAddTraits(.isHeader)
-
+            
             ConfidenceRingView(confidence: confidence, imageName: resultImageName)
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("\(emotionType.displayName) 상태, 확률 \(Int(confidence * 100))%")
-
+            
             Text(emotionType.displayName)
                 .font(.system(size: Constants.emotionTypeFontSize, weight: .bold))
                 .padding()
                 .accessibilityAddTraits(.isHeader)
             
-
+            
             VStack(alignment: .leading, spacing: Constants.tipsSpacing) {
                 Text(NSLocalizedString("추천 행동", comment: ""))
                     .font(.system(size: Constants.tipsFontSize, weight: .bold))
-
+                
                 ForEach(localizedTips, id: \.self) { tip in
                     HStack(alignment: .top, spacing: 4) {
                         Text("•")
@@ -150,7 +150,7 @@ struct CryAnalysisResultView: View {
             .padding(.horizontal)
             .accessibilityElement(children: .combine)
             .accessibilityLabel(accessibilityTipsLabel)
-
+            
             VStack {
                 Spacer()
                 Button {
@@ -255,14 +255,14 @@ private func maxSafeAreaBottomPadding() -> CGFloat {
         // 키 윈도우가 없을 경우 기본값 28을 반환
         return 28
     }
-
+    
     // 디바이스 하단의 safe area inset을 가져옴
     let bottomInset = keyWindow.safeAreaInsets.bottom
-
+    
     // 전체 화면 높이를 기준으로 화면이 충분히 크면 적은 여백을 적용하고, 작으면 더 큰 여백을 적용
     let screenHeight = keyWindow.bounds.height
     let basePadding: CGFloat = screenHeight > 700 ? 16 : 28
-
+    
     // inset과 basePadding을 합친 값을 최대 40으로 제한하여 UI가 깨지지 않도록 함
     return min(bottomInset + basePadding, 40)
 }
