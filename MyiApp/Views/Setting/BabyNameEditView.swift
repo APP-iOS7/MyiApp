@@ -29,7 +29,7 @@ struct BabyNameEditView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.primary.opacity(0.8))
                     .padding()
-                    .padding(.top, 10)
+                    .padding(.top)
                 ZStack(alignment: .trailing) {
                     TextField("이름을 입력하세요", text: $selectedName)
                         .multilineTextAlignment(.leading)
@@ -129,16 +129,4 @@ struct BabyNameEditView: View {
             isTextFieldFocused = false
         }
     }
-}
-
-#Preview {
-    let sampleBaby = Baby(
-        name: "아기",
-        birthDate: Date(),
-        gender: .male,
-        height: 50.5,
-        weight: 3.5,
-        bloodType: .A
-    )
-    return BabyNameEditView(viewModel: BabyProfileViewModel(baby: sampleBaby))
 }

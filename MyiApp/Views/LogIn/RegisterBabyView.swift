@@ -16,12 +16,12 @@ struct RegisterBabyView: View {
     var body: some View {
         VStack {
             VStack(alignment: .leading, spacing: 20) {
-                Text("아이 등록")
+                Text("등록 방식을 선택해주세요")
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.primary.opacity(0.8))
                     .padding()
-                    .padding(.top, 10)
+                    .padding(.top)
                 
                 VStack {
                     HStack {
@@ -82,8 +82,11 @@ struct RegisterBabyView: View {
                 .navigationDestination(isPresented: $navigateToNextView) {
                     destinationView()
                 }
+                .padding()
         }
-        .padding()
+        .navigationTitle(Text("아이 등록"))
+        .navigationBarTitleDisplayMode(.inline)
+        .padding(.horizontal)
         .background(Color("customBackgroundColor"))
     }
     

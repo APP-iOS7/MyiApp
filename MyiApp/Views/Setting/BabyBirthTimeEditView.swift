@@ -26,7 +26,7 @@ struct BabyBirthTimeEditView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.primary.opacity(0.8))
                     .padding()
-                    .padding(.top, 10)
+                    .padding(.top)
                 HStack {
                     DatePicker("출생 시간", selection: $selectedTime, displayedComponents: [.hourAndMinute])
                         .labelsHidden()
@@ -65,19 +65,7 @@ struct BabyBirthTimeEditView: View {
             .navigationTitle(Text("출생 시간"))
             .navigationBarTitleDisplayMode(.inline)
         }
-        .padding()
+        .padding(.horizontal)
         .background(Color("customBackgroundColor"))
     }
-}
-
-#Preview {
-    let sampleBaby = Baby(
-        name: "아기",
-        birthDate: Date(),
-        gender: .male,
-        height: 50.5,
-        weight: 3.5,
-        bloodType: .A
-    )
-    return BabyBirthTimeEditView(viewModel: BabyProfileViewModel(baby: sampleBaby))
 }

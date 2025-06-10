@@ -25,7 +25,7 @@ struct BabyBloodEditView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.primary.opacity(0.8))
                     .padding()
-                    .padding(.top, 10)
+                    .padding(.top)
                 
                 VStack {
                     HStack {
@@ -120,19 +120,7 @@ struct BabyBloodEditView: View {
             }
             .contentShape(Rectangle())
         }
-        .padding()
+        .padding(.horizontal)
         .background(Color("customBackgroundColor"))
     }
-}
-
-#Preview {
-    let sampleBaby = Baby(
-        name: "아기",
-        birthDate: Date(),
-        gender: .male,
-        height: 50.5,
-        weight: 3.5,
-        bloodType: .A
-    )
-    BabyBloodEditView(viewModel: BabyProfileViewModel(baby: sampleBaby))
 }
