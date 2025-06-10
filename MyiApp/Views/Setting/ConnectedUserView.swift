@@ -21,7 +21,7 @@ struct ConnectedUserView: View {
             } else {
                 ForEach(caregivers, id: \.id) { caregiver in
                     HStack {
-                        VStack {
+                        VStack(alignment: .leading) {
                             Text(caregiver.name ?? "이름 없음")
                                 .font(.headline)
                             if let email = caregiver.email {
