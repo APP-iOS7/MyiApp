@@ -190,12 +190,12 @@ struct EditRecordView: View {
                     DatePicker("시작", selection: Binding(
                         get: { viewModel.record.sleepStart ?? Date() },
                         set: { viewModel.record.sleepStart = $0 }
-                    ))
+                    ), in: ...(viewModel.record.sleepEnd ?? Date()))
                     if let sleepEnd = viewModel.record.sleepEnd {
                         DatePicker("종료", selection: Binding(
                             get: { sleepEnd },
                             set: { viewModel.record.sleepEnd = $0 }
-                        ))
+                        ), in: (viewModel.record.sleepStart ?? Date())...)
                     } else {
                         HStack {
                             Text("종료")
