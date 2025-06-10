@@ -41,7 +41,7 @@ struct BabyWeightEditView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.primary.opacity(0.8))
                     .padding()
-                    .padding(.top, 10)
+                    .padding(.top)
                 ZStack(alignment: .trailing) {
                     TextField("몸무게를 입력하세요", value: $selectedWeight, formatter: numberFormatter)
                         .multilineTextAlignment(.leading)

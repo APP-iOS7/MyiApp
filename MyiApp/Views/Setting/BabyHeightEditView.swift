@@ -41,7 +41,7 @@ struct BabyHeightEditView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.primary.opacity(0.8))
                     .padding()
-                    .padding(.top, 10)
+                    .padding(.top)
                 ZStack(alignment: .trailing) {
                     TextField("키를 입력하세요", value: $selectedHeight, formatter: numberFormatter)
                         .multilineTextAlignment(.leading)

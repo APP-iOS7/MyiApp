@@ -45,7 +45,20 @@ class CaregiverManager: ObservableObject {
         }
         
         if let caregiver = await loadCaregiver(uid: uid) {
+            let userRef = db.collection("users").document(uid)
+            let invalidBabyRefs: [DocumentReference] = []
             let babies = await loadBabies(from: caregiver.babies)
+            
+            // 유효하지 않은 아기 참조 제거
+            Task {
+                if !invalidBabyRefs.isEmpty {
+                    try? await userRef.updateData([
+                        "babies": FieldValue.arrayRemove(invalidBabyRefs)
+                    ])
+                    print("유효하지 않은 아기 참조 제거: \(invalidBabyRefs.map { $0.documentID })")
+                }
+            }
+            
             await MainActor.run {
                 self.caregiver = caregiver
                 self.babies = babies
@@ -174,23 +187,66 @@ class CaregiverManager: ObservableObject {
     
     // 회원탈퇴 시 회원 데이터 삭제
     func deleteUserData(uid: String) async throws {
-        let db = Firestore.firestore()
         let userRef = db.collection("users").document(uid)
         let document = try await userRef.getDocument()
         
         guard document.exists, let caregiver = try? document.data(as: Caregiver.self) else {
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "사용자 데이터를 찾을 수 없거나 디코딩 실패"])
         }
+        
         try await withThrowingTaskGroup(of: Void.self) { group in
             for babyRef in caregiver.babies {
                 group.addTask {
-                    try await babyRef.delete()
+                    let babyDoc = try await babyRef.getDocument()
+                    guard let babyData = babyDoc.data(),
+                          let caregivers = babyData["caregivers"] as? [DocumentReference],
+                          let mainCaregiverId = babyData["mainCaregiver"] as? String else {
+                        return
+                    }
+                    
                     let babyId = babyRef.documentID
-                    let collections = ["records", "notes", "voiceRecords"]
-                    for collection in collections {
-                        let querySnapshot = try await db.collection("babies").document(babyId).collection(collection).getDocuments()
-                        for document in querySnapshot.documents {
-                            try await document.reference.delete()
+                    
+                    if mainCaregiverId == uid {
+                        try await babyRef.delete()
+                        let babyId = babyRef.documentID
+                        let collections = ["records", "notes", "voiceRecords"]
+                        for collection in collections {
+                            let querySnapshot = try await self.db.collection("babies").document(babyId).collection(collection).getDocuments()
+                            for document in querySnapshot.documents {
+                                try await document.reference.delete()
+                            }
+                        }
+                        
+                        for caregiverRef in caregivers where caregiverRef.documentID != uid {
+                            try await caregiverRef.updateData([
+                                "babies": FieldValue.arrayRemove([babyRef])
+                            ])
+                            
+                            let caregiverDoc = try await caregiverRef.getDocument()
+                            if let caregiverData = caregiverDoc.data(),
+                               let lastSelected = caregiverData["lastSelectedBabyId"] as? String,
+                               lastSelected == babyId {
+                                try await caregiverRef.updateData([
+                                    "lastSelectedBabyId": FieldValue.delete()
+                                ])
+                            }
+                        }
+                    } else {
+                        
+                        // 메인 보호자가 아닌 경우: 참조만 제거
+                        try await babyRef.updateData([
+                            "caregivers": FieldValue.arrayRemove([userRef])
+                        ])
+                        
+                        try await userRef.updateData([
+                            "babies": FieldValue.arrayRemove([babyRef])
+                        ])
+                        
+                        // 호출자의 lastSelectedBabyId 확인 및 삭제
+                        if caregiver.lastSelectedBabyId == babyId {
+                            try await userRef.updateData([
+                                "lastSelectedBabyId": FieldValue.delete()
+                            ])
                         }
                     }
                 }
@@ -205,16 +261,45 @@ class CaregiverManager: ObservableObject {
     
     // 아기 데이터 삭제
     func deleteBaby(_ baby: Baby) async throws {
-        guard let userId = Auth.auth().currentUser?.uid else {
+        guard Auth.auth().currentUser != nil else {
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "로그인 상태가 아닙니다."])
         }
-        let userRef = db.collection("users").document(userId)
         let babyRef = db.collection("babies").document(baby.id.uuidString)
         
         do {
+            // 아기 문서에서 caregivers 배열 가져오기
+            let babyDoc = try await babyRef.getDocument()
+            guard let babyData = babyDoc.data(), let caregivers = babyData["caregivers"] as? [DocumentReference] else {
+                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "아기 데이터를 찾을 수 없습니다."])
+            }
+            // caregiverId: lastSelectedBabyId
+            var caregiverLastSelected: [String: String?] = [:]
+            for caregiverRef in caregivers {
+                let caregiverDoc = try await caregiverRef.getDocument()
+                if let caregiverData = caregiverDoc.data(),
+                   let lastSelected = caregiverData["lastSelectedBabyId"] as? String {
+                    caregiverLastSelected[caregiverRef.documentID] = lastSelected
+                } else {
+                    caregiverLastSelected[caregiverRef.documentID] = nil
+                }
+            }
+            
+            // 트랜잭션으로 아기 데이터와 모든 보호자의 참조 제거
             _ = try await db.runTransaction { transaction, errorPointer in
                 transaction.deleteDocument(babyRef)
-                transaction.updateData(["babies": FieldValue.arrayRemove([babyRef])], forDocument: userRef)
+                // 모든 보호자의 babies 배열과 lastSelectedBabyId 업데이트
+                for caregiverRef in caregivers {
+                    transaction.updateData([
+                        "babies": FieldValue.arrayRemove([babyRef])
+                    ], forDocument: caregiverRef)
+                    // lastSelectedBabyId가 삭제된 아기 UID와 일치하면 제거
+                    if caregiverLastSelected[caregiverRef.documentID] ?? nil == baby.id.uuidString {
+                        transaction.updateData([
+                            "lastSelectedBabyId": FieldValue.delete()
+                        ], forDocument: caregiverRef)
+                    }
+                }
+                
                 return nil
             }
             let collections = ["records", "notes", "voiceRecords"]
@@ -258,16 +343,44 @@ class CaregiverManager: ObservableObject {
         }
         
         try await userRef.updateData([
-                "babies": FieldValue.arrayUnion([babyRef])
-            ])
-            try await babyRef.updateData([
-                "caregivers": FieldValue.arrayUnion([userRef])
-            ])
+            "babies": FieldValue.arrayUnion([babyRef])
+        ])
+        try await babyRef.updateData([
+            "caregivers": FieldValue.arrayUnion([userRef])
+        ])
         
         await MainActor.run {
             self.babies.append(baby)
             if self.selectedBaby == nil {
                 self.selectedBaby = baby
+            }
+        }
+    }
+    
+    // 사용자와 아이 연결 끊기
+    func removeCaregiver(baby: Baby, caregiverId: String) async throws {
+        guard (Auth.auth().currentUser?.uid) != nil else {
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "로그인 상태가 아닙니다."])
+        }
+        
+        let babyRef = db.collection("babies").document(baby.id.uuidString)
+        let caregiverRef = db.collection("users").document(caregiverId)
+        
+        do {
+            _ = try await db.runTransaction { transaction, errorPointer in
+                transaction.updateData([
+                    "caregivers": FieldValue.arrayRemove([caregiverRef])
+                ], forDocument: babyRef)
+                transaction.updateData([
+                    "babies": FieldValue.arrayRemove([babyRef])
+                ], forDocument: caregiverRef)
+                return nil
+            }
+            
+            await MainActor.run {
+                if let index = self.babies.firstIndex(where: { $0.id == baby.id }) {
+                    self.babies[index].caregivers.removeAll { $0.documentID == caregiverId }
+                }
             }
         }
     }

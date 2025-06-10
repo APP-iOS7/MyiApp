@@ -25,7 +25,7 @@ struct BabyBloodEditView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.primary.opacity(0.8))
                     .padding()
-                    .padding(.top, 10)
+                    .padding(.top)
                 
                 VStack {
                     HStack {
@@ -120,7 +120,7 @@ struct BabyBloodEditView: View {
             }
             .contentShape(Rectangle())
         }
-        .padding()
+        .padding(.horizontal)
         .background(Color("customBackgroundColor"))
     }
 }
