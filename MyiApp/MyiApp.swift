@@ -59,7 +59,11 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         let noteId = response.notification.request.identifier
         print("알림 탭됨: \(noteId)")
         
-        // 여기서 필요하다면 알림을 탭했을 때 특정 화면으로 이동하는 코드를 추가할 수 있음
+        center.setBadgeCount(0) { error in
+            if let error = error {
+                print("배지 초기화 오류: \(error.localizedDescription)")
+            }
+        }
         
         completionHandler()
     }
@@ -120,17 +124,17 @@ struct MyiApp: App {
     @ViewBuilder
     private var currentView: some View {
         switch appState {
-            case .loading:
-                ProgressView()
-                    .progressViewStyle(.circular)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.customBackground.ignoresSafeArea())
-            case .login:
-                LogInView()
-            case .content:
-                ContentView()
-            case .register:
-                RegisterBabyView()
+        case .loading:
+            ProgressView()
+                .progressViewStyle(.circular)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.customBackground.ignoresSafeArea())
+        case .login:
+            LogInView()
+        case .content:
+            ContentView()
+        case .register:
+            RegisterBabyView()
         }
     }
     

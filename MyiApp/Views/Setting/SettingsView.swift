@@ -307,7 +307,7 @@ struct SettingsView: View {
                         Button(action: {
                             showingDeleteAlert = true
                         }) {
-                            Text("회원탈퇴")
+                            Text("계정 삭제")
                                 .font(.caption2)
                                 .foregroundColor(.primary.opacity(0.5))
                                 .padding(.vertical, 20)
@@ -327,7 +327,7 @@ struct SettingsView: View {
                     secondaryButton: .cancel(Text("취소"))
                 )
             }
-            .alert("회원탈퇴", isPresented: $showingDeleteAlert) {
+            .alert("계정 삭제", isPresented: $showingDeleteAlert) {
                 Button("삭제", role: .destructive) {
                     Task {
                         defer { isLoading = false }
@@ -336,7 +336,7 @@ struct SettingsView: View {
                             try await AuthService.shared.deleteAccount()
                             print("Account deletion successful")
                         } catch {
-                            errorMessage = "회원탈퇴 실패: \(error.localizedDescription)"
+                            errorMessage = "계정 삭제 실패: \(error.localizedDescription)"
                             showingErrorAlert = true
                             print("Account deletion failed: \(error.localizedDescription)")
                         }
@@ -345,7 +345,7 @@ struct SettingsView: View {
                 }
                 Button("취소", role: .cancel) {}
             } message: {
-                Text("계정을 삭제하려면 재인증이 필요합니다. 계속하시겠습니까?")
+                Text("계정 삭제 시, 모든 정보가 삭제됩니다.")
             }
             .alert("오류", isPresented: $showingErrorAlert) {
                 Button("확인", role: .cancel) {}

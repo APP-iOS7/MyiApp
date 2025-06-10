@@ -33,7 +33,7 @@ struct AccountEditView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.primary.opacity(0.8))
                     .padding()
-                    .padding(.top, 10)
+                    .padding(.top)
                 ZStack(alignment: .trailing) {
                     TextField("이름을 입력하세요", text: $selectedName)
                         .multilineTextAlignment(.leading)
