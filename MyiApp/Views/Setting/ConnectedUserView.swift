@@ -53,6 +53,8 @@ struct ConnectedUserView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color.customBackground)
         .navigationTitle("연결된 사용자")
         .onAppear {
             loadCaregivers()
