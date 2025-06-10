@@ -271,7 +271,7 @@ struct BabyProfileView: View {
                             } message: {
                                 Text("'\(viewModel.baby.name)' 님의 정보 삭제 시\n모든 보호자와 연결이 끊어집니다.")
                             }
-                            .alert("오류", isPresented: $showingErrorAlert) {
+                            .alert("완료", isPresented: $showingErrorAlert) {
                                 Button("확인", role: .cancel) {}
                             } message: {
                                 Text(errorMessage ?? "알 수 없는 오류가 발생했습니다.")
@@ -291,8 +291,10 @@ struct BabyProfileView: View {
                                 Button("앨범에서 선택") {
                                     showPhotoPicker = true
                                 }
-                                Button("프로필 사진 삭제", role: .destructive) {
-                                    showDeleteConfirmation = true
+                                if viewModel.babyImage != nil {
+                                    Button("프로필 사진 삭제", role: .destructive) {
+                                        showDeleteConfirmation = true
+                                    }
                                 }
                                 Button("닫기", role: .cancel) {}
                             }
