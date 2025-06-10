@@ -190,7 +190,7 @@ class HomeViewModel: ObservableObject {
                     saveRecord(record: Record(title: .pee))
                 }
             case .sleep:
-                saveRecord(record: Record(title: .sleep, sleepStart: Date()))
+                saveRecord(record: Record(title: .sleep, sleepStart: selectedDate))
             case .heightWeight:
                 saveRecord(record: Record(title: .heightWeight))
             case .bath:
