@@ -48,7 +48,7 @@ class CaregiverManager: ObservableObject {
             let userRef = db.collection("users").document(uid)
             let invalidBabyRefs: [DocumentReference] = []
             let babies = await loadBabies(from: caregiver.babies)
-
+            
             // 유효하지 않은 아기 참조 제거
             Task {
                 if !invalidBabyRefs.isEmpty {
@@ -194,36 +194,60 @@ class CaregiverManager: ObservableObject {
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "사용자 데이터를 찾을 수 없거나 디코딩 실패"])
         }
         
-        // 모든 아기 데이터 삭제 및 관련 사용자 데이터 업데이트
         try await withThrowingTaskGroup(of: Void.self) { group in
             for babyRef in caregiver.babies {
                 group.addTask {
                     let babyDoc = try await babyRef.getDocument()
-                    guard let babyData = babyDoc.data(), let caregivers = babyData["caregivers"] as? [DocumentReference] else {
+                    guard let babyData = babyDoc.data(),
+                          let caregivers = babyData["caregivers"] as? [DocumentReference],
+                          let mainCaregiverId = babyData["mainCaregiver"] as? String else {
                         return
                     }
                     
-                    try await babyRef.delete()
                     let babyId = babyRef.documentID
-                    let collections = ["records", "notes", "voiceRecords"]
-                    for collection in collections {
-                        let querySnapshot = try await self.db.collection("babies").document(babyId).collection(collection).getDocuments()
-                        for document in querySnapshot.documents {
-                            try await document.reference.delete()
-                        }
-                    }
                     
-                    // 보호자의 babies 배열에서 해당 아기 참조 제거
-                    for caregiverRef in caregivers {
-                        try await caregiverRef.updateData([
+                    if mainCaregiverId == uid {
+                        try await babyRef.delete()
+                        let babyId = babyRef.documentID
+                        let collections = ["records", "notes", "voiceRecords"]
+                        for collection in collections {
+                            let querySnapshot = try await self.db.collection("babies").document(babyId).collection(collection).getDocuments()
+                            for document in querySnapshot.documents {
+                                try await document.reference.delete()
+                            }
+                        }
+                        
+                        for caregiverRef in caregivers where caregiverRef.documentID != uid {
+                            try await caregiverRef.updateData([
+                                "babies": FieldValue.arrayRemove([babyRef])
+                            ])
+                            
+                            let caregiverDoc = try await caregiverRef.getDocument()
+                            if let caregiverData = caregiverDoc.data(),
+                               let lastSelected = caregiverData["lastSelectedBabyId"] as? String,
+                               lastSelected == babyId {
+                                try await caregiverRef.updateData([
+                                    "lastSelectedBabyId": FieldValue.delete()
+                                ])
+                            }
+                        }
+                    } else {
+                        
+                        // 메인 보호자가 아닌 경우: 참조만 제거
+                        try await babyRef.updateData([
+                            "caregivers": FieldValue.arrayRemove([userRef])
+                        ])
+                        
+                        try await userRef.updateData([
                             "babies": FieldValue.arrayRemove([babyRef])
                         ])
-                    }
-                    // lastSelectedBabyId가 삭제된 아기 UID와 일치하면 제거
-                    if caregiver.lastSelectedBabyId == babyId {
-                        try await userRef.updateData([
-                            "lastSelectedBabyId": FieldValue.delete()
-                        ])
+                        
+                        // 호출자의 lastSelectedBabyId 확인 및 삭제
+                        if caregiver.lastSelectedBabyId == babyId {
+                            try await userRef.updateData([
+                                "lastSelectedBabyId": FieldValue.delete()
+                            ])
+                        }
                     }
                 }
             }
@@ -319,11 +343,11 @@ class CaregiverManager: ObservableObject {
         }
         
         try await userRef.updateData([
-                "babies": FieldValue.arrayUnion([babyRef])
-            ])
-            try await babyRef.updateData([
-                "caregivers": FieldValue.arrayUnion([userRef])
-            ])
+            "babies": FieldValue.arrayUnion([babyRef])
+        ])
+        try await babyRef.updateData([
+            "caregivers": FieldValue.arrayUnion([userRef])
+        ])
         
         await MainActor.run {
             self.babies.append(baby)
