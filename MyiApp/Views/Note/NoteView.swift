@@ -72,7 +72,7 @@ struct NoteView: View {
                                                 HStack(spacing: 4) {
                                                     Image(systemName: "plus.circle.fill")
                                                         .font(.system(size: 20))
-                                                    Text("일지/일정 추가")
+                                                    Text("추가")
                                                         .font(.system(size: 16, weight: .medium))
                                                 }
                                                 .foregroundColor(Color.button)
