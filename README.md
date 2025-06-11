@@ -1,4 +1,3 @@
-# **My i**
 ![Image](https://github.com/user-attachments/assets/08ebdf04-a840-49ac-9de0-3981a8285dfd)
 
 <br /><br />
@@ -20,8 +19,7 @@
 
 
 
-## 주요기능과 스크린샷
-
+## 주요기능
 
 | 런치스크린 | 홈 화면 | 육아 수첩 |
 | :--------: | :--------: | :--------: |
@@ -71,7 +69,7 @@
 
 | 조영민 <br/> [@Youngmin322](https://github.com/Youngmin322) | 이민서 <br/> [@eminseo2003](https://github.com/eminseo2003) | 이영학 <br/> [@ynghk](https://github.com/gadisom) | 장새벽 <br/> [@saebyeokjang](https://github.com/saebyeokjang) | 최범수 <br/> [@tomchoi95](https://github.com/tomchoi95) |
 | :-------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------: |
-| <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/7c48a9e8-4c29-4b64-9492-4265d186d5b1" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> | <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/ca70cfe7-fe36-4f54-9ca9-0f7fd7cbdddb" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> | <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/6375bb9b-cc23-4efe-8b48-051a87a33c97" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> | <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/aff34d9d-f997-4b7f-bfb8-d8400be472c7" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> | <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/aa66e05a-d633-4bbb-87f1-5e51d548fb6a" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> |
+| <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/7c48a9e8-4c29-4b64-9492-4265d186d5b1" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> | <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/ca70cfe7-fe36-4f54-9ca9-0f7fd7cbdddb" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> | <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/c5cf3c4d-22d2-4f23-98e1-6758157bec84" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> | <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/aff34d9d-f997-4b7f-bfb8-d8400be472c7" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> | <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/aa66e05a-d633-4bbb-87f1-5e51d548fb6a" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> |
 
 </div>
 
