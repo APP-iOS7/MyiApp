@@ -24,13 +24,13 @@
 
 
 
-| 런치스크린 | 로그인 | 홈 화면 |
+| 런치스크린 | 홈 화면 | 육아 수첩 |
 | :--------: | :--------: | :--------: |
-| <img src="LaunchScreen.PNG" width="200"> | <img src="https://github.com/user-attachments/assets/7ddae552-1b79-4778-a4a4-1bc1420418db" width="200"> | <img src="https://github.com/user-attachments/assets/79353f2a-8bfd-41e4-aa4a-2e1d76e23c4c" width="200"> |
+| <img src="https://github.com/user-attachments/assets/bf80cc6e-5575-49a9-b576-a9bef43e03b4" width="200"> | <img src="https://github.com/user-attachments/assets/b5d3aeb1-6d1f-46cf-a089-2882b1dc2f2d" width="200"> | <img src="https://github.com/user-attachments/assets/a35209da-53f6-4709-8480-f616048f2058" width="200"> |
 
-| 기록 수정 | 아이 추가 | 캘린더 |
+| 울음 분석 | 기록 분석 | 더보기 |
 | :--------: | :--------: | :--------: |
-| <img src="https://github.com/user-attachments/assets/6140c855-c08a-4a96-820f-9231d837f891" width="200"> | <img src="https://github.com/user-attachments/assets/2256b341-f10a-46d4-9168-b92c3433d24f" width="200"> | <img src="https://github.com/user-attachments/assets/dc06dd59-b511-4d2f-8b74-14965e2a4107" width="200"> |
+| <img src="https://github.com/user-attachments/assets/5fcdbfdf-7d7c-48a6-b37b-c4c8bc7dec99" width="200"> | <img src="https://github.com/user-attachments/assets/9a39d28e-8a69-400f-80e4-26444b3c0e27" width="200"> | <img src="https://github.com/user-attachments/assets/e8a6cad2-c8f9-4b3d-ab06-89754dd5a5b3" width="200"> |
 
 
 
