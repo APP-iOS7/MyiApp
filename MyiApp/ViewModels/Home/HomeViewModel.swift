@@ -190,7 +190,21 @@ class HomeViewModel: ObservableObject {
                     saveRecord(record: Record(title: .pee))
                 }
             case .sleep:
-                saveRecord(record: Record(title: .sleep, sleepStart: selectedDate))
+                let calendar = Calendar.current
+                let selectedDateComponents = calendar.dateComponents([.year, .month, .day], from: selectedDate)
+                let currentTimeComponents = calendar.dateComponents([.hour, .minute, .second], from: Date())
+                
+                var combinedComponents = DateComponents()
+                combinedComponents.year = selectedDateComponents.year
+                combinedComponents.month = selectedDateComponents.month
+                combinedComponents.day = selectedDateComponents.day
+                combinedComponents.hour = currentTimeComponents.hour
+                combinedComponents.minute = currentTimeComponents.minute
+                combinedComponents.second = currentTimeComponents.second
+                
+                if let combinedDate = calendar.date(from: combinedComponents) {
+                    saveRecord(record: Record(title: .sleep, sleepStart: combinedDate))
+                }
             case .heightWeight:
                 saveRecord(record: Record(title: .heightWeight))
             case .bath:
