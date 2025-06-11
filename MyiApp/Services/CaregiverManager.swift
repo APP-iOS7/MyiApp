@@ -358,6 +358,53 @@ class CaregiverManager: ObservableObject {
     }
     
     // 사용자와 아이 연결 끊기
+    func disconnectFromBaby(_ baby: Baby) async throws {
+        guard let currentUserId = Auth.auth().currentUser?.uid else {
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "로그인 상태가 아닙니다."])
+        }
+        
+        let babyRef = db.collection("babies").document(baby.id.uuidString)
+        let userRef = db.collection("users").document(currentUserId)
+        
+        do {
+            // 트랜잭션으로 연결 해제 처리
+            _ = try await db.runTransaction { transaction, errorPointer in
+                // 아기 문서에서 현재 사용자 참조 제거
+                transaction.updateData([
+                    "caregivers": FieldValue.arrayRemove([userRef])
+                ], forDocument: babyRef)
+                
+                // 사용자 문서에서 아기 참조 제거
+                transaction.updateData([
+                    "babies": FieldValue.arrayRemove([babyRef])
+                ], forDocument: userRef)
+                
+                // 마지막 선택된 아기가 현재 아기인 경우 제거
+                if self.caregiver?.lastSelectedBabyId == baby.id.uuidString {
+                    transaction.updateData([
+                        "lastSelectedBabyId": FieldValue.delete()
+                    ], forDocument: userRef)
+                }
+                
+                return nil
+            }
+            
+            // 로컬 상태 업데이트
+            await MainActor.run {
+                self.babies.removeAll { $0.id == baby.id }
+                if self.selectedBaby?.id == baby.id {
+                    self.selectedBaby = self.babies.first
+                }
+            }
+            
+            print("아이와의 연결 해제 성공: \(baby.name)")
+        } catch {
+            print("아이와의 연결 해제 실패: \(error)")
+            throw error
+        }
+    }
+    
+    // 사용자와 아이 연결 끊기
     func removeCaregiver(baby: Baby, caregiverId: String) async throws {
         guard (Auth.auth().currentUser?.uid) != nil else {
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "로그인 상태가 아닙니다."])
