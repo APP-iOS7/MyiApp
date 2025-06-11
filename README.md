@@ -14,14 +14,13 @@
 <br /><br />
 
 ## Foldering Convention
-![Image](https://github.com/user-attachments/assets/6bd9042a-751d-40c5-9f82-5325a7118231)
+<img src="https://github.com/user-attachments/assets/6bd9042a-751d-40c5-9f82-5325a7118231" width="500">
 
 <br /><br />
 
 
 
 ## 주요기능과 스크린샷
-
 
 
 | 런치스크린 | 홈 화면 | 육아 수첩 |
