@@ -8,7 +8,7 @@
 <br /><br />
 
 ## 페르소나
-![페르소나](https://github.com/user-attachments/assets/019f31ff-4b54-441a-87cd-7bd67fc5a120)
+![페르소나](https://github.com/user-attachments/assets/ff8786c2-8bea-4032-a5fc-3c1f083b3e30)
 
 <br /><br />
 
