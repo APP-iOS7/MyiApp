@@ -1,32 +1,76 @@
-# My i - 아이와의 소중한 순간을 사랑으로 기록하다
+![Image](https://github.com/user-attachments/assets/08ebdf04-a840-49ac-9de0-3981a8285dfd)
 
-아이와 함께하는 매 순간은 기적과 같습니다. **My i**는 바쁜 부모님의 육아 일상 속에서도 아이의 성장 과정을 쉽고, 빠르고, 아름답게 기록할 수 있도록 설계된 앱입니다. 최첨단 AI 기술과 직관적인 기능을 통해 아이와의 모든 순간을 더 특별하고 편리하게 만들어드립니다. **My i**와 함께, 아이의 이야기를 사랑으로 채워보세요!
+<br /><br />
 
-## 아기의 마음을 읽는 **아기 울음 분석**
-- 아기가 왜 우는지 궁금하신가요? **My i**의 인공지능은 단 7초 만에 아기의 울음 소리를 분석해 **배고픔, 졸림, 외로움, 무서움** 등 아기의 감정과 상태를 알려드립니다.  
-- 바쁜 육아 속에서도 아이의 필요를 빠르게 파악해 더 따뜻한 보살핌을 선사하세요!
+## About My i<img src="https://github.com/user-attachments/assets/62e20afb-9a77-4ab3-8406-074b75ecdd5e" align=left width=100> 
+**마이 아이**는 아기의 울음소리를 AI로 분석하고, 성장 과정과 일상을 손쉽게 기록할 수 있는 **통합 육아 앱**입니다.
 
-## 한 손으로도 쉬운 **육아 기록**
-- **수유, 기저귀 교체, 수면, 이유식, 배변** 등 아이의 일상을 원터치로 간편히 기록! 바쁜 순간에도 빠르고 쉽게 입력할 수 있습니다.  
-- **타임라인**에서 모든 기록을 한눈에 확인하고, 필요할 때 언제든 수정 가능합니다.  
-- 분유량(ml), 모유 수유 시간 등 세밀한 기록도 꼼꼼히 관리할 수 있어요.  
-- 지난 날의 기록도 날짜 변경으로 손쉽게 확인! 아이의 성장 스토리를 한눈에 담아보세요.
+<br /><br />
 
-## 소중한 순간을 영원히, **일정 & 일지**
-- **첫 뒤집기, 첫걸음, 첫 단어**와 같은 특별한 순간을 일지에 기록해 영원히 간직하세요.  
-- 병원 방문, 예방접종 등 중요한 **일정**을 알림과 함께 관리해 까먹을 걱정이 없습니다.  
-- 아이의 사랑스러운 순간을 사진으로 남기고, 그날의 추억을 감성적으로 기록하세요.  
-- 모든 순간이 모여 아이와의 특별한 추억 앨범이 완성됩니다!
+## 페르소나
+![페르소나](https://github.com/user-attachments/assets/019f31ff-4b54-441a-87cd-7bd67fc5a120)
 
-## 아이의 성장을 한눈에, **성장 통계**
-- 지난 일주일, 한 달 동안의 **수유량, 수면 시간**을 깔끔한 그래프로 확인!  
-- 아이의 **성장곡선**을 통해 건강한 발달 과정을 한눈에 파악하세요.  
-- 데이터를 기반으로 아이의 패턴을 이해하고, 더 스마트한 육아를 경험하세요!
+<br /><br />
 
-## **My i**와 함께하는 육아의 즐거움
-- **쉽고 빠르게**: 한 손으로도 간편한 기록, 바쁜 부모님의 시간 절약!  
-- **똑똑한 기술**: AI로 아이의 필요를 빠르게 파악.  
-- **감동적인 기록**: 소중한 순간을 사진과 함께 영원히 간직.  
-- **맞춤 통계**: 아이의 성장 데이터를 한눈에, 체계적으로 관리.  
+## Foldering Convention
+<img src="https://github.com/user-attachments/assets/6bd9042a-751d-40c5-9f82-5325a7118231" width="500">
 
-**My i**를 지금 다운로드해 아이와의 소중한 시간을 더 특별하게 만들어보세요!  
+<br /><br />
+
+
+
+## 주요기능
+
+| 런치스크린 | 홈 화면 | 육아 수첩 |
+| :--------: | :--------: | :--------: |
+| <img src="https://github.com/user-attachments/assets/bf80cc6e-5575-49a9-b576-a9bef43e03b4" width="200"> | <img src="https://github.com/user-attachments/assets/b5d3aeb1-6d1f-46cf-a089-2882b1dc2f2d" width="200"> | <img src="https://github.com/user-attachments/assets/a35209da-53f6-4709-8480-f616048f2058" width="200"> |
+
+| 울음 분석 | 기록 분석 | 더보기 |
+| :--------: | :--------: | :--------: |
+| <img src="https://github.com/user-attachments/assets/5fcdbfdf-7d7c-48a6-b37b-c4c8bc7dec99" width="200"> | <img src="https://github.com/user-attachments/assets/9a39d28e-8a69-400f-80e4-26444b3c0e27" width="200"> | <img src="https://github.com/user-attachments/assets/e8a6cad2-c8f9-4b3d-ab06-89754dd5a5b3" width="200"> |
+
+
+
+<br /><br />
+
+# ⚙️ Setting
+
+| Xcode | iOS |
+|:------:|:------:|
+| <img src="https://developer.apple.com/assets/elements/icons/xcode/xcode-128x128_2x.png" alt="Xcode" width="100"> | <img src="https://developer.apple.com/assets/elements/icons/ios/ios-128x128_2x.png" alt="iOS" width="100"> |
+| 16.4 | 17.0+ |
+
+# Technology Stack
+## Language and Framework
+| Swift | SwiftUI | Core ML |
+|:------:|:------:|:-------:|
+| <img src="https://developer.apple.com/swift/images/swift-logo.svg" alt="Swift" width="100"> | <img src="https://developer.apple.com/assets/elements/icons/swiftui/swiftui-96x96_2x.png" alt="SwiftUI" width="100"> |  <img src="https://github.com/user-attachments/assets/17efaedc-7c05-49e3-aa3c-600cc771ab72" alt="Core ML" width="100"> |
+
+<br/>
+
+## Backend
+| Firebase |
+|:------:|
+| <img src="https://firebase.google.com/static/images/brand-guidelines/logo-vertical.png?hl=ko" alt="Firebase" width="100"> |
+| 11.12.0 | 
+
+<br/>
+
+## Cooperation
+| GitHub | Git | Discord | Notion | Figma |
+|:------:|:------:|:------:|:------:|:------:|
+| <img src="https://github.com/user-attachments/assets/a4c9a9c0-5425-4a32-9fee-1e93cc6d9919" alt="GitHub" width="100"> | <img src="https://github.com/user-attachments/assets/03b7d917-65bb-4027-b1a2-630f4050f1a4" alt="Git" width="100"> | <img src="https://github.com/user-attachments/assets/b256c308-3e77-4e8c-9101-53f4bf6dc8f2" alt="Discord" width="100"> | <img src="https://github.com/user-attachments/assets/16703970-7713-49dd-a8fa-28301b884315" alt="Notion" width="100"> | <img src="https://github.com/user-attachments/assets/c96f0599-089f-4b91-ab30-4efd1d7da2f4" alt="Figma" width="100"> |
+<br/>
+
+
+# ** Developers**
+
+<div style="overflow-x:auto;">
+
+| 조영민 <br/> [@Youngmin322](https://github.com/Youngmin322) | 이민서 <br/> [@eminseo2003](https://github.com/eminseo2003) | 이영학 <br/> [@ynghk](https://github.com/gadisom) | 장새벽 <br/> [@saebyeokjang](https://github.com/saebyeokjang) | 최범수 <br/> [@tomchoi95](https://github.com/tomchoi95) |
+| :-------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------: |
+| <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/7c48a9e8-4c29-4b64-9492-4265d186d5b1" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> | <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/ca70cfe7-fe36-4f54-9ca9-0f7fd7cbdddb" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> | <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/c5cf3c4d-22d2-4f23-98e1-6758157bec84" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> | <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/aff34d9d-f997-4b7f-bfb8-d8400be472c7" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> | <div style="width:200px; height:200px; text-align:center;"> <img src="https://github.com/user-attachments/assets/aa66e05a-d633-4bbb-87f1-5e51d548fb6a" style="width:150px; height:150px; object-fit:cover; margin-bottom:10px;"> </div> |
+
+</div>
+
+</div>
