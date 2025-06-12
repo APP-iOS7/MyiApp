@@ -15,6 +15,7 @@ struct BabyProfileView: View {
     @State private var showDeleteConfirmation = false
     @State private var isLoading: Bool = false
     @State private var showingBabyDeleteAlert = false
+    @State private var showingDisconnectAlert = false
     @State private var showingErrorAlert = false
     @State private var errorMessage: String?
     @State private var babyToDelete: Baby?
@@ -240,16 +241,19 @@ struct BabyProfileView: View {
                             .navigationTitle("\(viewModel.baby.name)님의 정보")
                             .navigationBarTitleDisplayMode(.inline)
                             .toolbar {
-                                if CaregiverManager.shared.caregiver?.id == baby.mainCaregiver {
                                     ToolbarItem(placement: .topBarTrailing) {
                                         Button {
-                                            babyToDelete = baby
-                                            showingBabyDeleteAlert = true
+                                            if CaregiverManager.shared.caregiver?.id == baby.mainCaregiver {
+                                                babyToDelete = baby
+                                                showingBabyDeleteAlert = true
+                                            } else {
+                                                babyToDelete = baby
+                                                showingDisconnectAlert = true
+                                            }
                                         } label: {
                                             Image(systemName: "trash")
                                                 .foregroundStyle(.red)
                                         }
-                                    }
                                 }
                             }
                             .alert("아이 정보 삭제", isPresented: $showingBabyDeleteAlert) {
@@ -270,6 +274,25 @@ struct BabyProfileView: View {
                                 }
                             } message: {
                                 Text("'\(viewModel.baby.name)' 님의 정보 삭제 시\n모든 보호자와 연결이 끊어집니다.")
+                            }
+                            .alert("연결 해제", isPresented: $showingDisconnectAlert) {
+                                Button("연결 해제", role: .destructive) {
+                                    if let babyToDisconnect = babyToDelete {
+                                        Task {
+                                            isLoading = true
+                                            try await CaregiverManager.shared.disconnectFromBaby(babyToDisconnect)
+                                            print("아이와의 연결 해제 성공")
+                                            await MainActor.run { dismiss() }
+                                            isLoading = false
+                                            self.babyToDelete = nil
+                                        }
+                                    }
+                                }
+                                Button("취소", role: .cancel) {
+                                    babyToDelete = nil
+                                }
+                            } message: {
+                                Text("'\(viewModel.baby.name)' 님과의 연결을 해제하시겠습니까?\n다시 연결하려면 초대 코드가 필요합니다.")
                             }
                             .alert("완료", isPresented: $showingErrorAlert) {
                                 Button("확인", role: .cancel) {}
