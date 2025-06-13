@@ -34,9 +34,9 @@ struct ConnectedUserView: View {
                         Spacer()
                         
                         if caregiver.id == baby.mainCaregiver {
-                            Text("(메인 보호자)")
-                                .font(.caption)
-                                .foregroundColor(.blue)
+                            Image(systemName: "crown.fill")
+                                .font(.headline)
+                                .foregroundColor(.yellow)
                         }
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
