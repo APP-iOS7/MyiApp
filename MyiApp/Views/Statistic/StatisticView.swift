@@ -10,7 +10,7 @@ import UIKit
 
 struct StatisticView: View {
     @ObservedObject var viewModel = StatisticViewModel()
-    @State private var selectedCategories: [String] = ["수유\n이유식", "배변", "수면", "목욕", "간식"]
+    @State private var selectedCategories: [String] = ["수유/이유식", "배변", "수면", "목욕", "간식"]
     
     struct IdentifiableImage: Identifiable {
         let id = UUID()
@@ -237,13 +237,13 @@ struct StatisticView: View {
     
     var iconGrid: some View {
         let categories = [
-            ("수유\n이유식", UIImage.colorMeal, Color("food")),
+            ("수유/이유식", UIImage.colorMeal, Color("food")),
             ("배변", UIImage.colorPotty, Color("potty")),
             ("수면", UIImage.colorSleep, Color("sleep")),
             ("목욕", UIImage.colorBath, Color("bath")),
             ("간식", UIImage.colorSnack, Color("snack"))
         ]
-        return LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 8) {
+        return LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 8) {
             ForEach(categories, id: \.0) { category in
                 let isSelected = selectedCategories.contains(category.0)
                 
@@ -408,17 +408,24 @@ struct IconItem: View {
     let selectedColor: Color
     
     var body: some View {
-        HStack(spacing: 8) {
+        VStack(spacing: 8) {
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
-                    .fill((Color(.tertiarySystemBackground)))
-                    .frame(width: 30, height: 30)
+                    .fill(isSelected ? selectedColor.opacity(0.1) : Color.gray.opacity(0.1))
+                    .frame(width: 60, height: 60)
                 
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 25, height: 25)
+                    .frame(width: 60, height: 60)
             }
+            .frame(height: 60)
+            .background(isSelected ? selectedColor.opacity(0.5) : Color.gray.opacity(0.1))
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isSelected ? selectedColor : Color(.tertiarySystemBackground), lineWidth: 2)
+            )
             
             Text(title)
                 .font(.caption)
@@ -427,14 +434,7 @@ struct IconItem: View {
                 .multilineTextAlignment(.center)
             Spacer()
         }
-        .padding(.leading, 10)
-        .frame(height: 60)
-        .background(isSelected ? selectedColor.opacity(0.5) : Color.gray.opacity(0.1))
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(isSelected ? selectedColor : Color(.tertiarySystemBackground), lineWidth: 2)
-        )
+        
         
     }
 }
@@ -442,7 +442,7 @@ extension TitleCategory {
     var displayName: String {
         switch self {
             case .formula, .babyFood, .pumpedMilk, .breastfeeding:
-                return "수유\n이유식"
+                return "수유/이유식"
             case .poop, .pee, .pottyAll:
                 return "배변"
             case .sleep:
