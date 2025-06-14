@@ -27,7 +27,7 @@
 
 | 울음 분석 | 기록 분석 | 더보기 |
 | :--------: | :--------: | :--------: |
-| <img src="https://github.com/user-attachments/assets/5fcdbfdf-7d7c-48a6-b37b-c4c8bc7dec99" width="200"> | <img src="https://github.com/user-attachments/assets/9a39d28e-8a69-400f-80e4-26444b3c0e27" width="200"> | <img src="https://github.com/user-attachments/assets/e8a6cad2-c8f9-4b3d-ab06-89754dd5a5b3" width="200"> |
+| <img src="https://github.com/user-attachments/assets/5fcdbfdf-7d7c-48a6-b37b-c4c8bc7dec99" width="200"> | <img src="https://github.com/user-attachments/assets/3f68ff29-8b40-49c5-bb4d-35d4b42e00fd" width="200"> | <img src="https://github.com/user-attachments/assets/e8a6cad2-c8f9-4b3d-ab06-89754dd5a5b3" width="200"> |
 
 
 
