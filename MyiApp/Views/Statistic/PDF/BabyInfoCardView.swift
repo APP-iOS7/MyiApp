@@ -132,12 +132,12 @@ struct BabyInfoCardView: View {
                 .font(.subheadline)
                 .foregroundColor(.gray)
             if title == "일별" {
-                DailyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: ["수유\n이유식", "기저귀", "배변", "수면", "목욕", "간식"])
+                DailyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: ["수유/이유식", "기저귀", "배변", "수면", "목욕", "간식"])
                     .scaleEffect(0.4, anchor: .center)
                     .frame(width: 320, height: 130)
                     .padding()
             } else if title == "주별" {
-                WeeklyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: ["수유\n이유식", "기저귀", "배변", "수면", "목욕", "간식"])
+                WeeklyChartView(baby: baby, records: records,  selectedDate: selectedDate, selectedCategories: ["수유/이유식", "기저귀", "배변", "수면", "목욕", "간식"])
                     .frame(height: 505)
                     .padding(.vertical)
             } else if title == "키" {
