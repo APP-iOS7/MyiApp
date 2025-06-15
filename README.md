@@ -48,7 +48,7 @@
 
 <br/>
 
-## Backend
+## Third-Party Database
 | Firebase |
 |:------:|
 | <img src="https://firebase.google.com/static/images/brand-guidelines/logo-vertical.png?hl=ko" alt="Firebase" width="100"> |
