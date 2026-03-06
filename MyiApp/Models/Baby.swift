@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import FirebaseFirestore
 
 struct Baby: Codable, Identifiable {
     var id: UUID
@@ -18,10 +17,13 @@ struct Baby: Codable, Identifiable {
     var bloodType: BloodType
     var photoURL: String?
     var mainCaregiver: String
-    
-    var caregivers: [DocumentReference]
-    
-    init(name: String, birthDate: Date, gender: Gender, height: Double, weight: Double, bloodType: BloodType, mainCaregiver: String) {
+    /// 보호자 사용자 ID 목록. Firestore 매핑은 Baby+Firestore에서 처리.
+    var caregiverIds: [String]
+
+    init(
+        name: String, birthDate: Date, gender: Gender, height: Double, weight: Double,
+        bloodType: BloodType, mainCaregiver: String, caregiverIds: [String] = []
+    ) {
         self.id = UUID()
         self.name = name
         self.birthDate = birthDate
@@ -30,10 +32,10 @@ struct Baby: Codable, Identifiable {
         self.weight = weight
         self.bloodType = bloodType
         self.photoURL = nil
-        self.caregivers = []
         self.mainCaregiver = mainCaregiver
+        self.caregiverIds = caregiverIds
     }
-    
+
     enum CodingKeys: String, CodingKey {
         case id
         case name
@@ -43,7 +45,7 @@ struct Baby: Codable, Identifiable {
         case weight
         case bloodType = "blood_type"
         case photoURL
-        case caregivers
+        case caregiverIds = "caregivers"
         case mainCaregiver
     }
 }
