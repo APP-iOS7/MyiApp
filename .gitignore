@@ -95,3 +95,9 @@ Icon
 *.swp
 *.swo
 MyiApp/GoogleService-Info.plist
+
+# 이력서/포트폴리오 레포에서 비공개로 둘 문서 (개인용)
+# docs: STAR·ADR·학습 로그 등 — 로컬에서만 유지
+docs/
+# Cursor 룰: 로컬 IDE 설정이라 레포에 올리지 않음
+.cursor/
