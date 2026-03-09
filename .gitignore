@@ -122,3 +122,11 @@ MyiApp/GoogleService-Info.plist
 
 # Wiki (별도 저장소)
 MyiApp.wiki/
+
+# Firebase (로컬 설정)
+.firebaserc
+firebase.json
+firebase-debug.log
+
+# Tuist 생성 (Derived)
+**/Derived/
