@@ -15,25 +15,9 @@ permissions:
   contents: read
 
 jobs:
+  format:
+    uses: ./.github/workflows/format.yml
+
   test:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: jdx/mise-action@v2
-
-      - name: Swift format
-        run: |
-          swift format format -i -r App Domain Features Core DesignSystem
-          git diff --stat
-          git diff
-          git diff --exit-code
-
-      - name: Tuist auth login
-        run: tuist auth login
-
-      - name: Tuist setup cache
-        run: tuist setup cache
-
-      - name: Run tests
-        run: tuist test MyiApp
+    needs: format
+    uses: ./.github/workflows/test.yml
