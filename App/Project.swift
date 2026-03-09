@@ -20,8 +20,10 @@ let project = Project(
                     [
                         "CFBundleTypeRole": "Editor",
                         "CFBundleURLName": "googleSignIn",
-                        "CFBundleURLSchemes": ["com.googleusercontent.apps.522055025991-52l80ebg7917h1mmfad75eh9khsuaklb"],
-                    ],
+                        "CFBundleURLSchemes": [
+                            "com.googleusercontent.apps.522055025991-52l80ebg7917h1mmfad75eh9khsuaklb"
+                        ],
+                    ]
                 ],
                 "UIAppFonts": ["BMJUA.otf"],
             ]),
