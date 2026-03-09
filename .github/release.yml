@@ -1,0 +1,35 @@
+# GitHub 자동 생성 릴리즈 노트 설정
+# v*.*.0 태그(메이저·마이너 릴리스) 푸시 시 generate_release_notes가 이 설정을 참조합니다.
+# 패치(v1.2.1 등)는 release.yml 트리거에서 제외됩니다.
+# 참고: https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes
+
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+  categories:
+    - title: "🚀 새 기능"
+      labels:
+        - "✨ feature"
+        - "📈 improvement"
+        - "🎨 ui/ux"
+    - title: "🐛 버그 수정"
+      labels:
+        - "🐛 bug"
+    - title: "♻️ 개선"
+      labels:
+        - "♻️ refactor"
+        - "⚡ performance"
+    - title: "📝 문서·테스트"
+      labels:
+        - "📝 documentation"
+        - "🧪 test"
+    - title: "🔧 인프라"
+      labels:
+        - "🔧 chore"
+        - "🔄 ci/cd"
+        - "🏗️ build"
+        - "🚀 deploy"
+    - title: "🛠 기타"
+      labels:
+        - "*"
