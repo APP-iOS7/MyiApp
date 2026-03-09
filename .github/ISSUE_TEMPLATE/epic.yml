@@ -1,0 +1,31 @@
+name: 📋 에픽 (부모 이슈)
+description: 여러 서브 이슈로 분해되는 큰 단위 작업입니다.
+title: "[Epic] "
+labels: ["📋 epic"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        에픽은 하나의 큰 목표를 여러 서브 이슈로 나누어 진행할 때 사용합니다.
+        - 부모 이슈(에픽)에 전체 개요와 서브 이슈 목록을 작성
+        - 각 서브 이슈는 이 에픽 번호를 참조
+
+  - type: textarea
+    id: overview
+    attributes:
+      label: 개요
+      placeholder: 이 에픽의 목표와 범위를 설명해 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: sub-issues
+    attributes:
+      label: 서브 이슈
+      placeholder: |
+        서브 이슈를 생성한 뒤 아래 형식으로 작성하세요.
+        - [ ] #이슈번호 제목
+        - [ ] #이슈번호 제목
+        - [ ] #이슈번호 제목
+    validations:
+      required: false
