@@ -25,4 +25,4 @@ jobs:
         run: tuist clean selectiveTests
 
       - name: Run tests
-        run: tuist test MyiApp --no-selective-testing
+        run: tuist test MyiApp
