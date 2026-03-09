@@ -1,9 +1,10 @@
 name: Release
 
+# 메이저·마이너 릴리스만 (v1.0.0, v1.1.0, v2.0.0 등). 패치(v1.2.1)는 제외
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - 'v*.*.0'
 
 permissions:
   contents: write
