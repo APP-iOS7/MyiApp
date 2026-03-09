@@ -11,6 +11,6 @@ let project = Project(
             infoPlist: .default,
             sources: ["Sources/**"],
             dependencies: [.project(target: "Domain", path: "../Domain")]
-        ),
+        )
     ]
 )
