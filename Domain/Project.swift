@@ -9,7 +9,24 @@ let project = Project(
             product: .framework,
             bundleId: "com.myiapp.Domain",
             infoPlist: .default,
-            sources: ["Sources/**"]
+            sources: ["Sources/**"],
+            scripts: [
+                .pre(
+                    tool: "swift",
+                    arguments: ["format", "format", "-i", "-r", "Sources", "Tests"],
+                    name: "Swift Format",
+                    basedOnDependencyAnalysis: false
+                )
+            ]
+        ),
+        .target(
+            name: "DomainTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "com.myiapp.DomainTests",
+            infoPlist: .default,
+            sources: ["Tests/**"],
+            dependencies: [.target(name: "Domain")]
         ),
     ]
 )
