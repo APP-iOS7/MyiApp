@@ -11,5 +11,14 @@ let project = Project(
             infoPlist: .default,
             sources: ["Sources/**"]
         ),
+        .target(
+            name: "DomainTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "com.myiapp.DomainTests",
+            infoPlist: .default,
+            sources: ["Tests/**"],
+            dependencies: [.target(name: "Domain")]
+        ),
     ]
 )
