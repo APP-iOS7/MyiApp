@@ -10,6 +10,8 @@ permissions:
 jobs:
   test:
     runs-on: macos-latest
+    env:
+      TUIST_XDG_STATE_HOME: ${{ runner.temp }}/tuist-state
     steps:
       - uses: actions/checkout@v4
 
@@ -26,3 +28,10 @@ jobs:
 
       - name: Run tests
         run: tuist test MyiApp
+
+      - name: Upload Tuist session logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tuist-session-logs
+          path: ${{ runner.temp }}/tuist-state/tuist/sessions/
