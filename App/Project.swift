@@ -27,7 +27,7 @@ let project = Project(
             ]),
             sources: ["Sources/**"],
             resources: ["Resources/**"],
-            entitlements: .file(path: "Resources/MyiApp.entitlements"),
+            entitlements: .file(path: "MyiApp.entitlements"),
             dependencies: [
                 .project(target: "AuthFeature", path: "../Features/AuthFeature"),
                 .project(target: "HomeFeature", path: "../Features/HomeFeature"),
