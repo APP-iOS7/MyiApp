@@ -100,12 +100,7 @@ Icon
 #
 # Tuist generates Xcode project files - do not commit generated files
 **/*.xcodeproj
-**/*.xcworkspace/*
-!**/*.xcworkspace/xcshareddata
-**/*.xcworkspace/xcshareddata/*
-!**/*.xcworkspace/xcshareddata/swiftpm
-**/*.xcworkspace/xcshareddata/swiftpm/*
-!**/*.xcworkspace/xcshareddata/swiftpm/configuration
+**/*.xcworkspace
 DerivedData/
 .tuist-cache/
 build/

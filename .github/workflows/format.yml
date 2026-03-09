@@ -1,0 +1,19 @@
+name: Format
+
+on:
+  workflow_call:
+
+jobs:
+  format:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jdx/mise-action@v2
+
+      - name: Swift format
+        run: |
+          swift format format -i -r App Domain Features Core DesignSystem
+          git diff --stat
+          git diff
+          git diff --exit-code
