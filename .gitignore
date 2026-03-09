@@ -69,6 +69,13 @@ fastlane/test_output
 .LSOverride
 Icon
 ._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
 
 # Xcode
 *.xcuserstate
@@ -103,6 +110,8 @@ DerivedData/
 .tuist-cache/
 build/
 tmp/
+graph.dot
+Tuist/.build
 
 # IDE
 .idea/
@@ -110,3 +119,14 @@ tmp/
 *.swo
 MyiApp/GoogleService-Info.plist
 .cursor/
+
+# Wiki (별도 저장소)
+MyiApp.wiki/
+
+# Firebase (로컬 설정)
+.firebaserc
+firebase.json
+firebase-debug.log
+
+# Tuist 생성 (Derived)
+**/Derived/
