@@ -14,5 +14,5 @@ import Foundation
 /// - 사용자 데이터 삭제 시 플랫폼 및 지역의 데이터 보존·개인정보 관련 규정을
 ///   준수해야 합니다.
 public protocol AccountDeletable: Sendable {
-    func deleteAccount() async throws
+    func deleteAccount() async throws(AuthError)
 }

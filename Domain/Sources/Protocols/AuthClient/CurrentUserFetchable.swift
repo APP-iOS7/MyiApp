@@ -27,5 +27,5 @@ import Foundation
 /// }
 /// ```
 public protocol CurrentUserFetchable: Sendable {
-    func currentUser() async throws -> User?
+    func currentUser() async throws(AuthError) -> User?
 }

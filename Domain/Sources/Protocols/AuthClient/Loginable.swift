@@ -25,5 +25,5 @@ import Foundation
 ///
 /// - Throws: 인증 실패, 사용자 취소, 또는 인증을 완료할 수 없는 경우의 오류를 던집니다.
 public protocol Loginable: Sendable {
-    func login(provider: LoginProvider) async throws -> User
+    func login(provider: LoginProvider) async throws(AuthError) -> User
 }

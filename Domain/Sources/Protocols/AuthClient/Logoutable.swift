@@ -37,5 +37,5 @@ import Foundation
 /// - Important: 로그아웃에 사용자 상호작용(예: 재인증 프롬프트)이 필요한 경우,
 ///   호출 지점에서 안전하게 UI를 표시할 수 있도록 `logout()` 주변 API를 설계하세요.
 public protocol Logoutable: Sendable {
-    func logout() async throws
+    func logout() async throws(AuthError)
 }
