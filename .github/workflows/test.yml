@@ -21,5 +21,8 @@ jobs:
       - name: Tuist setup cache
         run: tuist setup cache
 
+      - name: Clean selective tests cache
+        run: tuist clean selectiveTests
+
       - name: Run tests
         run: tuist test MyiApp
