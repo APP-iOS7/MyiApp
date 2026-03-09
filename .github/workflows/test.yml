@@ -27,7 +27,7 @@ jobs:
         run: tuist clean selectiveTests
 
       - name: Run tests
-        run: tuist test MyiApp
+        run: tuist test MyiApp --no-selective-testing
 
       - name: Upload Tuist session logs on failure
         if: failure()
