@@ -13,9 +13,9 @@ jobs:
     env:
       TUIST_XDG_STATE_HOME: /tmp/tuist-state
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: jdx/mise-action@v2
+      - uses: jdx/mise-action@v4
 
       - name: Tuist auth login
         run: tuist auth login
@@ -23,15 +23,12 @@ jobs:
       - name: Tuist setup cache
         run: tuist setup cache
 
-      - name: Clean selective tests cache
-        run: tuist clean selectiveTests
-
       - name: Run tests
-        run: tuist test MyiApp --no-selective-testing
+        run: tuist test MyiApp
 
       - name: Upload Tuist session logs on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: tuist-session-logs
           path: /tmp/tuist-state/tuist/sessions/

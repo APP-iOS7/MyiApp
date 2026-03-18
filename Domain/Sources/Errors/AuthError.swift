@@ -25,11 +25,11 @@ public enum AuthError: Error, Sendable, LocalizedError {
 
     public var errorDescription: String? {
         switch self {
-        case .cancelled: return "로그인이 취소되었습니다."
-        case .invalidCredentials: return "인증에 실패했습니다."
-        case .networkUnavailable: return "네트워크 연결을 확인해 주세요."
-        case .sessionExpired: return "세션이 만료되었습니다. 다시 로그인해 주세요."
-        case .unknown: return "오류가 발생했습니다."
+        case .cancelled: "로그인이 취소되었습니다."
+        case .invalidCredentials: "인증에 실패했습니다."
+        case .networkUnavailable: "네트워크 연결을 확인해 주세요."
+        case .sessionExpired: "세션이 만료되었습니다. 다시 로그인해 주세요."
+        case .unknown: "오류가 발생했습니다."
         }
     }
 }

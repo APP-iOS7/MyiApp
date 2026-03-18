@@ -35,7 +35,7 @@
 # Self keyword (명시적으로 삽입)
 --self insert
 
-# Imports 정렬 (testable은 하단)
+# Imports 정렬 (testable은 하단, 빈 줄로 구분)
 --importgrouping testable-bottom
 
 # Access control
@@ -101,3 +101,10 @@
 --disable fileHeader
 # markTypes 자동 삽입 비활성화 (markExtensions만 사용)
 --disable markTypes
+
+# ============================
+# Exclude
+# ============================
+
+# Tuist 매니페스트 파일 제외 (Tuist API는 bundleId 등 고유 네이밍을 사용)
+--exclude Tuist,**/Project.swift,Workspace.swift
