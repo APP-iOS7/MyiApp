@@ -9,6 +9,6 @@ let workspace = Workspace(
         "./DesignSystem",
         "./Features/AuthFeature",
         "./Features/HomeFeature",
-        "./Features/NoteFeature",
+        "./Features/NoteFeature"
     ]
 )

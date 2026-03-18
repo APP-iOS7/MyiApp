@@ -21,8 +21,8 @@ let project = Project(
             sources: ["Sources/AuthFeature/**"],
             dependencies: [
                 .target(name: "AuthFeatureInterface"),
-                .project(target: "DesignSystem", path: "../../DesignSystem"),
+                .project(target: "DesignSystem", path: "../../DesignSystem")
             ]
-        ),
+        )
     ]
 )
