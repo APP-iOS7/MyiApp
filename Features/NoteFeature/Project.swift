@@ -21,8 +21,8 @@ let project = Project(
             sources: ["Sources/NoteFeature/**"],
             dependencies: [
                 .target(name: "NoteFeatureInterface"),
-                .project(target: "DesignSystem", path: "../../DesignSystem"),
+                .project(target: "DesignSystem", path: "../../DesignSystem")
             ]
-        ),
+        )
     ]
 )

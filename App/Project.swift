@@ -22,10 +22,10 @@ let project = Project(
                         "CFBundleURLName": "googleSignIn",
                         "CFBundleURLSchemes": [
                             "com.googleusercontent.apps.522055025991-52l80ebg7917h1mmfad75eh9khsuaklb"
-                        ],
+                        ]
                     ]
                 ],
-                "UIAppFonts": ["BMJUA.otf"],
+                "UIAppFonts": ["BMJUA.otf"]
             ]),
             sources: ["Sources/**"],
             resources: ["Resources/**"],
@@ -34,12 +34,12 @@ let project = Project(
                 .project(target: "AuthFeature", path: "../Features/AuthFeature"),
                 .project(target: "HomeFeature", path: "../Features/HomeFeature"),
                 .project(target: "DesignSystem", path: "../DesignSystem"),
-                .project(target: "Core", path: "../Core"),
+                .project(target: "Core", path: "../Core")
             ],
             settings: .settings(base: [
                 "MARKETING_VERSION": "1.2.6",
                 "CURRENT_PROJECT_VERSION": "1",
-                "DEVELOPMENT_TEAM": "59FP2PXRXK",
+                "DEVELOPMENT_TEAM": "59FP2PXRXK"
             ])
         ),
         .target(
@@ -50,6 +50,6 @@ let project = Project(
             infoPlist: .default,
             sources: ["Tests/**"],
             dependencies: [.target(name: "MyiApp")]
-        ),
+        )
     ]
 )

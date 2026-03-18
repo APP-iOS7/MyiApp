@@ -1,0 +1,100 @@
+# SwiftFormat configuration
+# https://github.com/nicklockwood/SwiftFormat
+
+# Swift version
+--swiftversion 6.0
+
+# ============================
+# Formatting Options
+# ============================
+
+# Indentation
+--indent 4
+--tabwidth 4
+--smarttabs enabled
+
+# Line length
+--maxwidth 100
+
+# Braces style (K&R, not Allman)
+--allman false
+
+# Else/catch on same line
+--elseposition same-line
+--guardelse next-line
+
+# Semicolons
+--semicolons never
+
+# Trailing commas (항상 제거)
+--commas never
+
+# Void
+--voidtype void
+
+# Self keyword (명시적으로 삽입)
+--self insert
+
+# Imports 정렬 (testable은 하단)
+--importgrouping testable-bottom
+
+# Access control
+--extensionacl on-declarations
+
+# Argument wrapping
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--wrapreturntype if-multiline
+--closingparen balanced
+--wraptypealiases preserve
+
+# Attribute wrapping
+--funcattributes prev-line
+--typeattributes prev-line
+--varattributes prev-line
+--storedvarattributes prev-line
+--computedvarattributes prev-line
+--complexattributes prev-line
+
+# Modifier order (Swift API Design Guidelines 기준)
+--modifierorder override,acl,setterACL,dynamic,mutating,lazy,final,required,convenience,typeMethods,owned
+
+# Header comment 제거
+--header strip
+
+# Mark types 설정
+--marktypes always
+--markextensions always
+
+# Numeric literals (가독성을 위한 그룹화)
+--decimalgrouping 3,6
+--binarygrouping 4,8
+--octalgrouping 4,8
+--hexgrouping 2,8
+--fractiongrouping enabled
+--exponentgrouping enabled
+--hexliteralcase uppercase
+--exponentcase lowercase
+
+# ============================
+# Enable Opt-in Rules
+# ============================
+
+--enable acronyms
+--enable blankLineAfterSwitchCase
+--enable blankLinesAfterGuardStatements
+--enable blockComments
+--enable isEmpty
+--enable wrapConditionalBodies
+--enable wrapEnumCases
+--enable wrapSwitchCases
+
+# ============================
+# Disable Rules
+# ============================
+
+# 파일 헤더 자동 생성 비활성화 (strip으로 대체)
+--disable fileHeader
+# markTypes는 옵션으로 제어
+--disable markTypes
