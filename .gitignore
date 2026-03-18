@@ -113,7 +113,6 @@ Tuist/.build
 *.swp
 *.swo
 MyiApp/GoogleService-Info.plist
-.cursor/
 
 # Wiki (별도 저장소)
 MyiApp.wiki/
@@ -125,3 +124,13 @@ firebase-debug.log
 
 # Tuist 생성 (Derived)
 **/Derived/
+
+# BuildServer
+buildServer.json
+
+# Claude
+.claude/
+CLAUDE.md
+
+# VSCode
+.vscode/
