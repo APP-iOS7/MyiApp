@@ -1,4 +1,5 @@
 import ProjectDescription
+import ProjectDescriptionHelpers
 
 let project = Project(
     name: "HomeFeature",
@@ -10,6 +11,7 @@ let project = Project(
             bundleId: "com.myiapp.HomeFeatureInterface",
             infoPlist: .default,
             sources: ["Sources/HomeFeatureInterface/**"],
+            scripts: [.swiftFormat],
             dependencies: [.project(target: "Domain", path: "../../Domain")]
         ),
         .target(

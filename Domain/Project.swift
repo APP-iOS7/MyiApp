@@ -1,4 +1,5 @@
 import ProjectDescription
+import ProjectDescriptionHelpers
 
 let project = Project(
     name: "Domain",
@@ -10,14 +11,7 @@ let project = Project(
             bundleId: "com.myiapp.Domain",
             infoPlist: .default,
             sources: ["Sources/**"],
-            scripts: [
-                .pre(
-                    tool: "swift",
-                    arguments: ["format", "format", "-i", "-r", "Sources", "Tests"],
-                    name: "Swift Format",
-                    basedOnDependencyAnalysis: false
-                )
-            ]
+            scripts: [.swiftFormat]
         ),
         .target(
             name: "DomainTests",

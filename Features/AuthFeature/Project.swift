@@ -1,4 +1,5 @@
 import ProjectDescription
+import ProjectDescriptionHelpers
 
 let project = Project(
     name: "AuthFeature",
@@ -10,6 +11,7 @@ let project = Project(
             bundleId: "com.myiapp.AuthFeatureInterface",
             infoPlist: .default,
             sources: ["Sources/AuthFeatureInterface/**"],
+            scripts: [.swiftFormat],
             dependencies: [.project(target: "Domain", path: "../../Domain")]
         ),
         .target(

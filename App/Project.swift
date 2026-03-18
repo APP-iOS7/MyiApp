@@ -1,4 +1,5 @@
 import ProjectDescription
+import ProjectDescriptionHelpers
 
 let project = Project(
     name: "MyiApp",
@@ -30,6 +31,7 @@ let project = Project(
             sources: ["Sources/**"],
             resources: ["Resources/**"],
             entitlements: .file(path: "MyiApp.entitlements"),
+            scripts: [.swiftFormat],
             dependencies: [
                 .project(target: "AuthFeature", path: "../Features/AuthFeature"),
                 .project(target: "HomeFeature", path: "../Features/HomeFeature"),
