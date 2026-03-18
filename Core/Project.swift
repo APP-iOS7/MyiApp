@@ -1,4 +1,5 @@
 import ProjectDescription
+import ProjectDescriptionHelpers
 
 let project = Project(
     name: "Core",
@@ -10,6 +11,7 @@ let project = Project(
             bundleId: "com.myiapp.Core",
             infoPlist: .default,
             sources: ["Sources/**"],
+            scripts: [.swiftFormat],
             dependencies: [.project(target: "Domain", path: "../Domain")]
         )
     ]

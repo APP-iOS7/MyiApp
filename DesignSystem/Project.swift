@@ -1,4 +1,5 @@
 import ProjectDescription
+import ProjectDescriptionHelpers
 
 let project = Project(
     name: "DesignSystem",
@@ -10,7 +11,8 @@ let project = Project(
             bundleId: "com.myiapp.DesignSystem",
             infoPlist: .default,
             sources: ["Sources/**"],
-            resources: ["Resources/**"]
+            resources: ["Resources/**"],
+            scripts: [.swiftFormat]
         )
     ]
 )

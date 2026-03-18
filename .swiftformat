@@ -2,7 +2,7 @@
 # https://github.com/nicklockwood/SwiftFormat
 
 # Swift version
---swiftversion 6.0
+--swiftversion 6.2
 
 # ============================
 # Formatting Options
@@ -63,8 +63,7 @@
 # Header comment 제거
 --header strip
 
-# Mark types 설정
---marktypes always
+# Extension MARK 자동 삽입
 --markextensions always
 
 # Numeric literals (가독성을 위한 그룹화)
@@ -85,7 +84,11 @@
 --enable blankLineAfterSwitchCase
 --enable blankLinesAfterGuardStatements
 --enable blockComments
+--enable docComments
+--enable enumNamespaces
+--enable genericExtensions
 --enable isEmpty
+--enable preferForLoop
 --enable wrapConditionalBodies
 --enable wrapEnumCases
 --enable wrapSwitchCases
@@ -94,7 +97,7 @@
 # Disable Rules
 # ============================
 
-# 파일 헤더 자동 생성 비활성화 (strip으로 대체)
+# fileHeader는 --header strip으로 제어
 --disable fileHeader
-# markTypes는 옵션으로 제어
+# markTypes 자동 삽입 비활성화 (markExtensions만 사용)
 --disable markTypes

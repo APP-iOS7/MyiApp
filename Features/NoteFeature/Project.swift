@@ -1,4 +1,5 @@
 import ProjectDescription
+import ProjectDescriptionHelpers
 
 let project = Project(
     name: "NoteFeature",
@@ -10,6 +11,7 @@ let project = Project(
             bundleId: "com.myiapp.NoteFeatureInterface",
             infoPlist: .default,
             sources: ["Sources/NoteFeatureInterface/**"],
+            scripts: [.swiftFormat],
             dependencies: [.project(target: "Domain", path: "../../Domain")]
         ),
         .target(
