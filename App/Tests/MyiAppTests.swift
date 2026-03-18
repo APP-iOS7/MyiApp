@@ -1,9 +1,8 @@
 import XCTest
-
 @testable import MyiApp
 
 final class MyiAppTests: XCTestCase {
-    func testExample() throws {
+    func testExample() {
         XCTAssertTrue(true)
     }
 }

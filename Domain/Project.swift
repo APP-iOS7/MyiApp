@@ -8,7 +8,8 @@ let project = Project(
             name: "Domain",
             destinations: .iOS,
             product: .framework,
-            bundleId: "com.myiapp.Domain",
+            bundleId: BundleID.domain,
+            deploymentTargets: DeploymentTarget.iOS,
             infoPlist: .default,
             sources: ["Sources/**"],
             scripts: [.swiftFormat]
@@ -17,7 +18,8 @@ let project = Project(
             name: "DomainTests",
             destinations: .iOS,
             product: .unitTests,
-            bundleId: "com.myiapp.DomainTests",
+            bundleId: BundleID.domainTests,
+            deploymentTargets: DeploymentTarget.iOS,
             infoPlist: .default,
             sources: ["Tests/**"],
             dependencies: [.target(name: "Domain")]

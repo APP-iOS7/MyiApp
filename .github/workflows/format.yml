@@ -7,13 +7,13 @@ jobs:
   format:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: jdx/mise-action@v2
+      - uses: actions/checkout@v6
+      
+      - uses: jdx/mise-action@v4
 
       - name: Swift format
         run: |
-          swift format format -i -r App Domain Features Core DesignSystem
+          swiftformat .
           git diff --stat
           git diff
           git diff --exit-code
