@@ -7,8 +7,7 @@ import PackageDescription
     let packageSettings = PackageSettings(
         productTypes: [
             "FirebaseAuth": .framework,
-            "FirebaseCore": .framework,
-            "FirebaseFirestore": .framework
+            "FirebaseCore": .framework
         ]
     )
 #endif
