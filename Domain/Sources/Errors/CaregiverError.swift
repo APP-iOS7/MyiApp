@@ -1,7 +1,7 @@
 import Foundation
 
 /// 보호자 및 아기 관련 작업 중 발생할 수 있는 오류를 정의합니다.
-public enum CaregiverError: Error, Sendable {
+public enum CaregiverError: Error, Equatable, Sendable {
     /// 해당 정보를 찾을 수 없음
     case notFound
     /// 권한 없음
@@ -20,6 +20,20 @@ public enum CaregiverError: Error, Sendable {
         case .alreadyExists: "이미 등록된 정보입니다."
         case .invalidInteraction: "잘못된 요청입니다."
         case let .internalError(error): "내부 오류가 발생했습니다: \(error?.localizedDescription ?? "알 수 없음")"
+        }
+    }
+
+    public static func == (lhs: CaregiverError, rhs: CaregiverError) -> Bool {
+        switch (lhs, rhs) {
+        case (.notFound, .notFound),
+             (.unauthorized, .unauthorized),
+             (.alreadyExists, .alreadyExists),
+             (.invalidInteraction, .invalidInteraction):
+            true
+        case (.internalError, .internalError):
+            true // 내부 오류는 발생 여부만 비교
+        default:
+            false
         }
     }
 }
