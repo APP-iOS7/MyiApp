@@ -21,10 +21,14 @@ public struct RootFeature {
     public init() {}
 
     public var body: some ReducerOf<Self> {
-        Reduce { _, action in
+        Reduce { state, action in
             switch action {
+            case .auth(.loginResponse(.success)):
+                state = .main
+                return .none
+
             case .auth:
-                .none
+                return .none
             }
         }
         .ifCaseLet(\.auth, action: \.auth) {

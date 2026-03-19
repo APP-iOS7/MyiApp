@@ -5,6 +5,10 @@ import Foundation
 // MARK: - AuthClient
 
 extension AuthClient: DependencyKey {
+    public static var liveValue: Self {
+        .live
+    }
+
     public static var testValue: Self {
         Self(
             currentUser: { nil },
@@ -25,6 +29,10 @@ extension DependencyValues {
 // MARK: - CaregiverClient
 
 extension CaregiverClient: DependencyKey {
+    public static var liveValue: Self {
+        .live
+    }
+
     public static var testValue: Self {
         Self(
             fetchCaregiver: { _ in fatalError("Unimplemented") },
@@ -44,6 +52,10 @@ extension DependencyValues {
 // MARK: - RecordClient
 
 extension RecordClient: DependencyKey {
+    public static var liveValue: Self {
+        .live
+    }
+
     public static var testValue: Self {
         Self(
             fetchRecords: { _ in fatalError("Unimplemented") },

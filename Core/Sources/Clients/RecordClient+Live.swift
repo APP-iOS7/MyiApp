@@ -3,7 +3,7 @@ import FirebaseFirestore
 import Foundation
 
 extension RecordClient {
-    public static var liveValue: Self {
+    public static var live: Self {
         let db = Firestore.firestore()
 
         return Self(

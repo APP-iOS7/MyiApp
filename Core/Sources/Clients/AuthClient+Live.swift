@@ -3,7 +3,7 @@ import FirebaseAuth
 import Foundation
 
 extension AuthClient {
-    public static var liveValue: Self {
+    public static var live: Self {
         Self(
             currentUser: {
                 guard let nativeUser = Auth.auth().currentUser else {
@@ -21,10 +21,18 @@ extension AuthClient {
                 )
             },
             login: { _ in
-                // 현재는 외부(Google SignIn 등)에서 인증 후 Firebase Credential을 얻어 로그인한다고 가정.
-                // 일단 Dummy 구현체 또는 Error throw 처리
-                struct NotYetImplemented: Error {}
-                throw NotYetImplemented()
+                // 시뮬레이션을 위해 1초 대기 후 성공 응답 반환
+                try await Task.sleep(nanoseconds: 1_000_000_000)
+
+                return User(
+                    id: "dummy_uid",
+                    email: "test@example.com",
+                    name: "테스트 사용자",
+                    imageURL: nil,
+                    createdAt: Date(),
+                    updatedAt: Date(),
+                    loginProvider: .google
+                )
             },
             logout: {
                 try Auth.auth().signOut()
