@@ -20,6 +20,9 @@ jobs:
       - name: Tuist auth login
         run: tuist auth login
 
+      - name: Tuist install
+        run: tuist install
+
       - name: Tuist setup cache
         run: tuist setup cache
 
