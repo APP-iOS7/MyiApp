@@ -130,6 +130,7 @@ buildServer.json
 
 # Claude
 .claude/
+.agents/
 CLAUDE.md
 
 # VSCode
