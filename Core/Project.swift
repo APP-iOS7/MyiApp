@@ -13,7 +13,10 @@ let project = Project(
             infoPlist: .default,
             sources: ["Sources/**"],
             scripts: [.swiftFormat],
-            dependencies: [.project(target: "Domain", path: "../Domain")]
+            dependencies: [
+                .project(target: "Domain", path: "../Domain"),
+                .external(name: "FirebaseAuth")
+            ]
         )
     ]
 )
