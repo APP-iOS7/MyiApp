@@ -1,6 +1,6 @@
 import Foundation
 
-public enum LoginProvider {
+public enum LoginProvider: Sendable {
     case google
     case apple
 }
