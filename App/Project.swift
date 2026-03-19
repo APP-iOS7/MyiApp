@@ -19,7 +19,9 @@ let project = Project(
                 .project(target: "AuthFeature", path: "../Features/AuthFeature"),
                 .project(target: "HomeFeature", path: "../Features/HomeFeature"),
                 .project(target: "DesignSystem", path: "../DesignSystem"),
-                .project(target: "Core", path: "../Core")
+                .project(target: "Core", path: "../Core"),
+                .external(name: "FirebaseCore"),
+                .external(name: "ComposableArchitecture")
             ],
             settings: .app
         ),
