@@ -25,8 +25,20 @@ let project = Project(
             bundleId: "\(BundleID.core).Tests",
             deploymentTargets: DeploymentTarget.iOS,
             infoPlist: .default,
-            sources: ["Tests/**"],
-            dependencies: [.target(name: "Core")]
+            sources: ["Tests/**/*.swift"],
+            dependencies: [
+                    .target(name: "Core"),
+                    .external(name: "FirebaseCore")
+                ]
+        )
+    ],
+    schemes: [
+        .scheme(
+            name: "Core",
+            shared: true,
+            buildAction: .buildAction(targets: ["Core"]),
+            testAction: .targets(["CoreTests"]),
+            runAction: .runAction(executable: "Core")
         )
     ]
 )
