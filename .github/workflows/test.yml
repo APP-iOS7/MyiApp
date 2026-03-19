@@ -20,6 +20,14 @@ jobs:
       - name: Tuist auth login
         run: tuist auth login
 
+      - name: Cache Tuist dependencies
+        uses: actions/cache@v4
+        with:
+          path: Tuist/.build
+          key: ${{ runner.os }}-tuist-${{ hashFiles('Tuist/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-tuist-
+
       - name: Tuist install
         run: tuist install
 
