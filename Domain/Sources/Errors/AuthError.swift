@@ -7,7 +7,7 @@ import Foundation
 ///
 /// 뷰모델 등에서 사용자에게 메시지를 보여줄 때는 `LocalizedError`의
 /// `errorDescription`을 사용하면 됩니다.
-public enum AuthError: Error, Sendable, LocalizedError {
+public enum AuthError: Error, Sendable, LocalizedError, Equatable {
     /// 사용자가 로그인/인증 흐름을 취소함
     case cancelled
 

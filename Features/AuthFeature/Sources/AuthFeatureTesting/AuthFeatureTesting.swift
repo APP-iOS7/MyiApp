@@ -1,3 +1,14 @@
-import AuthFeatureInterface
+import Domain
+import Foundation
 
-// AuthFeatureTesting: AuthFeature 테스트에서 사용할 Mock/Stub 구현을 여기에 추가합니다.
+public enum AuthFeatureTesting {
+    public static let mockUser = User(
+        id: "mock-user-id",
+        email: "test@example.com",
+        name: "테스트 사용자",
+        imageURL: nil,
+        createdAt: Date(),
+        updatedAt: Date(),
+        loginProvider: .google
+    )
+}

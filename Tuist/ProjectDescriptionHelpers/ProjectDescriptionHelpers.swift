@@ -110,11 +110,17 @@ public extension Project {
     static func feature(
         name: String,
         domainPath: Path = "../../Domain",
-        designSystemPath: Path = "../../DesignSystem"
+        designSystemPath: Path = "../../DesignSystem",
+        additionalDependencies: [TargetDependency] = []
     ) -> Project {
         Project(
             name: name,
-            targets: FeatureTargets(name: name, domainPath: domainPath, designSystemPath: designSystemPath).all
+            targets: FeatureTargets(
+                name: name,
+                domainPath: domainPath,
+                designSystemPath: designSystemPath,
+                additionalDependencies: additionalDependencies
+            ).all
         )
     }
 }
@@ -125,6 +131,7 @@ private struct FeatureTargets {
     let name: String
     let domainPath: Path
     let designSystemPath: Path
+    let additionalDependencies: [TargetDependency]
 
     var all: [Target] { [interface, source, testing, tests, example] }
 
@@ -132,7 +139,7 @@ private struct FeatureTargets {
         .target(
             name: "\(name)Interface",
             destinations: .iOS,
-            product: .framework,
+            product: .staticFramework,
             bundleId: BundleID.feature(name, "Interface"),
             deploymentTargets: DeploymentTarget.iOS,
             infoPlist: .default,
@@ -146,7 +153,7 @@ private struct FeatureTargets {
         .target(
             name: name,
             destinations: .iOS,
-            product: .framework,
+            product: .staticFramework,
             bundleId: BundleID.feature(name),
             deploymentTargets: DeploymentTarget.iOS,
             infoPlist: .default,
@@ -154,8 +161,9 @@ private struct FeatureTargets {
             scripts: [.swiftFormat],
             dependencies: [
                 .target(name: "\(name)Interface"),
-                .project(target: "DesignSystem", path: designSystemPath)
-            ]
+                .project(target: "DesignSystem", path: designSystemPath),
+                .external(name: "ComposableArchitecture")
+            ] + additionalDependencies
         )
     }
 
@@ -163,7 +171,7 @@ private struct FeatureTargets {
         .target(
             name: "\(name)Testing",
             destinations: .iOS,
-            product: .framework,
+            product: .staticFramework,
             bundleId: BundleID.feature(name, "Testing"),
             deploymentTargets: DeploymentTarget.iOS,
             infoPlist: .default,
