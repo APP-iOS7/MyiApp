@@ -15,7 +15,8 @@ let project = Project(
             scripts: [.swiftFormat],
             dependencies: [
                 .project(target: "Domain", path: "../Domain"),
-                .external(name: "FirebaseAuth")
+                .external(name: "FirebaseAuth"),
+                .external(name: "FirebaseFirestore")
             ]
         ),
         .target(
@@ -28,7 +29,8 @@ let project = Project(
             sources: ["Tests/**/*.swift"],
             dependencies: [
                     .target(name: "Core"),
-                    .external(name: "FirebaseCore")
+                    .external(name: "FirebaseCore"),
+                    .external(name: "FirebaseFirestore")
                 ]
         )
     ],
