@@ -20,18 +20,20 @@ extension AuthClient {
                     loginProvider: .google // TODO: 실제 로그인 시 발급받은 제공자 처리 필요
                 )
             },
-            login: { _ in
-                // 시뮬레이션을 위해 1초 대기 후 성공 응답 반환
-                try await Task.sleep(nanoseconds: 1_000_000_000)
+            login: { provider in
+                // 현실적인 'Live' 구현을 위해 signInAnonymously()를 통해 실제 Firebase 세션을 생성합니다.
+                // 실제 Google/Apple 로그인은 플랫폼별 ID 토큰 취득 후 signIn(with: credential) 호출이 필요합니다.
+                let result = try await Auth.auth().signInAnonymously()
+                let nativeUser = result.user
 
                 return User(
-                    id: "dummy_uid",
-                    email: "test@example.com",
-                    name: "테스트 사용자",
-                    imageURL: nil,
+                    id: nativeUser.uid,
+                    email: nativeUser.email ?? "",
+                    name: nativeUser.displayName ?? "사용자",
+                    imageURL: nativeUser.photoURL,
                     createdAt: Date(),
                     updatedAt: Date(),
-                    loginProvider: .google
+                    loginProvider: provider
                 )
             },
             logout: {
