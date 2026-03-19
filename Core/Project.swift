@@ -17,6 +17,16 @@ let project = Project(
                 .project(target: "Domain", path: "../Domain"),
                 .external(name: "FirebaseAuth")
             ]
+        ),
+        .target(
+            name: "CoreTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "\(BundleID.core).Tests",
+            deploymentTargets: DeploymentTarget.iOS,
+            infoPlist: .default,
+            sources: ["Tests/**"],
+            dependencies: [.target(name: "Core")]
         )
     ]
 )
