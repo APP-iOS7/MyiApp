@@ -12,6 +12,7 @@ jobs:
     runs-on: macos-latest
     env:
       TUIST_XDG_STATE_HOME: /tmp/tuist-state
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v6
 
