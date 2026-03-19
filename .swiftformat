@@ -101,6 +101,8 @@
 --disable fileHeader
 # markTypes 자동 삽입 비활성화 (markExtensions만 사용)
 --disable markTypes
+# 임포트 그룹 사이 빈 줄 허용
+--disable blankLinesBetweenImports
 
 # ============================
 # Exclude
