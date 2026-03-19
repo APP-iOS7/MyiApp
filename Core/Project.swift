@@ -17,7 +17,8 @@ let project = Project(
                 .project(target: "Domain", path: "../Domain"),
                 .external(name: "FirebaseAuth"),
                 .external(name: "FirebaseFirestore"),
-                .external(name: "ComposableArchitecture")
+                .external(name: "ComposableArchitecture"),
+                .external(name: "GoogleSignIn")
             ]
         ),
         .target(

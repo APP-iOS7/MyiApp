@@ -1,6 +1,9 @@
 import Domain
 import FirebaseAuth
+import FirebaseCore
 import Foundation
+import GoogleSignIn
+import UIKit
 
 extension AuthClient {
     public static var live: Self {
@@ -10,7 +13,7 @@ extension AuthClient {
                     return nil
                 }
 
-                return User(
+                return Domain.User(
                     id: nativeUser.uid,
                     email: nativeUser.email ?? "",
                     name: nativeUser.displayName ?? "사용자",
@@ -21,20 +24,13 @@ extension AuthClient {
                 )
             },
             login: { provider in
-                // 현실적인 'Live' 구현을 위해 signInAnonymously()를 통해 실제 Firebase 세션을 생성합니다.
-                // 실제 Google/Apple 로그인은 플랫폼별 ID 토큰 취득 후 signIn(with: credential) 호출이 필요합니다.
-                let result = try await Auth.auth().signInAnonymously()
-                let nativeUser = result.user
-
-                return User(
-                    id: nativeUser.uid,
-                    email: nativeUser.email ?? "",
-                    name: nativeUser.displayName ?? "사용자",
-                    imageURL: nativeUser.photoURL,
-                    createdAt: Date(),
-                    updatedAt: Date(),
-                    loginProvider: provider
-                )
+                switch provider {
+                case .google:
+                    return try await googleSignIn()
+                case .apple:
+                    // TODO: Apple 로그인 레거시 구현체 추가 필요 (Service/AuthService.swift 참고)
+                    throw AuthError.invalidProvider
+                }
             },
             logout: {
                 try Auth.auth().signOut()
@@ -44,6 +40,44 @@ extension AuthClient {
                     try await user.delete()
                 }
             }
+        )
+    }
+
+    @MainActor
+    private static func googleSignIn() async throws -> Domain.User {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let rootViewController = windowScene.windows.first?.rootViewController
+        else {
+            throw AuthError.unknown
+        }
+        guard let clientID = FirebaseApp.app()?.options.clientID else {
+            throw AuthError.unknown
+        }
+
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = config
+
+        let result = try await GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController)
+        guard let idToken = result.user.idToken?.tokenString else {
+            throw AuthError.unknown
+        }
+
+        let credential = GoogleAuthProvider.credential(
+            withIDToken: idToken,
+            accessToken: result.user.accessToken.tokenString
+        )
+
+        let authResult = try await Auth.auth().signIn(with: credential)
+        let nativeUser = authResult.user
+
+        return Domain.User(
+            id: nativeUser.uid,
+            email: nativeUser.email ?? "",
+            name: nativeUser.displayName ?? "사용자",
+            imageURL: nativeUser.photoURL,
+            createdAt: Date(),
+            updatedAt: Date(),
+            loginProvider: .google
         )
     }
 }
