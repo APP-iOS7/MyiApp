@@ -14,7 +14,7 @@ jobs:
       TUIST_XDG_STATE_HOME: /tmp/tuist-state
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - uses: jdx/mise-action@v4
 
@@ -40,7 +40,7 @@ jobs:
 
       - name: Upload Tuist session logs on failure
         if: failure()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: tuist-session-logs
           path: /tmp/tuist-state/tuist/sessions/
