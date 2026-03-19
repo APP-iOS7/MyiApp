@@ -36,7 +36,7 @@ extension CaregiverClient {
                 let userRef = db.collection("users").document(caregiverID)
                 let babyRef = db.collection("babies").document(babyID)
 
-                try await db.runTransaction { transaction, _ in
+                _ = try await db.runTransaction { transaction, _ in
                     // 1. 사용자 문서에 아기 참조 추가
                     transaction.updateData([
                         "babies": FieldValue.arrayUnion([babyRef])

@@ -22,7 +22,7 @@ jobs:
         run: tuist auth login
 
       - name: Cache Tuist dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: Tuist/.build
           key: ${{ runner.os }}-tuist-${{ hashFiles('Tuist/Package.resolved') }}

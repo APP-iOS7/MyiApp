@@ -4,7 +4,7 @@ import Foundation
 
 // MARK: - AuthClient
 
-extension AuthClient: DependencyKey {
+extension AuthClient: @retroactive DependencyKey {
     public static var liveValue: Self {
         .live
     }
@@ -28,7 +28,7 @@ extension DependencyValues {
 
 // MARK: - CaregiverClient
 
-extension CaregiverClient: DependencyKey {
+extension CaregiverClient: @retroactive DependencyKey {
     public static var liveValue: Self {
         .live
     }
@@ -51,7 +51,7 @@ extension DependencyValues {
 
 // MARK: - RecordClient
 
-extension RecordClient: DependencyKey {
+extension RecordClient: @retroactive DependencyKey {
     public static var liveValue: Self {
         .live
     }

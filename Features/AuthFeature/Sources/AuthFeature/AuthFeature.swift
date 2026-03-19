@@ -45,7 +45,7 @@ public struct AuthFeature {
                     }
                 }
 
-            case let .loginResponse(.success(user)):
+            case .loginResponse(.success):
                 state.isLoading = false
                 // TODO: 로그인 성공 후 후속 처리 (홈 이동 등)
                 return .none
