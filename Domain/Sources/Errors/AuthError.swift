@@ -7,7 +7,7 @@ import Foundation
 ///
 /// 뷰모델 등에서 사용자에게 메시지를 보여줄 때는 `LocalizedError`의
 /// `errorDescription`을 사용하면 됩니다.
-public enum AuthError: Error, Sendable, LocalizedError {
+public enum AuthError: Error, Sendable, LocalizedError, Equatable {
     /// 사용자가 로그인/인증 흐름을 취소함
     case cancelled
 
@@ -20,6 +20,9 @@ public enum AuthError: Error, Sendable, LocalizedError {
     /// 세션 만료 또는 토큰 만료
     case sessionExpired
 
+    /// 제공자를 통한 로그인을 지원하지 않음
+    case invalidProvider
+
     /// 기타 알 수 없는 오류
     case unknown
 
@@ -29,6 +32,7 @@ public enum AuthError: Error, Sendable, LocalizedError {
         case .invalidCredentials: "인증에 실패했습니다."
         case .networkUnavailable: "네트워크 연결을 확인해 주세요."
         case .sessionExpired: "세션이 만료되었습니다. 다시 로그인해 주세요."
+        case .invalidProvider: "지원하지 않는 로그인 방식입니다."
         case .unknown: "오류가 발생했습니다."
         }
     }
