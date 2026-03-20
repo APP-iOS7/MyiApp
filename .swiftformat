@@ -32,9 +32,6 @@
 # Void
 --voidtype void
 
-# Self keyword (명시적으로 삽입)
---self insert
-
 # Imports 정렬 (testable은 하단, 빈 줄로 구분)
 --importgrouping testable-bottom
 
@@ -91,7 +88,6 @@
 --enable preferForLoop
 --enable wrapConditionalBodies
 --enable wrapEnumCases
---enable wrapSwitchCases
 
 # ============================
 # Disable Rules
