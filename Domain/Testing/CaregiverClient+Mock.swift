@@ -6,7 +6,8 @@ extension CaregiverClient {
         Self(
             fetchCaregiver: { _ throws(CaregiverError) in .mock },
             registerCaregiver: { _ throws(CaregiverError) in },
-            connectCaregiver: { _, _ throws(CaregiverError) in }
+            connectCaregiver: { _, _ throws(CaregiverError) in },
+            registerBaby: { _, _ throws(CaregiverError) in }
         )
     }
 
@@ -14,7 +15,8 @@ extension CaregiverClient {
         Self(
             fetchCaregiver: { _ throws(CaregiverError) in throw error },
             registerCaregiver: { _ throws(CaregiverError) in throw error },
-            connectCaregiver: { _, _ throws(CaregiverError) in throw error }
+            connectCaregiver: { _, _ throws(CaregiverError) in throw error },
+            registerBaby: { _, _ throws(CaregiverError) in throw error }
         )
     }
 }

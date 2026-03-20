@@ -7,7 +7,7 @@ let project = Project(
         .target(
             name: "Core",
             destinations: .iOS,
-            product: .staticFramework,
+            product: .framework,
             bundleId: BundleID.core,
             deploymentTargets: DeploymentTarget.iOS,
             infoPlist: .default,
@@ -15,6 +15,7 @@ let project = Project(
             scripts: [.swiftFormat],
             dependencies: [
                 .project(target: "Domain", path: "../Domain"),
+                .external(name: "FirebaseCore"),
                 .external(name: "FirebaseAuth"),
                 .external(name: "FirebaseFirestore"),
                 .external(name: "ComposableArchitecture"),
