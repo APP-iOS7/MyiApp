@@ -6,7 +6,7 @@ struct ClientTests {
     private actor AuthMockState {
         var isLoginCalled = false
         func setIsLoginCalled(_ value: Bool) {
-            self.isLoginCalled = value
+            isLoginCalled = value
         }
     }
 
@@ -47,7 +47,7 @@ struct ClientTests {
     private actor RecordMockState {
         var savedRecord: Record?
         func setSavedRecord(_ record: Record) {
-            self.savedRecord = record
+            savedRecord = record
         }
     }
 

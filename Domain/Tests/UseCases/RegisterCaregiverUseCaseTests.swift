@@ -11,7 +11,7 @@ struct RegisterCaregiverUseCaseTests {
         actor State {
             var isCalled = false
             func setCalled() {
-                self.isCalled = true
+                isCalled = true
             }
         }
         let state = State()
@@ -19,7 +19,8 @@ struct RegisterCaregiverUseCaseTests {
         let mockClient = CaregiverClient(
             fetchCaregiver: { _ throws(CaregiverError) in .mock },
             registerCaregiver: { _ throws(CaregiverError) in await state.setCalled() },
-            connectCaregiver: { _, _ throws(CaregiverError) in }
+            connectCaregiver: { _, _ throws(CaregiverError) in },
+            registerBaby: { _, _ throws(CaregiverError) in }
         )
         let useCase = RegisterCaregiverUseCase(client: mockClient)
         let caregiver = Caregiver.mock
