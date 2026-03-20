@@ -17,6 +17,6 @@ public struct RegisterCaregiverUseCase: RegisterCaregiverUseCaseProtocol {
             throw CaregiverError.invalidInteraction
         }
 
-        try await self.client.registerCaregiver(caregiver)
+        try await client.registerCaregiver(caregiver)
     }
 }

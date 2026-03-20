@@ -215,13 +215,13 @@ private final class AppleSignInDelegate: NSObject, ASAuthorizationControllerDele
         didCompleteWithAuthorization authorization: ASAuthorization
     ) {
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-            self.completion(.success(appleIDCredential))
+            completion(.success(appleIDCredential))
         } else {
-            self.completion(.failure(AuthError.unknown))
+            completion(.failure(AuthError.unknown))
         }
     }
 
     func authorizationController(controller _: ASAuthorizationController, didCompleteWithError error: Error) {
-        self.completion(.failure(error))
+        completion(.failure(error))
     }
 }
