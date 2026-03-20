@@ -3,47 +3,59 @@ import FirebaseFirestore
 import Foundation
 
 extension RecordClient {
-    public static var liveValue: Self {
+    public static var live: Self {
         let db = Firestore.firestore()
 
         return Self(
-            fetchRecords: { babyID in
-                let snapshot = try await db.collection("records")
-                    .whereField("babyID", isEqualTo: babyID)
-                    .order(by: "timestamp", descending: true)
-                    .getDocuments()
+            fetchRecords: { babyID async throws(Domain.RecordError) in
+                do {
+                    let snapshot = try await db.collection("records")
+                        .whereField("babyID", isEqualTo: babyID)
+                        .order(by: "timestamp", descending: true)
+                        .getDocuments()
 
-                return snapshot.documents.compactMap { doc in
-                    let data = doc.data()
-                    guard let typeString = data["type"] as? String,
-                          let type = RecordType(rawValue: typeString),
-                          let timestamp = (data["timestamp"] as? Timestamp)?.dateValue()
-                    else {
-                        return nil
+                    return snapshot.documents.compactMap { doc in
+                        let data = doc.data()
+                        guard let typeString = data["type"] as? String,
+                              let type = RecordType(rawValue: typeString),
+                              let timestamp = (data["timestamp"] as? Timestamp)?.dateValue()
+                        else {
+                            return nil
+                        }
+
+                        return Record(
+                            id: doc.documentID,
+                            babyID: babyID,
+                            type: type,
+                            timestamp: timestamp,
+                            note: data["note"] as? String,
+                            metadata: data["metadata"] as? [String: String]
+                        )
                     }
-
-                    return Record(
-                        id: doc.documentID,
-                        babyID: babyID,
-                        type: type,
-                        timestamp: timestamp,
-                        note: data["note"] as? String,
-                        metadata: data["metadata"] as? [String: String]
-                    )
+                } catch {
+                    throw Domain.RecordError.internalError(error)
                 }
             },
-            saveRecord: { record in
-                let data: [String: Any] = [
-                    "babyID": record.babyID,
-                    "type": record.type.rawValue,
-                    "timestamp": Timestamp(date: record.timestamp),
-                    "note": record.note as Any,
-                    "metadata": record.metadata as Any
-                ]
-                try await db.collection("records").document(record.id).setData(data)
+            saveRecord: { record async throws(Domain.RecordError) in
+                do {
+                    let data: [String: Any] = [
+                        "babyID": record.babyID,
+                        "type": record.type.rawValue,
+                        "timestamp": Timestamp(date: record.timestamp),
+                        "note": record.note as Any,
+                        "metadata": record.metadata as Any
+                    ]
+                    try await db.collection("records").document(record.id).setData(data)
+                } catch {
+                    throw Domain.RecordError.internalError(error)
+                }
             },
-            deleteRecord: { id in
-                try await db.collection("records").document(id).delete()
+            deleteRecord: { id async throws(Domain.RecordError) in
+                do {
+                    try await db.collection("records").document(id).delete()
+                } catch {
+                    throw Domain.RecordError.internalError(error)
+                }
             }
         )
     }

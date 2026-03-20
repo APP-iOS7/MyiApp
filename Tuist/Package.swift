@@ -15,6 +15,8 @@ import PackageDescription
 let package = Package(
     name: "MyiApp",
     dependencies: [
-        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "11.0.0"))
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", .upToNextMajor(from: "11.0.0")),
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.17.1"),
+        .package(url: "https://github.com/google/GoogleSignIn-iOS.git", from: "8.0.0")
     ]
 )
