@@ -1,2 +1,8 @@
 [tools]
+node = "22"
 tuist = "4.158.0"
+java = "21"
+
+[tasks.test]
+description = "Firebase 에뮬레이터를 사용하여 모든 테스트 실행"
+run = "firebase emulators:exec --project demo-myiapp \"tuist test\""

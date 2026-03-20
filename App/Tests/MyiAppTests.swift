@@ -1,8 +1,9 @@
-import XCTest
+import Testing
 @testable import MyiApp
 
-final class MyiAppTests: XCTestCase {
-    func testExample() {
-        XCTAssertTrue(true)
+struct MyiAppTests {
+    @Test("App 모듈 테스트 가능 여부 확인")
+    func appModuleTestability() {
+        #expect(true)
     }
 }

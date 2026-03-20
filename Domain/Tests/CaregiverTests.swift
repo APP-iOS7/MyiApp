@@ -1,9 +1,9 @@
-import XCTest
-
+import Testing
 @testable import Domain
 
-final class CaregiverTests: XCTestCase {
-    func test_Given_보호자정보가있을때_When_초기화하면_Then_모든데이터가정상적으로설정됨() {
+struct CaregiverTests {
+    @Test("보호자 정보 초기화 시 모든 데이터가 정상적으로 설정됨")
+    func caregiverInitializationSetsAllDataCorrectly() {
         // Given & When
         let caregiver = Caregiver(
             id: "caregiver-1",
@@ -14,14 +14,15 @@ final class CaregiverTests: XCTestCase {
         )
 
         // Then
-        XCTAssertEqual(caregiver.id, "caregiver-1")
-        XCTAssertEqual(caregiver.name, "보호자")
-        XCTAssertEqual(caregiver.email, "parent@example.com")
-        XCTAssertEqual(caregiver.role, "엄마")
-        XCTAssertEqual(caregiver.lastSelectedBabyID, "baby-1")
+        #expect(caregiver.id == "caregiver-1")
+        #expect(caregiver.name == "보호자")
+        #expect(caregiver.email == "parent@example.com")
+        #expect(caregiver.role == "엄마")
+        #expect(caregiver.lastSelectedBabyID == "baby-1")
     }
 
-    func test_Given_선택적데이터가없을때_When_초기화하면_Then_해당필드가nil로설정됨() {
+    @Test("선택적 데이터가 없을 때 nil로 설정됨")
+    func optionalDataIsNilWhenNotProvided() {
         // Given & When
         let caregiver = Caregiver(
             id: "caregiver-2",
@@ -30,7 +31,7 @@ final class CaregiverTests: XCTestCase {
         )
 
         // Then
-        XCTAssertNil(caregiver.role)
-        XCTAssertNil(caregiver.lastSelectedBabyID)
+        #expect(caregiver.role == nil)
+        #expect(caregiver.lastSelectedBabyID == nil)
     }
 }

@@ -7,7 +7,7 @@ let project = Project(
         .target(
             name: "DesignSystem",
             destinations: .iOS,
-            product: .framework,
+            product: .staticFramework,
             bundleId: BundleID.designSystem,
             deploymentTargets: DeploymentTarget.iOS,
             infoPlist: .default,

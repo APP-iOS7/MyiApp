@@ -1,9 +1,10 @@
-import XCTest
-
+import Foundation
+import Testing
 @testable import Domain
 
-final class BabyTests: XCTestCase {
-    func test_Given_아기정보가있을때_When_초기화하면_Then_모든데이터가정상적으로설정됨() {
+struct BabyTests {
+    @Test("아기 정보 초기화 시 모든 데이터가 정상적으로 설정됨")
+    func babyInitializationSetsAllDataCorrectly() {
         // Given
         let birthDate = Date()
 
@@ -18,15 +19,16 @@ final class BabyTests: XCTestCase {
         )
 
         // Then
-        XCTAssertEqual(baby.id, "baby-1")
-        XCTAssertEqual(baby.name, "햇님이")
-        XCTAssertEqual(baby.birthDate, birthDate)
-        XCTAssertEqual(baby.gender, .male)
-        XCTAssertEqual(baby.bloodType, .A)
-        XCTAssertEqual(baby.imageURL?.absoluteString, "https://example.com/baby.jpg")
+        #expect(baby.id == "baby-1")
+        #expect(baby.name == "햇님이")
+        #expect(baby.birthDate == birthDate)
+        #expect(baby.gender == .male)
+        #expect(baby.bloodType == .A)
+        #expect(baby.imageURL?.absoluteString == "https://example.com/baby.jpg")
     }
 
-    func test_Given_혈액형이미지가없을때_When_초기화하면_Then_해당필드가nil로설정됨() {
+    @Test("선택적 필드가 없을 때 nil로 설정됨")
+    func optionalFieldsAreNilWhenNotProvided() {
         // Given
         let birthDate = Date()
 
@@ -39,7 +41,7 @@ final class BabyTests: XCTestCase {
         )
 
         // Then
-        XCTAssertNil(baby.bloodType)
-        XCTAssertNil(baby.imageURL)
+        #expect(baby.bloodType == nil)
+        #expect(baby.imageURL == nil)
     }
 }
