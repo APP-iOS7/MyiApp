@@ -7,12 +7,12 @@ import Foundation
 import Testing
 
 @MainActor
-struct AuthFeatureTests {
+struct LoginFeatureTests {
     @Test("Google 로그인 성공 테스트")
     func googleLoginSuccessTest() async {
         let mockUser = AuthFeatureTesting.mockUser
-        let store = TestStore(initialState: AuthFeature.State()) {
-            AuthFeature()
+        let store = TestStore(initialState: AuthFeature.LoginFeature.State()) {
+            AuthFeature.LoginFeature()
         } withDependencies: {
             $0.authClient.login = { provider throws(AuthError) in
                 #expect(provider == .google)
@@ -36,8 +36,8 @@ struct AuthFeatureTests {
     @Test("로그인 실패 테스트")
     func googleLoginFailureTest() async {
         let error = AuthError.invalidCredentials
-        let store = TestStore(initialState: AuthFeature.State()) {
-            AuthFeature()
+        let store = TestStore(initialState: AuthFeature.LoginFeature.State()) {
+            AuthFeature.LoginFeature()
         } withDependencies: {
             $0.authClient.login = { _ throws(AuthError) in
                 throw error
@@ -65,8 +65,8 @@ struct AuthFeatureTests {
             updatedAt: Date(),
             loginProvider: .apple
         )
-        let store = TestStore(initialState: AuthFeature.State()) {
-            AuthFeature()
+        let store = TestStore(initialState: AuthFeature.LoginFeature.State()) {
+            AuthFeature.LoginFeature()
         } withDependencies: {
             $0.authClient.login = { provider throws(AuthError) in
                 #expect(provider == .apple)
