@@ -84,7 +84,7 @@ extension CaregiverClient {
                         // 1. 아기 문서 생성 (기존 문서가 있으면 덮어쓰거나 에러 처리 - 여기서는 setData)
                         transaction.setData(babyData, forDocument: babyRef)
 
-                        // 2. 보호자 문서에 아기 참조 추가 및 lastSelectedBabyId 업데이트
+                        // 2. 보호자 문서에 아기 참조 추가 및 lastSelectedBabyID 업데이트
                         transaction.updateData([
                             "babies": FieldValue.arrayUnion([babyRef]),
                             "lastSelectedBabyId": baby.id

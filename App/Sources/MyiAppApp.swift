@@ -39,7 +39,8 @@ struct MyiAppApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(store: self.store)
+            RootView(store: store)
+                .onAppear { store.send(.checkAuth) }
         }
     }
 }
