@@ -63,6 +63,38 @@ extension CaregiverClient {
                 } catch {
                     throw CaregiverError.internalError(error)
                 }
+            },
+            registerBaby: { caregiverID, baby async throws(CaregiverError) in
+                let babyRef = db.collection("babies").document(baby.id)
+                let userRef = db.collection("users").document(caregiverID)
+
+                let babyData: [String: Any] = [
+                    "id": baby.id,
+                    "name": baby.name,
+                    "birthDate": Timestamp(date: baby.birthDate),
+                    "gender": baby.gender.rawValue,
+                    "bloodType": baby.bloodType?.rawValue as Any,
+                    "caregivers": [userRef],
+                    "createdAt": FieldValue.serverTimestamp(),
+                    "updatedAt": FieldValue.serverTimestamp()
+                ]
+
+                do {
+                    _ = try await db.runTransaction { transaction, _ in
+                        // 1. 아기 문서 생성 (기존 문서가 있으면 덮어쓰거나 에러 처리 - 여기서는 setData)
+                        transaction.setData(babyData, forDocument: babyRef)
+
+                        // 2. 보호자 문서에 아기 참조 추가 및 lastSelectedBabyId 업데이트
+                        transaction.updateData([
+                            "babies": FieldValue.arrayUnion([babyRef]),
+                            "lastSelectedBabyId": baby.id
+                        ], forDocument: userRef)
+
+                        return nil
+                    }
+                } catch {
+                    throw CaregiverError.internalError(error)
+                }
             }
         )
     }

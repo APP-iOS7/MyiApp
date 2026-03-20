@@ -37,7 +37,8 @@ extension CaregiverClient: @retroactive DependencyKey {
         Self(
             fetchCaregiver: { _ in fatalError("Unimplemented") },
             registerCaregiver: { _ in fatalError("Unimplemented") },
-            connectCaregiver: { _, _ in fatalError("Unimplemented") }
+            connectCaregiver: { _, _ in fatalError("Unimplemented") },
+            registerBaby: { _, _ in fatalError("Unimplemented") }
         )
     }
 }
