@@ -7,7 +7,7 @@ let project = Project(
         .target(
             name: "Core",
             destinations: .iOS,
-            product: .framework,
+            product: .staticFramework,
             bundleId: BundleID.core,
             deploymentTargets: DeploymentTarget.iOS,
             infoPlist: .default,
@@ -16,7 +16,11 @@ let project = Project(
             dependencies: [
                 .project(target: "Domain", path: "../Domain"),
                 .external(name: "FirebaseAuth"),
-                .external(name: "FirebaseFirestore")
+                .external(name: "FirebaseFirestore"),
+                .external(name: "ComposableArchitecture"),
+                .external(name: "GoogleSignIn"),
+                .sdk(name: "AuthenticationServices", type: .framework),
+                .sdk(name: "CryptoKit", type: .framework)
             ]
         ),
         .target(
@@ -30,7 +34,8 @@ let project = Project(
             dependencies: [
                     .target(name: "Core"),
                     .external(name: "FirebaseCore"),
-                    .external(name: "FirebaseFirestore")
+                    .external(name: "FirebaseFirestore"),
+                    .external(name: "ComposableArchitecture")
                 ]
         )
     ],
