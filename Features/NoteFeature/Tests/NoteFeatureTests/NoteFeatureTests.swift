@@ -1,5 +1,5 @@
 import NoteFeatureTesting
-import XCTest
+import Testing
 @testable import NoteFeature
 
-final class NoteFeatureTests: XCTestCase {}
+struct NoteFeatureTests {}
