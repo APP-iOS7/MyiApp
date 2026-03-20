@@ -63,6 +63,22 @@
 <br/>
 
 
+# 🧪 Testing
+
+로컬 환경에서 Firebase 에뮬레이터를 사용하여 통합 테스트를 실행할 수 있습니다.
+
+### Mise를 사용하는 경우 (권장)
+```bash
+mise run test
+```
+
+### 스크립트를 직접 실행하는 경우
+```bash
+./scripts/test.sh
+```
+
+---
+
 # ** Developers**
 
 <div style="overflow-x:auto;">

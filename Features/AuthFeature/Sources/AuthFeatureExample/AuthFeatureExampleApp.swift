@@ -1,16 +1,16 @@
+import AuthFeature
+import ComposableArchitecture
 import SwiftUI
 
 @main
 struct AuthFeatureExampleApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AuthView(
+                store: Store(initialState: AuthFeature.State()) {
+                    AuthFeature()
+                }
+            )
         }
-    }
-}
-
-private struct ContentView: View {
-    var body: some View {
-        Text("AuthFeature Example")
     }
 }
