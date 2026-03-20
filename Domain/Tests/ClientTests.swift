@@ -1,10 +1,17 @@
-import XCTest
-
+import Foundation
+import Testing
 @testable import Domain
 
-final class ClientTests: XCTestCase {
-    @MainActor
-    func test_Given_AuthClient가있을때_When_Login을호출하면_Then_정상적으로동작함() async throws {
+struct ClientTests {
+    private actor AuthMockState {
+        var isLoginCalled = false
+        func setIsLoginCalled(_ value: Bool) {
+            self.isLoginCalled = value
+        }
+    }
+
+    @Test("AuthClient 가 정상적으로 동작하는지 확인")
+    func authClientFunctionsNormally() async throws {
         // Given
         let now = Date()
         let mockUser = User(
@@ -17,44 +24,43 @@ final class ClientTests: XCTestCase {
             loginProvider: .google
         )
 
-        // Swift 6에서 클로저 내 외부 변수 캡처 에러를 피하기 위해 클래스(Reference) 사용
-        class State {
-            var isLoginCalled = false
-        }
-        let state = State()
-
+        let state = AuthMockState()
         let client = AuthClient(
-            currentUser: { nil },
-            login: { _ in
-                state.isLoginCalled = true
+            currentUser: { () throws(AuthError) in nil },
+            login: { _ throws(AuthError) in
+                await state.setIsLoginCalled(true)
                 return mockUser
             },
-            logout: {},
-            deleteAccount: {}
+            logout: { () throws(AuthError) in },
+            deleteAccount: { () throws(AuthError) in }
         )
 
         // When
         let user = try await client.login(.google)
 
         // Then
-        XCTAssertTrue(state.isLoginCalled)
-        XCTAssertEqual(user.id, "user-1")
+        let isLoginCalled = await state.isLoginCalled
+        #expect(isLoginCalled == true)
+        #expect(user.id == "user-1")
     }
 
-    @MainActor
-    func test_Given_RecordClient가있을때_When_기록저장을호출하면_Then_정상적으로동작함() async throws {
-        // Given
-        class State {
-            var savedRecord: Record?
+    private actor RecordMockState {
+        var savedRecord: Record?
+        func setSavedRecord(_ record: Record) {
+            self.savedRecord = record
         }
-        let state = State()
+    }
 
+    @Test("RecordClient 가 정상적으로 동작하는지 확인")
+    func recordClientFunctionsNormally() async throws {
+        // Given
+        let state = RecordMockState()
         let client = RecordClient(
-            fetchRecords: { _ in [] },
-            saveRecord: { record in
-                state.savedRecord = record
+            fetchRecords: { _ throws(RecordError) in [] },
+            saveRecord: { record throws(RecordError) in
+                await state.setSavedRecord(record)
             },
-            deleteRecord: { _ in }
+            deleteRecord: { _ throws(RecordError) in }
         )
         let record = Record(babyID: "baby-1", type: .feeding)
 
@@ -62,7 +68,8 @@ final class ClientTests: XCTestCase {
         try await client.saveRecord(record)
 
         // Then
-        XCTAssertEqual(state.savedRecord?.babyID, "baby-1")
-        XCTAssertEqual(state.savedRecord?.type, .feeding)
+        let savedRecord = await state.savedRecord
+        #expect(savedRecord?.babyID == "baby-1")
+        #expect(savedRecord?.type == .feeding)
     }
 }

@@ -1,9 +1,10 @@
-import XCTest
-
+import Foundation
+import Testing
 @testable import Domain
 
-final class RecordTests: XCTestCase {
-    func test_Given_기록데이터가있을때_When_초기화하면_Then_모든데이터가정상적으로설정됨() {
+struct RecordTests {
+    @Test("기록 데이터 초기화 확인")
+    func recordDataInitialization() {
         // Given
         let id = "record-1"
         let babyID = "baby-1"
@@ -20,14 +21,15 @@ final class RecordTests: XCTestCase {
         )
 
         // Then
-        XCTAssertEqual(record.id, id)
-        XCTAssertEqual(record.babyID, babyID)
-        XCTAssertEqual(record.type, .cry)
-        XCTAssertEqual(record.timestamp, timestamp)
-        XCTAssertEqual(record.note, note)
+        #expect(record.id == id)
+        #expect(record.babyID == babyID)
+        #expect(record.type == .cry)
+        #expect(record.timestamp == timestamp)
+        #expect(record.note == note)
     }
 
-    func test_Given_상세기록데이터가있을때_When_초기화하면_Then_데이터가정상적으로설정됨() {
+    @Test("Note 모델 데이터 초기화 확인")
+    func noteModelDataInitialization() {
         // Given
         let recordID = "record-1"
         let content = "수유 기록 상세 내용"
@@ -36,7 +38,7 @@ final class RecordTests: XCTestCase {
         let note = Note(recordID: recordID, content: content)
 
         // Then
-        XCTAssertEqual(note.recordID, recordID)
-        XCTAssertEqual(note.content, content)
+        #expect(note.recordID == recordID)
+        #expect(note.content == content)
     }
 }

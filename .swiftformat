@@ -14,7 +14,7 @@
 --smarttabs enabled
 
 # Line length
---maxwidth 100
+--maxwidth 120
 
 # Braces style (K&R, not Allman)
 --allman false
@@ -103,6 +103,8 @@
 --disable markTypes
 # 임포트 그룹 사이 빈 줄 허용
 --disable blankLinesBetweenImports
+# @Test("한국어 설명") + 영문 함수명 → 백틱 한글 함수명 변환 방지
+--disable swiftTestingTestCaseNames
 
 # ============================
 # Exclude

@@ -7,12 +7,23 @@ let project = Project(
         .target(
             name: "Domain",
             destinations: .iOS,
-            product: .framework,
+            product: .staticFramework,
             bundleId: BundleID.domain,
             deploymentTargets: DeploymentTarget.iOS,
             infoPlist: .default,
             sources: ["Sources/**"],
             scripts: [.swiftFormat]
+        ),
+        .target(
+            name: "DomainTesting",
+            destinations: .iOS,
+            product: .staticFramework,
+            bundleId: BundleID.domain + ".testing",
+            deploymentTargets: DeploymentTarget.iOS,
+            infoPlist: .default,
+            sources: ["Testing/**"],
+            scripts: [.swiftFormat],
+            dependencies: [.target(name: "Domain")]
         ),
         .target(
             name: "DomainTests",
@@ -22,7 +33,10 @@ let project = Project(
             deploymentTargets: DeploymentTarget.iOS,
             infoPlist: .default,
             sources: ["Tests/**"],
-            dependencies: [.target(name: "Domain")]
+            dependencies: [
+                .target(name: "Domain"),
+                .target(name: "DomainTesting")
+            ]
         )
     ]
 )

@@ -1,5 +1,5 @@
 import HomeFeatureTesting
-import XCTest
+import Testing
 @testable import HomeFeature
 
-final class HomeFeatureTests: XCTestCase {}
+struct HomeFeatureTests {}

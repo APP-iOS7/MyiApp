@@ -34,8 +34,11 @@ jobs:
       - name: Tuist setup cache
         run: tuist setup cache
 
+      - name: Create GoogleService-Info.plist from Secret
+        run: echo "${{ secrets.GOOGLE_SERVICES_PLIST }}" > App/Resources/GoogleService-Info.plist
+
       - name: Run tests
-        run: tuist test MyiApp
+        run: tuist test
 
       - name: Upload Tuist session logs on failure
         if: failure()
