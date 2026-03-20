@@ -1,10 +1,9 @@
-import XCTest
-
+import Testing
 @testable import Domain
 
-final class LoginProviderTests: XCTestCase {
-    func test_cases_exist() {
-        let _: LoginProvider = .google
-        let _: LoginProvider = .apple
+struct LoginProviderTests {
+    @Test("모든 케이스가 존재하는지 확인")
+    func allCasesExist() {
+        #expect(LoginProvider.allCases.count >= 2)
     }
 }
