@@ -9,7 +9,7 @@ struct MyiApp: App {
 
     var body: some Scene {
         WindowGroup {
-            Text("Hello World!")
+            GateView(store: store.scope(state: \.gate, action: \.gate))
         }
     }
 }

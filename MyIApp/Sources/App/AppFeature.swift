@@ -4,11 +4,17 @@ import Foundation
 @Reducer
 struct AppFeature {
     @ObservableState
-    struct State: Equatable {}
+    struct State: Equatable {
+        var gate: GateFeature.State = .loading
+    }
 
-    enum Action {}
+    enum Action {
+        case gate(GateFeature.Action)
+    }
 
     var body: some ReducerOf<Self> {
-        EmptyReducer()
+        Scope(state: \.gate, action: \.gate) {
+            GateFeature()
+        }
     }
 }
