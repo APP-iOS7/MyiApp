@@ -10,16 +10,24 @@ let project = Project(
             bundleId: "kr.co.codegroove.MyiApp",
             deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(with: [
-                "UILaunchStoryboardName": .string("LaunchScreen"),
+                "UILaunchStoryboardName": .string("LaunchScreen")
             ]),
             sources: ["Sources/**"],
             resources: ["Resources/**"],
+            scripts: [
+                .pre(
+                    tool: "swiftformat",
+                    arguments: ["$SRCROOT/Sources", "--config", "$SRCROOT/../.swiftformat"],
+                    name: "SwiftFormat",
+                    basedOnDependencyAnalysis: false
+                )
+            ],
             dependencies: [
                 .external(name: "ComposableArchitecture"),
                 .external(name: "FirebaseAuth"),
                 .external(name: "FirebaseFirestore"),
-                .external(name: "FirebaseStorage"),
+                .external(name: "FirebaseStorage")
             ]
-        ),
+        )
     ]
 )

@@ -5,7 +5,10 @@ import Foundation
 extension AuthClient: DependencyKey {
     static let liveValue: AuthClient = .init(
         currentSession: {
-            guard let user = Auth.auth().currentUser else { return nil }
+            guard let user = Auth.auth().currentUser else {
+                return nil
+            }
+
             let provider: OAuthProvider
             switch user.providerData.first?.providerID {
             case "apple.com":
@@ -28,6 +31,7 @@ extension AuthClient: DependencyKey {
                     fullName: PersonNameComponents(givenName: givenName, familyName: familyName)
                 )
                 oAuthProvider = .apple
+
             case let .google(idToken: idToken, accessToken: accessToken):
                 authCredential = FirebaseAuth.GoogleAuthProvider.credential(
                     withIDToken: idToken,
