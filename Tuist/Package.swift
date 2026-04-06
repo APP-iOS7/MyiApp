@@ -9,5 +9,7 @@ import PackageDescription
 
 let package = Package(
     name: "MyiApp",
-    dependencies: []
+    dependencies: [
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: .init(1, 25, 5)),
+    ]
 )
