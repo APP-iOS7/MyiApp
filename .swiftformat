@@ -49,8 +49,8 @@
 # Attribute wrapping
 --funcattributes prev-line
 --typeattributes prev-line
---varattributes prev-line
---storedvarattributes prev-line
+--varattributes same-line
+--storedvarattributes same-line
 --computedvarattributes prev-line
 --complexattributes prev-line
 
