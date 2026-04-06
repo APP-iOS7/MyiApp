@@ -16,6 +16,9 @@ let project = Project(
             resources: ["Resources/**"],
             dependencies: [
                 .external(name: "ComposableArchitecture"),
+                .external(name: "FirebaseAuth"),
+                .external(name: "FirebaseFirestore"),
+                .external(name: "FirebaseStorage"),
             ]
         ),
     ]
