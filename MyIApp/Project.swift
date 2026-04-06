@@ -9,7 +9,9 @@ let project = Project(
             product: .app,
             bundleId: "kr.co.codegroove.MyiApp",
             deploymentTargets: .iOS("17.0"),
-            infoPlist: .default,
+            infoPlist: .extendingDefault(with: [
+                "UILaunchStoryboardName": .string("LaunchScreen"),
+            ]),
             sources: ["Sources/**"],
             resources: ["Resources/**"],
             dependencies: []
