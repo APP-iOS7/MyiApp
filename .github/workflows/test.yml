@@ -28,6 +28,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-tuist-
 
+      - name: Restore GoogleService-Info.plist
+        run: echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}" | base64 --decode > MyIApp/Resources/GoogleService-Info.plist
+
       - name: Tuist install
         run: tuist install
 
