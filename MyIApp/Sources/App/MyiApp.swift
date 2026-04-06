@@ -4,7 +4,7 @@ import SwiftUI
 struct MyiApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Text("Hello World!")
         }
     }
 }
