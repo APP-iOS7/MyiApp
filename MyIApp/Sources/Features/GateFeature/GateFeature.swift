@@ -6,7 +6,7 @@ struct GateFeature {
     @ObservableState
     enum State: Equatable {
         case loading
-        case login
+        case login(LoginFeature.State)
         case main
     }
 
@@ -21,6 +21,7 @@ struct GateFeature {
 
         case view(ViewAction)
         case `internal`(InternalAction)
+        case login(LoginFeature.Action)
     }
 
     @Dependency(\.authClient) var authClient
@@ -36,13 +37,19 @@ struct GateFeature {
 
             case let .internal(.sessionLoaded(session)):
                 guard let session else {
-                    state = .login
+                    state = .login(.init())
                     return .none
                 }
 
                 state = .main
                 return .none
+
+            case .login:
+                return .none
             }
+        }
+        .ifCaseLet(\.login, action: \.login) {
+            LoginFeature()
         }
     }
 }
