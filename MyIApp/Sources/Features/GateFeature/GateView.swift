@@ -5,10 +5,18 @@ struct GateView: View {
     let store: StoreOf<GateFeature>
 
     var body: some View {
-        switch store.state {
-        case .loading: ProgressView()
-        case .login: EmptyView()
-        case .main: EmptyView()
+        Group {
+            switch store.state {
+            case .loading: ProgressView()
+
+            case .login:
+                if let loginStore = store.scope(state: \.login, action: \.login) {
+                    LoginView(store: loginStore)
+                }
+
+            case .main: EmptyView()
+            }
         }
+        .onAppear { store.send(.view(.onAppear)) }
     }
 }
