@@ -16,7 +16,7 @@ struct LoginFeature {
         }
 
         enum InternalAction {
-            case appleCredential(AppleCredential)
+            case credentialLoaded(OAuthCredential)
             case errorOccurred(Error)
         }
 
@@ -40,7 +40,7 @@ struct LoginFeature {
                 return .run { send in
                     do {
                         let appleCredential = try await appleSignInClient.signIn()
-                        await send(.internal(.appleCredential(appleCredential)))
+                        await send(.internal(.credentialLoaded(appleCredential)))
                     } catch {
                         await send(.internal(.errorOccurred(error)))
                     }
@@ -54,16 +54,10 @@ struct LoginFeature {
                 state.errorMessage = error.localizedDescription
                 return .none
 
-            case let .internal(.appleCredential(credential)):
+            case let .internal(.credentialLoaded(credential)):
                 return .run { send in
-                    let oauthCredential = OAuthCredential.apple(
-                        idToken: credential.idToken,
-                        nonce: credential.nonce,
-                        givenName: credential.givenName,
-                        familyName: credential.familyName
-                    )
                     do {
-                        let session = try await authClient.signIn(oauthCredential)
+                        let session = try await authClient.signIn(credential)
                         await send(.delegate(.signedIn(session)))
                     } catch {
                         await send(.internal(.errorOccurred(error)))

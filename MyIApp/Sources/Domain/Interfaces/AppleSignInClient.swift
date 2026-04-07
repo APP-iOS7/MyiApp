@@ -1,5 +1,5 @@
 import Foundation
 
 struct AppleSignInClient {
-    var signIn: @Sendable () async throws -> AppleCredential
+    var signIn: @Sendable () async throws -> OAuthCredential
 }
