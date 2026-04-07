@@ -31,6 +31,7 @@ struct LoginFeature {
 
     @Dependency(\.authClient) var authClient
     @Dependency(\.appleSignInClient) var appleSignInClient
+    @Dependency(\.googleSignInClient) var googleSignInClient
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -47,7 +48,15 @@ struct LoginFeature {
                 }
 
             case .view(.googleSignInButtonTapped):
-                return .none
+                state.isLoading = true
+                return .run { send in
+                    do {
+                        let googleCredential = try await googleSignInClient.signIn()
+                        await send(.internal(.credentialLoaded(googleCredential)))
+                    } catch {
+                        await send(.internal(.errorOccurred(error)))
+                    }
+                }
 
             case let .internal(.errorOccurred(error)):
                 state.isLoading = false
