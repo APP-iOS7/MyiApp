@@ -14,7 +14,13 @@ struct GateView: View {
                     LoginView(store: loginStore)
                 }
 
-            case .main: EmptyView()
+            case .main:
+                VStack(spacing: 12) {
+                    Text("로그인 완료")
+                    Button("로그아웃") {
+                        store.send(.view(.logoutButtonTapped))
+                    }
+                }
             }
         }
         .onAppear { store.send(.view(.onAppear)) }

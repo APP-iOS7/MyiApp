@@ -13,10 +13,12 @@ struct GateFeature {
     enum Action {
         enum ViewAction {
             case onAppear
+            case logoutButtonTapped
         }
 
         enum InternalAction {
             case sessionLoaded(Session?)
+            case signedOut
         }
 
         case view(ViewAction)
@@ -35,12 +37,26 @@ struct GateFeature {
                     await send(.internal(.sessionLoaded(session)))
                 }
 
+            case .view(.logoutButtonTapped):
+                return .run { send in
+                    try await authClient.signOut()
+                    await send(.internal(.signedOut))
+                }
+
             case let .internal(.sessionLoaded(session)):
-                guard let session else {
+                guard session != nil else {
                     state = .login(.init())
                     return .none
                 }
 
+                state = .main
+                return .none
+
+            case .internal(.signedOut):
+                state = .login(.init())
+                return .none
+
+            case .login(.delegate(.signedIn)):
                 state = .main
                 return .none
 
