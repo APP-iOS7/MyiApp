@@ -10,7 +10,14 @@ let project = Project(
             bundleId: "kr.co.codegroove.MyiApp",
             deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(with: [
-                "UILaunchStoryboardName": .string("LaunchScreen")
+                "UILaunchStoryboardName": .string("LaunchScreen"),
+                "UILaunchStoryboardCFBundleURLTypes": .array([
+                    .dictionary([
+                        "CFBundleURLSchemes": .array([
+                            .string("여기에_REVERSED_CLIENT_ID")
+                        ])
+                    ])
+                ])
             ]),
             sources: ["Sources/**"],
             resources: ["Resources/**"],
@@ -29,7 +36,8 @@ let project = Project(
                 .external(name: "ComposableArchitecture"),
                 .external(name: "FirebaseAuth"),
                 .external(name: "FirebaseFirestore"),
-                .external(name: "FirebaseStorage")
+                .external(name: "FirebaseStorage"),
+                .external(name: "GoogleSignIn")
             ],
             settings: .settings(
                 base: SettingsDictionary()

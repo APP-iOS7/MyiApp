@@ -12,5 +12,6 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: .init(1, 25, 5)),
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: .init(12, 11, 0)),
+        .package(url: "https://github.com/google/GoogleSignIn-iOS.git", from: .init(9, 1, 0)),
     ]
 )
