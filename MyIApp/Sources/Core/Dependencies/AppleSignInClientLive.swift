@@ -31,10 +31,10 @@ extension DependencyValues {
 
 private nonisolated final class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate {
     let nonce: String
-    let continuation: CheckedContinuation<AppleCredential, Error>
+    let continuation: CheckedContinuation<OAuthCredential, Error>
     var selfRetain: AppleSignInDelegate?
 
-    init(nonce: String, continuation: CheckedContinuation<AppleCredential, Error>) {
+    init(nonce: String, continuation: CheckedContinuation<OAuthCredential, Error>) {
         self.nonce = nonce
         self.continuation = continuation
     }
@@ -52,7 +52,7 @@ private nonisolated final class AppleSignInDelegate: NSObject, ASAuthorizationCo
         }
 
         defer { selfRetain = nil }
-        continuation.resume(returning: AppleCredential(
+        continuation.resume(returning: OAuthCredential.apple(
             idToken: idToken,
             nonce: nonce,
             givenName: credential.fullName?.givenName,
