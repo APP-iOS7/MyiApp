@@ -11,6 +11,9 @@ let project = Project(
             deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(with: [
                 "UILaunchStoryboardName": .string("LaunchScreen"),
+                "UIAppFonts": .array([
+                    .string("BMJUA.otf")
+                ]),
                 "UILaunchStoryboardCFBundleURLTypes": .array([
                     .dictionary([
                         "CFBundleURLSchemes": .array([
