@@ -14,6 +14,9 @@ let project = Project(
             ]),
             sources: ["Sources/**"],
             resources: ["Resources/**"],
+            entitlements: .dictionary([
+                "com.apple.developer.applesignin": ["Default"]
+            ]),
             scripts: [
                 .pre(
                     tool: "swiftformat",
@@ -27,7 +30,11 @@ let project = Project(
                 .external(name: "FirebaseAuth"),
                 .external(name: "FirebaseFirestore"),
                 .external(name: "FirebaseStorage")
-            ]
+            ],
+            settings: .settings(
+                base: SettingsDictionary()
+                    .otherLinkerFlags(["$(inherited)", "-ObjC"])
+            )
         )
     ]
 )
