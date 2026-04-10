@@ -13,5 +13,11 @@ extension DesignSystem {
         public static let internalVerticalPadding: CGFloat = 13
         /// 컴포넌트 내부 아이템 간의 간격 (기본 8)
         public static let itemSpacing: CGFloat = 8
+        /// 대형 간격 - 서브타이틀 하단 등 (기본 30)
+        public static let xxxLarge: CGFloat = 30
+        /// 초대형 간격 - 로고 상단 등 (기본 100)
+        public static let xxxxLarge: CGFloat = 100
+        /// 극대형 간격 - 제출 버튼 하단 등 (기본 150)
+        public static let xxxxxLarge: CGFloat = 150
     }
 }
