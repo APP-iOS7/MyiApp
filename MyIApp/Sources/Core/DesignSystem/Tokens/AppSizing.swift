@@ -5,5 +5,7 @@ extension DesignSystem {
     public enum Sizing {
         /// 메인 일러스트레이션 크기 (기본 431)
         public static let illustrationLarge: CGFloat = 431
+        /// 기본 버튼 높이 (기본 56)
+        public static let defaultButtonHeight: CGFloat = 56
     }
 }
