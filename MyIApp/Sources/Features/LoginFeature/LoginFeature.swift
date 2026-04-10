@@ -7,6 +7,13 @@ struct LoginFeature {
     struct State: Equatable {
         var isLoading: Bool = false
         var errorMessage: String?
+        @Presents var alert: AlertState<Action.Alert>?
+
+        // 텍스트 상수
+        let title: String = "My i"
+        let subtitle: String = "쉽고 편한 육아 기록 앱"
+        let googleButtonTitle: String = "Sign in with Google"
+        let appleButtonTitle: String = "Sign in with Apple"
     }
 
     enum Action {
@@ -24,9 +31,12 @@ struct LoginFeature {
             case signedIn(Session)
         }
 
+        enum Alert: Equatable {}
+
         case view(ViewAction)
         case `internal`(InternalAction)
         case delegate(DelegateAction)
+        case alert(PresentationAction<Alert>)
     }
 
     @Dependency(\.authClient) var authClient
@@ -61,6 +71,15 @@ struct LoginFeature {
             case let .internal(.errorOccurred(error)):
                 state.isLoading = false
                 state.errorMessage = error.localizedDescription
+                state.alert = AlertState {
+                    TextState("로그인 실패")
+                } actions: {
+                    ButtonState(role: .cancel) {
+                        TextState("확인")
+                    }
+                } message: {
+                    TextState(error.localizedDescription)
+                }
                 return .none
 
             case let .internal(.credentialLoaded(credential)):
@@ -73,9 +92,10 @@ struct LoginFeature {
                     }
                 }
 
-            case .delegate:
+            case .delegate, .alert:
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 }
