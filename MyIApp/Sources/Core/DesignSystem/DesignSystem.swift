@@ -16,8 +16,12 @@ extension View {
         modifier(AppComponentStyle())
     }
 
-    /// 헤더 로고 스타일을 적용합니다. (Size 60, Bold, Primary Black)
     public func appHeaderLogoStyle() -> some View {
         modifier(AppHeaderLogoStyle())
+    }
+
+    /// 섹션 타이틀 텍스트 스타일을 적용합니다.
+    public func appSectionTitleStyle() -> some View {
+        modifier(AppSectionTitleStyle())
     }
 }
