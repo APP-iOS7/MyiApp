@@ -28,3 +28,13 @@ public struct AppHeaderLogoStyle: ViewModifier {
             .foregroundColor(DesignSystem.Colors.textPrimary)
     }
 }
+
+/// 섹션 타이틀용 스타일 수식어입니다. (componentFontSize + Bold + textPrimary)
+public struct AppSectionTitleStyle: ViewModifier {
+    public func body(content: Content) -> some View {
+        content
+            .font(.system(size: DesignSystem.Typography.componentFontSize))
+            .fontWeight(.bold)
+            .foregroundColor(DesignSystem.Colors.textPrimary.opacity(0.8))
+    }
+}
