@@ -29,7 +29,7 @@ struct LoginView: View {
     private var headerView: some View {
         VStack(spacing: DesignSystem.Spacing.componentVerticalSpacing) {
             Text(store.title)
-                .font(.system(size: DesignSystem.Typography.headerLogoSize, weight: .bold))
+                .appHeaderLogoStyle()
                 .foregroundColor(DesignSystem.Colors.launchText)
                 .padding(.horizontal, DesignSystem.Spacing.defaultPadding)
                 .padding(.top, DesignSystem.Spacing.xxxxLarge)
