@@ -9,5 +9,7 @@ extension DesignSystem {
         public static let loadingScale: CGFloat = 1.5
         /// 화면 오버레이 투명도 (기본 0.5)
         public static let overlayOpacity: Double = 0.5
+        /// 버튼 눌림 효과 투명도 (기본 0.8)
+        public static let pressedOpacity: Double = 0.8
     }
 }
