@@ -37,9 +37,14 @@ public struct ChildRegistrationView: View {
         } destination: { store in
             switch store.state {
             case .newBaby:
-                Text("신규 아이 등록 화면 (준비 중)")
+                if let store = store.scope(state: \.newBaby, action: \.newBaby) {
+                    NewBabyView(store: store)
+                }
+
             case .existingBaby:
-                Text("초대 코드 등록 화면 (준비 중)")
+                if let store = store.scope(state: \.existingBaby, action: \.existingBaby) {
+                    ExistingBabyView(store: store)
+                }
             }
         }
     }
