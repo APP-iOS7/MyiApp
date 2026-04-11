@@ -19,5 +19,12 @@ extension DesignSystem {
         public static let xxxxLarge: CGFloat = 100
         /// 극대형 간격 - 제출 버튼 하단 등 (기본 150)
         public static let xxxxxLarge: CGFloat = 150
+
+        // MARK: - Component Specific Spacing
+
+        /// 로우(Row) 컴포넌트 내부 수평 패딩
+        public static let rowHorizontalPadding: CGFloat = 16
+        /// 로우(Row) 컴포넌트 내부 수직 패딩
+        public static let rowVerticalPadding: CGFloat = 16
     }
 }
