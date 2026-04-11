@@ -7,7 +7,7 @@ public struct RoundedContainer<Content: View>: View {
 
     public init(
         alignment: HorizontalAlignment = .center,
-        spacing: CGFloat = 0,
+        spacing: CGFloat = DesignSystem.Spacing.itemSpacing,
         @ViewBuilder content: () -> Content
     ) {
         self.alignment = alignment
@@ -19,6 +19,7 @@ public struct RoundedContainer<Content: View>: View {
         VStack(alignment: alignment, spacing: spacing) {
             content
         }
+        .padding(DesignSystem.Spacing.defaultPadding)
         .background(Color(UIColor.secondarySystemGroupedBackground))
         .cornerRadius(DesignSystem.Radius.card)
         .clipped()
