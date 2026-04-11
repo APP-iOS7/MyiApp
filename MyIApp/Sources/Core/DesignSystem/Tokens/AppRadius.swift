@@ -5,5 +5,7 @@ extension DesignSystem {
     public enum Radius {
         /// 기본 곡률 (기본 5)
         public static let medium: CGFloat = 5
+        /// 카드/컨테이너용 곡률 (기본 12)
+        public static let card: CGFloat = 12
     }
 }
