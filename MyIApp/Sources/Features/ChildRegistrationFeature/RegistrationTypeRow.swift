@@ -9,8 +9,7 @@ struct RegistrationTypeRow: View {
     var body: some View {
         HStack {
             Text(title)
-                .font(.system(size: DesignSystem.Typography.componentFontSize))
-                .foregroundColor(DesignSystem.Colors.textPrimary)
+                .appComponentStyle()
 
             Spacer()
 
