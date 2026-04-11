@@ -9,16 +9,16 @@ public struct ChildRegistrationView: View {
             VStack(spacing: 0) {
                 RoundedContainer(alignment: .listRowSeparatorLeading) {
                     Text(store.title)
-                        .appTitleStyle()
-                        .padding(.vertical, DesignSystem.Spacing.defaultPadding)
+                        .appSectionTitleStyle()
+                        .padding(.bottom, DesignSystem.Spacing.defaultPadding)
 
-                    RegistrationTypeRow(
+                    CheckmarkRow(
                         title: store.newBabyTitle,
                         isSelected: store.selectedType == .new,
                         action: { store.send(.typeSelected(.new)) }
                     )
 
-                    RegistrationTypeRow(
+                    CheckmarkRow(
                         title: store.existingBabyTitle,
                         isSelected: store.selectedType == .existing,
                         action: { store.send(.typeSelected(.existing)) }
