@@ -2,7 +2,7 @@ import ComposableArchitecture
 import Foundation
 
 @Reducer
-public struct ChildRegistrationFeature {
+public struct ChildRegistrationFeature: Sendable {
     @ObservableState
     public struct State: Equatable {
         var path = StackState<Path.State>()
@@ -36,7 +36,7 @@ public struct ChildRegistrationFeature {
         case existing
     }
 
-    @Reducer(state: .equatable)
+    @Reducer
     public enum Path {
         case newBaby(NewBabyFeature)
         case existingBaby(ExistingBabyFeature)
@@ -65,3 +65,6 @@ public struct ChildRegistrationFeature {
         .forEach(\.path, action: \.path)
     }
 }
+
+extension ChildRegistrationFeature.Path.State: Equatable {}
+extension ChildRegistrationFeature.Path.Action: Equatable {}
