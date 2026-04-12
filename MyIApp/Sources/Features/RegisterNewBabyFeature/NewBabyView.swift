@@ -24,6 +24,7 @@ public struct NewBabyView: View {
         .onTapGesture { store.send(.backgroundTapped) }
         .navigationTitle(store.navigationTitle)
         .background(DesignSystem.Colors.backgroundPrimary)
+        .alert($store.scope(state: \.alert, action: \.alert))
     }
 
     // MARK: - Sections

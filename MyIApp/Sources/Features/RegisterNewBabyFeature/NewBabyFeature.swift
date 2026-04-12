@@ -3,7 +3,7 @@ import Foundation
 
 @Reducer
 public struct NewBabyFeature: Sendable {
-    public enum Field: Hashable {
+    public enum Field: Hashable, Sendable {
         case name
         case birthDate
         case height
@@ -11,10 +11,10 @@ public struct NewBabyFeature: Sendable {
     }
 
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Sendable {
         public init() {}
 
-        @Presents public var alert: AlertState<Action.Alert>?
+        @Presents public var alert: AlertState<Alert>?
 
         public var name: String = ""
         public var gender: Gender?
@@ -33,6 +33,7 @@ public struct NewBabyFeature: Sendable {
         public var isHeightEntered: Bool = false
         public var isWeightEntered: Bool = false
         public var isBloodTypeSelected: Bool = false
+        public var errorMessage: String?
 
         // 텍스트 상수
         public let navigationTitle: String = "새로운 아이 정보 등록"
@@ -70,9 +71,8 @@ public struct NewBabyFeature: Sendable {
         }
     }
 
-    public enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable, Sendable {
         case binding(BindingAction<State>)
-        case alert(PresentationAction<Alert>)
 
         // UI Actions
         case genderTapped(Gender)
@@ -90,15 +90,17 @@ public struct NewBabyFeature: Sendable {
         case backgroundTapped
 
         case delegate(Delegate)
-
-        public enum Delegate: Equatable {
-            case registrationCompleted
-        }
-
-        public enum Alert: Equatable {
-            case completeRegistration
-        }
+        case alert(PresentationAction<Alert>)
+        case showErrorAlert(String)
     }
+
+    public enum Delegate: Equatable, Sendable {
+        case registrationCompleted
+    }
+
+    public enum Alert: Equatable, Sendable {}
+
+    @Dependency(\.babyClient) var babyClient
 
     public init() {}
 
@@ -196,7 +198,39 @@ public struct NewBabyFeature: Sendable {
 
             case .registerButtonTapped:
                 state.focusedField = nil
-                return .send(.delegate(.registrationCompleted))
+
+                guard let gender = state.gender,
+                      let bloodType = state.bloodType,
+                      let height = Double(state.height),
+                      let weight = Double(state.weight)
+                else {
+                    return .none
+                }
+
+                let request = NewBabyRequest(
+                    name: state.name,
+                    gender: gender,
+                    birthDate: state.birthDate,
+                    isTimeSelectionEnabled: state.isTimeSelectionEnabled,
+                    height: height,
+                    weight: weight,
+                    bloodType: bloodType
+                )
+
+                return .run { send in
+                    _ = try await babyClient.registerNewBaby(request)
+                    await send(.delegate(.registrationCompleted))
+                } catch: { error, send in
+                    await send(.showErrorAlert(error.localizedDescription))
+                }
+
+            case let .showErrorAlert(message):
+                state.alert = AlertState {
+                    TextState("등록 실패")
+                } message: {
+                    TextState(message)
+                }
+                return .none
 
             case .delegate:
                 return .none
