@@ -28,7 +28,7 @@ struct LoginFeature {
         }
 
         enum DelegateAction {
-            case signedIn(Session)
+            case signedIn
         }
 
         enum Alert: Equatable {}
@@ -85,8 +85,8 @@ struct LoginFeature {
             case let .internal(.credentialLoaded(credential)):
                 return .run { send in
                     do {
-                        let session = try await authClient.signIn(credential)
-                        await send(.delegate(.signedIn(session)))
+                        _ = try await authClient.signIn(credential)
+                        await send(.delegate(.signedIn))
                     } catch {
                         await send(.internal(.errorOccurred(error)))
                     }

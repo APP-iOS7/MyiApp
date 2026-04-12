@@ -7,7 +7,8 @@ struct GateFeature {
     enum State: Equatable {
         case loading
         case login(LoginFeature.State)
-        case main
+        case childRegistration(ChildRegistrationFeature.State)
+        case main(Baby)
     }
 
     enum Action {
@@ -18,15 +19,18 @@ struct GateFeature {
 
         enum InternalAction {
             case sessionLoaded(Session?)
+            case babiesLoaded([Baby])
             case signedOut
         }
 
         case view(ViewAction)
         case `internal`(InternalAction)
         case login(LoginFeature.Action)
+        case childRegistration(ChildRegistrationFeature.Action)
     }
 
     @Dependency(\.authClient) var authClient
+    @Dependency(\.babyClient) var babyClient
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -49,7 +53,14 @@ struct GateFeature {
                     return .none
                 }
 
-                state = .main
+                return fetchBabies()
+
+            case let .internal(.babiesLoaded(babies)):
+                if let baby = babies.first {
+                    state = .main(baby)
+                } else {
+                    state = .childRegistration(.init())
+                }
                 return .none
 
             case .internal(.signedOut):
@@ -57,15 +68,39 @@ struct GateFeature {
                 return .none
 
             case .login(.delegate(.signedIn)):
-                state = .main
-                return .none
+                state = .loading
+                return fetchBabies()
 
             case .login:
+                return .none
+
+            case .childRegistration(.delegate(.registrationCompleted)):
+                state = .loading
+                return fetchBabies()
+
+            case .childRegistration:
                 return .none
             }
         }
         .ifCaseLet(\.login, action: \.login) {
             LoginFeature()
+        }
+        .ifCaseLet(\.childRegistration, action: \.childRegistration) {
+            ChildRegistrationFeature()
+        }
+    }
+
+    // MARK: - Private Helpers
+
+    private func fetchBabies() -> Effect<Action> {
+        .run { send in
+            do {
+                let babies = try await babyClient.fetchBabies()
+                await send(.internal(.babiesLoaded(babies)))
+            } catch {
+                // 조회 실패 시 아이 없는 것으로 처리
+                await send(.internal(.babiesLoaded([])))
+            }
         }
     }
 }

@@ -14,9 +14,17 @@ struct GateView: View {
                     LoginView(store: loginStore)
                 }
 
-            case .main:
+            case .childRegistration:
+                if let childRegistrationStore = store.scope(
+                    state: \.childRegistration,
+                    action: \.childRegistration
+                ) {
+                    ChildRegistrationView(store: childRegistrationStore)
+                }
+
+            case let .main(baby):
                 VStack(spacing: 12) {
-                    Text("로그인 완료")
+                    Text("\(baby.name) 메인 화면")
                     Button("로그아웃") {
                         store.send(.view(.logoutButtonTapped))
                     }
