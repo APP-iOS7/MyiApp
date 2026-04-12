@@ -31,14 +31,6 @@ public struct ExistingBabyView: View {
                 .disableAutocorrection(true)
             }
 
-            if let errorMessage = store.errorMessage {
-                Text(errorMessage)
-                    .font(.caption)
-                    .foregroundColor(.red)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, DesignSystem.Spacing.itemSpacing)
-            }
-
             Spacer()
 
             submitButton
@@ -46,6 +38,7 @@ public struct ExistingBabyView: View {
         .padding(.horizontal, DesignSystem.Spacing.defaultPadding)
         .navigationTitle(store.navigationTitle)
         .background(DesignSystem.Colors.backgroundPrimary)
+        .alert($store.scope(state: \.alert, action: \.alert))
         .overlay {
             if store.isLoading {
                 ProgressView()
