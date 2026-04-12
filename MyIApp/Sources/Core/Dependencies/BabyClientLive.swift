@@ -7,6 +7,46 @@ extension BabyClient: DependencyKey {
         @Dependency(\.authClient) var authClient
 
         return .init(
+            fetchBabies: {
+                guard let uid = await authClient.currentSession()?.userID else {
+                    throw NSError(
+                        domain: "BabyClient",
+                        code: 401,
+                        userInfo: [NSLocalizedDescriptionKey: "인증되지 않은 사용자입니다."]
+                    )
+                }
+
+                let db = Firestore.firestore()
+                let userRef = db.collection("users").document(uid)
+                let userSnapshot = try await userRef.getDocument()
+
+                guard let data = userSnapshot.data(),
+                      let babyRefs = data["babies"] as? [DocumentReference]
+                else {
+                    return []
+                }
+
+                var babies: [Baby] = []
+                for ref in babyRefs {
+                    let babySnapshot = try await ref.getDocument()
+                    guard let babyData = babySnapshot.data() else {
+                        continue
+                    }
+
+                    let baby = Baby(
+                        id: ref.documentID,
+                        name: babyData["name"] as? String ?? "",
+                        gender: Gender(rawValue: babyData["gender"] as? String ?? "") ?? .male,
+                        birthDate: (babyData["birthDate"] as? Timestamp)?.dateValue() ?? Date(),
+                        height: babyData["height"] as? Double ?? 0.0,
+                        weight: babyData["weight"] as? Double ?? 0.0,
+                        bloodType: BloodType(rawValue: babyData["bloodType"] as? String ?? "") ?? .a
+                    )
+                    babies.append(baby)
+                }
+
+                return babies
+            },
             registerNewBaby: { request in
                 guard let uid = await authClient.currentSession()?.userID else {
                     throw NSError(
