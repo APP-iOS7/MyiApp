@@ -59,8 +59,8 @@ public struct ChildRegistrationFeature: Sendable {
         .forEach(\.path, action: \.path)
     }
 
-    @Reducer(state: .sendable, action: .sendable)
-    public enum Path {
+    @Reducer
+    public enum Path: Sendable {
         case newBaby(NewBabyFeature)
         case existingBaby(ExistingBabyFeature)
     }
