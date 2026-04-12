@@ -14,10 +14,10 @@ let project = Project(
                 "UIAppFonts": .array([
                     .string("BMJUA.otf")
                 ]),
-                "UILaunchStoryboardCFBundleURLTypes": .array([
+                "CFBundleURLTypes": .array([
                     .dictionary([
                         "CFBundleURLSchemes": .array([
-                            .string("여기에_REVERSED_CLIENT_ID")
+                            .string("com.googleusercontent.apps.522055025991-52l80ebg7917h1mmfad75eh9khsuaklb")
                         ])
                     ])
                 ])
