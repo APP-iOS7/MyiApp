@@ -68,3 +68,4 @@ public struct ChildRegistrationFeature: Sendable {
 
 extension ChildRegistrationFeature.Path.State: Equatable, Sendable {}
 extension ChildRegistrationFeature.Path.Action: Equatable, Sendable {}
+extension ChildRegistrationFeature.Path.CaseScope: Sendable {}
