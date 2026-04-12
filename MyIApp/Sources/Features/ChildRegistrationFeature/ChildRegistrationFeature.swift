@@ -4,7 +4,7 @@ import Foundation
 @Reducer
 public struct ChildRegistrationFeature: Sendable {
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Sendable {
         var path = StackState<Path.State>()
         var selectedType: RegistrationType = .new
 
@@ -19,27 +19,21 @@ public struct ChildRegistrationFeature: Sendable {
         let navigationTitle: String = "아이 등록"
     }
 
-    public enum Action {
+    public enum Action: Sendable {
         case path(StackAction<Path.State, Path.Action>)
         case typeSelected(RegistrationType)
         case nextButtonTapped
 
         case delegate(DelegateAction)
 
-        public enum DelegateAction: Equatable {
+        public enum DelegateAction: Equatable, Sendable {
             case registrationCompleted
         }
     }
 
-    public enum RegistrationType: Equatable {
+    public enum RegistrationType: Equatable, Sendable {
         case new
         case existing
-    }
-
-    @Reducer
-    public enum Path {
-        case newBaby(NewBabyFeature)
-        case existingBaby(ExistingBabyFeature)
     }
 
     public var body: some ReducerOf<Self> {
@@ -64,7 +58,13 @@ public struct ChildRegistrationFeature: Sendable {
         }
         .forEach(\.path, action: \.path)
     }
+
+    @Reducer(state: .sendable, action: .sendable)
+    public enum Path {
+        case newBaby(NewBabyFeature)
+        case existingBaby(ExistingBabyFeature)
+    }
 }
 
-extension ChildRegistrationFeature.Path.State: Equatable {}
-extension ChildRegistrationFeature.Path.Action: Equatable {}
+extension ChildRegistrationFeature.Path.State: Equatable, Sendable {}
+extension ChildRegistrationFeature.Path.Action: Equatable, Sendable {}
