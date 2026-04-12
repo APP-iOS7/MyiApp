@@ -52,6 +52,10 @@ public struct ChildRegistrationFeature: Sendable {
                 }
                 return .none
 
+            case .path(.element(_, action: .newBaby(.delegate(.registrationCompleted)))),
+                 .path(.element(_, action: .existingBaby(.delegate(.registrationCompleted)))):
+                return .send(.delegate(.registrationCompleted))
+
             case .delegate, .path:
                 return .none
             }
