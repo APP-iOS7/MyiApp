@@ -1,6 +1,6 @@
 import Foundation
 
-public enum Gender: Codable, Equatable, CaseIterable {
+public enum Gender: String, Codable, Equatable, CaseIterable, Sendable {
     case male
     case female
 }
