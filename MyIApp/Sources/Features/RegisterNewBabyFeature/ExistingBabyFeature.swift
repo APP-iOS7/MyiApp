@@ -4,11 +4,12 @@ import Foundation
 @Reducer
 public struct ExistingBabyFeature: Sendable {
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Sendable {
         public init() {}
 
         public var invitationCode: String = ""
         public var isLoading: Bool = false
+        @Presents public var alert: AlertState<Alert>?
         public var errorMessage: String?
 
         // 텍스트 상수
@@ -23,21 +24,21 @@ public struct ExistingBabyFeature: Sendable {
         }
     }
 
-    public enum Action: BindableAction, Equatable {
+    public enum Action: BindableAction, Equatable, Sendable {
         case binding(BindingAction<State>)
         case submitButtonTapped
-        case registrationResponse(Result<Bool, Error>)
+        case registrationResponse(TaskResult<Baby>)
         case delegate(Delegate)
-
-        public enum Delegate: Equatable {
-            case registrationCompleted
-        }
-
-        public enum Error: Swift.Error, Equatable {
-            case invalidCode
-            case networkError
-        }
+        case alert(PresentationAction<Alert>)
     }
+
+    public enum Alert: Equatable, Sendable {}
+
+    public enum Delegate: Equatable, Sendable {
+        case registrationCompleted
+    }
+
+    @Dependency(\.babyClient) var babyClient
 
     public init() {}
 
@@ -57,15 +58,12 @@ public struct ExistingBabyFeature: Sendable {
                 state.isLoading = true
                 state.errorMessage = nil
 
-                // 실제 API 연동 전까지 모의 로딩 처리 (1초 대기)
                 return .run { [code = state.invitationCode] send in
-                    try await Task.sleep(nanoseconds: 1_000_000_000)
-                    // "WELCOME" 또는 6자 이상의 코드면 성공으로 가정
-                    if code.count >= 6 {
-                        await send(.registrationResponse(.success(true)))
-                    } else {
-                        await send(.registrationResponse(.failure(.invalidCode)))
-                    }
+                    await send(.registrationResponse(
+                        TaskResult {
+                            try await babyClient.registerExistingBaby(code)
+                        }
+                    ))
                 }
 
             case .registrationResponse(.success):
@@ -74,12 +72,20 @@ public struct ExistingBabyFeature: Sendable {
 
             case let .registrationResponse(.failure(error)):
                 state.isLoading = false
-                state.errorMessage = "유효하지 않은 코드입니다. 다시 확인해 주세요."
+                state.alert = AlertState {
+                    TextState("등록 실패")
+                } message: {
+                    TextState(error.localizedDescription)
+                }
+                return .none
+
+            case .alert:
                 return .none
 
             case .delegate:
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 }
