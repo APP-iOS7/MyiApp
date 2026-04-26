@@ -1,4 +1,3 @@
-import ComposableArchitecture
 import Domain
 import FirebaseAuth
 import Foundation
@@ -21,7 +20,9 @@ extension AuthClient {
             return Session(user: authResult.user)
         },
         signInWithGoogle: { fatalError("Unimplemented") },
-        signOut: { fatalError("Unimplemented") },
+        signOut: {
+            try Auth.auth().signOut()
+        },
         deleteAccount: { fatalError("Unimplemented") }
     )
 }
