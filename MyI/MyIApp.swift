@@ -1,10 +1,3 @@
-//
-//  MyIApp.swift
-//  MyI
-//
-//  Created by Tom Choi on 4/26/26.
-//
-
 import Clients
 import SwiftUI
 
