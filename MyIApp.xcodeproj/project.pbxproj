@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8DFFE16E2F9DE59F003CAF13 /* Domain in Frameworks */ = {isa = PBXBuildFile; productRef = 8DFFE16D2F9DE59F003CAF13 /* Domain */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		8DFFE1542F9DE067003CAF13 /* MyI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8DFFE16E2F9DE59F003CAF13 /* Domain in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = MyI;
 			packageProductDependencies = (
+				8DFFE16D2F9DE59F003CAF13 /* Domain */,
 			);
 			productName = MyI;
 			productReference = 8DFFE1542F9DE067003CAF13 /* MyI.app */;
@@ -85,7 +91,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 8DFFE14F2F9DE067003CAF13 /* Build configuration list for PBXProject "MyI" */;
+			buildConfigurationList = 8DFFE14F2F9DE067003CAF13 /* Build configuration list for PBXProject "MyIApp" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 8DFFE14B2F9DE067003CAF13;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8DFFE16C2F9DE59F003CAF13 /* XCLocalSwiftPackageReference "Domain" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8DFFE1552F9DE067003CAF13 /* Products */;
 			projectDirPath = "";
@@ -319,7 +328,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		8DFFE14F2F9DE067003CAF13 /* Build configuration list for PBXProject "MyI" */ = {
+		8DFFE14F2F9DE067003CAF13 /* Build configuration list for PBXProject "MyIApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				8DFFE15D2F9DE068003CAF13 /* Debug */,
@@ -338,6 +347,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		8DFFE16C2F9DE59F003CAF13 /* XCLocalSwiftPackageReference "Domain" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Domain;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8DFFE16D2F9DE59F003CAF13 /* Domain */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Domain;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8DFFE14C2F9DE067003CAF13 /* Project object */;
 }
