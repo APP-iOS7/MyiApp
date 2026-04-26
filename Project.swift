@@ -4,7 +4,7 @@ let project = Project(
     name: "MyI",
     organizationName: "codegrove",
     packages: [
-        .local(path: "Packages")
+        .local(path: "Modules")
     ],
     settings: .settings(
         base: [

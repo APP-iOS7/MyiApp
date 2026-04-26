@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "MyiAppPackages",
+    name: "MyIModules",
     platforms: [
         .iOS(.v17)
     ],
