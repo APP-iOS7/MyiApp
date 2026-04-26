@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		8DDA8F452F9E169B00223963 /* Clients in Frameworks */ = {isa = PBXBuildFile; productRef = 8DDA8F442F9E169B00223963 /* Clients */; };
+		8DE9BEB12F9E4BC4000E7C6F /* AppFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 8DE9BEB02F9E4BC4000E7C6F /* AppFeature */; };
+		8DE9BEB32F9E4BC4000E7C6F /* AuthFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 8DE9BEB22F9E4BC4000E7C6F /* AuthFeature */; };
 		8DFFE16E2F9DE59F003CAF13 /* Domain in Frameworks */ = {isa = PBXBuildFile; productRef = 8DFFE16D2F9DE59F003CAF13 /* Domain */; };
 /* End PBXBuildFile section */
 
@@ -42,6 +44,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DFFE16E2F9DE59F003CAF13 /* Domain in Frameworks */,
+				8DE9BEB32F9E4BC4000E7C6F /* AuthFeature in Frameworks */,
+				8DE9BEB12F9E4BC4000E7C6F /* AppFeature in Frameworks */,
 				8DDA8F452F9E169B00223963 /* Clients in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -95,6 +99,8 @@
 			packageProductDependencies = (
 				8DFFE16D2F9DE59F003CAF13 /* Domain */,
 				8DDA8F442F9E169B00223963 /* Clients */,
+				8DE9BEB02F9E4BC4000E7C6F /* AppFeature */,
+				8DE9BEB22F9E4BC4000E7C6F /* AuthFeature */,
 			);
 			productName = MyI;
 			productReference = 8DFFE1542F9DE067003CAF13 /* MyI.app */;
@@ -127,6 +133,7 @@
 			packageReferences = (
 				8DFFE16C2F9DE59F003CAF13 /* XCLocalSwiftPackageReference "Packages/Domain" */,
 				8DFFE18F2F9E0899003CAF13 /* XCLocalSwiftPackageReference "Packages/Clients" */,
+				8DE9BEAF2F9E4BC4000E7C6F /* XCLocalSwiftPackageReference "Packages/Features" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 8DFFE1552F9DE067003CAF13 /* Products */;
@@ -378,6 +385,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		8DE9BEAF2F9E4BC4000E7C6F /* XCLocalSwiftPackageReference "Packages/Features" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/Features;
+		};
 		8DFFE16C2F9DE59F003CAF13 /* XCLocalSwiftPackageReference "Packages/Domain" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/Domain;
@@ -393,6 +404,14 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 8DFFE18F2F9E0899003CAF13 /* XCLocalSwiftPackageReference "Packages/Clients" */;
 			productName = Clients;
+		};
+		8DE9BEB02F9E4BC4000E7C6F /* AppFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppFeature;
+		};
+		8DE9BEB22F9E4BC4000E7C6F /* AuthFeature */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AuthFeature;
 		};
 		8DFFE16D2F9DE59F003CAF13 /* Domain */ = {
 			isa = XCSwiftPackageProductDependency;
