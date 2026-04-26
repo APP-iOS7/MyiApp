@@ -5,15 +5,13 @@ import Foundation
 
 extension AuthClient {
     public static let liveValue = Self(
-        current: { Auth.auth().currentUser.map(Session.init(user:)) },
+        current: { Auth.auth().currentUser.map { Session(user: $0) } },
         stateStream: {
             AsyncStream { continuation in
                 let handle = Auth.auth().addStateDidChangeListener { _, user in
-                    continuation.yield(user.map(Session.init(user:)))
+                    continuation.yield(user.map { Session(user: $0) })
                 }
-                continuation.onTermination = { _ in
-                    Auth.auth().removeStateDidChangeListener(handle)
-                }
+                continuation.onTermination = { _ in Auth.auth().removeStateDidChangeListener(handle) }
             }
         },
         signInWithApple: {
@@ -43,7 +41,9 @@ extension AuthClient {
         },
         signOut: { try Auth.auth().signOut() },
         deleteAccount: {
-            guard let user = Auth.auth().currentUser else { return }
+            guard let user = Auth.auth().currentUser else {
+                return
+            }
 
             let isAppleProvider = user.providerData.contains { $0.providerID == "apple.com" }
             if isAppleProvider, let authorizationCode = AppleAuthorizationCodeStore.load() {
