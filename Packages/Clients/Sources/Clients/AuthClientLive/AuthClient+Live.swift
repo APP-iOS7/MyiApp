@@ -19,7 +19,17 @@ extension AuthClient {
             let authResult = try await Auth.auth().signIn(with: credential)
             return Session(user: authResult.user)
         },
-        signInWithGoogle: { fatalError("Unimplemented") },
+        signInWithGoogle: {
+            let googleResult = try await GoogleSignInProvider.signIn()
+
+            let credential = GoogleAuthProvider.credential(
+                withIDToken: googleResult.idToken,
+                accessToken: googleResult.accessToken
+            )
+
+            let authResult = try await Auth.auth().signIn(with: credential)
+            return Session(user: authResult.user)
+        },
         signOut: {
             try Auth.auth().signOut()
         },
