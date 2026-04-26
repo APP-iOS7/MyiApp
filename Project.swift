@@ -29,8 +29,10 @@ let project = Project(
                     ]
                 ]
             ]),
-            sources: ["MyI/Sources/**"],
-            resources: ["MyI/Resources/**"],
+            buildableFolders: [
+                "MyI/Sources",
+                "MyI/Resources"
+            ],
             entitlements: .dictionary([
                 "com.apple.developer.applesignin": .array(["Default"])
             ]),
