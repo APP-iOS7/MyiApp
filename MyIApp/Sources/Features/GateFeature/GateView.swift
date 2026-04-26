@@ -22,12 +22,9 @@ struct GateView: View {
                     ChildRegistrationView(store: childRegistrationStore)
                 }
 
-            case let .main(baby):
-                VStack(spacing: 12) {
-                    Text("\(baby.name) 메인 화면")
-                    Button("로그아웃") {
-                        store.send(.view(.logoutButtonTapped))
-                    }
+            case .main:
+                if let mainStore = store.scope(state: \.main, action: \.main) {
+                    MainTabView(store: mainStore)
                 }
             }
         }

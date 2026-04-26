@@ -8,7 +8,7 @@ struct GateFeature {
         case loading
         case login(LoginFeature.State)
         case childRegistration(ChildRegistrationFeature.State)
-        case main(Baby)
+        case main(MainTabFeature.State)
     }
 
     enum Action {
@@ -27,6 +27,7 @@ struct GateFeature {
         case `internal`(InternalAction)
         case login(LoginFeature.Action)
         case childRegistration(ChildRegistrationFeature.Action)
+        case main(MainTabFeature.Action)
     }
 
     @Dependency(\.authClient) var authClient
@@ -57,7 +58,7 @@ struct GateFeature {
 
             case let .internal(.babiesLoaded(babies)):
                 if let baby = babies.first {
-                    state = .main(baby)
+                    state = .main(.init(baby: baby))
                 } else {
                     state = .childRegistration(.init())
                 }
@@ -80,6 +81,9 @@ struct GateFeature {
 
             case .childRegistration:
                 return .none
+
+            case .main:
+                return .none
             }
         }
         .ifCaseLet(\.login, action: \.login) {
@@ -87,6 +91,9 @@ struct GateFeature {
         }
         .ifCaseLet(\.childRegistration, action: \.childRegistration) {
             ChildRegistrationFeature()
+        }
+        .ifCaseLet(\.main, action: \.main) {
+            MainTabFeature()
         }
     }
 
