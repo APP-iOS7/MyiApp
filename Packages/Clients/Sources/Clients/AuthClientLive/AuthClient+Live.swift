@@ -44,7 +44,9 @@ extension AuthClient {
         signOut: {
             try Auth.auth().signOut()
         },
-        deleteAccount: { fatalError("Unimplemented") }
+        deleteAccount: {
+            try await Auth.auth().currentUser?.delete()
+        }
     )
 }
 
