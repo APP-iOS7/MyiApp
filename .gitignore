@@ -117,6 +117,10 @@ MyiApp.wiki/
 firebase-debug.log
 firestore-debug.log
 
+# Secrets (Apple Sign In key 등)
+secrets/
+*.p8
+
 # Claude
 .claude/
 .agents/
