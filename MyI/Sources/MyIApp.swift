@@ -9,7 +9,7 @@ struct MyIApp: App {
 
     init() {
         AppBootstrap.configure()
-        self.store = Store(initialState: AppFeature.State()) {
+        store = Store(initialState: AppFeature.State()) {
             AppFeature()
         }
     }
