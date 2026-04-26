@@ -53,6 +53,14 @@ extension AppleSignInProvider: ASAuthorizationControllerDelegate {
             continuation?.resume(returning: .failure(.invalidTokenFormat))
             return
         }
+        guard let authorizationCodeData = appleIDCredential.authorizationCode else {
+            continuation?.resume(returning: .failure(.missingAuthorizationCode))
+            return
+        }
+        guard let authorizationCode = String(data: authorizationCodeData, encoding: .utf8) else {
+            continuation?.resume(returning: .failure(.invalidAuthorizationCodeFormat))
+            return
+        }
         guard let rawNonce else {
             continuation?.resume(returning: .failure(.missingNonce))
             return
@@ -60,6 +68,7 @@ extension AppleSignInProvider: ASAuthorizationControllerDelegate {
 
         let result = AppleSignInResult(
             identityToken: identityToken,
+            authorizationCode: authorizationCode,
             rawNonce: rawNonce,
             fullName: appleIDCredential.fullName,
             email: appleIDCredential.email
@@ -98,6 +107,8 @@ enum AppleSignInError: LocalizedError {
     case unexpectedCredentialType
     case missingIdentityToken
     case invalidTokenFormat
+    case missingAuthorizationCode
+    case invalidAuthorizationCodeFormat
     case missingNonce
     case unexpected(any Error)
 
@@ -111,6 +122,10 @@ enum AppleSignInError: LocalizedError {
             "Apple 로그인 과정에서 identity token이 누락되었습니다."
         case .invalidTokenFormat:
             "Apple 로그인 과정에서 identity token의 형식이 올바르지 않습니다."
+        case .missingAuthorizationCode:
+            "Apple 로그인 과정에서 authorization code가 누락되었습니다."
+        case .invalidAuthorizationCodeFormat:
+            "Apple 로그인 과정에서 authorization code의 형식이 올바르지 않습니다."
         case .missingNonce:
             "Apple 로그인 과정에서 nonce가 보관되어 있지 않습니다."
         case let .unexpected(error):
