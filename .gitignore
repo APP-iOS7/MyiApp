@@ -22,7 +22,6 @@ playground.xcworkspace
 Packages/
 Package.pins
 # Package.resolved (Removed from gitignore to speed up CI)
-*.xcodeproj
 
 # Xcode automatically generates this directory with a .xcworkspacedata file and xcuserdata
 # hence it is not needed unless you have added a package configuration file to your project
@@ -99,8 +98,6 @@ Icon
 # Tuist
 #
 # Tuist generates Xcode project files - do not commit generated files
-**/*.xcodeproj
-**/*.xcworkspace
 DerivedData/
 .tuist-cache/
 build/
@@ -120,12 +117,6 @@ MyiApp.wiki/
 # Firebase (로컬 설정)
 firebase-debug.log
 firestore-debug.log
-
-# Tuist 생성 (Derived)
-**/Derived/
-
-# BuildServer
-buildServer.json
 
 # Claude
 .claude/
