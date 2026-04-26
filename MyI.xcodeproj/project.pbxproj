@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8DDA8F452F9E169B00223963 /* Clients in Frameworks */ = {isa = PBXBuildFile; productRef = 8DDA8F442F9E169B00223963 /* Clients */; };
 		8DFFE16E2F9DE59F003CAF13 /* Domain in Frameworks */ = {isa = PBXBuildFile; productRef = 8DFFE16D2F9DE59F003CAF13 /* Domain */; };
 /* End PBXBuildFile section */
 
@@ -14,9 +15,22 @@
 		8DFFE1542F9DE067003CAF13 /* MyI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8DDA8F472F9E16B200223963 /* Exceptions for "MyI" folder in "MyI" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8DFFE1532F9DE067003CAF13 /* MyI */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8DFFE1562F9DE067003CAF13 /* MyI */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8DDA8F472F9E16B200223963 /* Exceptions for "MyI" folder in "MyI" target */,
+			);
 			path = MyI;
 			sourceTree = "<group>";
 		};
@@ -28,16 +42,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DFFE16E2F9DE59F003CAF13 /* Domain in Frameworks */,
+				8DDA8F452F9E169B00223963 /* Clients in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8DDA8F432F9E169B00223963 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		8DFFE14B2F9DE067003CAF13 = {
 			isa = PBXGroup;
 			children = (
 				8DFFE1562F9DE067003CAF13 /* MyI */,
+				8DDA8F432F9E169B00223963 /* Frameworks */,
 				8DFFE1552F9DE067003CAF13 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -71,6 +94,7 @@
 			name = MyI;
 			packageProductDependencies = (
 				8DFFE16D2F9DE59F003CAF13 /* Domain */,
+				8DDA8F442F9E169B00223963 /* Clients */,
 			);
 			productName = MyI;
 			productReference = 8DFFE1542F9DE067003CAF13 /* MyI.app */;
@@ -261,11 +285,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyI/MyIDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 59FP2PXRXK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MyI/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -296,11 +322,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyI/MyIRelease.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 59FP2PXRXK;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MyI/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -361,6 +389,11 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		8DDA8F442F9E169B00223963 /* Clients */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8DFFE18F2F9E0899003CAF13 /* XCLocalSwiftPackageReference "Packages/Clients" */;
+			productName = Clients;
+		};
 		8DFFE16D2F9DE59F003CAF13 /* Domain */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Domain;
