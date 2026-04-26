@@ -107,6 +107,7 @@ Tuist/.build
 Tuist/Dependencies/
 /MyI.xcodeproj
 /MyI.xcworkspace
+/.legacy_MyI.xcodeproj
 
 # IDE
 .idea/
