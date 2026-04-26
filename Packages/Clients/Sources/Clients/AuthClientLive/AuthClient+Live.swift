@@ -31,10 +31,10 @@ extension Session {
     fileprivate init(user: User) {
         self.init(
             uid: user.uid,
-            email: user.email ?? "",
-            displayName: user.displayName ?? "",
+            email: user.email,
+            displayName: user.displayName,
             photoURL: user.photoURL,
-            providerID: user.providerData.first?.providerID ?? "",
+            providerIDs: user.providerData.map(\.providerID),
             createdAt: user.metadata.creationDate ?? Date()
         )
     }
