@@ -1,3 +1,4 @@
+import ComposableArchitecture
 import Domain
 @preconcurrency import FirebaseAuth
 import Foundation
@@ -53,6 +54,15 @@ extension AuthClient {
             AppleAuthorizationCodeStore.delete()
         }
     )
+}
+
+extension AuthClient: @retroactive DependencyKey {}
+
+extension DependencyValues {
+    public var authClient: AuthClient {
+        get { self[AuthClient.self] }
+        set { self[AuthClient.self] = newValue }
+    }
 }
 
 extension Session {
