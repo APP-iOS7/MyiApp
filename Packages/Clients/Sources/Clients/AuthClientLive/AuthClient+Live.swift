@@ -4,9 +4,7 @@ import Foundation
 
 extension AuthClient {
     public static let liveValue = Self(
-        current: {
-            Auth.auth().currentUser.map(Session.init(user:))
-        },
+        current: { Auth.auth().currentUser.map(Session.init(user:)) },
         stateStream: {
             AsyncStream { continuation in
                 let handle = Auth.auth().addStateDidChangeListener { _, user in
@@ -28,6 +26,7 @@ extension AuthClient {
             )
 
             let authResult = try await Auth.auth().signIn(with: credential)
+            AppleAuthorizationCodeStore.save(appleResult.authorizationCode)
             return Session(user: authResult.user)
         },
         signInWithGoogle: {
@@ -41,11 +40,17 @@ extension AuthClient {
             let authResult = try await Auth.auth().signIn(with: credential)
             return Session(user: authResult.user)
         },
-        signOut: {
-            try Auth.auth().signOut()
-        },
+        signOut: { try Auth.auth().signOut() },
         deleteAccount: {
-            try await Auth.auth().currentUser?.delete()
+            guard let user = Auth.auth().currentUser else { return }
+
+            let isAppleProvider = user.providerData.contains { $0.providerID == "apple.com" }
+            if isAppleProvider, let authorizationCode = AppleAuthorizationCodeStore.load() {
+                try await Auth.auth().revokeToken(withAuthorizationCode: authorizationCode)
+            }
+
+            try await user.delete()
+            AppleAuthorizationCodeStore.delete()
         }
     )
 }
