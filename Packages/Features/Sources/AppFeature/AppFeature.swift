@@ -1,8 +1,6 @@
 import AuthFeature
-import Clients
 import ComposableArchitecture
 import Domain
-import Foundation
 
 @Reducer
 public struct AppFeature {
