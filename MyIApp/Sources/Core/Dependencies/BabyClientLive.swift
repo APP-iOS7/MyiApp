@@ -40,7 +40,10 @@ extension BabyClient: DependencyKey {
                         birthDate: (babyData["birthDate"] as? Timestamp)?.dateValue() ?? Date(),
                         height: babyData["height"] as? Double ?? 0.0,
                         weight: babyData["weight"] as? Double ?? 0.0,
-                        bloodType: BloodType(rawValue: babyData["bloodType"] as? String ?? "") ?? .a
+                        bloodType: BloodType(rawValue: babyData["bloodType"] as? String ?? "") ?? .a,
+                        photoURL: babyData["photoURL"] as? String,
+                        mainCaregiver: babyData["mainCaregiver"] as? String ?? "",
+                        caregivers: (babyData["caregivers"] as? [DocumentReference])?.map(\.documentID) ?? []
                     )
                     babies.append(baby)
                 }
@@ -87,7 +90,9 @@ extension BabyClient: DependencyKey {
                     birthDate: request.birthDate,
                     height: request.height,
                     weight: request.weight,
-                    bloodType: request.bloodType
+                    bloodType: request.bloodType,
+                    mainCaregiver: uid,
+                    caregivers: [uid]
                 )
             },
             registerExistingBaby: { invitationCode in
@@ -129,7 +134,10 @@ extension BabyClient: DependencyKey {
                     birthDate: (data["birthDate"] as? Timestamp)?.dateValue() ?? Date(),
                     height: data["height"] as? Double ?? 0.0,
                     weight: data["weight"] as? Double ?? 0.0,
-                    bloodType: BloodType(rawValue: data["bloodType"] as? String ?? "") ?? .a
+                    bloodType: BloodType(rawValue: data["bloodType"] as? String ?? "") ?? .a,
+                    photoURL: data["photoURL"] as? String,
+                    mainCaregiver: data["mainCaregiver"] as? String ?? "",
+                    caregivers: (data["caregivers"] as? [DocumentReference])?.map(\.documentID) ?? []
                 )
             }
         )

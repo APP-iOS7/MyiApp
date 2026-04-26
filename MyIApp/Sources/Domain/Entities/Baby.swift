@@ -8,6 +8,9 @@ public struct Baby: Equatable, Identifiable, Sendable {
     public let height: Double
     public let weight: Double
     public let bloodType: BloodType
+    public let photoURL: String?
+    public let mainCaregiver: String
+    public let caregivers: [String]
 
     public init(
         id: String,
@@ -16,7 +19,10 @@ public struct Baby: Equatable, Identifiable, Sendable {
         birthDate: Date,
         height: Double,
         weight: Double,
-        bloodType: BloodType
+        bloodType: BloodType,
+        photoURL: String? = nil,
+        mainCaregiver: String,
+        caregivers: [String] = []
     ) {
         self.id = id
         self.name = name
@@ -25,5 +31,8 @@ public struct Baby: Equatable, Identifiable, Sendable {
         self.height = height
         self.weight = weight
         self.bloodType = bloodType
+        self.photoURL = photoURL
+        self.mainCaregiver = mainCaregiver
+        self.caregivers = caregivers
     }
 }
