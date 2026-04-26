@@ -101,6 +101,8 @@
 --disable blankLinesBetweenImports
 # @Test("한국어 설명") + 영문 함수명 → 백틱 한글 함수명 변환 방지
 --disable swiftTestingTestCaseNames
+# 함수 본문 비어있을 때 파라미터를 _ 로 바꾸는 동작 방지
+--disable unusedArguments
 
 # ============================
 # Exclude
