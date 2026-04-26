@@ -1,11 +1,22 @@
 import Domain
-import FirebaseAuth
+@preconcurrency import FirebaseAuth
 import Foundation
 
 extension AuthClient {
     public static let liveValue = Self(
-        current: { fatalError("Unimplemented") },
-        stateStream: { fatalError("Unimplemented") },
+        current: {
+            Auth.auth().currentUser.map(Session.init(user:))
+        },
+        stateStream: {
+            AsyncStream { continuation in
+                let handle = Auth.auth().addStateDidChangeListener { _, user in
+                    continuation.yield(user.map(Session.init(user:)))
+                }
+                continuation.onTermination = { _ in
+                    Auth.auth().removeStateDidChangeListener(handle)
+                }
+            }
+        },
         signInWithApple: {
             let provider = await AppleSignInProvider()
             let appleResult = try await provider.signIn()
