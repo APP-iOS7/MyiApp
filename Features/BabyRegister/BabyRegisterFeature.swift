@@ -26,6 +26,11 @@ public struct BabyRegisterFeature {
         case methodSelected(Method)
         case nextTapped
         case path(StackActionOf<Path>)
+        case delegate(Delegate)
+
+        public enum Delegate: Equatable {
+            case babyRegistered
+        }
     }
 
     public init() {}
@@ -48,10 +53,9 @@ public struct BabyRegisterFeature {
 
             case .path(.element(id: _, action: .existingBaby(.delegate(.completed)))),
                  .path(.element(id: _, action: .newBaby(.delegate(.completed)))):
-                state.path.removeAll()
-                return .none
+                return .send(.delegate(.babyRegistered))
 
-            case .path:
+            case .path, .delegate:
                 return .none
             }
         }
