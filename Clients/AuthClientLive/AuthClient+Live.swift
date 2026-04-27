@@ -3,7 +3,8 @@ import Domain
 @preconcurrency import FirebaseAuth
 import Foundation
 
-extension AuthClient: DependencyKey {
+extension AuthClient: @retroactive TestDependencyKey {}
+extension AuthClient: @retroactive DependencyKey {
     public static let liveValue = Self(
         current: { Auth.auth().currentUser.map { Session(user: $0) } },
         stateStream: {
@@ -82,15 +83,15 @@ extension AuthClient: DependencyKey {
     )
 }
 
-extension DependencyValues {
-    public var authClient: AuthClient {
+public extension DependencyValues {
+    var authClient: AuthClient {
         get { self[AuthClient.self] }
         set { self[AuthClient.self] = newValue }
     }
 }
 
-extension Session {
-    fileprivate init(user: User) {
+private extension Session {
+    init(user: User) {
         self.init(
             uid: user.uid,
             email: user.email,

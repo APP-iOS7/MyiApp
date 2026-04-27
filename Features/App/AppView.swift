@@ -10,7 +10,7 @@ public struct AppView: View {
 
     public var body: some View {
         Group {
-            if let destinationStore = store.scope(state: \.destination, action: \.destination) {
+            if let destinationStore = store.scope(state: \.destination, action: \.destination.presented) {
                 switch destinationStore.case {
                 case let .home(homeStore):
                     HomeView(store: homeStore)
