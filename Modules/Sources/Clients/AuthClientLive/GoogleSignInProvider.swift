@@ -4,7 +4,7 @@ import UIKit
 @MainActor
 enum GoogleSignInProvider {
     static func signIn() async throws(GoogleSignInError) -> GoogleSignInResult {
-        guard let presentingViewController = Self.topViewController() else {
+        guard let presentingViewController = topViewController() else {
             throw .missingPresentingViewController
         }
 
@@ -23,6 +23,7 @@ enum GoogleSignInProvider {
                         continuation.resume(throwing: GoogleSignInError.missingIDToken)
                         return
                     }
+
                     continuation.resume(
                         returning: GoogleSignInResult(
                             idToken: idToken,

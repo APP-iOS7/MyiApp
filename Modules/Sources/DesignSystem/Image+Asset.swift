@@ -1,7 +1,7 @@
 import SwiftUI
 
-public extension Image {
-    enum Analysis {
+extension Image {
+    public enum Analysis {
         public static let processing = Image("Processing", bundle: .module)
         public static let bellyPain = Image("BellyPain", bundle: .module)
         public static let burping = Image("Burping", bundle: .module)
@@ -13,7 +13,7 @@ public extension Image {
         public static let unknown = Image("Unknown", bundle: .module)
     }
 
-    enum BabyStages {
+    public enum BabyStages {
         public static let newBorn = Image("NewBorn", bundle: .module)
         public static let infant = Image("Infant", bundle: .module)
         public static let toddler = Image("Toddler", bundle: .module)
@@ -21,7 +21,7 @@ public extension Image {
         public static let discomfort = Image("Discomfort", bundle: .module)
     }
 
-    enum Records {
+    public enum Records {
         public enum Colored {
             public static let bath = Image("Bath", bundle: .module)
             public static let sleep = Image("Sleep", bundle: .module)
@@ -38,7 +38,7 @@ public extension Image {
         }
     }
 
-    enum Settings {
+    public enum Settings {
         public static let agreement = Image("Agreement", bundle: .module)
         public static let appVersion = Image("AppVersion", bundle: .module)
         public static let babyInfo = Image("BabyInfo", bundle: .module)
@@ -47,7 +47,7 @@ public extension Image {
         public static let versionCheck = Image("VersionCheck", bundle: .module)
     }
 
-    enum Logos {
+    public enum Logos {
         public static let google = Image("GoogleLogo", bundle: .module)
     }
 }

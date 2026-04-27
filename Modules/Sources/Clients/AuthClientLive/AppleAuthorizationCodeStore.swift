@@ -6,7 +6,9 @@ enum AppleAuthorizationCodeStore {
     private static let account = "appleAuthorizationCode"
 
     static func save(_ code: String) {
-        guard let data = code.data(using: .utf8) else { return }
+        guard let data = code.data(using: .utf8) else {
+            return
+        }
 
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -31,9 +33,11 @@ enum AppleAuthorizationCodeStore {
         var item: CFTypeRef?
         guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess,
               let data = item as? Data,
-              let code = String(data: data, encoding: .utf8) else {
+              let code = String(data: data, encoding: .utf8)
+        else {
             return nil
         }
+
         return code
     }
 
