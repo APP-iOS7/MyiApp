@@ -70,7 +70,7 @@ public struct NewBabyRegisterView: View {
                 in: ...Date.now,
                 displayedComponents: .date
             )
-            Toggle("시간 입력", isOn: $store.isTimeSelectionEnabled)
+            Toggle("시간 입력", isOn: $store.isTimeSelectionEnabled.animation())
             if store.isTimeSelectionEnabled {
                 DatePicker(
                     "시간",
