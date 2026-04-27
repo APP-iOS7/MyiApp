@@ -11,6 +11,54 @@ let project = Project(
     ),
     targets: [
         .target(
+            name: "Domain",
+            destinations: .iOS,
+            product: .staticFramework,
+            bundleId: "kr.co.codegrove.Domain",
+            deploymentTargets: .iOS("17.0"),
+            buildableFolders: ["Domain"]
+        ),
+        .target(
+            name: "Clients",
+            destinations: .iOS,
+            product: .staticFramework,
+            bundleId: "kr.co.codegrove.Clients",
+            deploymentTargets: .iOS("17.0"),
+            buildableFolders: ["Clients"],
+            dependencies: [
+                .target(name: "Domain"),
+                .external(name: "ComposableArchitecture"),
+                .external(name: "FirebaseCore"),
+                .external(name: "FirebaseAuth"),
+                .external(name: "FirebaseFirestore"),
+                .external(name: "FirebaseStorage"),
+                .external(name: "GoogleSignIn"),
+                .external(name: "GoogleSignInSwift")
+            ]
+        ),
+        .target(
+            name: "DesignSystem",
+            destinations: .iOS,
+            product: .staticFramework,
+            bundleId: "kr.co.codegrove.DesignSystem",
+            deploymentTargets: .iOS("17.0"),
+            buildableFolders: ["DesignSystem"]
+        ),
+        .target(
+            name: "Features",
+            destinations: .iOS,
+            product: .staticFramework,
+            bundleId: "kr.co.codegrove.Features",
+            deploymentTargets: .iOS("17.0"),
+            buildableFolders: ["Features"],
+            dependencies: [
+                .target(name: "Domain"),
+                .target(name: "Clients"),
+                .target(name: "DesignSystem"),
+                .external(name: "ComposableArchitecture")
+            ]
+        ),
+        .target(
             name: "MyI",
             destinations: .iOS,
             product: .app,
@@ -35,7 +83,7 @@ let project = Project(
                 "com.apple.developer.applesignin": .array(["Default"])
             ]),
             dependencies: [
-                .project(target: "Features", path: "Modules")
+                .target(name: "Features")
             ],
             settings: .settings(
                 base: [
