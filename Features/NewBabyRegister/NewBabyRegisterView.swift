@@ -25,13 +25,13 @@ public struct NewBabyRegisterView: View {
                     .disabled(!store.isSubmitEnabled)
                     .padding(.top, Spacing.s)
             }
-            .padding(.horizontal, Spacing.m)
-            .padding(.vertical, Spacing.m)
+            .padding(Spacing.m)
         }
         .scrollDismissesKeyboard(.interactively)
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
         .navigationTitle("새로운 아이 정보 등록")
         .navigationBarTitleDisplayMode(.inline)
+        .tint(Color.Semantic.primaryAction)
         .alert($store.scope(state: \.alert, action: \.alert))
     }
 
@@ -71,7 +71,6 @@ public struct NewBabyRegisterView: View {
                 displayedComponents: .date
             )
             Toggle("시간 입력", isOn: $store.isTimeSelectionEnabled)
-                .tint(Color.Semantic.primaryAction)
             if store.isTimeSelectionEnabled {
                 DatePicker(
                     "시간",
@@ -132,7 +131,6 @@ public struct NewBabyRegisterView: View {
             .foregroundColor(.Semantic.sectionHeading)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
-
 }
 
 #Preview {
