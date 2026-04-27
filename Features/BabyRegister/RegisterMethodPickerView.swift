@@ -11,29 +11,28 @@ public struct RegisterMethodPickerView: View {
 
     public var body: some View {
         VStack(spacing: Spacing.l) {
-            VStack(alignment: .leading, spacing: Spacing.l) {
+            SectionCard {
                 Text("등록 방식을 선택해주세요")
-                    .font(.title.bold())
-                    .foregroundColor(.primary.opacity(0.8))
+                    .font(.Style.sectionTitle)
+                    .foregroundColor(.Semantic.sectionHeading)
                     .padding(.top, Spacing.l)
                     .padding(.horizontal, Spacing.m)
 
                 VStack(spacing: 0) {
-                    methodRow(
+                    CheckmarkRow(
                         title: "새로운 아이 정보 등록",
-                        method: .newBaby
-                    )
-                    methodRow(
+                        isSelected: store.selectedMethod == .newBaby
+                    ) {
+                        store.send(.methodSelected(.newBaby))
+                    }
+                    CheckmarkRow(
                         title: "초대받은 아이 등록",
-                        method: .existingBaby
-                    )
+                        isSelected: store.selectedMethod == .existingBaby
+                    ) {
+                        store.send(.methodSelected(.existingBaby))
+                    }
                 }
             }
-            .padding(.bottom, Spacing.m)
-            .background(
-                RoundedRectangle(cornerRadius: Radius.l)
-                    .fill(Color(uiColor: .tertiarySystemBackground))
-            )
 
             Spacer()
 
@@ -44,35 +43,18 @@ public struct RegisterMethodPickerView: View {
             .disabled(store.selectedMethod == nil)
         }
         .padding(Spacing.m)
-    }
-
-    private func methodRow(title: String, method: BabyRegisterFeature.Method) -> some View {
-        HStack {
-            Text(title)
-                .font(.title3)
-
-            Spacer()
-
-            Image(systemName: store.selectedMethod == method
-                ? "checkmark.circle.fill"
-                : "checkmark.circle")
-                .font(.title2)
-                .foregroundColor(store.selectedMethod == method
-                    ? .Semantic.primaryAction
-                    : .primary.opacity(0.6))
-        }
-        .padding(Spacing.m)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            store.send(.methodSelected(method))
-        }
+        .background(Color.Semantic.screenBackground.ignoresSafeArea())
+        .navigationTitle("아이 등록")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
-    RegisterMethodPickerView(
-        store: Store(initialState: BabyRegisterFeature.State()) {
-            BabyRegisterFeature()
-        }
-    )
+    NavigationStack {
+        RegisterMethodPickerView(
+            store: Store(initialState: BabyRegisterFeature.State()) {
+                BabyRegisterFeature()
+            }
+        )
+    }
 }
