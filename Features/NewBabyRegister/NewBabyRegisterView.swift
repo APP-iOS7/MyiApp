@@ -127,7 +127,7 @@ public struct NewBabyRegisterView: View {
 
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
-            .font(.Style.sectionLabel)
+            .font(.Style.sectionTitle)
             .foregroundColor(.Semantic.sectionHeading)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
