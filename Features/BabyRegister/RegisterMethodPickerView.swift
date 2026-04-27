@@ -17,16 +17,14 @@ public struct RegisterMethodPickerView: View {
                         .font(.Style.sectionTitle)
                         .foregroundColor(.Semantic.sectionHeading)
 
-                    VStack(spacing: Spacing.l) {
-                        CheckmarkRow(
-                            title: "새로운 아이 정보 등록",
-                            isSelected: store.selectedMethod == .newBaby
-                        ) { store.send(.methodSelected(.newBaby)) }
-                        CheckmarkRow(
-                            title: "초대받은 아이 등록",
-                            isSelected: store.selectedMethod == .existingBaby
-                        ) { store.send(.methodSelected(.existingBaby)) }
-                    }
+                    CheckmarkRow(
+                        title: "새로운 아이 정보 등록",
+                        isSelected: store.selectedMethod == .newBaby
+                    ) { store.send(.methodSelected(.newBaby)) }
+                    CheckmarkRow(
+                        title: "초대받은 아이 등록",
+                        isSelected: store.selectedMethod == .existingBaby
+                    ) { store.send(.methodSelected(.existingBaby)) }
                 }
 
                 Spacer()
