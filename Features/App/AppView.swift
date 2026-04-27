@@ -10,7 +10,10 @@ public struct AppView: View {
 
     public var body: some View {
         Group {
-            if let destinationStore = store.scope(state: \.destination, action: \.destination.presented) {
+            if store.phase == .launching {
+                LaunchScreenView()
+                    .ignoresSafeArea()
+            } else if let destinationStore = store.scope(state: \.destination, action: \.destination.presented) {
                 switch destinationStore.case {
                 case let .mainTab(tabStore):
                     MainTabView(store: tabStore)
