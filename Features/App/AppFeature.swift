@@ -59,7 +59,7 @@ public struct AppFeature {
                 if babies.isEmpty {
                     state.destination = .babyRegister(BabyRegisterFeature.State())
                 } else {
-                    state.destination = .home(HomeFeature.State(session: session))
+                    state.destination = .mainTab(MainTabFeature.State(session: session))
                 }
                 return .none
 
@@ -72,7 +72,7 @@ public struct AppFeature {
 
             case .destination(.presented(.babyRegister(.delegate(.babyRegistered)))):
                 guard let session = state.session else { return .none }
-                state.destination = .home(HomeFeature.State(session: session))
+                state.destination = .mainTab(MainTabFeature.State(session: session))
                 return .none
 
             case .auth, .destination:
@@ -87,7 +87,7 @@ public struct AppFeature {
 extension AppFeature {
     @Reducer
     public enum Destination {
-        case home(HomeFeature)
+        case mainTab(MainTabFeature)
         case babyRegister(BabyRegisterFeature)
     }
 }
