@@ -10,8 +10,8 @@ public struct RegisterMethodPickerView: View {
     }
 
     public var body: some View {
-        VStack(spacing: Spacing.l) {
-            SectionCard {
+        VStack(spacing: 0) {
+            SectionCard(spacing: Spacing.l) {
                 Text("등록 방식을 선택해주세요")
                     .font(.Style.sectionTitle)
                     .foregroundColor(.Semantic.sectionHeading)
@@ -22,25 +22,19 @@ public struct RegisterMethodPickerView: View {
                     CheckmarkRow(
                         title: "새로운 아이 정보 등록",
                         isSelected: store.selectedMethod == .newBaby
-                    ) {
-                        store.send(.methodSelected(.newBaby))
-                    }
+                    ) { store.send(.methodSelected(.newBaby)) }
                     CheckmarkRow(
                         title: "초대받은 아이 등록",
                         isSelected: store.selectedMethod == .existingBaby
-                    ) {
-                        store.send(.methodSelected(.existingBaby))
-                    }
+                    ) { store.send(.methodSelected(.existingBaby)) }
                 }
             }
 
             Spacer()
 
-            Button("다음") {
-                store.send(.nextTapped)
-            }
-            .buttonStyle(.primary)
-            .disabled(store.selectedMethod == nil)
+            Button("다음") { store.send(.nextTapped) }
+                .buttonStyle(.primary)
+                .disabled(store.selectedMethod == nil)
         }
         .padding(Spacing.m)
         .background(Color.Semantic.screenBackground.ignoresSafeArea())

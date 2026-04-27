@@ -4,7 +4,7 @@ public struct SectionCard<Content: View>: View {
     private let spacing: CGFloat
     private let content: Content
 
-    public init(spacing: CGFloat = Spacing.l, @ViewBuilder content: () -> Content) {
+    public init(spacing: CGFloat, @ViewBuilder content: () -> Content) {
         self.spacing = spacing
         self.content = content()
     }
@@ -21,7 +21,7 @@ public struct SectionCard<Content: View>: View {
 }
 
 #Preview {
-    SectionCard {
+    SectionCard(spacing: Spacing.l) {
         Text("제목").font(.title.bold())
         Text("본문").font(.body)
     }
