@@ -3,30 +3,17 @@ import Domain
 import Foundation
 
 @Reducer
-public struct NewBabyRegisterFeature {
+public struct ExistingBabyRegisterFeature {
     @ObservableState
     public struct State: Equatable {
-        public var name: String = ""
-        public var gender: Gender?
-        public var birthDate: Date = .init()
-        public var isTimeSelectionEnabled: Bool = false
-        public var heightText: String = ""
-        public var weightText: String = ""
-        public var bloodType: BloodType?
+        public var inviteCode: String = ""
         public var isSubmitting: Bool = false
         @Presents public var alert: AlertState<Action.Alert>?
 
         public init() {}
 
-        public var heightCm: Double? { Double(heightText) }
-        public var weightKg: Double? { Double(weightText) }
-
         public var isSubmitEnabled: Bool {
-            !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                && gender != nil
-                && heightCm != nil
-                && weightKg != nil
-                && bloodType != nil
+            !inviteCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                 && !isSubmitting
         }
     }
@@ -46,7 +33,6 @@ public struct NewBabyRegisterFeature {
         }
     }
 
-    @Dependency(\.authClient) var authClient
     @Dependency(\.babyClient) var babyClient
 
     public init() {}
@@ -59,35 +45,14 @@ public struct NewBabyRegisterFeature {
                 return .none
 
             case .submitTapped:
-                guard state.isSubmitEnabled,
-                      let gender = state.gender,
-                      let bloodType = state.bloodType,
-                      let heightCm = state.heightCm,
-                      let weightKg = state.weightKg
-                else { return .none }
+                guard state.isSubmitEnabled else { return .none }
 
-                guard let session = authClient.current() else {
-                    state.alert = makeAlert(for: .unauthorized)
-                    return .none
-                }
-
+                let code = state.inviteCode.trimmingCharacters(in: .whitespacesAndNewlines)
                 state.isSubmitting = true
-
-                let baby = Baby(
-                    name: state.name,
-                    birthDate: state.birthDate,
-                    gender: gender,
-                    bloodType: bloodType,
-                    mainCaregiverID: session.uid
-                )
-                let initial = GrowthRecord(
-                    measurement: .both(heightCm: heightCm, weightKg: weightKg),
-                    recordedAt: state.birthDate
-                )
 
                 return .run { [babyClient] send in
                     do throws(BabyError) {
-                        try await babyClient.registerNewBaby(baby, initial)
+                        try await babyClient.registerExistingBaby(code)
                         await send(.submitSucceeded)
                     } catch {
                         await send(.submitFailed(error))
@@ -122,7 +87,9 @@ public struct NewBabyRegisterFeature {
         switch error {
         case .unauthorized:
             "로그인이 필요합니다."
-        case .invalidInviteCode, .unexpected:
+        case .invalidInviteCode:
+            "유효하지 않은 초대 코드입니다."
+        case .unexpected:
             "등록 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
         }
     }

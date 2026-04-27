@@ -6,6 +6,9 @@ extension BabyClient: @retroactive DependencyKey {
     public static let liveValue = Self(
         registerNewBaby: { @Sendable _, _ async throws(BabyError) -> Void in
             throw BabyError.unexpected
+        },
+        registerExistingBaby: { @Sendable _ async throws(BabyError) -> Void in
+            throw BabyError.unexpected
         }
     )
 }
