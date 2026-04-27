@@ -3,8 +3,14 @@ import Domain
 
 @Reducer
 public struct AppFeature {
+    public enum Phase: Equatable, Sendable {
+        case launching
+        case running
+    }
+
     @ObservableState
     public struct State: Equatable {
+        public var phase: Phase = .launching
         public var auth: LoginFeature.State = .init()
         public var session: Session?
         @Presents public var destination: Destination.State?
@@ -42,6 +48,7 @@ public struct AppFeature {
             case let .sessionUpdated(session):
                 state.session = session
                 guard session != nil else {
+                    state.phase = .running
                     state.destination = nil
                     return .none
                 }
@@ -56,6 +63,7 @@ public struct AppFeature {
 
             case let .babiesFetched(babies):
                 guard let session = state.session else { return .none }
+                state.phase = .running
                 if babies.isEmpty {
                     state.destination = .babyRegister(BabyRegisterFeature.State())
                 } else if case .mainTab(var tabState) = state.destination {
@@ -70,6 +78,7 @@ public struct AppFeature {
 
             case .babiesFetchFailed:
                 guard state.session != nil else { return .none }
+                state.phase = .running
                 if state.destination == nil {
                     state.destination = .babyRegister(BabyRegisterFeature.State())
                 }
