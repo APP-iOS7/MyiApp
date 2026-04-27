@@ -1,7 +1,7 @@
 import SwiftUI
 
-public extension Color {
-    enum Token {
+extension Color {
+    public enum Token {
         public static let blue50 = Color("Blue50", bundle: .module)
         public static let blue100 = Color("Blue100", bundle: .module)
         public static let blue200 = Color("Blue200", bundle: .module)

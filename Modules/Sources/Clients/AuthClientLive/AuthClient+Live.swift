@@ -51,14 +51,14 @@ extension AuthClient: DependencyKey {
                 throw AuthError.unexpected
             }
         },
-        signOut: { @Sendable () async throws(AuthError) -> Void in
+        signOut: { @Sendable () async throws(AuthError) in
             do {
                 try Auth.auth().signOut()
             } catch {
                 throw AuthError.unexpected
             }
         },
-        deleteAccount: { @Sendable () async throws(AuthError) -> Void in
+        deleteAccount: { @Sendable () async throws(AuthError) in
             guard let user = Auth.auth().currentUser else {
                 return
             }

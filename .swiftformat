@@ -103,6 +103,10 @@
 --disable swiftTestingTestCaseNames
 # 함수 본문 비어있을 때 파라미터를 _ 로 바꾸는 동작 방지
 --disable unusedArguments
+# 한 줄짜리 바디 expand 방지 (var body: some View { Foo() } 등)
+--disable wrapFunctionBodies
+--disable wrapPropertyBodies
+--disable wrapLoopBodies
 
 # ============================
 # Exclude
