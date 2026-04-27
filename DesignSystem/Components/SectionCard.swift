@@ -13,6 +13,7 @@ public struct SectionCard<Content: View>: View {
         VStack(alignment: .leading, spacing: spacing) {
             content
         }
+        .padding(Spacing.m)
         .background(
             RoundedRectangle(cornerRadius: Radius.l)
                 .fill(Color(uiColor: .tertiarySystemBackground))
