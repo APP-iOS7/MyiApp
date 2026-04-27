@@ -8,10 +8,18 @@ public struct MainTabFeature {
     public struct State: Equatable {
         public var selectedTab: Tab = .home
         public var session: Session
+        public var babies: IdentifiedArrayOf<Baby>
+        public var selectedBabyID: Baby.ID
 
-        public init(session: Session, selectedTab: Tab = .home) {
+        public init(session: Session, babies: [Baby], selectedTab: Tab = .home) {
             self.session = session
+            self.babies = IdentifiedArray(uniqueElements: babies)
+            self.selectedBabyID = babies.first?.id ?? UUID()
             self.selectedTab = selectedTab
+        }
+
+        public var selectedBaby: Baby? {
+            babies[id: selectedBabyID]
         }
     }
 
