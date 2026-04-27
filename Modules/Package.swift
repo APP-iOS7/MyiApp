@@ -11,6 +11,7 @@ let package = Package(
     products: [
         .library(name: "Domain", targets: ["Domain"]),
         .library(name: "Clients", targets: ["Clients"]),
+        .library(name: "DesignSystem", targets: ["DesignSystem"]),
         .library(name: "AppFeature", targets: ["AppFeature"]),
         .library(name: "AuthFeature", targets: ["AuthFeature"])
     ],
@@ -39,11 +40,17 @@ let package = Package(
             path: "Sources/Clients"
         ),
         .target(
+            name: "DesignSystem",
+            path: "Sources/DesignSystem",
+            resources: [.process("Resources/Assets.xcassets")]
+        ),
+        .target(
             name: "AppFeature",
             dependencies: [
                 .target(name: "AuthFeature"),
                 .target(name: "Domain"),
                 .target(name: "Clients"),
+                .target(name: "DesignSystem"),
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Features/AppFeature"
@@ -53,6 +60,7 @@ let package = Package(
             dependencies: [
                 .target(name: "Domain"),
                 .target(name: "Clients"),
+                .target(name: "DesignSystem"),
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Features/AuthFeature"
