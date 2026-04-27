@@ -47,7 +47,7 @@ let project = Project(
         .target(
             name: "Features",
             destinations: .iOS,
-            product: .staticFramework,
+            product: .framework,
             bundleId: "kr.co.codegrove.Features",
             deploymentTargets: .iOS("17.0"),
             buildableFolders: ["Features"],
@@ -56,7 +56,10 @@ let project = Project(
                 .target(name: "Clients"),
                 .target(name: "DesignSystem"),
                 .external(name: "ComposableArchitecture")
-            ]
+            ],
+            settings: .settings(base: [
+                "OTHER_LDFLAGS": ["$(inherited)", "-ObjC"]
+            ])
         ),
         .target(
             name: "MyI",
