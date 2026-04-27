@@ -23,10 +23,12 @@ public struct RegisterMethodPickerView: View {
                         title: "새로운 아이 정보 등록",
                         isSelected: store.selectedMethod == .newBaby
                     ) { store.send(.methodSelected(.newBaby)) }
+                        .padding(Spacing.m)
                     CheckmarkRow(
                         title: "초대받은 아이 등록",
                         isSelected: store.selectedMethod == .existingBaby
                     ) { store.send(.methodSelected(.existingBaby)) }
+                        .padding(Spacing.m)
                 }
             }
 
