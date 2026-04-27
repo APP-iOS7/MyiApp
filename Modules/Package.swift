@@ -61,6 +61,7 @@ let package = Package(
             name: "AppFeature",
             dependencies: [
                 .target(name: "AuthFeature"),
+                .target(name: "BabyRegisterFeature"),
                 .target(name: "Domain"),
                 .target(name: "Clients"),
                 .target(name: "DesignSystem"),
