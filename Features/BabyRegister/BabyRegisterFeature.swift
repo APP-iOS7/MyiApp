@@ -3,19 +3,8 @@ import Foundation
 
 @Reducer
 public struct BabyRegisterFeature {
-    public enum Method: Equatable {
-        case newBaby
-        case existingBaby
-    }
-
-    @Reducer
-    public enum Path {
-        case newBaby(NewBabyRegisterFeature)
-        case existingBaby(ExistingBabyRegisterFeature)
-    }
-
     @ObservableState
-    public struct State {
+    public struct State: Equatable {
         public var selectedMethod: Method = .newBaby
         public var path = StackState<Path.State>()
 
@@ -62,3 +51,18 @@ public struct BabyRegisterFeature {
         .forEach(\.path, action: \.path)
     }
 }
+
+extension BabyRegisterFeature {
+    public enum Method: Equatable {
+        case newBaby
+        case existingBaby
+    }
+
+    @Reducer
+    public enum Path {
+        case newBaby(NewBabyRegisterFeature)
+        case existingBaby(ExistingBabyRegisterFeature)
+    }
+}
+
+extension BabyRegisterFeature.Path.State: Equatable {}

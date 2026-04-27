@@ -3,14 +3,8 @@ import Domain
 
 @Reducer
 public struct AppFeature {
-    @Reducer
-    public enum Destination {
-        case home(HomeFeature)
-        case babyRegister(BabyRegisterFeature)
-    }
-
     @ObservableState
-    public struct State {
+    public struct State: Equatable {
         public var auth: LoginFeature.State = .init()
         public var session: Session?
         @Presents public var destination: Destination.State?
@@ -89,3 +83,13 @@ public struct AppFeature {
     }
 
 }
+
+extension AppFeature {
+    @Reducer
+    public enum Destination {
+        case home(HomeFeature)
+        case babyRegister(BabyRegisterFeature)
+    }
+}
+
+extension AppFeature.Destination.State: Equatable {}
