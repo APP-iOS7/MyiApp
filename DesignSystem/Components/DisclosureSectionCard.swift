@@ -25,37 +25,6 @@ public struct DisclosureSectionCard: View {
     }
 }
 
-private struct PlainDisclosureGroupStyle: DisclosureGroupStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        VStack(alignment: .leading, spacing: Spacing.s) {
-            Button {
-                withAnimation { configuration.isExpanded.toggle() }
-            } label: {
-                HStack {
-                    configuration.label
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.Semantic.sectionHeading)
-                        .rotationEffect(.degrees(configuration.isExpanded ? 90 : 0))
-                }
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(NoHighlightButtonStyle())
-
-            if configuration.isExpanded {
-                configuration.content
-            }
-        }
-    }
-}
-
-private struct NoHighlightButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-    }
-}
-
 #Preview {
     ScrollView {
         VStack(spacing: Spacing.m) {
