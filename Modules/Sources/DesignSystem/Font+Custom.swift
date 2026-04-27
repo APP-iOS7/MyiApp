@@ -9,5 +9,6 @@ public extension Font {
 
     enum Style {
         public static let button: Font = .system(size: 18, weight: .semibold)
+        public static let brandTitle: Font = .MyI.bmjua(size: 60)
     }
 }
