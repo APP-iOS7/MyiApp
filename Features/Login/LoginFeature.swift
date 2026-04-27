@@ -4,7 +4,7 @@ import Domain
 import Foundation
 
 @Reducer
-public struct AuthFeature {
+public struct LoginFeature {
     @ObservableState
     public struct State: Equatable {
         public var isLoading: Bool = false
