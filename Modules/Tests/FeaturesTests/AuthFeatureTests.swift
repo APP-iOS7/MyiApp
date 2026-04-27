@@ -1,5 +1,5 @@
 import Testing
 
-@testable import AuthFeature
+@testable import Features
 
 struct AuthFeatureTests {}

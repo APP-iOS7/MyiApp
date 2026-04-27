@@ -1,5 +1,5 @@
 import Testing
 
-@testable import AppFeature
+@testable import Features
 
 struct AppFeatureTests {}

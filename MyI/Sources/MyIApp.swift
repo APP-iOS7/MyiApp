@@ -1,4 +1,4 @@
-import AppFeature
+import Features
 import SwiftUI
 
 @main
