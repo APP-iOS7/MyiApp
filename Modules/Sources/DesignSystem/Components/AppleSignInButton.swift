@@ -9,17 +9,22 @@ public struct AppleSignInButton: View {
 
     public var body: some View {
         Button(action: action) {
-            HStack(spacing: 8) {
+            HStack(spacing: Spacing.s) {
                 Image(systemName: "apple.logo")
-                    .font(.system(size: 18))
+                    .font(.system(size: IconSize.s))
                 Text("Sign in with Apple")
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.Style.button)
             }
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
-            .frame(height: 50)
+            .frame(height: ButtonSize.height)
         }
         .background(Color.black)
-        .clipShape(RoundedRectangle(cornerRadius: 5))
+        .clipShape(RoundedRectangle(cornerRadius: Radius.s))
     }
+}
+
+#Preview {
+    AppleSignInButton {}
+        .padding()
 }

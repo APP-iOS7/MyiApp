@@ -6,4 +6,8 @@ public extension Font {
             .custom("BMJUAOTF", size: size)
         }
     }
+
+    enum Style {
+        public static let button: Font = .system(size: 18, weight: .semibold)
+    }
 }

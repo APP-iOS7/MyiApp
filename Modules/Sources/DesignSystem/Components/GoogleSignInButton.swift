@@ -9,23 +9,28 @@ public struct GoogleSignInButton: View {
 
     public var body: some View {
         Button(action: action) {
-            HStack(spacing: 8) {
+            HStack(spacing: Spacing.s) {
                 Image.Logos.google
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 18, height: 18)
+                    .frame(width: IconSize.s, height: IconSize.s)
                 Text("Sign in with Google")
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.Style.button)
                     .foregroundColor(.black)
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 50)
+            .frame(height: ButtonSize.height)
         }
         .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 5))
+        .clipShape(RoundedRectangle(cornerRadius: Radius.s))
         .overlay(
-            RoundedRectangle(cornerRadius: 5)
+            RoundedRectangle(cornerRadius: Radius.s)
                 .stroke(.black, lineWidth: 1)
         )
     }
+}
+
+#Preview {
+    GoogleSignInButton {}
+        .padding()
 }
