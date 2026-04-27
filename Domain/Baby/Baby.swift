@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Baby: Identifiable, Hashable, Sendable {
+public struct Baby: Identifiable, Hashable, Sendable, Codable {
     public let id: UUID
     public var name: String
     public var birthDate: Date
