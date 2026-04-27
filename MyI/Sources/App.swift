@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import Domain
+import Features
 
 @Reducer
 public struct AppFeature {
@@ -64,15 +65,15 @@ public struct AppFeature {
             case let .babiesFetched(babies):
                 guard let session = state.session else { return .none }
                 state.phase = .running
-                if babies.isEmpty {
+                guard let tabState = MainTabFeature.State(session: session, babies: babies) else {
                     state.destination = .babyRegister(BabyRegisterFeature.State())
-                } else if case .mainTab(var tabState) = state.destination {
-                    tabState.babies = IdentifiedArray(uniqueElements: babies)
-                    state.destination = .mainTab(tabState)
+                    return .none
+                }
+                if case .mainTab(var existing) = state.destination {
+                    existing.babies = tabState.babies
+                    state.destination = .mainTab(existing)
                 } else {
-                    state.destination = .mainTab(
-                        MainTabFeature.State(session: session, babies: babies)
-                    )
+                    state.destination = .mainTab(tabState)
                 }
                 return .none
 
@@ -101,7 +102,6 @@ public struct AppFeature {
         }
         .ifLet(\.$destination, action: \.destination)
     }
-
 }
 
 extension AppFeature {
