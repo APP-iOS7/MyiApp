@@ -25,7 +25,7 @@ public struct CheckmarkRow: View {
             Spacer()
             Image(systemName: isSelected ? "checkmark.circle.fill" : "checkmark.circle")
                 .font(.title2)
-                .foregroundColor(isSelected ? .Semantic.primaryAction : .primary.opacity(0.6))
+                .foregroundColor(isSelected ? Color.Semantic.primaryAction : Color.Semantic.secondaryText)
         }
         .contentShape(Rectangle())
         .onTapGesture(perform: action)

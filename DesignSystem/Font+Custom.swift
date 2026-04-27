@@ -11,6 +11,6 @@ public extension Font {
         public static let button: Font = .system(size: 18, weight: .semibold)
         public static let brandTitle: Font = .MyI.bmjua(size: 60)
         public static let sectionTitle: Font = .title.bold()
-        public static let sectionLabel: Font = .headline.bold()
+        public static let sectionLabel: Font = .title3.bold()
     }
 }

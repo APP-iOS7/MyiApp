@@ -15,20 +15,18 @@ public struct RegisterMethodPickerView: View {
                 Text("등록 방식을 선택해주세요")
                     .font(.Style.sectionTitle)
                     .foregroundColor(.Semantic.sectionHeading)
-                    .padding(.top, Spacing.l)
-                    .padding(.horizontal, Spacing.m)
 
                 VStack(spacing: 0) {
                     CheckmarkRow(
                         title: "새로운 아이 정보 등록",
                         isSelected: store.selectedMethod == .newBaby
                     ) { store.send(.methodSelected(.newBaby)) }
-                        .padding(Spacing.m)
+                        .padding(.vertical, Spacing.m)
                     CheckmarkRow(
                         title: "초대받은 아이 등록",
                         isSelected: store.selectedMethod == .existingBaby
                     ) { store.send(.methodSelected(.existingBaby)) }
-                        .padding(Spacing.m)
+                        .padding(.vertical, Spacing.m)
                 }
             }
 
