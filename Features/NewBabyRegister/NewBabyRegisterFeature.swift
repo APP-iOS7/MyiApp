@@ -78,7 +78,8 @@ public struct NewBabyRegisterFeature {
                     birthDate: state.birthDate,
                     gender: gender,
                     bloodType: bloodType,
-                    mainCaregiverID: session.uid
+                    mainCaregiverID: session.uid,
+                    caregiverIDs: [session.uid]
                 )
                 let initial = GrowthRecord(
                     measurement: .both(heightCm: heightCm, weightKg: weightKg),
