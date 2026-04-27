@@ -12,7 +12,7 @@ public struct BabyRegisterFeature {
     public struct State: Equatable {
         public var selectedMethod: Method?
 
-        public init(selectedMethod: Method? = nil) {
+        public init(selectedMethod: Method? = .newBaby) {
             self.selectedMethod = selectedMethod
         }
     }
