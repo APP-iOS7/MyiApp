@@ -12,8 +12,8 @@ public struct AppView: View {
         Group {
             if let destinationStore = store.scope(state: \.destination, action: \.destination.presented) {
                 switch destinationStore.case {
-                case let .home(homeStore):
-                    HomeView(store: homeStore)
+                case let .mainTab(tabStore):
+                    MainTabView(store: tabStore)
                 case let .babyRegister(registerStore):
                     RegisterMethodPickerView(store: registerStore)
                 }
