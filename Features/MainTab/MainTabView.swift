@@ -11,9 +11,11 @@ public struct MainTabView: View {
 
     public var body: some View {
         TabView(selection: $store.selectedTab) {
-            placeholderTab(title: "홈")
-                .tabItem { Label("홈", systemImage: "house.fill") }
-                .tag(MainTabFeature.Tab.home)
+            NavigationStack {
+                HomeView(store: store.scope(state: \.home, action: \.home))
+            }
+            .tabItem { Label("홈", systemImage: "house.fill") }
+            .tag(MainTabFeature.Tab.home)
 
             placeholderTab(title: "육아 수첩")
                 .tabItem { Label("육아 수첩", systemImage: "book.fill") }
