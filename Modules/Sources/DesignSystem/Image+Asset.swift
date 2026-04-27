@@ -50,4 +50,8 @@ extension Image {
     public enum Logos {
         public static let google = Image("GoogleLogo", bundle: .module)
     }
+
+    public enum Brand {
+        public static let mascot = Image("Mascot", bundle: .module)
+    }
 }
