@@ -13,12 +13,22 @@ let package = Package(
         .library(name: "Clients", targets: ["Clients"]),
         .library(name: "DesignSystem", targets: ["DesignSystem"]),
         .library(name: "AppFeature", targets: ["AppFeature"]),
-        .library(name: "AuthFeature", targets: ["AuthFeature"])
+        .library(name: "AuthFeature", targets: ["AuthFeature"]),
+        .library(name: "BabyRegisterFeature", targets: ["BabyRegisterFeature"])
     ],
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture", from: "1.0.0"),
-        .package(url: "https://github.com/firebase/firebase-ios-sdk", from: "12.0.0"),
-        .package(url: "https://github.com/google/GoogleSignIn-iOS", from: "9.0.0")
+        .package(
+            url: "https://github.com/pointfreeco/swift-composable-architecture",
+            .upToNextMinor(from: "1.25.5")
+        ),
+        .package(
+            url: "https://github.com/firebase/firebase-ios-sdk",
+            .upToNextMinor(from: "12.12.1")
+        ),
+        .package(
+            url: "https://github.com/google/GoogleSignIn-iOS",
+            .upToNextMinor(from: "9.1.0")
+        )
     ],
     targets: [
         .target(
@@ -67,6 +77,15 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
             ],
             path: "Sources/Features/AuthFeature"
+        ),
+        .target(
+            name: "BabyRegisterFeature",
+            dependencies: [
+                .target(name: "Domain"),
+                .target(name: "DesignSystem"),
+                .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+            ],
+            path: "Sources/Features/BabyRegisterFeature"
         ),
         .testTarget(
             name: "DomainTests",
