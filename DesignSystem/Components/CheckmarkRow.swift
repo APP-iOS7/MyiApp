@@ -27,7 +27,6 @@ public struct CheckmarkRow: View {
                 .font(.title2)
                 .foregroundColor(isSelected ? .Semantic.primaryAction : .primary.opacity(0.6))
         }
-        .padding(Spacing.m)
         .contentShape(Rectangle())
         .onTapGesture(perform: action)
     }
