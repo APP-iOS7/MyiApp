@@ -89,7 +89,8 @@ let project = Project(
                 base: [
                     "MARKETING_VERSION": "1.0",
                     "CURRENT_PROJECT_VERSION": "1",
-                    "CODE_SIGN_STYLE": "Automatic"
+                    "CODE_SIGN_STYLE": "Automatic",
+                    "OTHER_LDFLAGS": ["$(inherited)", "-ObjC"]
                 ]
             )
         )

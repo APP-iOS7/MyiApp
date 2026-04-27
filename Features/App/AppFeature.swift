@@ -10,9 +10,9 @@ public struct AppFeature {
     }
 
     @ObservableState
-    public struct State: Equatable {
+    public struct State {
         public var auth: AuthFeature.State = .init()
-        public var destination: Destination.State?
+        @Presents public var destination: Destination.State?
 
         public init() {}
     }
@@ -21,7 +21,7 @@ public struct AppFeature {
         case onAppear
         case sessionUpdated(Session?)
         case auth(AuthFeature.Action)
-        case destination(Destination.Action)
+        case destination(PresentationAction<Destination.Action>)
     }
 
     @Dependency(\.authClient) var authClient
@@ -50,7 +50,7 @@ public struct AppFeature {
                 return .none
             }
         }
-        .ifLet(\.destination, action: \.destination)
+        .ifLet(\.$destination, action: \.destination)
     }
 
     private func makeDestination(for session: Session?) -> Destination.State? {

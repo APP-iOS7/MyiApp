@@ -108,6 +108,7 @@ Tuist/Dependencies/
 /MyI.xcodeproj
 /MyI.xcworkspace
 /.legacy_MyI.xcodeproj
+buildServer.json
 
 # IDE
 .idea/
