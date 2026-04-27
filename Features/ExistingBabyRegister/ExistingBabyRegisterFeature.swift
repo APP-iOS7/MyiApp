@@ -48,11 +48,15 @@ public struct ExistingBabyRegisterFeature {
                 guard state.isSubmitEnabled else { return .none }
 
                 let code = state.inviteCode.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard let babyID = UUID(uuidString: code) else {
+                    state.alert = makeAlert(for: .invalidInviteCode)
+                    return .none
+                }
                 state.isSubmitting = true
 
                 return .run { [babyClient] send in
                     do throws(BabyError) {
-                        try await babyClient.registerExistingBaby(code)
+                        try await babyClient.registerExistingBaby(babyID)
                         await send(.submitSucceeded)
                     } catch {
                         await send(.submitFailed(error))

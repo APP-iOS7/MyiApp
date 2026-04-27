@@ -6,6 +6,23 @@ import Domain
 extension BabyClient: @retroactive TestDependencyKey {}
 extension BabyClient: @retroactive DependencyKey {
     public static let liveValue = Self(
+        currentBabies: { @Sendable () async throws(BabyError) -> [Baby] in
+            guard let uid = Auth.auth().currentUser?.uid else {
+                throw BabyError.unauthorized
+            }
+            do {
+                let snapshot = try await Firestore.firestore()
+                    .collection("babies")
+                    .whereField("caregiverIDs", arrayContains: uid)
+                    .getDocuments()
+                let decoder = Firestore.Decoder()
+                return snapshot.documents.compactMap { doc in
+                    try? decoder.decode(Baby.self, from: doc.data())
+                }
+            } catch {
+                throw BabyError.unexpected
+            }
+        },
         registerNewBaby: { @Sendable baby, initial async throws(BabyError) -> Void in
             guard let uid = Auth.auth().currentUser?.uid else {
                 throw BabyError.unauthorized
@@ -35,8 +52,9 @@ extension BabyClient: @retroactive DependencyKey {
                 throw BabyError.unauthorized
             }
 
+            let babyIDString = inviteCode.uuidString
             let db = Firestore.firestore()
-            let babyRef = db.collection("babies").document(inviteCode)
+            let babyRef = db.collection("babies").document(babyIDString)
             let userRef = db.collection("users").document(uid)
 
             let snapshot: DocumentSnapshot
@@ -55,7 +73,7 @@ extension BabyClient: @retroactive DependencyKey {
                     "caregiverIDs": FieldValue.arrayUnion([uid])
                 ], merge: true)
                 try await userRef.setData([
-                    "babyIDs": FieldValue.arrayUnion([inviteCode])
+                    "babyIDs": FieldValue.arrayUnion([babyIDString])
                 ], merge: true)
             } catch {
                 throw BabyError.unexpected

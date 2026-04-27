@@ -12,6 +12,7 @@ public struct AppFeature {
     @ObservableState
     public struct State {
         public var auth: LoginFeature.State = .init()
+        public var session: Session?
         @Presents public var destination: Destination.State?
 
         public init() {}
@@ -20,11 +21,14 @@ public struct AppFeature {
     public enum Action {
         case onAppear
         case sessionUpdated(Session?)
+        case babiesFetched([Baby])
+        case babiesFetchFailed(BabyError)
         case auth(LoginFeature.Action)
         case destination(PresentationAction<Destination.Action>)
     }
 
     @Dependency(\.authClient) var authClient
+    @Dependency(\.babyClient) var babyClient
 
     public init() {}
 
@@ -35,7 +39,6 @@ public struct AppFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                state.destination = makeDestination(for: authClient.current())
                 return .run { [authClient] send in
                     for await session in authClient.stateStream() {
                         await send(.sessionUpdated(session))
@@ -43,7 +46,39 @@ public struct AppFeature {
                 }
 
             case let .sessionUpdated(session):
-                state.destination = makeDestination(for: session)
+                state.session = session
+                guard session != nil else {
+                    state.destination = nil
+                    return .none
+                }
+                return .run { [babyClient] send in
+                    do throws(BabyError) {
+                        let babies = try await babyClient.currentBabies()
+                        await send(.babiesFetched(babies))
+                    } catch {
+                        await send(.babiesFetchFailed(error))
+                    }
+                }
+
+            case let .babiesFetched(babies):
+                guard let session = state.session else { return .none }
+                if babies.isEmpty {
+                    state.destination = .babyRegister(BabyRegisterFeature.State())
+                } else {
+                    state.destination = .home(HomeFeature.State(session: session))
+                }
+                return .none
+
+            case .babiesFetchFailed:
+                guard state.session != nil else { return .none }
+                if state.destination == nil {
+                    state.destination = .babyRegister(BabyRegisterFeature.State())
+                }
+                return .none
+
+            case .destination(.presented(.babyRegister(.delegate(.babyRegistered)))):
+                guard let session = state.session else { return .none }
+                state.destination = .home(HomeFeature.State(session: session))
                 return .none
 
             case .auth, .destination:
@@ -53,10 +88,4 @@ public struct AppFeature {
         .ifLet(\.$destination, action: \.destination)
     }
 
-    private func makeDestination(for session: Session?) -> Destination.State? {
-        guard let session else { return nil }
-        // TODO: BabyClient 합류 후 baby 존재 여부에 따라 .home / .babyRegister 분기
-        _ = session
-        return .babyRegister(BabyRegisterFeature.State())
-    }
 }
