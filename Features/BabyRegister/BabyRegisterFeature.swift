@@ -10,11 +10,9 @@ public struct BabyRegisterFeature {
 
     @ObservableState
     public struct State: Equatable {
-        public var selectedMethod: Method?
+        public var selectedMethod: Method = .newBaby
 
-        public init(selectedMethod: Method? = .newBaby) {
-            self.selectedMethod = selectedMethod
-        }
+        public init() {}
     }
 
     public enum Action {
@@ -38,8 +36,7 @@ public struct BabyRegisterFeature {
                 return .none
 
             case .nextTapped:
-                guard let method = state.selectedMethod else { return .none }
-                switch method {
+                switch state.selectedMethod {
                 case .newBaby:
                     return .send(.delegate(.proceedNewBaby))
                 case .existingBaby:

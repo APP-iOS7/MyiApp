@@ -34,7 +34,6 @@ public struct RegisterMethodPickerView: View {
 
             Button("다음") { store.send(.nextTapped) }
                 .buttonStyle(.primary)
-                .disabled(store.selectedMethod == nil)
         }
         .padding(Spacing.m)
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
