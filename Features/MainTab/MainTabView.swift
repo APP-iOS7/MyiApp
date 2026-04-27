@@ -36,10 +36,16 @@ public struct MainTabView: View {
 
     private func placeholderTab(title: String) -> some View {
         NavigationStack {
-            VStack {
+            VStack(spacing: Spacing.m) {
                 Text("\(title) — 준비 중")
                     .font(.Style.sectionTitle)
                     .foregroundColor(.Semantic.sectionHeading)
+
+                if let baby = store.selectedBaby {
+                    Text("선택된 아기: \(baby.name)")
+                        .font(.body)
+                        .foregroundColor(.Semantic.secondaryText)
+                }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.Semantic.screenBackground.ignoresSafeArea())

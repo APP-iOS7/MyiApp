@@ -58,8 +58,13 @@ public struct AppFeature {
                 guard let session = state.session else { return .none }
                 if babies.isEmpty {
                     state.destination = .babyRegister(BabyRegisterFeature.State())
+                } else if case .mainTab(var tabState) = state.destination {
+                    tabState.babies = IdentifiedArray(uniqueElements: babies)
+                    state.destination = .mainTab(tabState)
                 } else {
-                    state.destination = .mainTab(MainTabFeature.State(session: session))
+                    state.destination = .mainTab(
+                        MainTabFeature.State(session: session, babies: babies)
+                    )
                 }
                 return .none
 
@@ -71,9 +76,15 @@ public struct AppFeature {
                 return .none
 
             case .destination(.presented(.babyRegister(.delegate(.babyRegistered)))):
-                guard let session = state.session else { return .none }
-                state.destination = .mainTab(MainTabFeature.State(session: session))
-                return .none
+                guard state.session != nil else { return .none }
+                return .run { [babyClient] send in
+                    do throws(BabyError) {
+                        let babies = try await babyClient.currentBabies()
+                        await send(.babiesFetched(babies))
+                    } catch {
+                        await send(.babiesFetchFailed(error))
+                    }
+                }
 
             case .auth, .destination:
                 return .none
