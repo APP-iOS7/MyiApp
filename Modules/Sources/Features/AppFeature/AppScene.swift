@@ -1,5 +1,6 @@
 import Clients
 import ComposableArchitecture
+import DesignSystem
 import SwiftUI
 
 public struct AppScene: Scene {
@@ -9,6 +10,7 @@ public struct AppScene: Scene {
 
     public init() {
         AppBootstrap.configure()
+        FontRegistrar.register()
     }
 
     public var body: some Scene {

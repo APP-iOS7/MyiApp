@@ -42,7 +42,10 @@ let package = Package(
         .target(
             name: "DesignSystem",
             path: "Sources/DesignSystem",
-            resources: [.process("Resources/Assets.xcassets")]
+            resources: [
+                .process("Resources/Assets.xcassets"),
+                .process("Resources/Fonts")
+            ]
         ),
         .target(
             name: "AppFeature",
