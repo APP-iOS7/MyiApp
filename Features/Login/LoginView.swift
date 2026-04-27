@@ -4,9 +4,9 @@ import DesignSystem
 import SwiftUI
 
 public struct LoginView: View {
-    @Bindable var store: StoreOf<AuthFeature>
+    @Bindable var store: StoreOf<LoginFeature>
 
-    public init(store: StoreOf<AuthFeature>) {
+    public init(store: StoreOf<LoginFeature>) {
         self.store = store
     }
 
@@ -44,8 +44,8 @@ public struct LoginView: View {
 
 #Preview {
     LoginView(
-        store: Store(initialState: AuthFeature.State()) {
-            AuthFeature()
+        store: Store(initialState: LoginFeature.State()) {
+            LoginFeature()
         } withDependencies: {
             $0.authClient = .previewValue
         }

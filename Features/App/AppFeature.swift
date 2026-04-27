@@ -11,7 +11,7 @@ public struct AppFeature {
 
     @ObservableState
     public struct State {
-        public var auth: AuthFeature.State = .init()
+        public var auth: LoginFeature.State = .init()
         @Presents public var destination: Destination.State?
 
         public init() {}
@@ -20,7 +20,7 @@ public struct AppFeature {
     public enum Action {
         case onAppear
         case sessionUpdated(Session?)
-        case auth(AuthFeature.Action)
+        case auth(LoginFeature.Action)
         case destination(PresentationAction<Destination.Action>)
     }
 
@@ -30,7 +30,7 @@ public struct AppFeature {
 
     public var body: some ReducerOf<Self> {
         Scope(state: \.auth, action: \.auth) {
-            AuthFeature()
+            LoginFeature()
         }
         Reduce { state, action in
             switch action {
