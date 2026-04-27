@@ -1,4 +1,5 @@
 import AuthFeature
+import BabyRegisterFeature
 import ComposableArchitecture
 import SwiftUI
 
@@ -11,8 +12,13 @@ public struct AppView: View {
 
     public var body: some View {
         Group {
-            if let homeStore = store.scope(state: \.home, action: \.home) {
-                HomeView(store: homeStore)
+            if let destinationStore = store.scope(state: \.destination, action: \.destination) {
+                switch destinationStore.case {
+                case let .home(homeStore):
+                    HomeView(store: homeStore)
+                case let .babyRegister(registerStore):
+                    RegisterMethodPickerView(store: registerStore)
+                }
             } else {
                 LoginView(store: store.scope(state: \.auth, action: \.auth))
             }
