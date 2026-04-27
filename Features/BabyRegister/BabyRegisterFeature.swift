@@ -8,9 +8,16 @@ public struct BabyRegisterFeature {
         case existingBaby
     }
 
+    @Reducer
+    public enum Path {
+        case newBaby(NewBabyRegisterFeature)
+        case existingBaby(ExistingBabyRegisterFeature)
+    }
+
     @ObservableState
-    public struct State: Equatable {
+    public struct State {
         public var selectedMethod: Method = .newBaby
+        public var path = StackState<Path.State>()
 
         public init() {}
     }
@@ -18,12 +25,7 @@ public struct BabyRegisterFeature {
     public enum Action {
         case methodSelected(Method)
         case nextTapped
-        case delegate(Delegate)
-
-        public enum Delegate: Equatable {
-            case proceedNewBaby
-            case proceedExistingBaby
-        }
+        case path(StackActionOf<Path>)
     }
 
     public init() {}
@@ -38,14 +40,21 @@ public struct BabyRegisterFeature {
             case .nextTapped:
                 switch state.selectedMethod {
                 case .newBaby:
-                    return .send(.delegate(.proceedNewBaby))
+                    state.path.append(.newBaby(NewBabyRegisterFeature.State()))
                 case .existingBaby:
-                    return .send(.delegate(.proceedExistingBaby))
+                    state.path.append(.existingBaby(ExistingBabyRegisterFeature.State()))
                 }
+                return .none
 
-            case .delegate:
+            case .path(.element(id: _, action: .existingBaby(.delegate(.completed)))),
+                 .path(.element(id: _, action: .newBaby(.delegate(.completed)))):
+                state.path.removeAll()
+                return .none
+
+            case .path:
                 return .none
             }
         }
+        .forEach(\.path, action: \.path)
     }
 }

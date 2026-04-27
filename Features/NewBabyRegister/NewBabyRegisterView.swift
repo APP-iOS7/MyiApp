@@ -36,7 +36,7 @@ public struct NewBabyRegisterView: View {
     }
 
     private var genderSection: some View {
-        SectionCard(spacing: Spacing.m) {
+        SectionCard(spacing: Spacing.l) {
             sectionHeader("성별")
             CheckmarkRow(
                 title: "남자 아이",
@@ -52,7 +52,7 @@ public struct NewBabyRegisterView: View {
     }
 
     private var nameSection: some View {
-        SectionCard(spacing: Spacing.m) {
+        SectionCard(spacing: Spacing.l) {
             sectionHeader("이름 / 태명")
             UnderlinedTextField(
                 placeholder: "이름을 입력하세요",
@@ -62,7 +62,7 @@ public struct NewBabyRegisterView: View {
     }
 
     private var birthDateSection: some View {
-        SectionCard(spacing: Spacing.m) {
+        SectionCard(spacing: Spacing.l) {
             sectionHeader("출생일")
             DatePicker(
                 "날짜",
@@ -83,7 +83,7 @@ public struct NewBabyRegisterView: View {
     }
 
     private var heightSection: some View {
-        SectionCard(spacing: Spacing.m) {
+        SectionCard(spacing: Spacing.l) {
             sectionHeader("키")
             UnderlinedTextField(
                 placeholder: "키를 입력하세요",
@@ -98,7 +98,7 @@ public struct NewBabyRegisterView: View {
     }
 
     private var weightSection: some View {
-        SectionCard(spacing: Spacing.m) {
+        SectionCard(spacing: Spacing.l) {
             sectionHeader("몸무게")
             UnderlinedTextField(
                 placeholder: "몸무게를 입력하세요",
@@ -113,7 +113,7 @@ public struct NewBabyRegisterView: View {
     }
 
     private var bloodTypeSection: some View {
-        SectionCard(spacing: Spacing.m) {
+        SectionCard(spacing: Spacing.l) {
             sectionHeader("혈액형")
             ForEach(BloodType.allCases, id: \.self) { type in
                 CheckmarkRow(
