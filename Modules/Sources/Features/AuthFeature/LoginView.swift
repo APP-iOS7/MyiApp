@@ -1,4 +1,6 @@
+import Clients
 import ComposableArchitecture
+import DesignSystem
 import SwiftUI
 
 public struct LoginView: View {
@@ -9,54 +11,34 @@ public struct LoginView: View {
     }
 
     public var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            Text("MyI")
-                .font(.largeTitle.bold())
+        VStack(spacing: Spacing.l) {
             Spacer()
 
-            VStack(spacing: 12) {
-                Button {
-                    store.send(.signInWithAppleTapped)
-                } label: {
-                    Text("Apple로 계속하기")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(.black)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
+            VStack(spacing: Spacing.s) {
+                Text("My i")
+                    .font(.Style.brandTitle)
 
-                Button {
-                    store.send(.signInWithGoogleTapped)
-                } label: {
-                    Text("Google로 계속하기")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(.white)
-                        .foregroundStyle(.black)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(.gray, lineWidth: 1)
-                        )
-                }
+                Text("쉽고 편한 육아 기록 앱")
+                    .font(.title2.weight(.semibold))
             }
+            .foregroundColor(.Semantic.launchText)
 
-            if let errorMessage = store.errorMessage {
-                Text(errorMessage)
-                    .foregroundStyle(.red)
-                    .font(.footnote)
-                    .multilineTextAlignment(.center)
+            Image.Brand.mascot
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 360)
+
+            VStack(spacing: Spacing.m) {
+                GoogleSignInButton { store.send(.signInWithGoogleTapped) }
+                AppleSignInButton { store.send(.signInWithAppleTapped) }
             }
+            .padding(.horizontal, Spacing.l)
+
+            Spacer()
         }
-        .padding()
-        .disabled(store.isLoading)
-        .overlay {
-            if store.isLoading {
-                ProgressView()
-            }
-        }
+        .background(Color.Semantic.launchBackground.ignoresSafeArea())
+        .loadingOverlay(isPresented: store.isLoading)
+        .alert($store.scope(state: \.alert, action: \.alert))
     }
 }
 
@@ -64,6 +46,8 @@ public struct LoginView: View {
     LoginView(
         store: Store(initialState: AuthFeature.State()) {
             AuthFeature()
+        } withDependencies: {
+            $0.authClient = .previewValue
         }
     )
 }

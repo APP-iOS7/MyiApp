@@ -8,7 +8,7 @@ public struct AuthFeature {
     @ObservableState
     public struct State: Equatable {
         public var isLoading: Bool = false
-        public var errorMessage: String?
+        @Presents public var alert: AlertState<Action.Alert>?
 
         public init() {}
     }
@@ -18,6 +18,9 @@ public struct AuthFeature {
         case signInWithGoogleTapped
         case signInSucceeded
         case signInFailed(AuthError)
+        case alert(PresentationAction<Alert>)
+
+        public enum Alert: Equatable {}
     }
 
     @Dependency(\.authClient) var authClient
@@ -29,7 +32,6 @@ public struct AuthFeature {
             switch action {
             case .signInWithAppleTapped:
                 state.isLoading = true
-                state.errorMessage = nil
                 return .run { [authClient] send in
                     do throws(AuthError) {
                         _ = try await authClient.signInWithApple()
@@ -41,7 +43,6 @@ public struct AuthFeature {
 
             case .signInWithGoogleTapped:
                 state.isLoading = true
-                state.errorMessage = nil
                 return .run { [authClient] send in
                     do throws(AuthError) {
                         _ = try await authClient.signInWithGoogle()
@@ -57,13 +58,21 @@ public struct AuthFeature {
 
             case let .signInFailed(error):
                 state.isLoading = false
-                state.errorMessage = Self.message(for: error)
+                state.alert = AlertState {
+                    TextState("로그인 실패")
+                } message: {
+                    TextState(message(for: error))
+                }
+                return .none
+
+            case .alert:
                 return .none
             }
         }
+        .ifLet(\.$alert, action: \.alert)
     }
 
-    private static func message(for error: AuthError) -> String {
+    private func message(for error: AuthError) -> String {
         switch error {
         case .requiresRecentLogin:
             "다시 로그인해주세요."
