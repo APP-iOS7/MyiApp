@@ -3,9 +3,6 @@ import ProjectDescription
 let project = Project(
     name: "MyI",
     organizationName: "codegrove",
-    packages: [
-        .local(path: "Modules")
-    ],
     settings: .settings(
         base: [
             "DEVELOPMENT_TEAM": "59FP2PXRXK",
@@ -38,8 +35,7 @@ let project = Project(
                 "com.apple.developer.applesignin": .array(["Default"])
             ]),
             dependencies: [
-                .package(product: "AppFeature"),
-                .package(product: "Clients")
+                .project(target: "Features", path: "Modules")
             ],
             settings: .settings(
                 base: [
