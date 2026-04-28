@@ -21,6 +21,12 @@ public struct EditRecordFeature {
         /// 의료 sub-카테고리 전환
         public var medicalKind: MedicalKind
 
+        /// 수유 sub-카테고리 전환 + 값
+        public var feedingKind: FeedingKind
+        public var feedingMl: Int
+        public var breastLeftMinutes: Int
+        public var breastRightMinutes: Int
+
         public var content: String
         public var isSubmitting: Bool = false
 
@@ -53,6 +59,34 @@ public struct EditRecordFeature {
             case .clinic:   medicalKind = .clinic
             default:        medicalKind = .clinic
             }
+
+            switch record.event {
+            case let .formula(ml):
+                feedingKind = .formula
+                feedingMl = ml
+                breastLeftMinutes = 10
+                breastRightMinutes = 10
+            case let .babyFood(ml):
+                feedingKind = .babyFood
+                feedingMl = ml
+                breastLeftMinutes = 10
+                breastRightMinutes = 10
+            case let .pumpedMilk(ml):
+                feedingKind = .pumpedMilk
+                feedingMl = ml
+                breastLeftMinutes = 10
+                breastRightMinutes = 10
+            case let .breastfeeding(left, right):
+                feedingKind = .breastfeeding
+                feedingMl = 100
+                breastLeftMinutes = left
+                breastRightMinutes = right
+            default:
+                feedingKind = .formula
+                feedingMl = 100
+                breastLeftMinutes = 10
+                breastRightMinutes = 10
+            }
         }
 
         /// 편집된 CareEvent. 지원 안 하는 카테고리는 originalEvent 그대로.
@@ -74,6 +108,14 @@ public struct EditRecordFeature {
                 case .clinic:   .clinic
                 }
 
+            case .formula, .babyFood, .pumpedMilk, .breastfeeding:
+                switch feedingKind {
+                case .formula:       .formula(ml: feedingMl)
+                case .babyFood:      .babyFood(ml: feedingMl)
+                case .pumpedMilk:    .pumpedMilk(ml: feedingMl)
+                case .breastfeeding: .breastfeeding(leftMinutes: breastLeftMinutes, rightMinutes: breastRightMinutes)
+                }
+
             default:
                 originalEvent
             }
@@ -89,6 +131,13 @@ public struct EditRecordFeature {
     public enum MedicalKind: Hashable, Sendable, CaseIterable {
         case medicine
         case clinic
+    }
+
+    public enum FeedingKind: Hashable, Sendable, CaseIterable {
+        case formula
+        case babyFood
+        case pumpedMilk
+        case breastfeeding
     }
 
     public enum Action: BindableAction {

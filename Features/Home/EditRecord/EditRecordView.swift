@@ -99,6 +99,31 @@ public struct EditRecordView: View {
                 .pickerStyle(.segmented)
             }
 
+        case .formula, .babyFood, .pumpedMilk, .breastfeeding:
+            Section("종류") {
+                Picker("종류", selection: $store.feedingKind) {
+                    Text("분유").tag(EditRecordFeature.FeedingKind.formula)
+                    Text("이유식").tag(EditRecordFeature.FeedingKind.babyFood)
+                    Text("유축").tag(EditRecordFeature.FeedingKind.pumpedMilk)
+                    Text("모유").tag(EditRecordFeature.FeedingKind.breastfeeding)
+                }
+                .pickerStyle(.segmented)
+            }
+
+            if store.feedingKind == .breastfeeding {
+                Section("수유 시간") {
+                    Stepper("왼쪽 \(store.breastLeftMinutes)분",
+                            value: $store.breastLeftMinutes, in: 0 ... 60)
+                    Stepper("오른쪽 \(store.breastRightMinutes)분",
+                            value: $store.breastRightMinutes, in: 0 ... 60)
+                }
+            } else {
+                Section("용량") {
+                    Stepper("\(store.feedingMl) ml",
+                            value: $store.feedingMl, in: 0 ... 500, step: 10)
+                }
+            }
+
         case .bath, .snack:
             EmptyView()
 
