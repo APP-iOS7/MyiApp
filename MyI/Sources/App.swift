@@ -12,7 +12,7 @@ struct MyIApp: App {
 
     init() {
         AppBootstrap.configure()
-        FontRegistrar.register()
+        DesignSystemFontFamily.registerAllCustomFonts()
     }
 
     var body: some Scene {
