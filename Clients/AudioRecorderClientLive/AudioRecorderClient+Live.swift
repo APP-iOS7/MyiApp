@@ -53,10 +53,13 @@ private actor MicrophoneSession {
             try session.setActive(true)
 
             let recorder = try AVAudioRecorder(url: url, settings: [
-                AVFormatIDKey: Int(kAudioFormatMPEG4AAC),
-                AVSampleRateKey: 44100,
+                AVFormatIDKey: Int(kAudioFormatLinearPCM),
+                AVSampleRateKey: 22050,
                 AVNumberOfChannelsKey: 1,
-                AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue,
+                AVLinearPCMBitDepthKey: 32,
+                AVLinearPCMIsFloatKey: true,
+                AVLinearPCMIsBigEndianKey: false,
+                AVLinearPCMIsNonInterleaved: false,
             ])
             recorder.isMeteringEnabled = true
             guard recorder.record() else {
