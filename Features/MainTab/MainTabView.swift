@@ -7,6 +7,7 @@ public struct MainTabView: View {
 
     public init(store: StoreOf<MainTabFeature>) {
         self.store = store
+        UITabBar.appearance().unselectedItemTintColor = .systemGray
     }
 
     public var body: some View {
