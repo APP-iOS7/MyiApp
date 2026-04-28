@@ -30,3 +30,16 @@ public struct Baby: Identifiable, Hashable, Sendable, Codable {
         self.caregiverIDs = caregiverIDs
     }
 }
+
+extension Baby {
+    public var developmentalStage: String {
+        let components = Calendar.current.dateComponents([.month, .day], from: birthDate, to: Date())
+        let months = components.month ?? 0
+        let days = components.day ?? 0
+
+        if months == 0, days < 30 { return "신생아기" }
+        if months < 12 { return "영아기" }
+        if months < 36 { return "유아기" }
+        return "아동기"
+    }
+}
