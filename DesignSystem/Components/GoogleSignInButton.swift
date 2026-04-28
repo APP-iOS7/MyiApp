@@ -10,7 +10,7 @@ public struct GoogleSignInButton: View {
     public var body: some View {
         Button(action: action) {
             HStack(spacing: Spacing.s) {
-                Image.Logos.google
+                Image(Asset.Logos.googleLogo)
                     .resizable()
                     .scaledToFit()
                     .frame(width: IconSize.s, height: IconSize.s)

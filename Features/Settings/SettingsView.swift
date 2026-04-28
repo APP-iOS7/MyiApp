@@ -66,7 +66,7 @@ private extension SettingsView {
                     }
                 }
             } label: {
-                Label("아이 정보", icon: Image.Settings.babyInfo)
+                Label("아이 정보", icon: Image(Asset.Settings.babyInfo))
                     .padding(.vertical, Spacing.s)
             }
             .disclosureGroupStyle(PlainDisclosureGroupStyle())
@@ -81,7 +81,7 @@ private extension SettingsView {
                         .font(.caption)
                         .foregroundColor(.Semantic.secondaryText)
                 } label: {
-                    Label("개인 정보 처리 방침", icon: Image.Settings.privacy)
+                    Label("개인 정보 처리 방침", icon: Image(Asset.Settings.privacy))
                 }
             }
             .buttonStyle(NoHighlightButtonStyle())
@@ -92,7 +92,7 @@ private extension SettingsView {
                         .font(.caption)
                         .foregroundColor(.Semantic.secondaryText)
                 } label: {
-                    Label("이용 약관", icon: Image.Settings.agreement)
+                    Label("이용 약관", icon: Image(Asset.Settings.agreement))
                 }
             }
             .buttonStyle(NoHighlightButtonStyle())
@@ -105,7 +105,7 @@ private extension SettingsView {
                 Text(store.appVersion)
                     .foregroundColor(.Semantic.secondaryText)
             } label: {
-                Label("앱 버전", icon: Image.Settings.appVersion)
+                Label("앱 버전", icon: Image(Asset.Settings.appVersion))
             }
         }
     }

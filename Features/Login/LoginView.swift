@@ -23,7 +23,7 @@ public struct LoginView: View {
             }
             .foregroundColor(.Semantic.launchText)
 
-            Image.Brand.mascot
+            Image(Asset.Brand.mascot)
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: 360)

@@ -64,14 +64,14 @@ private struct EntryIcon: View {
 
     private var image: Image {
         switch entry {
-        case .feeding: Image.Records.Colored.meal
-        case .potty: Image.Records.Colored.potty
-        case .sleep: Image.Records.Colored.sleep
-        case .heightWeight: Image.Records.Colored.heightWeight
-        case .bath: Image.Records.Colored.bath
-        case .snack: Image.Records.Colored.snack
-        case .health: Image.Records.Colored.clinic
-        case .memo: Image.Records.Colored.memo
+        case .feeding: Image(Asset.Records.Color.meal)
+        case .potty: Image(Asset.Records.Color.potty)
+        case .sleep: Image(Asset.Records.Color.sleep)
+        case .heightWeight: Image(Asset.Records.Color.heightWeight)
+        case .bath: Image(Asset.Records.Color.bath)
+        case .snack: Image(Asset.Records.Color.snack)
+        case .health: Image(Asset.Records.Color.clinic)
+        case .memo: Image(Asset.Records.Color.memo)
         }
     }
 }
