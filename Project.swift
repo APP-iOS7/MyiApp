@@ -93,6 +93,7 @@ let project = Project(
                     "MARKETING_VERSION": "1.0",
                     "CURRENT_PROJECT_VERSION": "1",
                     "CODE_SIGN_STYLE": "Automatic",
+                    "CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION": "YES",
                     "OTHER_LDFLAGS": ["$(inherited)", "-ObjC"]
                 ]
             )
