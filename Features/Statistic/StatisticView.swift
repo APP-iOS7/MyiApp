@@ -38,13 +38,11 @@ private extension StatisticView {
                 }
             }
             .pickerStyle(.segmented)
-            .frame(width: 200)
-            .frame(maxWidth: .infinity)
 
             // 날짜 이동
             DateNavigator(
                 selectedDate: $store.selectedDate,
-                stepDays: store.mode == .daily ? 1 : 7,
+                stepDays: store.mode.stepDays,
                 labelText: dateLabel(for:)
             )
 
@@ -64,18 +62,9 @@ private extension StatisticView {
         case .daily:
             return date.shortDateWithDayLabel()
         case .weekly:
-            return weekRangeLabel(for: date)
+            return date.weekRangeLabel()
         }
     }
-}
-
-private func weekRangeLabel(for date: Date) -> String {
-    var cal = Calendar(identifier: .gregorian)
-    cal.firstWeekday = 2
-    let weekStart = cal.dateInterval(of: .weekOfYear, for: date)?.start ?? date
-    let weekEnd = cal.date(byAdding: .day, value: 6, to: weekStart) ?? date
-    let style: Date.FormatStyle = .dateTime.month().day()
-    return "\(weekStart.formatted(style)) ~ \(weekEnd.formatted(style))"
 }
 
 private func previewBaby() -> Baby {

@@ -29,4 +29,14 @@ extension Date {
         formatter.dateFormat = "HH:mm"
         return formatter.string(from: self)
     }
+
+    /// "11월 24일 ~ 11월 30일" 형태로 월요일 시작 주 범위 반환.
+    public func weekRangeLabel() -> String {
+        var cal = Calendar(identifier: .gregorian)
+        cal.firstWeekday = 2 // 월요일
+        let weekStart = cal.dateInterval(of: .weekOfYear, for: self)?.start ?? self
+        let weekEnd = cal.date(byAdding: .day, value: 6, to: weekStart) ?? self
+        let style: Date.FormatStyle = .dateTime.month().day()
+        return "\(weekStart.formatted(style)) ~ \(weekEnd.formatted(style))"
+    }
 }
