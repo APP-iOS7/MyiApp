@@ -22,9 +22,9 @@ public struct GoogleSignInButton: View {
             .frame(height: ButtonSize.height)
         }
         .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: Radius.s))
+        .clipShape(RoundedRectangle(cornerRadius: Radius.xs))
         .overlay(
-            RoundedRectangle(cornerRadius: Radius.s)
+            RoundedRectangle(cornerRadius: Radius.xs)
                 .stroke(.black, lineWidth: 1)
         )
     }
