@@ -56,6 +56,13 @@ extension CareEvent.Category {
         }
     }
 
+    var hasChartFootprint: Bool {
+        switch self {
+        case .feeding, .potty, .sleep, .bath, .snack: true
+        case .vital, .medical, .growth: false
+        }
+    }
+
     var tintColor: Color {
         switch self {
         case .feeding: .Semantic.feeding

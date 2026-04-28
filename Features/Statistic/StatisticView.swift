@@ -14,36 +14,20 @@ public struct StatisticView: View {
         ScrollView {
             VStack(spacing: Spacing.m) {
                 overviewCard
-
                 statisticCards
             }
-            .padding(.horizontal, Spacing.m)
-            .padding(.bottom, Spacing.l)
+            .padding(Spacing.m)
         }
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
-        .navigationTitle("기록 분석")
-        .navigationBarTitleDisplayMode(.inline)
         .task { await store.send(.task).finish() }
-    }
-
-    private var chartSection: some View {
-        SectionCard(spacing: 0) {
-            DailyChartView(
-                baby: store.baby,
-                records: store.records,
-                selectedDate: store.selectedDate,
-                selectedCategories: store.selectedCategories
-            )
-        }
     }
 }
 
 // MARK: - Overview
 
-private extension StatisticView {
-    var overviewCard: some View {
+extension StatisticView {
+    private var overviewCard: some View {
         SectionCard(spacing: Spacing.m) {
-            // 일/주 모드 토글
             Picker("모드 선택", selection: $store.mode) {
                 ForEach(StatisticMode.allCases, id: \.self) { mode in
                     Text(mode.rawValue)
@@ -51,21 +35,32 @@ private extension StatisticView {
             }
             .pickerStyle(.segmented)
 
-            // 날짜 이동
             DateNavigator(
                 selectedDate: $store.selectedDate,
                 stepDays: store.mode.stepDays,
                 labelText: dateLabel(for:)
             )
 
-            // 카테고리 필터
             CategoryFilterGrid(selectedCategories: $store.selectedCategories)
 
-            if store.mode == .daily {
-                chartSection
+            switch store.mode {
+            case .daily:
+                DailyChartView(
+                    baby: store.baby,
+                    records: store.records,
+                    selectedDate: store.selectedDate,
+                    selectedCategories: store.selectedCategories
+                )
+
+            case .weekly:
+                WeeklyChartView(
+                    baby: store.baby,
+                    records: store.records,
+                    selectedDate: store.selectedDate,
+                    selectedCategories: store.selectedCategories
+                )
             }
-            
-            // 아기 정보 요약
+
             Text(store.babySummaryText)
                 .font(.subheadline)
                 .foregroundColor(.Semantic.secondaryText)
@@ -73,12 +68,12 @@ private extension StatisticView {
         }
     }
 
-    func dateLabel(for date: Date) -> String {
+    private func dateLabel(for date: Date) -> String {
         switch store.mode {
         case .daily:
-            return date.shortDateWithDayLabel()
+            date.shortDateWithDayLabel()
         case .weekly:
-            return date.weekRangeLabel()
+            date.weekRangeLabel()
         }
     }
 }
@@ -126,8 +121,8 @@ private func previewBaby() -> Baby {
 
 // MARK: - Statistic Cards
 
-private extension StatisticView {
-    var statisticCards: some View {
+extension StatisticView {
+    private var statisticCards: some View {
         VStack(spacing: Spacing.m) {
             // 수유/이유식
             if store.selectedCategories.contains(.feeding) {

@@ -124,15 +124,6 @@ private struct TimedRecord: Identifiable {
     let color: Color
 }
 
-extension CareEvent.Category {
-    fileprivate var hasChartFootprint: Bool {
-        switch self {
-        case .feeding, .potty, .sleep, .bath, .snack: true
-        case .vital, .medical, .growth: false
-        }
-    }
-}
-
 #if DEBUG
     private func chartPreview(
         records: [CareRecord] = CareRecord.mocks,
