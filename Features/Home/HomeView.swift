@@ -15,6 +15,7 @@ public struct HomeView: View {
             VStack(spacing: Spacing.m) {
                 BabyInfoCard(baby: store.baby)
                 recordEntrySection
+                timelineSection
             }
             .padding(Spacing.m)
         }
@@ -30,27 +31,78 @@ public struct HomeView: View {
             }
         }
     }
+
+    private var timelineSection: some View {
+        SectionCard(spacing: 0) {
+            if store.filteredRecords.isEmpty {
+                emptyState
+            } else {
+                timeline
+            }
+        }
+    }
+
+    private var timeline: some View {
+        let records = store.filteredRecords
+        return ForEach(Array(records.enumerated()), id: \.element.id) { index, record in
+            TimelineRow(
+                record: record,
+                index: index,
+                totalCount: records.count
+            )
+        }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: Spacing.s) {
+            Image(systemName: "doc.text.magnifyingglass")
+                .font(.largeTitle)
+                .foregroundColor(.Semantic.secondaryText)
+            Text("이 날짜에 기록이 없습니다")
+                .foregroundColor(.Semantic.secondaryText)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, Spacing.xl)
+    }
 }
 
-#Preview {
+private func previewBaby() -> Baby {
+    Baby(
+        id: UUID(),
+        name: "꼬미",
+        birthDate: Calendar.current.date(byAdding: .day, value: -100, to: Date())!,
+        gender: .female,
+        bloodType: .a,
+        mainCaregiverID: "user-123"
+    )
+}
+
+#Preview("기록 있음") {
     NavigationStack {
         HomeView(
             store: Store(
                 initialState: HomeFeature.State(
-                    baby: Baby(
-                        id: UUID(),
-                        name: "꼬미",
-                        birthDate: Calendar.current.date(byAdding: .day, value: -100, to: Date())!,
-                        gender: .female,
-                        bloodType: .a,
-                        mainCaregiverID: "user-123"
-                    )
+                    baby: previewBaby(),
+                    records: CareRecord.mocks
                 )
             ) {
                 HomeFeature()
             }
         )
-        .navigationTitle("홈")
-        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+#Preview("기록 없음") {
+    NavigationStack {
+        HomeView(
+            store: Store(
+                initialState: HomeFeature.State(
+                    baby: previewBaby(),
+                    records: []
+                )
+            ) {
+                HomeFeature()
+            }
+        )
     }
 }
