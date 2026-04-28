@@ -23,7 +23,7 @@ extension BabyClient: @retroactive DependencyKey {
                 throw BabyError.unexpected
             }
         },
-        registerNewBaby: { @Sendable baby, initial async throws(BabyError) -> Void in
+        registerNewBaby: { @Sendable baby async throws(BabyError) -> Void in
             guard let uid = Auth.auth().currentUser?.uid else {
                 throw BabyError.unauthorized
             }
@@ -31,15 +31,12 @@ extension BabyClient: @retroactive DependencyKey {
             let db = Firestore.firestore()
             let babyRef = db.collection("babies").document(baby.id.uuidString)
             let userRef = db.collection("users").document(uid)
-            let recordRef = babyRef.collection("growthRecords").document(initial.id.uuidString)
 
             do {
                 let encoder = Firestore.Encoder()
                 let babyData = try encoder.encode(baby)
-                let recordData = try encoder.encode(initial)
 
                 try await babyRef.setData(babyData)
-                try await recordRef.setData(recordData)
                 try await userRef.setData([
                     "babyIDs": FieldValue.arrayUnion([baby.id.uuidString])
                 ], merge: true)

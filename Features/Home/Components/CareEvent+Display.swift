@@ -18,6 +18,7 @@ extension CareEvent {
         case .temperature: "체온"
         case .medicine: "투약"
         case .clinic: "병원"
+        case .heightWeight: "키/몸무게"
         }
     }
 
@@ -36,6 +37,7 @@ extension CareEvent {
         case .temperature: Image(Asset.Records.Normal.temperature)
         case .medicine: Image(Asset.Records.Normal.medicine)
         case .clinic: Image(Asset.Records.Color.clinic)
+        case .heightWeight: Image(Asset.Records.Color.heightWeight)
         }
     }
 }
@@ -48,7 +50,7 @@ extension CareEvent.Category {
         case .sleep: .Semantic.sleep
         case .bath: .Semantic.bath
         case .snack: .Semantic.snack
-        case .medical, .vital: .Semantic.secondaryText
+        case .medical, .vital, .growth: .Semantic.secondaryText
         }
     }
 }
@@ -65,6 +67,8 @@ extension CareRecord {
             formatSleepRange(start: start, end: end)
         case let .temperature(celsius):
             String(format: "%.1f°C", celsius)
+        case let .heightWeight(heightCm, weightKg):
+            formatHeightWeight(heightCm: heightCm, weightKg: weightKg)
         case .bath, .pee, .poop, .pottyAll:
             content ?? "기록 완료"
         case .clinic, .medicine, .snack:
@@ -72,8 +76,22 @@ extension CareRecord {
         }
     }
 
-    private func formatSleepRange(start: Date, end: Date) -> String {
+    private func formatHeightWeight(heightCm: Double?, weightKg: Double?) -> String {
+        var parts: [String] = []
+        if let heightCm {
+            parts.append("키 \(String(format: "%.1f", heightCm))cm")
+        }
+        if let weightKg {
+            parts.append("몸무게 \(String(format: "%.2f", weightKg))kg")
+        }
+        return parts.isEmpty ? "미기록" : parts.joined(separator: ", ")
+    }
+
+    private func formatSleepRange(start: Date, end: Date?) -> String {
         let startTime = start.hourMinute24h
+        guard let end else {
+            return "\(startTime) - 미기록"
+        }
         let endTime = end.hourMinute24h
 
         if Calendar.current.isDate(start, inSameDayAs: end) {

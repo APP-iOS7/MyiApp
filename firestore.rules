@@ -32,12 +32,6 @@ service cloud.firestore {
       allow delete: if request.auth != null
         && resource.data.mainCaregiverID == request.auth.uid;
 
-      // 성장 기록 서브컬렉션: baby caregiver만 R/W
-      match /growthRecords/{recordId} {
-        allow read, write: if request.auth != null
-          && request.auth.uid in get(/databases/$(database)/documents/babies/$(babyId)).data.caregiverIDs;
-      }
-
       // 케어 기록 서브컬렉션: baby caregiver만 R/W
       match /records/{recordId} {
         allow read, write: if request.auth != null

@@ -16,8 +16,6 @@ public struct NewBabyRegisterView: View {
                 genderSection
                 nameSection
                 birthDateSection
-                heightSection
-                weightSection
                 bloodTypeSection
 
                 Button("완료") { store.send(.submitTapped) }
@@ -78,36 +76,6 @@ public struct NewBabyRegisterView: View {
                     in: ...Date.now,
                     displayedComponents: .hourAndMinute
                 )
-            }
-        }
-    }
-
-    private var heightSection: some View {
-        SectionCard(spacing: Spacing.l) {
-            sectionHeader("키")
-            UnderlinedTextField(
-                placeholder: "키를 입력하세요",
-                text: $store.heightText,
-                keyboardType: .decimalPad
-            ) {
-                Text("cm")
-                    .foregroundColor(.Semantic.secondaryText)
-                    .font(.title2)
-            }
-        }
-    }
-
-    private var weightSection: some View {
-        SectionCard(spacing: Spacing.l) {
-            sectionHeader("몸무게")
-            UnderlinedTextField(
-                placeholder: "몸무게를 입력하세요",
-                text: $store.weightText,
-                keyboardType: .decimalPad
-            ) {
-                Text("kg")
-                    .foregroundColor(.Semantic.secondaryText)
-                    .font(.title2)
             }
         }
     }

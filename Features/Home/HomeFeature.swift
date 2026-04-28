@@ -58,11 +58,13 @@ public struct HomeFeature {
                 return .none
 
             case let .careEntryTapped(entry):
-                guard let event = makeDefaultEvent(for: entry) else { return .none }
-                let record = CareRecord(event: event)
                 let babyID = state.baby.id
                 return .run { [careRecordClient] send in
                     do throws(CareRecordError) {
+                        guard let event = try await defaultEvent(for: entry, babyID: babyID, client: careRecordClient) else {
+                            return
+                        }
+                        let record = CareRecord(event: event)
                         try await careRecordClient.addRecord(babyID, record)
                         await send(.recordAdded)
                     } catch {
@@ -98,27 +100,32 @@ public struct HomeFeature {
         }
     }
 
-    /// 카테고리별 quick-add 기본값. 키/몸무게는 GrowthRecord 도메인이라 nil.
-    private func makeDefaultEvent(for entry: HomeCareEntry) -> CareEvent? {
-        let now = Date()
-        switch entry {
-        case .feeding:
-            return .formula(ml: 100)
-        case .potty:
-            return .pee
-        case .sleep:
-            let start = Calendar.current.date(byAdding: .hour, value: -1, to: now) ?? now
-            return .sleep(start: start, end: now)
-        case .heightWeight:
-            return nil
-        case .bath:
-            return .bath
-        case .snack:
-            return .snack
-        case .health:
-            return .temperature(celsius: 36.5)
-        case .memo:
-            return .clinic
-        }
+}
+
+/// 카테고리별 quick-add 기본값.
+/// 직전 값을 재사용해야 하면 client.lastEvent를 통해 조회.
+private func defaultEvent(
+    for entry: HomeCareEntry,
+    babyID: UUID,
+    client: CareRecordClient
+) async throws(CareRecordError) -> CareEvent? {
+    let now = Date()
+    switch entry {
+    case .feeding:
+        return try await client.lastEvent(babyID, .feeding) ?? .formula(ml: 100)
+    case .potty:
+        return .pee
+    case .sleep:
+        return .sleep(start: now, end: nil)
+    case .heightWeight:
+        return try await client.lastEvent(babyID, .growth) ?? .heightWeight(heightCm: nil, weightKg: nil)
+    case .bath:
+        return .bath
+    case .snack:
+        return .snack
+    case .health:
+        return .temperature(celsius: 36.5)
+    case .memo:
+        return .clinic
     }
 }
