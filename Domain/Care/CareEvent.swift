@@ -8,7 +8,7 @@ public enum CareEvent: Hashable, Sendable, Codable {
     case pee
     case poop
     case pottyAll
-    case sleep(start: Date, end: Date)
+    case sleep(start: Date, end: Date?)
     case bath
     case snack
     case temperature(celsius: Double)
