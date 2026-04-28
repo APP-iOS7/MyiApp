@@ -124,80 +124,65 @@ private func previewBaby() -> Baby {
 extension StatisticView {
     private var statisticCards: some View {
         VStack(spacing: Spacing.m) {
-            // 수유/이유식
-            if store.selectedCategories.contains(.feeding) {
-                StatisticCard(
-                    title: "수유/이유식 기록 분석",
-                    image: Image(Asset.Records.Color.meal),
-                    tintColor: .Semantic.feeding,
-                    count: store.feedingCount,
-                    previousCount: store.previousFeedingCount,
-                    amount: store.totalMl,
-                    previousAmount: store.previousTotalMl,
-                    minutes: store.breastfeedingMinutes,
-                    previousMinutes: store.previousBreastfeedingMinutes,
-                    previousLabel: store.previousLabel
-                )
-            }
+            StatisticCard(
+                title: "수유/이유식 기록 분석",
+                image: Image(Asset.Records.Color.meal),
+                tintColor: .Semantic.feeding,
+                count: store.feedingCount,
+                previousCount: store.previousFeedingCount,
+                amount: store.totalMl,
+                previousAmount: store.previousTotalMl,
+                minutes: store.breastfeedingMinutes,
+                previousMinutes: store.previousBreastfeedingMinutes,
+                previousLabel: store.previousLabel
+            )
 
-            // 배변
-            if store.selectedCategories.contains(.potty) {
-                PottyStatisticCard(
-                    peeCount: store.potty.pee,
-                    previousPeeCount: store.previousPotty.pee,
-                    poopCount: store.potty.poop,
-                    previousPoopCount: store.previousPotty.poop,
-                    previousLabel: store.previousLabel
-                )
-            }
+            PottyStatisticCard(
+                peeCount: store.potty.pee,
+                previousPeeCount: store.previousPotty.pee,
+                poopCount: store.potty.poop,
+                previousPoopCount: store.previousPotty.poop,
+                previousLabel: store.previousLabel
+            )
 
-            // 수면
-            if store.selectedCategories.contains(.sleep) {
-                StatisticCard(
-                    title: "수면 기록 분석",
-                    image: Image(Asset.Records.Color.sleep),
-                    tintColor: .Semantic.sleep,
-                    count: store.sleepCount,
-                    previousCount: store.previousSleepCount,
-                    amount: nil,
-                    previousAmount: nil,
-                    minutes: store.sleepMinutes,
-                    previousMinutes: store.previousSleepMinutes,
-                    previousLabel: store.previousLabel
-                )
-            }
+            StatisticCard(
+                title: "수면 기록 분석",
+                image: Image(Asset.Records.Color.sleep),
+                tintColor: .Semantic.sleep,
+                count: store.sleepCount,
+                previousCount: store.previousSleepCount,
+                amount: nil,
+                previousAmount: nil,
+                minutes: store.sleepMinutes,
+                previousMinutes: store.previousSleepMinutes,
+                previousLabel: store.previousLabel
+            )
 
-            // 목욕
-            if store.selectedCategories.contains(.bath) {
-                StatisticCard(
-                    title: "목욕 기록 분석",
-                    image: Image(Asset.Records.Color.bath),
-                    tintColor: .Semantic.bath,
-                    count: store.bathCount,
-                    previousCount: store.previousBathCount,
-                    amount: nil,
-                    previousAmount: nil,
-                    minutes: nil,
-                    previousMinutes: nil,
-                    previousLabel: store.previousLabel
-                )
-            }
+            StatisticCard(
+                title: "목욕 기록 분석",
+                image: Image(Asset.Records.Color.bath),
+                tintColor: .Semantic.bath,
+                count: store.bathCount,
+                previousCount: store.previousBathCount,
+                amount: nil,
+                previousAmount: nil,
+                minutes: nil,
+                previousMinutes: nil,
+                previousLabel: store.previousLabel
+            )
 
-            // 간식
-            if store.selectedCategories.contains(.snack) {
-                StatisticCard(
-                    title: "간식 기록 분석",
-                    image: Image(Asset.Records.Color.snack),
-                    tintColor: .Semantic.snack,
-                    count: store.snackCount,
-                    previousCount: store.previousSnackCount,
-                    amount: nil,
-                    previousAmount: nil,
-                    minutes: nil,
-                    previousMinutes: nil,
-                    previousLabel: store.previousLabel
-                )
-            }
+            StatisticCard(
+                title: "간식 기록 분석",
+                image: Image(Asset.Records.Color.snack),
+                tintColor: .Semantic.snack,
+                count: store.snackCount,
+                previousCount: store.previousSnackCount,
+                amount: nil,
+                previousAmount: nil,
+                minutes: nil,
+                previousMinutes: nil,
+                previousLabel: store.previousLabel
+            )
         }
     }
 }
