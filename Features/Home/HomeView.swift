@@ -21,6 +21,9 @@ public struct HomeView: View {
         }
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
         .task { await store.send(.task).finish() }
+        .sheet(item: $store.scope(state: \.editRecord, action: \.editRecord)) { editStore in
+            EditRecordView(store: editStore)
+        }
     }
 
     private var recordEntrySection: some View {
@@ -50,6 +53,7 @@ public struct HomeView: View {
                 index: index,
                 totalCount: records.count
             )
+            .onTapGesture { store.send(.timelineRowTapped(record)) }
         }
     }
 

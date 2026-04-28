@@ -9,6 +9,7 @@ public struct HomeFeature {
         public var baby: Baby
         public var selectedDate: Date
         public var records: [CareRecord]
+        @Presents public var editRecord: EditRecordFeature.State?
 
         public init(
             baby: Baby,
@@ -36,6 +37,8 @@ public struct HomeFeature {
         case careEntryTapped(HomeCareEntry)
         case recordAdded
         case recordAddFailed(CareRecordError)
+        case timelineRowTapped(CareRecord)
+        case editRecord(PresentationAction<EditRecordFeature.Action>)
     }
 
     @Dependency(\.careRecordClient) var careRecordClient
@@ -103,9 +106,20 @@ public struct HomeFeature {
             case .recordAddFailed:
                 return .none
 
-            case .binding:
+            case let .timelineRowTapped(record):
+                state.editRecord = EditRecordFeature.State(record: record, babyID: state.baby.id)
+                return .none
+
+            case .editRecord(.presented(.delegate(.saved))),
+                 .editRecord(.presented(.delegate(.deleted))):
+                return loadRecords(for: state)
+
+            case .editRecord, .binding:
                 return .none
             }
+        }
+        .ifLet(\.$editRecord, action: \.editRecord) {
+            EditRecordFeature()
         }
     }
 
