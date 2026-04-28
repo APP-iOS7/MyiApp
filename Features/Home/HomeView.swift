@@ -19,6 +19,7 @@ public struct HomeView: View {
             }
             .padding(Spacing.m)
         }
+        .scrollIndicators(.hidden)
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
         .task { await store.send(.task).finish() }
         .sheet(item: $store.scope(state: \.editRecord, action: \.editRecord)) { editStore in
@@ -47,14 +48,32 @@ public struct HomeView: View {
 
     private var timeline: some View {
         let records = store.filteredRecords
-        return ForEach(Array(records.enumerated()), id: \.element.id) { index, record in
-            TimelineRow(
-                record: record,
-                index: index,
-                totalCount: records.count
-            )
-            .onTapGesture { store.send(.timelineRowTapped(record)) }
+        return List {
+            ForEach(Array(records.enumerated()), id: \.element.id) { index, record in
+                TimelineRow(
+                    record: record,
+                    index: index,
+                    totalCount: records.count
+                )
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .contentShape(Rectangle())
+                .onTapGesture { store.send(.timelineRowTapped(record)) }
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    Button(role: .destructive) {
+                        store.send(.timelineRowDeleted(record.id))
+                    } label: {
+                        Label("삭제", systemImage: "trash")
+                    }
+                    .tint(.red)
+                }
+            }
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .scrollDisabled(true)
+        .frame(height: CGFloat(records.count) * RowHeight.timeline)
     }
 
     private var emptyState: some View {

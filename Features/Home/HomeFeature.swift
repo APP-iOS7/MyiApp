@@ -38,6 +38,9 @@ public struct HomeFeature {
         case recordAdded
         case recordAddFailed(CareRecordError)
         case timelineRowTapped(CareRecord)
+        case timelineRowDeleted(UUID)
+        case recordDeleted
+        case recordDeleteFailed(CareRecordError)
         case editRecord(PresentationAction<EditRecordFeature.Action>)
     }
 
@@ -108,6 +111,23 @@ public struct HomeFeature {
 
             case let .timelineRowTapped(record):
                 state.editRecord = EditRecordFeature.State(record: record, babyID: state.baby.id)
+                return .none
+
+            case let .timelineRowDeleted(recordID):
+                let babyID = state.baby.id
+                return .run { [careRecordClient] send in
+                    do throws(CareRecordError) {
+                        try await careRecordClient.deleteRecord(babyID, recordID)
+                        await send(.recordDeleted)
+                    } catch {
+                        await send(.recordDeleteFailed(error))
+                    }
+                }
+
+            case .recordDeleted:
+                return loadRecords(for: state)
+
+            case .recordDeleteFailed:
                 return .none
 
             case .editRecord(.presented(.delegate(.saved))),
