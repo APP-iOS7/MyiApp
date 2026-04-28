@@ -14,6 +14,7 @@ public enum CareEvent: Hashable, Sendable, Codable {
     case temperature(celsius: Double)
     case medicine
     case clinic
+    case heightWeight(heightCm: Double?, weightKg: Double?)
 }
 
 extension CareEvent {
@@ -25,6 +26,7 @@ extension CareEvent {
         case snack
         case vital          // temperature
         case medical        // medicine/clinic
+        case growth         // heightWeight
     }
 
     public var category: Category {
@@ -36,6 +38,7 @@ extension CareEvent {
         case .snack:                                            .snack
         case .temperature:                                      .vital
         case .medicine, .clinic:                                .medical
+        case .heightWeight:                                     .growth
         }
     }
 }

@@ -10,22 +10,15 @@ public struct NewBabyRegisterFeature {
         public var gender: Gender?
         public var birthDate: Date = .init()
         public var isTimeSelectionEnabled: Bool = false
-        public var heightText: String = ""
-        public var weightText: String = ""
         public var bloodType: BloodType?
         public var isSubmitting: Bool = false
         @Presents public var alert: AlertState<Action.Alert>?
 
         public init() {}
 
-        public var heightCm: Double? { Double(heightText) }
-        public var weightKg: Double? { Double(weightText) }
-
         public var isSubmitEnabled: Bool {
             !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                 && gender != nil
-                && heightCm != nil
-                && weightKg != nil
                 && bloodType != nil
                 && !isSubmitting
         }
@@ -61,9 +54,7 @@ public struct NewBabyRegisterFeature {
             case .submitTapped:
                 guard state.isSubmitEnabled,
                       let gender = state.gender,
-                      let bloodType = state.bloodType,
-                      let heightCm = state.heightCm,
-                      let weightKg = state.weightKg
+                      let bloodType = state.bloodType
                 else { return .none }
 
                 guard let session = authClient.current() else {
@@ -81,14 +72,10 @@ public struct NewBabyRegisterFeature {
                     mainCaregiverID: session.uid,
                     caregiverIDs: [session.uid]
                 )
-                let initial = GrowthRecord(
-                    measurement: .both(heightCm: heightCm, weightKg: weightKg),
-                    recordedAt: state.birthDate
-                )
 
                 return .run { [babyClient] send in
                     do throws(BabyError) {
-                        try await babyClient.registerNewBaby(baby, initial)
+                        try await babyClient.registerNewBaby(baby)
                         await send(.submitSucceeded)
                     } catch {
                         await send(.submitFailed(error))
