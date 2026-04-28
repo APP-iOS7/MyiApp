@@ -15,23 +15,43 @@ public struct EditRecordFeature {
         public var sleepStart: Date
         public var sleepEnd: Date?
 
+        /// 배변 sub-카테고리 전환
+        public var pottyKind: PottyKind
+
+        /// 의료 sub-카테고리 전환
+        public var medicalKind: MedicalKind
+
         public var content: String
         public var isSubmitting: Bool = false
 
         public init(record: CareRecord, babyID: UUID) {
             self.babyID = babyID
-            self.recordID = record.id
-            self.originalEvent = record.event
-            self.createdAt = record.createdAt
-            self.content = record.content ?? ""
+            recordID = record.id
+            originalEvent = record.event
+            createdAt = record.createdAt
+            content = record.content ?? ""
 
             switch record.event {
             case let .sleep(start, end):
-                self.sleepStart = start
-                self.sleepEnd = end
+                sleepStart = start
+                sleepEnd = end
+
             default:
-                self.sleepStart = Date()
-                self.sleepEnd = nil
+                sleepStart = Date()
+                sleepEnd = nil
+            }
+
+            switch record.event {
+            case .pee:      pottyKind = .pee
+            case .poop:     pottyKind = .poop
+            case .pottyAll: pottyKind = .both
+            default:        pottyKind = .pee
+            }
+
+            switch record.event {
+            case .medicine: medicalKind = .medicine
+            case .clinic:   medicalKind = .clinic
+            default:        medicalKind = .clinic
             }
         }
 
@@ -39,11 +59,36 @@ public struct EditRecordFeature {
         var event: CareEvent {
             switch originalEvent {
             case .sleep:
-                return .sleep(start: sleepStart, end: sleepEnd)
+                .sleep(start: sleepStart, end: sleepEnd)
+
+            case .pee, .poop, .pottyAll:
+                switch pottyKind {
+                case .pee:  .pee
+                case .poop: .poop
+                case .both: .pottyAll
+                }
+
+            case .medicine, .clinic:
+                switch medicalKind {
+                case .medicine: .medicine
+                case .clinic:   .clinic
+                }
+
             default:
-                return originalEvent
+                originalEvent
             }
         }
+    }
+
+    public enum PottyKind: Hashable, Sendable, CaseIterable {
+        case pee
+        case poop
+        case both
+    }
+
+    public enum MedicalKind: Hashable, Sendable, CaseIterable {
+        case medicine
+        case clinic
     }
 
     public enum Action: BindableAction {
@@ -78,6 +123,7 @@ public struct EditRecordFeature {
 
             case .saveTapped:
                 guard !state.isSubmitting else { return .none }
+
                 state.isSubmitting = true
                 let record = CareRecord(
                     id: state.recordID,
@@ -97,6 +143,7 @@ public struct EditRecordFeature {
 
             case .deleteTapped:
                 guard !state.isSubmitting else { return .none }
+
                 state.isSubmitting = true
                 let babyID = state.babyID
                 let recordID = state.recordID
