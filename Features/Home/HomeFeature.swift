@@ -20,7 +20,6 @@ public struct HomeFeature {
             self.records = records
         }
 
-        /// 선택된 날짜의 기록만 필터링 (createdAt 오름차순).
         var filteredRecords: [CareRecord] {
             let cal = Calendar.current
             return records
@@ -31,11 +30,49 @@ public struct HomeFeature {
 
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
+        case task
+        case recordsLoaded([CareRecord])
+        case recordsLoadFailed(CareRecordError)
     }
+
+    @Dependency(\.careRecordClient) var careRecordClient
 
     public init() {}
 
     public var body: some ReducerOf<Self> {
         BindingReducer()
+        Reduce { state, action in
+            switch action {
+            case .task, .binding(\.selectedDate):
+                return loadRecords(for: state)
+
+            case let .recordsLoaded(records):
+                state.records = records
+                return .none
+
+            case .recordsLoadFailed:
+                state.records = []
+                return .none
+
+            case .binding:
+                return .none
+            }
+        }
+    }
+
+    private func loadRecords(for state: State) -> Effect<Action> {
+        let babyID = state.baby.id
+        let cal = Calendar.current
+        let start = cal.startOfDay(for: state.selectedDate)
+        guard let end = cal.date(byAdding: .day, value: 1, to: start) else { return .none }
+
+        return .run { [careRecordClient] send in
+            do throws(CareRecordError) {
+                let records = try await careRecordClient.loadRecords(babyID, start ..< end)
+                await send(.recordsLoaded(records))
+            } catch {
+                await send(.recordsLoadFailed(error))
+            }
+        }
     }
 }

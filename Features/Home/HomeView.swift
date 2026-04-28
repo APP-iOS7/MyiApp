@@ -20,6 +20,7 @@ public struct HomeView: View {
             .padding(Spacing.m)
         }
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
+        .task { await store.send(.task).finish() }
     }
 
     private var recordEntrySection: some View {
