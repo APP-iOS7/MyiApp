@@ -10,6 +10,7 @@ public extension Color {
         public static let divider = Color.primary.opacity(0.8)
         public static let screenBackground = Color(light: Color(Asset.Tokens.gray50), dark: .black)
         public static let progressTrack = Color(light: Color(Asset.Tokens.gray200), dark: Color(Asset.Tokens.gray850))
+        public static let progressMarker = Color(light: Color(Asset.Tokens.gray400), dark: Color(Asset.Tokens.gray400))
 
         // 통계 카테고리 (레거시 RecordColors 매핑)
         public static let feeding = Color(light: Color(Asset.Tokens.pink450), dark: Color(Asset.Tokens.pink450))
