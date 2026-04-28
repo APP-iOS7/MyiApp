@@ -10,11 +10,13 @@ public extension Color {
         public static let divider = Color.primary.opacity(0.8)
         public static let screenBackground = Color(light: Color(Asset.Tokens.gray50), dark: .black)
 
-        // 통계 카테고리
-        public static let feeding = Color(light: Color(Asset.Tokens.orange500), dark: Color(Asset.Tokens.orange500))
-        public static let potty = Color(light: Color(Asset.Tokens.purple350), dark: Color(Asset.Tokens.purple350))
-        public static let sleep = Color(light: Color(Asset.Tokens.blue300), dark: Color(Asset.Tokens.blue300))
-        public static let bath = Color(light: Color(Asset.Tokens.green150), dark: Color(Asset.Tokens.green150))
-        public static let snack = Color(light: Color(Asset.Tokens.yellow450), dark: Color(Asset.Tokens.yellow450))
+        // 통계 카테고리 (레거시 RecordColors 매핑)
+        public static let feeding = Color(light: Color(Asset.Tokens.pink450), dark: Color(Asset.Tokens.pink450))
+        public static let potty = Color(light: Color(Asset.Tokens.brown700), dark: Color(Asset.Tokens.brown700))
+        public static let sleep = Color(light: Color(Asset.Tokens.yellow450), dark: Color(Asset.Tokens.yellow450))
+        public static let bath = Color(light: Color(Asset.Tokens.blue300), dark: Color(Asset.Tokens.blue300))
+        public static let snack = Color(light: Color(Asset.Tokens.purple350), dark: Color(Asset.Tokens.purple350))
+        public static let growth = Color(light: Color(Asset.Tokens.green150), dark: Color(Asset.Tokens.green150))
+        public static let health = Color(light: Color(Asset.Tokens.blueGray400), dark: Color(Asset.Tokens.blueGray400))
     }
 }

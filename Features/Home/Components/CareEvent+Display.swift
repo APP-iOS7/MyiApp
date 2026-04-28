@@ -59,17 +59,17 @@ extension CareEvent.Category {
     var tintColor: Color {
         switch self {
         case .feeding: .Semantic.feeding
-        case .potty: .Semantic.potty
-        case .sleep: .Semantic.sleep
-        case .bath: .Semantic.bath
-        case .snack: .Semantic.snack
-        case .medical, .vital, .growth: .Semantic.secondaryText
+        case .potty:   .Semantic.potty
+        case .sleep:   .Semantic.sleep
+        case .bath:    .Semantic.bath
+        case .snack:   .Semantic.snack
+        case .vital, .medical: .Semantic.health
+        case .growth:  .Semantic.growth
         }
     }
 }
 
 extension CareRecord {
-    /// 타임라인/리스트 행에서 보여줄 부제목.
     var subtitleText: String {
         switch event {
         case let .babyFood(ml), let .formula(ml), let .pumpedMilk(ml):
@@ -105,6 +105,7 @@ extension CareRecord {
         guard let end else {
             return "\(startTime) - 미기록"
         }
+
         let endTime = end.hourMinute24h
 
         if Calendar.current.isDate(start, inSameDayAs: end) {
