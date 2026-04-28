@@ -26,6 +26,11 @@ extension Image {
             public static let bath = Image("Bath", bundle: .module)
             public static let sleep = Image("Sleep", bundle: .module)
             public static let snack = Image("Snack", bundle: .module)
+            public static let heightWeight = Image("HeightWeight", bundle: .module)
+            public static let memo = Image("Memo", bundle: .module)
+            public static let meal = Image("Meal", bundle: .module)
+            public static let potty = Image("Potty", bundle: .module)
+            public static let clinic = Image("Clinic", bundle: .module)
         }
 
         public enum Plain {
