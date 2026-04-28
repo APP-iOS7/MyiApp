@@ -63,3 +63,26 @@ public enum ProgressBarLayout {
     public static let markerWidth: CGFloat = 2
     public static let markerHeight: CGFloat = 8
 }
+
+public enum VolumeMeterLayout {
+    /// 기본 외곽 ring 지름 — 사용 가능 공간 대비 비율 (rest 상태)
+    public static let baseRatio: CGFloat = 0.5
+    /// 중간 ring 지름 — base 대비
+    public static let midRingRatio: CGFloat = 0.8
+    /// 코어 원 지름 — base 대비
+    public static let coreRatio: CGFloat = 0.6
+    /// 마이크 아이콘 폰트 크기 — base 대비
+    public static let iconRatio: CGFloat = 0.25
+
+    /// 외곽 ring 투명도
+    public static let outerOpacity: Double = 0.1
+    /// 중간 ring 투명도
+    public static let midOpacity: Double = 0.25
+
+    /// 외곽 ring 펄스 — amp=1일 때 추가 scale 배수 (1 + boost)
+    public static let outerPulseBoost: CGFloat = 1.0
+    /// 중간 ring 펄스
+    public static let midPulseBoost: CGFloat = 0.7
+    /// 코어 원 펄스
+    public static let corePulseBoost: CGFloat = 0.2
+}
