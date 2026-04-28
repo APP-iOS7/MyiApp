@@ -20,7 +20,7 @@ public struct AppleSignInButton: View {
             .frame(height: ButtonSize.height)
         }
         .background(Color.black)
-        .clipShape(RoundedRectangle(cornerRadius: Radius.s))
+        .clipShape(RoundedRectangle(cornerRadius: Radius.xs))
     }
 }
 

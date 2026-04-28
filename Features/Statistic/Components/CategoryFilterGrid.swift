@@ -39,11 +39,11 @@ private struct CategoryIcon: View {
                 .frame(width: 50, height: 50)
                 .padding(Spacing.xs)
                 .background(
-                    RoundedRectangle(cornerRadius: Radius.l)
+                    RoundedRectangle(cornerRadius: Radius.m)
                         .fill(isSelected ? tintColor.opacity(0.15) : Color.gray.opacity(0.08))
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: Radius.l)
+                    RoundedRectangle(cornerRadius: Radius.m)
                         .stroke(isSelected ? tintColor : .clear, lineWidth: 2)
                 )
 

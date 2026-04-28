@@ -30,7 +30,7 @@ public struct SectionCard<Content: View>: View {
         }
         .padding(Spacing.m)
         .background(
-            RoundedRectangle(cornerRadius: Radius.l)
+            RoundedRectangle(cornerRadius: Radius.m)
                 .fill(Color(uiColor: .tertiarySystemBackground))
         )
     }

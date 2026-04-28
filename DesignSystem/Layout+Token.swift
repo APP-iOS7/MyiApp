@@ -9,9 +9,11 @@ public enum Spacing {
 }
 
 public enum Radius {
-    public static let s: CGFloat = 5
-    public static let m: CGFloat = 8
-    public static let l: CGFloat = 12
+    public static let xs: CGFloat = 4
+    public static let s: CGFloat = 8
+    public static let m: CGFloat = 12
+    public static let l: CGFloat = 16
+    public static let xl: CGFloat = 20
 }
 
 public enum ButtonSize {

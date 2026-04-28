@@ -1,37 +1,13 @@
 import DesignSystem
 import SwiftUI
 
-public enum HomeCareEntry: CaseIterable, Hashable, Sendable {
-    case feeding
-    case potty
-    case sleep
-    case heightWeight
-    case bath
-    case snack
-    case health
-    case memo
-
-    public var label: String {
-        switch self {
-        case .feeding: "수유/이유식"
-        case .potty: "배변"
-        case .sleep: "수면"
-        case .heightWeight: "키/몸무게"
-        case .bath: "목욕"
-        case .snack: "간식"
-        case .health: "건강 관리"
-        case .memo: "메모"
-        }
-    }
-}
-
 struct CareEntryGrid: View {
     let onSelect: (HomeCareEntry) -> Void
 
-    private let columns = Array(repeating: GridItem(.flexible()), count: 4)
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: Spacing.m), count: 4)
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: Spacing.s) {
+        LazyVGrid(columns: columns, spacing: Spacing.m) {
             ForEach(HomeCareEntry.allCases, id: \.self) { entry in
                 Button { onSelect(entry) } label: { EntryIcon(entry: entry) }
                     .buttonStyle(.plain)
@@ -51,7 +27,7 @@ private struct EntryIcon: View {
                 .padding(Spacing.s)
                 .aspectRatio(1, contentMode: .fit)
                 .background(
-                    RoundedRectangle(cornerRadius: Radius.l)
+                    RoundedRectangle(cornerRadius: Radius.xl)
                         .fill(Color.Semantic.screenBackground)
                 )
 

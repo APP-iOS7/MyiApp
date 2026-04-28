@@ -118,7 +118,7 @@ private extension SettingsView {
             }
             .padding(Spacing.m)
             .background(
-                RoundedRectangle(cornerRadius: Radius.l)
+                RoundedRectangle(cornerRadius: Radius.m)
                     .fill(Color(uiColor: .tertiarySystemBackground))
             )
 
