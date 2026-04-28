@@ -64,6 +64,15 @@ public enum ProgressBarLayout {
     public static let markerHeight: CGFloat = 8
 }
 
+public enum ConfidenceRingLayout {
+    /// 트랙/진행 stroke 두께 — 사용 가능 공간 대비 비율
+    public static let strokeRatio: CGFloat = 0.07
+    /// 중앙 감정 아이콘 한 변 — 사용 가능 공간 대비 비율
+    public static let iconRatio: CGFloat = 0.45
+    /// 퍼센트 텍스트 폰트 크기 — 사용 가능 공간 대비 비율
+    public static let percentTextRatio: CGFloat = 0.1
+}
+
 public enum VolumeMeterLayout {
     /// 기본 외곽 ring 지름 — 사용 가능 공간 대비 비율 (rest 상태)
     public static let baseRatio: CGFloat = 0.5
