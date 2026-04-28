@@ -86,7 +86,6 @@
 --enable genericExtensions
 --enable isEmpty
 --enable preferForLoop
---enable wrapConditionalBodies
 --enable wrapEnumCases
 
 # ============================
@@ -107,6 +106,8 @@
 --disable wrapFunctionBodies
 --disable wrapPropertyBodies
 --disable wrapLoopBodies
+# enum case·switch 등에서 코멘트/표현식 컬럼 정렬용 다중 공백 보존
+--disable consecutiveSpaces
 
 # ============================
 # Exclude
