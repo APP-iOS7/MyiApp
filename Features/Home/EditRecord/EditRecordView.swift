@@ -79,6 +79,29 @@ public struct EditRecordView: View {
                     }
                 }
             }
+
+        case .pee, .poop, .pottyAll:
+            Section("종류") {
+                Picker("종류", selection: $store.pottyKind) {
+                    Text("소변").tag(EditRecordFeature.PottyKind.pee)
+                    Text("대변").tag(EditRecordFeature.PottyKind.poop)
+                    Text("둘다").tag(EditRecordFeature.PottyKind.both)
+                }
+                .pickerStyle(.segmented)
+            }
+
+        case .medicine, .clinic:
+            Section("종류") {
+                Picker("종류", selection: $store.medicalKind) {
+                    Text("투약").tag(EditRecordFeature.MedicalKind.medicine)
+                    Text("병원").tag(EditRecordFeature.MedicalKind.clinic)
+                }
+                .pickerStyle(.segmented)
+            }
+
+        case .bath, .snack:
+            EmptyView()
+
         default:
             Section {
                 Text("이 카테고리 편집은 준비 중")
