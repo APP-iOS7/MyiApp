@@ -29,7 +29,7 @@ public struct HomeView: View {
 
     private var recordEntrySection: some View {
         SectionCard(spacing: Spacing.m) {
-            DayNavigator(selectedDate: $store.selectedDate)
+            DateNavigator(selectedDate: $store.selectedDate)
             CareEntryGrid { entry in
                 store.send(.careEntryTapped(entry))
             }
@@ -73,6 +73,7 @@ public struct HomeView: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .scrollDisabled(true)
+        .contentMargins(.vertical, 0, for: .scrollContent)
         .frame(height: CGFloat(records.count) * RowHeight.timeline)
     }
 
