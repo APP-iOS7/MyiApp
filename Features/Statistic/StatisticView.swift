@@ -14,6 +14,9 @@ public struct StatisticView: View {
         ScrollView {
             VStack(spacing: Spacing.m) {
                 controlPanel
+                if store.mode == .daily {
+                    chartSection
+                }
                 statisticCards
             }
             .padding(.horizontal, Spacing.m)
@@ -23,6 +26,17 @@ public struct StatisticView: View {
         .navigationTitle("기록 분석")
         .navigationBarTitleDisplayMode(.inline)
         .task { await store.send(.task).finish() }
+    }
+
+    private var chartSection: some View {
+        SectionCard(spacing: 0) {
+            DailyChartView(
+                baby: store.baby,
+                records: store.records,
+                selectedDate: store.selectedDate,
+                selectedCategories: store.selectedCategories
+            )
+        }
     }
 }
 
