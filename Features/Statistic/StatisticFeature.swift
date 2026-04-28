@@ -61,14 +61,6 @@ public struct StatisticFeature {
         var snackCount: Int { CareRecordAggregator.count(of: .snack, in: records, on: selectedDate) }
         var previousSnackCount: Int { CareRecordAggregator.count(of: .snack, in: records, on: previousDate) }
 
-        // 아기 나이 텍스트
-        var babyAgeText: String {
-            let months = Calendar.current.dateComponents([.month], from: baby.birthDate, to: Date()).month ?? 0
-            let monthDate = Calendar.current.date(byAdding: .month, value: months, to: baby.birthDate) ?? Date()
-            let days = (Calendar.current.dateComponents([.day], from: monthDate, to: Date()).day ?? 0) + 1
-            return "\(months)개월 \(days)일"
-        }
-
         var babySummaryText: String {
             let genderText = baby.gender == .female ? "여" : "남"
             let days = Calendar.current.dateComponents([.day], from: baby.birthDate, to: Date()).day ?? 0

@@ -30,6 +30,12 @@ extension Date {
         return formatter.string(from: self)
     }
 
+    /// 13:30 → 13.5 (소수점 시간)
+    public var hourDecimal: Double {
+        let components = Calendar.current.dateComponents([.hour, .minute], from: self)
+        return Double(components.hour ?? 0) + Double(components.minute ?? 0) / 60
+    }
+
     /// "11월 24일 ~ 11월 30일" 형태로 월요일 시작 주 범위 반환.
     public func weekRangeLabel() -> String {
         var cal = Calendar(identifier: .gregorian)

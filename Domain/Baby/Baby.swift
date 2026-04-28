@@ -32,6 +32,15 @@ public struct Baby: Identifiable, Hashable, Sendable, Codable {
 }
 
 extension Baby {
+    /// 주어진 날짜 기준 "X개월 Y일" 형태의 나이 텍스트.
+    public func ageText(at date: Date = Date()) -> String {
+        let calendar = Calendar.current
+        let months = calendar.dateComponents([.month], from: birthDate, to: date).month ?? 0
+        let monthDate = calendar.date(byAdding: .month, value: months, to: birthDate) ?? date
+        let days = (calendar.dateComponents([.day], from: monthDate, to: date).day ?? 0) + 1
+        return "\(months)개월 \(days)일"
+    }
+
     public var developmentalStage: String {
         let components = Calendar.current.dateComponents([.month, .day], from: birthDate, to: Date())
         let months = components.month ?? 0
