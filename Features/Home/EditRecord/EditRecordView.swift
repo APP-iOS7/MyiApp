@@ -51,6 +51,20 @@ public struct EditRecordView: View {
         return false
     }
 
+    private var heightText: Binding<String> {
+        Binding(
+            get: { store.heightCm.map { String(format: "%.1f", $0) } ?? "" },
+            set: { store.heightCm = Double($0) }
+        )
+    }
+
+    private var weightText: Binding<String> {
+        Binding(
+            get: { store.weightKg.map { String(format: "%.2f", $0) } ?? "" },
+            set: { store.weightKg = Double($0) }
+        )
+    }
+
     @ViewBuilder
     private var eventSection: some View {
         switch store.originalEvent {
@@ -134,14 +148,22 @@ public struct EditRecordView: View {
                 )
             }
 
+        case .heightWeight:
+            Section("키 / 몸무게") {
+                HStack {
+                    TextField("키", text: heightText)
+                        .keyboardType(.decimalPad)
+                    Text("cm").foregroundColor(.Semantic.secondaryText)
+                }
+                HStack {
+                    TextField("몸무게", text: weightText)
+                        .keyboardType(.decimalPad)
+                    Text("kg").foregroundColor(.Semantic.secondaryText)
+                }
+            }
+
         case .bath, .snack:
             EmptyView()
-
-        default:
-            Section {
-                Text("이 카테고리 편집은 준비 중")
-                    .foregroundColor(.Semantic.secondaryText)
-            }
         }
     }
 }
