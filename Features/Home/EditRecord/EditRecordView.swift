@@ -124,6 +124,16 @@ public struct EditRecordView: View {
                 }
             }
 
+        case .temperature:
+            Section("체온") {
+                Stepper(
+                    String(format: "%.1f °C", store.temperatureCelsius),
+                    value: $store.temperatureCelsius,
+                    in: 30 ... 45,
+                    step: 0.1
+                )
+            }
+
         case .bath, .snack:
             EmptyView()
 
