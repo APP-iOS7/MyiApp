@@ -1,9 +1,9 @@
 import Foundation
 
 public enum EmotionType: String, Codable, Sendable, CaseIterable, Hashable {
-    case bellyPain
+    case bellyPain = "belly_pain"
     case burping
-    case coldHot
+    case coldHot = "cold_hot"
     case hungry
     case lonely
     case scared
