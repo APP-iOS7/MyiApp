@@ -59,13 +59,38 @@ public struct HomeFeature {
 
             case let .careEntryTapped(entry):
                 let babyID = state.baby.id
+                let now = Date()
+                let cal = Calendar.current
+                let createdAt = cal.date(
+                    bySettingHour: cal.component(.hour, from: now),
+                    minute: cal.component(.minute, from: now),
+                    second: cal.component(.second, from: now),
+                    of: state.selectedDate
+                ) ?? now
                 return .run { [careRecordClient] send in
                     do throws(CareRecordError) {
-                        guard let event = try await defaultEvent(for: entry, babyID: babyID, client: careRecordClient) else {
-                            return
+                        let event: CareEvent?
+                        switch entry {
+                        case .feeding:
+                            event = try await careRecordClient.lastEvent(babyID, .feeding) ?? .formula(ml: 100)
+                        case .potty:
+                            event = .pee
+                        case .sleep:
+                            event = .sleep(start: createdAt, end: nil)
+                        case .heightWeight:
+                            event = try await careRecordClient.lastEvent(babyID, .growth)
+                                ?? .heightWeight(heightCm: nil, weightKg: nil)
+                        case .bath:
+                            event = .bath
+                        case .snack:
+                            event = .snack
+                        case .health:
+                            event = try await careRecordClient.lastEvent(babyID, .vital) ?? .temperature(celsius: 36.5)
+                        case .memo:
+                            event = .clinic
                         }
-                        let record = CareRecord(event: event)
-                        try await careRecordClient.addRecord(babyID, record)
+                        guard let event else { return }
+                        try await careRecordClient.addRecord(babyID, CareRecord(createdAt: createdAt, event: event))
                         await send(.recordAdded)
                     } catch {
                         await send(.recordAddFailed(error))
@@ -98,34 +123,5 @@ public struct HomeFeature {
                 await send(.recordsLoadFailed(error))
             }
         }
-    }
-
-}
-
-/// 카테고리별 quick-add 기본값.
-/// 직전 값을 재사용해야 하면 client.lastEvent를 통해 조회.
-private func defaultEvent(
-    for entry: HomeCareEntry,
-    babyID: UUID,
-    client: CareRecordClient
-) async throws(CareRecordError) -> CareEvent? {
-    let now = Date()
-    switch entry {
-    case .feeding:
-        return try await client.lastEvent(babyID, .feeding) ?? .formula(ml: 100)
-    case .potty:
-        return .pee
-    case .sleep:
-        return .sleep(start: now, end: nil)
-    case .heightWeight:
-        return try await client.lastEvent(babyID, .growth) ?? .heightWeight(heightCm: nil, weightKg: nil)
-    case .bath:
-        return .bath
-    case .snack:
-        return .snack
-    case .health:
-        return .temperature(celsius: 36.5)
-    case .memo:
-        return .clinic
     }
 }
