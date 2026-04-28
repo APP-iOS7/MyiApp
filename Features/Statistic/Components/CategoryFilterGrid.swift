@@ -2,7 +2,6 @@ import DesignSystem
 import Domain
 import SwiftUI
 
-/// 카테고리 필터 아이콘 그리드
 struct CategoryFilterGrid: View {
     @Binding var selectedCategories: Set<CareEvent.Category>
 
@@ -27,8 +26,6 @@ struct CategoryFilterGrid: View {
         }
     }
 }
-
-// MARK: - CategoryIcon
 
 private struct CategoryIcon: View {
     let category: CareEvent.Category
@@ -62,22 +59,22 @@ private struct CategoryIcon: View {
     private var image: Image {
         switch category {
         case .feeding: Image(Asset.Records.Color.meal)
-        case .potty:   Image(Asset.Records.Color.potty)
-        case .sleep:   Image(Asset.Records.Color.sleep)
-        case .bath:    Image(Asset.Records.Color.bath)
-        case .snack:   Image(Asset.Records.Color.snack)
-        case .vital, .medical, .growth: Image(systemName: "questionmark")
+        case .potty: Image(Asset.Records.Color.potty)
+        case .sleep: Image(Asset.Records.Color.sleep)
+        case .bath: Image(Asset.Records.Color.bath)
+        case .snack: Image(Asset.Records.Color.snack)
+        case .growth, .medical, .vital: Image(systemName: "questionmark")
         }
     }
 
     private var tintColor: Color {
         switch category {
         case .feeding: .Semantic.feeding
-        case .potty:   .Semantic.potty
-        case .sleep:   .Semantic.sleep
-        case .bath:    .Semantic.bath
-        case .snack:   .Semantic.snack
-        case .vital, .medical, .growth: .gray
+        case .potty: .Semantic.potty
+        case .sleep: .Semantic.sleep
+        case .bath: .Semantic.bath
+        case .snack: .Semantic.snack
+        case .growth, .medical, .vital: .gray
         }
     }
 }
