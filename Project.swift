@@ -24,7 +24,7 @@ let project = Project(
             product: .staticFramework,
             bundleId: "kr.co.codegrove.Clients",
             deploymentTargets: .iOS("17.0"),
-            buildableFolders: ["Clients"],
+            sources: ["Clients/**/*.swift", "Clients/**/*.mlmodel"],
             dependencies: [
                 .target(name: "Domain"),
                 .external(name: "ComposableArchitecture"),
