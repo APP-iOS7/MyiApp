@@ -4,27 +4,14 @@ import Domain
 import Foundation
 import SoundAnalysis
 
-extension MLModel: @retroactive @unchecked Sendable {}
-
 extension CryAnalysisClient: @retroactive TestDependencyKey {}
 extension CryAnalysisClient: @retroactive DependencyKey {
-    public static let liveValue: Self = {
-        let model: MLModel
-        do {
-            let coreMLModel = try DeepInfant_V2(configuration: MLModelConfiguration())
-            _ = try SNClassifySoundRequest(mlModel: coreMLModel.model)
-            model = coreMLModel.model
-        } catch {
-            fatalError("DeepInfant_V2 / SNClassifySoundRequest init failed: \(error.localizedDescription)")
+    public static let liveValue = Self(
+        analyze: { @Sendable url async throws(CryAnalysisError) -> CryAnalysisRecord in
+            let windows = try await analyzeFile(url: url)
+            return CryAnalysisRecord(windows: windows)
         }
-
-        return Self(
-            analyze: { @Sendable url async throws(CryAnalysisError) -> CryAnalysisRecord in
-                let windows = try await analyzeFile(url: url, model: model)
-                return CryAnalysisRecord(windows: windows)
-            }
-        )
-    }()
+    )
 }
 
 public extension DependencyValues {
@@ -36,7 +23,15 @@ public extension DependencyValues {
 
 // MARK: - Analysis
 
-private func analyzeFile(url: URL, model: MLModel) async throws(CryAnalysisError) -> [[EmotionScore]] {
+private func analyzeFile(url: URL) async throws(CryAnalysisError) -> [[EmotionScore]] {
+    guard let modelURL = Bundle.main.url(forResource: "DeepInfant_V2", withExtension: "mlmodelc") else {
+        throw .modelInferenceFailed
+    }
+
+    let model: MLModel
+    do { model = try MLModel(contentsOf: modelURL) }
+    catch { throw .modelInferenceFailed }
+
     let fileAnalyzer: SNAudioFileAnalyzer
     do { fileAnalyzer = try SNAudioFileAnalyzer(url: url) }
     catch { throw .audioFileUnreadable }
@@ -61,7 +56,7 @@ private func analyzeFile(url: URL, model: MLModel) async throws(CryAnalysisError
 
     switch outcome {
     case let .success(windows): return windows
-    case let .failure(error): throw error
+    case let .failure(error):   throw error
     }
 }
 
