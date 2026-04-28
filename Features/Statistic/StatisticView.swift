@@ -13,10 +13,8 @@ public struct StatisticView: View {
     public var body: some View {
         ScrollView {
             VStack(spacing: Spacing.m) {
-                controlPanel
-                if store.mode == .daily {
-                    chartSection
-                }
+                overviewCard
+
                 statisticCards
             }
             .padding(.horizontal, Spacing.m)
@@ -40,10 +38,10 @@ public struct StatisticView: View {
     }
 }
 
-// MARK: - Control Panel
+// MARK: - Overview
 
 private extension StatisticView {
-    var controlPanel: some View {
+    var overviewCard: some View {
         SectionCard(spacing: Spacing.m) {
             // 일/주 모드 토글
             Picker("모드 선택", selection: $store.mode) {
@@ -63,6 +61,10 @@ private extension StatisticView {
             // 카테고리 필터
             CategoryFilterGrid(selectedCategories: $store.selectedCategories)
 
+            if store.mode == .daily {
+                chartSection
+            }
+            
             // 아기 정보 요약
             Text(store.babySummaryText)
                 .font(.subheadline)
