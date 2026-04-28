@@ -58,6 +58,6 @@ public enum IconSize {
 
 public enum ProgressBarLayout {
     public static let height: CGFloat = 4
-    public static let markerWidth: CGFloat = 1
+    public static let markerWidth: CGFloat = 2
     public static let markerHeight: CGFloat = 8
 }
