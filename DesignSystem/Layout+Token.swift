@@ -55,3 +55,7 @@ public enum IconSize {
     public static let m: CGFloat = 24
     public static let l: CGFloat = 32
 }
+
+public enum ProgressBarLayout {
+    public static let height: CGFloat = 4
+}
