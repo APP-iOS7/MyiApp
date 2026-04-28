@@ -27,10 +27,6 @@ public struct StatisticFeature {
 
         // MARK: - 집계 (Derived State)
 
-        public var previousLabel: String {
-            mode == .daily ? "어제" : "지난주"
-        }
-
         var previousDate: Date {
             Calendar.current.date(byAdding: .day, value: -mode.stepDays, to: selectedDate) ?? selectedDate
         }

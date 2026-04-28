@@ -34,18 +34,16 @@ struct StatisticCard: View {
     private func metricRow(_ metric: StatisticMetric) -> some View {
         let ratios = ratios(for: metric)
         return VStack(alignment: .leading, spacing: Spacing.xs) {
-            HStack {
-                Text(metric.title)
-                Spacer()
-                Text(metric.previousText)
-                    .font(.caption2)
-            }
-            .foregroundColor(.Semantic.secondaryText)
+            Text(metric.currentText)
+                .font(.subheadline)
+                .foregroundColor(.Semantic.secondaryText)
 
             ZStack(alignment: .leading) {
                 ProgressBar(ratio: ratios.current, tintColor: tintColor)
                 ProgressBarMarker(ratio: ratios.previous)
             }
+
+            ProgressBarMarkerLabel(ratio: ratios.previous, text: metric.previousText)
         }
     }
 
@@ -60,7 +58,7 @@ struct StatisticCard: View {
 
 struct StatisticMetric: Identifiable {
     let id = UUID()
-    let title: String
+    let currentText: String
     let previousText: String
     let current: Int
     let previous: Int
@@ -73,9 +71,9 @@ struct StatisticMetric: Identifiable {
             image: Image(Asset.Records.Color.meal),
             tintColor: .Semantic.feeding,
             metrics: [
-                StatisticMetric(title: "횟수 5회", previousText: "어제 3회", current: 5, previous: 3),
-                StatisticMetric(title: "용량 350ml", previousText: "어제 400ml", current: 350, previous: 400),
-                StatisticMetric(title: "시간 45분", previousText: "어제 30분", current: 45, previous: 30),
+                StatisticMetric(currentText: "횟수 5회", previousText: "어제 3회", current: 5, previous: 3),
+                StatisticMetric(currentText: "용량 350ml", previousText: "어제 400ml", current: 350, previous: 400),
+                StatisticMetric(currentText: "시간 45분", previousText: "어제 30분", current: 45, previous: 30),
             ]
         )
         StatisticCard(
@@ -83,8 +81,8 @@ struct StatisticMetric: Identifiable {
             image: Image(Asset.Records.Color.potty),
             tintColor: .Semantic.potty,
             metrics: [
-                StatisticMetric(title: "소변 5회", previousText: "어제 4회", current: 5, previous: 4),
-                StatisticMetric(title: "대변 2회", previousText: "어제 3회", current: 2, previous: 3),
+                StatisticMetric(currentText: "소변 5회", previousText: "어제 4회", current: 5, previous: 4),
+                StatisticMetric(currentText: "대변 2회", previousText: "어제 3회", current: 2, previous: 3),
             ]
         )
     }

@@ -147,7 +147,7 @@ extension StatisticView {
 
     private func valueMetric(title: String, current: Int, previous: Int, unit: String) -> StatisticMetric {
         StatisticMetric(
-            title: "\(title) \(current)\(unit)",
+            currentText: "\(title) \(current)\(unit)",
             previousText: "\(previousLabel) \(previous)\(unit)",
             current: current,
             previous: previous
@@ -156,7 +156,7 @@ extension StatisticView {
 
     private func minutesMetric(title: String, current: Int, previous: Int) -> StatisticMetric {
         StatisticMetric(
-            title: "\(title) \(DurationFormatter.hourMinute(fromMinutes: current))",
+            currentText: "\(title) \(DurationFormatter.hourMinute(fromMinutes: current))",
             previousText: "\(previousLabel) \(DurationFormatter.hourMinute(fromMinutes: previous))",
             current: current,
             previous: previous
