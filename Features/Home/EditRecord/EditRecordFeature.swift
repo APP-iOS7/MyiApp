@@ -30,6 +30,10 @@ public struct EditRecordFeature {
         /// 체온 (°C)
         public var temperatureCelsius: Double
 
+        /// 키/몸무게 (각자 미기록 가능)
+        public var heightCm: Double?
+        public var weightKg: Double?
+
         public var content: String
         public var isSubmitting: Bool = false
 
@@ -95,6 +99,15 @@ public struct EditRecordFeature {
             case let .temperature(c): temperatureCelsius = c
             default:                  temperatureCelsius = 36.5
             }
+
+            switch record.event {
+            case let .heightWeight(h, w):
+                heightCm = h
+                weightKg = w
+            default:
+                heightCm = nil
+                weightKg = nil
+            }
         }
 
         /// 편집된 CareEvent. 지원 안 하는 카테고리는 originalEvent 그대로.
@@ -126,6 +139,9 @@ public struct EditRecordFeature {
 
             case .temperature:
                 .temperature(celsius: temperatureCelsius)
+
+            case .heightWeight:
+                .heightWeight(heightCm: heightCm, weightKg: weightKg)
 
             default:
                 originalEvent
