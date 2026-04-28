@@ -13,6 +13,7 @@ public struct StatisticView: View {
     public var body: some View {
         ScrollView {
             VStack(spacing: Spacing.m) {
+                ScreenTitle("기록 분석")
                 overviewCard
                 statisticCards
             }

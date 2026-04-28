@@ -17,13 +17,17 @@ public struct MainTabView: View {
             .tabItem { Label("홈", systemImage: "house.fill") }
             .tag(MainTabFeature.Tab.home)
 
-            placeholderTab(title: "육아 수첩")
-                .tabItem { Label("육아 수첩", systemImage: "book.fill") }
-                .tag(MainTabFeature.Tab.note)
+            NavigationStack {
+                NoteView(baby: store.selectedBaby)
+            }
+            .tabItem { Label("육아 수첩", systemImage: "book.fill") }
+            .tag(MainTabFeature.Tab.note)
 
-            placeholderTab(title: "울음 분석")
-                .tabItem { Label("울음 분석", systemImage: "waveform") }
-                .tag(MainTabFeature.Tab.voice)
+            NavigationStack {
+                VoiceView(baby: store.selectedBaby)
+            }
+            .tabItem { Label("울음 분석", systemImage: "waveform") }
+            .tag(MainTabFeature.Tab.voice)
 
             NavigationStack {
                 StatisticView(store: store.scope(state: \.statistic, action: \.statistic))
@@ -40,23 +44,4 @@ public struct MainTabView: View {
         .tint(Color.Semantic.primaryAction)
     }
 
-    private func placeholderTab(title: String) -> some View {
-        NavigationStack {
-            VStack(spacing: Spacing.m) {
-                Text("\(title) — 준비 중")
-                    .font(.Style.sectionTitle)
-                    .foregroundColor(.Semantic.sectionHeading)
-
-                if let baby = store.selectedBaby {
-                    Text("선택된 아기: \(baby.name)")
-                        .font(.body)
-                        .foregroundColor(.Semantic.secondaryText)
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.Semantic.screenBackground.ignoresSafeArea())
-            .navigationTitle(title)
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
 }
