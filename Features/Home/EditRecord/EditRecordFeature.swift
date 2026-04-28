@@ -27,6 +27,9 @@ public struct EditRecordFeature {
         public var breastLeftMinutes: Int
         public var breastRightMinutes: Int
 
+        /// 체온 (°C)
+        public var temperatureCelsius: Double
+
         public var content: String
         public var isSubmitting: Bool = false
 
@@ -87,6 +90,11 @@ public struct EditRecordFeature {
                 breastLeftMinutes = 10
                 breastRightMinutes = 10
             }
+
+            switch record.event {
+            case let .temperature(c): temperatureCelsius = c
+            default:                  temperatureCelsius = 36.5
+            }
         }
 
         /// 편집된 CareEvent. 지원 안 하는 카테고리는 originalEvent 그대로.
@@ -115,6 +123,9 @@ public struct EditRecordFeature {
                 case .pumpedMilk:    .pumpedMilk(ml: feedingMl)
                 case .breastfeeding: .breastfeeding(leftMinutes: breastLeftMinutes, rightMinutes: breastRightMinutes)
                 }
+
+            case .temperature:
+                .temperature(celsius: temperatureCelsius)
 
             default:
                 originalEvent
