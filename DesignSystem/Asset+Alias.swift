@@ -9,3 +9,10 @@ public extension Image {
         self.init(asset: asset)
     }
 }
+
+public extension Color {
+    /// `Color(Asset.Tokens.blue500)` 같이 SwiftUI 관용구로 바로 사용.
+    init(_ asset: DesignSystemColors) {
+        self.init(asset: asset)
+    }
+}
