@@ -43,6 +43,19 @@ extension CareEvent {
 }
 
 extension CareEvent.Category {
+    var label: String {
+        switch self {
+        case .feeding: "수유"
+        case .potty:   "배변"
+        case .sleep:   "수면"
+        case .bath:    "목욕"
+        case .snack:   "간식"
+        case .vital:   "체온"
+        case .medical: "의료"
+        case .growth:  "성장"
+        }
+    }
+
     var tintColor: Color {
         switch self {
         case .feeding: .Semantic.feeding
