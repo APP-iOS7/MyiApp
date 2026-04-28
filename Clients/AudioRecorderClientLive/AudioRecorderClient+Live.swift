@@ -8,21 +8,11 @@ extension AudioRecorderClient: @retroactive DependencyKey {
     public static var liveValue: Self {
         let session = MicrophoneSession()
         return Self(
-            requestPermission: {
-                await AVAudioApplication.requestRecordPermission()
-            },
-            startRecording: { url in
-                try await session.start(url: url)
-            },
-            stopRecording: {
-                await session.stop()
-            },
-            cancelRecording: {
-                await session.cancel()
-            },
-            currentVolume: {
-                await session.currentVolume()
-            }
+            requestPermission: { await AVAudioApplication.requestRecordPermission() },
+            startRecording: { url throws(AudioRecorderError) in try await session.start(url: url) },
+            stopRecording: { await session.stop() },
+            cancelRecording: { await session.cancel() },
+            currentVolume: { await session.currentVolume() }
         )
     }
 }
@@ -84,4 +74,3 @@ private actor MicrophoneSession {
         try? AVAudioSession.sharedInstance().setActive(false)
     }
 }
-
