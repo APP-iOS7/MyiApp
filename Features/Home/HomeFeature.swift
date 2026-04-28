@@ -24,7 +24,7 @@ public struct HomeFeature {
             let cal = Calendar.current
             return records
                 .filter { cal.isDate($0.createdAt, inSameDayAs: selectedDate) }
-                .sorted { $0.createdAt < $1.createdAt }
+                .sorted { $0.createdAt > $1.createdAt }
         }
     }
 
@@ -33,6 +33,9 @@ public struct HomeFeature {
         case task
         case recordsLoaded([CareRecord])
         case recordsLoadFailed(CareRecordError)
+        case careEntryTapped(HomeCareEntry)
+        case recordAdded
+        case recordAddFailed(CareRecordError)
     }
 
     @Dependency(\.careRecordClient) var careRecordClient
@@ -54,6 +57,25 @@ public struct HomeFeature {
                 state.records = []
                 return .none
 
+            case let .careEntryTapped(entry):
+                guard let event = makeDefaultEvent(for: entry) else { return .none }
+                let record = CareRecord(event: event)
+                let babyID = state.baby.id
+                return .run { [careRecordClient] send in
+                    do throws(CareRecordError) {
+                        try await careRecordClient.addRecord(babyID, record)
+                        await send(.recordAdded)
+                    } catch {
+                        await send(.recordAddFailed(error))
+                    }
+                }
+
+            case .recordAdded:
+                return loadRecords(for: state)
+
+            case .recordAddFailed:
+                return .none
+
             case .binding:
                 return .none
             }
@@ -73,6 +95,30 @@ public struct HomeFeature {
             } catch {
                 await send(.recordsLoadFailed(error))
             }
+        }
+    }
+
+    /// 카테고리별 quick-add 기본값. 키/몸무게는 GrowthRecord 도메인이라 nil.
+    private func makeDefaultEvent(for entry: HomeCareEntry) -> CareEvent? {
+        let now = Date()
+        switch entry {
+        case .feeding:
+            return .formula(ml: 100)
+        case .potty:
+            return .pee
+        case .sleep:
+            let start = Calendar.current.date(byAdding: .hour, value: -1, to: now) ?? now
+            return .sleep(start: start, end: now)
+        case .heightWeight:
+            return nil
+        case .bath:
+            return .bath
+        case .snack:
+            return .snack
+        case .health:
+            return .temperature(celsius: 36.5)
+        case .memo:
+            return .clinic
         }
     }
 }

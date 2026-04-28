@@ -1,7 +1,7 @@
 import DesignSystem
 import SwiftUI
 
-enum HomeCareEntry: CaseIterable, Hashable {
+public enum HomeCareEntry: CaseIterable, Hashable, Sendable {
     case feeding
     case potty
     case sleep
@@ -11,7 +11,7 @@ enum HomeCareEntry: CaseIterable, Hashable {
     case health
     case memo
 
-    var label: String {
+    public var label: String {
         switch self {
         case .feeding: "수유/이유식"
         case .potty: "배변"
