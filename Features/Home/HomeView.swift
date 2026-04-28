@@ -27,8 +27,7 @@ public struct HomeView: View {
         SectionCard(spacing: Spacing.m) {
             DayNavigator(selectedDate: $store.selectedDate)
             CareEntryGrid { entry in
-                // TODO: 카테고리별 입력 화면 진입
-                _ = entry
+                store.send(.careEntryTapped(entry))
             }
         }
     }
