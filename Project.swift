@@ -24,7 +24,7 @@ let project = Project(
             product: .staticFramework,
             bundleId: "kr.co.codegrove.Clients",
             deploymentTargets: .iOS("17.0"),
-            sources: ["Clients/**/*.swift", "Clients/**/*.mlmodel"],
+            buildableFolders: ["Clients"],
             dependencies: [
                 .target(name: "Domain"),
                 .external(name: "ComposableArchitecture"),
@@ -69,6 +69,7 @@ let project = Project(
             deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(with: [
                 "UILaunchStoryboardName": "LaunchScreen",
+                "NSMicrophoneUsageDescription": "아이의 울음소리를 분석하기 위해 마이크 권한이 필요합니다.",
                 "CFBundleURLTypes": [
                     [
                         "CFBundleTypeRole": "Editor",
@@ -78,6 +79,7 @@ let project = Project(
                     ]
                 ]
             ]),
+            sources: ["MyI/Models/**"],
             buildableFolders: [
                 "MyI/Sources",
                 "MyI/Resources"
