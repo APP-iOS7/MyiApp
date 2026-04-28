@@ -1,5 +1,6 @@
 import ComposableArchitecture
 import DesignSystem
+import Domain
 import SwiftUI
 
 public struct MainTabView: View {
@@ -7,7 +8,6 @@ public struct MainTabView: View {
 
     public init(store: StoreOf<MainTabFeature>) {
         self.store = store
-        UITabBar.appearance().unselectedItemTintColor = .systemGray
     }
 
     public var body: some View {
@@ -44,5 +44,31 @@ public struct MainTabView: View {
         }
         .tint(Color.Semantic.primaryAction)
     }
-
 }
+
+#if DEBUG
+    #Preview {
+        if let state = MainTabFeature.State(
+            session: Session(
+                uid: "preview",
+                providerIDs: [],
+                createdAt: .now
+            ),
+            babies: [
+                Baby(
+                    name: "아기",
+                    birthDate: Calendar.current.date(byAdding: .month, value: -3, to: .now) ?? .now,
+                    gender: .male,
+                    bloodType: .a,
+                    mainCaregiverID: "preview"
+                ),
+            ]
+        ) {
+            MainTabView(
+                store: Store(initialState: state) {
+                    MainTabFeature()
+                }
+            )
+        }
+    }
+#endif
