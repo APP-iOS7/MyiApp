@@ -32,8 +32,7 @@ public struct StatisticFeature {
         }
 
         var previousDate: Date {
-            let offset = mode == .daily ? -1 : -7
-            return Calendar.current.date(byAdding: .day, value: offset, to: selectedDate) ?? selectedDate
+            Calendar.current.date(byAdding: .day, value: -mode.stepDays, to: selectedDate) ?? selectedDate
         }
 
         // 수유
@@ -112,9 +111,8 @@ public struct StatisticFeature {
     private func loadRecords(for state: State) -> Effect<Action> {
         let babyID = state.baby.id
         let cal = Calendar.current
-        let daysBack = state.mode == .daily ? 1 : 7
         let dayStart = cal.startOfDay(for: state.selectedDate)
-        guard let start = cal.date(byAdding: .day, value: -daysBack, to: dayStart),
+        guard let start = cal.date(byAdding: .day, value: -state.mode.stepDays, to: dayStart),
               let end = cal.date(byAdding: .day, value: 1, to: dayStart)
         else { return .none }
 
@@ -138,4 +136,11 @@ extension CareEvent.Category {
 public enum StatisticMode: String, CaseIterable, Hashable, Sendable {
     case daily = "일"
     case weekly = "주"
+
+    public var stepDays: Int {
+        switch self {
+        case .daily:  1
+        case .weekly: 7
+        }
+    }
 }
