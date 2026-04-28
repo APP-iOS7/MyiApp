@@ -19,6 +19,7 @@ public struct StatisticView: View {
             }
             .padding(Spacing.m)
         }
+        .scrollIndicators(.hidden)
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
         .task { await store.send(.task).finish() }
     }
