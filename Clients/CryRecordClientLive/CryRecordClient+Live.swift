@@ -19,7 +19,8 @@ extension CryRecordClient: @retroactive DependencyKey {
                     .getDocuments()
                 let decoder = Firestore.Decoder()
                 return try snapshot.documents.map { doc in
-                    try decoder.decode(CryAnalysisRecord.self, from: doc.data())
+                    let dto = try decoder.decode(FirestoreCryRecord.self, from: doc.data())
+                    return dto.toDomain()
                 }
             } catch {
                 throw .unexpected
@@ -30,7 +31,8 @@ extension CryRecordClient: @retroactive DependencyKey {
                 throw .unauthorized
             }
             do {
-                let data = try Firestore.Encoder().encode(record)
+                let dto = FirestoreCryRecord(from: record)
+                let data = try Firestore.Encoder().encode(dto)
                 try await recordsCollection(babyID: babyID)
                     .document(record.id.uuidString)
                     .setData(data)
@@ -65,4 +67,30 @@ private func recordsCollection(babyID: UUID) -> CollectionReference {
         .collection("babies")
         .document(babyID.uuidString)
         .collection("cryRecords")
+}
+
+// MARK: - Firestore DTO
+
+private struct FirestoreCryRecord: Codable {
+    let id: UUID
+    var createdAt: Date
+    var windows: [Window]
+
+    struct Window: Codable {
+        var scores: [EmotionScore]
+    }
+
+    init(from record: CryAnalysisRecord) {
+        self.id = record.id
+        self.createdAt = record.createdAt
+        self.windows = record.windows.map { Window(scores: $0) }
+    }
+
+    func toDomain() -> CryAnalysisRecord {
+        CryAnalysisRecord(
+            id: id,
+            createdAt: createdAt,
+            windows: windows.map(\.scores)
+        )
+    }
 }
