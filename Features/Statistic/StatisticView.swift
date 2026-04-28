@@ -78,6 +78,92 @@ extension StatisticView {
     }
 }
 
+// MARK: - Statistic Cards
+
+extension StatisticView {
+    private var statisticCards: some View {
+        VStack(spacing: Spacing.m) {
+            StatisticCard(
+                title: "수유/이유식 기록 분석",
+                image: Image(Asset.Records.Color.meal),
+                tintColor: .Semantic.feeding,
+                metrics: [
+                    countMetric(title: "횟수", current: store.feedingCount, previous: store.previousFeedingCount),
+                    valueMetric(title: "용량", current: store.totalMl, previous: store.previousTotalMl, unit: "ml"),
+                    minutesMetric(title: "시간", current: store.breastfeedingMinutes, previous: store.previousBreastfeedingMinutes),
+                ]
+            )
+
+            StatisticCard(
+                title: "배변 기록 분석",
+                image: Image(Asset.Records.Color.potty),
+                tintColor: .Semantic.potty,
+                metrics: [
+                    countMetric(title: "소변", current: store.potty.pee, previous: store.previousPotty.pee),
+                    countMetric(title: "대변", current: store.potty.poop, previous: store.previousPotty.poop),
+                ]
+            )
+
+            StatisticCard(
+                title: "수면 기록 분석",
+                image: Image(Asset.Records.Color.sleep),
+                tintColor: .Semantic.sleep,
+                metrics: [
+                    countMetric(title: "횟수", current: store.sleepCount, previous: store.previousSleepCount),
+                    minutesMetric(title: "시간", current: store.sleepMinutes ?? 0, previous: store.previousSleepMinutes ?? 0),
+                ]
+            )
+
+            StatisticCard(
+                title: "목욕 기록 분석",
+                image: Image(Asset.Records.Color.bath),
+                tintColor: .Semantic.bath,
+                metrics: [
+                    countMetric(title: "횟수", current: store.bathCount, previous: store.previousBathCount),
+                ]
+            )
+
+            StatisticCard(
+                title: "간식 기록 분석",
+                image: Image(Asset.Records.Color.snack),
+                tintColor: .Semantic.snack,
+                metrics: [
+                    countMetric(title: "횟수", current: store.snackCount, previous: store.previousSnackCount),
+                ]
+            )
+        }
+    }
+
+    private var previousLabel: String {
+        switch store.mode {
+        case .daily: "어제"
+        case .weekly: "지난주"
+        }
+    }
+
+    private func countMetric(title: String, current: Int, previous: Int) -> StatisticMetric {
+        valueMetric(title: title, current: current, previous: previous, unit: "회")
+    }
+
+    private func valueMetric(title: String, current: Int, previous: Int, unit: String) -> StatisticMetric {
+        StatisticMetric(
+            title: "\(title) \(current)\(unit)",
+            previousText: "\(previousLabel) \(previous)\(unit)",
+            current: current,
+            previous: previous
+        )
+    }
+
+    private func minutesMetric(title: String, current: Int, previous: Int) -> StatisticMetric {
+        StatisticMetric(
+            title: "\(title) \(DurationFormatter.hourMinute(fromMinutes: current))",
+            previousText: "\(previousLabel) \(DurationFormatter.hourMinute(fromMinutes: previous))",
+            current: current,
+            previous: previous
+        )
+    }
+}
+
 private func previewBaby() -> Baby {
     Baby(
         id: UUID(),
@@ -116,73 +202,5 @@ private func previewBaby() -> Baby {
                 StatisticFeature()
             }
         )
-    }
-}
-
-// MARK: - Statistic Cards
-
-extension StatisticView {
-    private var statisticCards: some View {
-        VStack(spacing: Spacing.m) {
-            StatisticCard(
-                title: "수유/이유식 기록 분석",
-                image: Image(Asset.Records.Color.meal),
-                tintColor: .Semantic.feeding,
-                count: store.feedingCount,
-                previousCount: store.previousFeedingCount,
-                amount: store.totalMl,
-                previousAmount: store.previousTotalMl,
-                minutes: store.breastfeedingMinutes,
-                previousMinutes: store.previousBreastfeedingMinutes,
-                previousLabel: store.previousLabel
-            )
-
-            PottyStatisticCard(
-                peeCount: store.potty.pee,
-                previousPeeCount: store.previousPotty.pee,
-                poopCount: store.potty.poop,
-                previousPoopCount: store.previousPotty.poop,
-                previousLabel: store.previousLabel
-            )
-
-            StatisticCard(
-                title: "수면 기록 분석",
-                image: Image(Asset.Records.Color.sleep),
-                tintColor: .Semantic.sleep,
-                count: store.sleepCount,
-                previousCount: store.previousSleepCount,
-                amount: nil,
-                previousAmount: nil,
-                minutes: store.sleepMinutes,
-                previousMinutes: store.previousSleepMinutes,
-                previousLabel: store.previousLabel
-            )
-
-            StatisticCard(
-                title: "목욕 기록 분석",
-                image: Image(Asset.Records.Color.bath),
-                tintColor: .Semantic.bath,
-                count: store.bathCount,
-                previousCount: store.previousBathCount,
-                amount: nil,
-                previousAmount: nil,
-                minutes: nil,
-                previousMinutes: nil,
-                previousLabel: store.previousLabel
-            )
-
-            StatisticCard(
-                title: "간식 기록 분석",
-                image: Image(Asset.Records.Color.snack),
-                tintColor: .Semantic.snack,
-                count: store.snackCount,
-                previousCount: store.previousSnackCount,
-                amount: nil,
-                previousAmount: nil,
-                minutes: nil,
-                previousMinutes: nil,
-                previousLabel: store.previousLabel
-            )
-        }
     }
 }
