@@ -22,4 +22,11 @@ extension Date {
         let label = relativeDayName ?? formatted(.dateTime.weekday(.abbreviated))
         return "\(monthDay) (\(label))"
     }
+
+    /// 24시 형식 "HH:mm" (로케일과 무관하게 AM/PM 미표시)
+    public var hourMinute24h: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: self)
+    }
 }

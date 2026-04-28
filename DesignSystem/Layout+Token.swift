@@ -18,6 +18,10 @@ public enum ButtonSize {
     public static let height: CGFloat = 50
 }
 
+public enum RowHeight {
+    public static let timeline: CGFloat = 60
+}
+
 public enum IconSize {
     public static let s: CGFloat = 18
     public static let m: CGFloat = 24
