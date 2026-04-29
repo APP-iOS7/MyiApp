@@ -94,35 +94,20 @@ public struct CalendarGrid: View {
 }
 
 #Preview("Calendar") {
-    StatefulPreviewWrapper(initialDate: Date()) { selected, setSelected in
-        VStack {
-            CalendarGrid(
-                month: Date(),
-                selected: selected,
-                datesWithIndicator: [
-                    Calendar.current.date(byAdding: .day, value: -3, to: Date())!,
-                    Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
-                    Calendar.current.date(byAdding: .day, value: 5, to: Date())!,
-                ],
-                onSelect: setSelected
-            )
-            .padding(Spacing.m)
-            Spacer()
-        }
-        .background(Color.Semantic.screenBackground)
+    @Previewable @State var selected = Date()
+    VStack {
+        CalendarGrid(
+            month: Date(),
+            selected: selected,
+            datesWithIndicator: [
+                Calendar.current.date(byAdding: .day, value: -3, to: Date())!,
+                Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
+                Calendar.current.date(byAdding: .day, value: 5, to: Date())!,
+            ],
+            onSelect: { selected = $0 }
+        )
+        .padding(Spacing.m)
+        Spacer()
     }
-}
-
-private struct StatefulPreviewWrapper<Content: View>: View {
-    @State private var selected: Date
-    let content: (Date, @escaping (Date) -> Void) -> Content
-
-    init(initialDate: Date, @ViewBuilder content: @escaping (Date, @escaping (Date) -> Void) -> Content) {
-        _selected = State(initialValue: initialDate)
-        self.content = content
-    }
-
-    var body: some View {
-        content(selected) { selected = $0 }
-    }
+    .background(Color.Semantic.screenBackground)
 }

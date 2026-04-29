@@ -30,7 +30,7 @@ public struct CalendarDayCell: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .aspectRatio(1, contentMode: .fit)
-        .opacity(day.isCurrentMonth ? 1 : Opacity.dimmed)
+        .opacity(day.isCurrentMonth || isSelected ? 1 : Opacity.dimmed)
     }
 
     private var textColor: Color {
