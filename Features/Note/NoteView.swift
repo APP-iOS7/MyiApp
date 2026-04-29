@@ -5,6 +5,9 @@ import SwiftUI
 public struct NoteView: View {
     public let baby: Baby?
 
+    @State private var month: Date = Date()
+    @State private var selected: Date = Date()
+
     public init(baby: Baby?) {
         self.baby = baby
     }
@@ -13,9 +16,11 @@ public struct NoteView: View {
         VStack(alignment: .leading, spacing: Spacing.m) {
             ScreenTitle("육아 수첩")
 
-            Text("준비 중")
-                .font(.body)
-                .foregroundColor(.Semantic.secondaryText)
+            CalendarGrid(
+                month: month,
+                selected: selected,
+                onSelect: { selected = $0 }
+            )
 
             Spacer()
         }
