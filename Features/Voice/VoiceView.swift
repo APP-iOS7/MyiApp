@@ -1,21 +1,27 @@
+import ComposableArchitecture
 import DesignSystem
 import Domain
 import SwiftUI
 
 public struct VoiceView: View {
-    public let baby: Baby?
+    @Bindable var store: StoreOf<VoiceFeature>
 
-    public init(baby: Baby?) {
-        self.baby = baby
+    public init(store: StoreOf<VoiceFeature>) {
+        self.store = store
     }
 
     public var body: some View {
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+            introContent
+        } destination: { childStore in
+            CryAnalysisView(store: childStore)
+        }
+        .alert($store.scope(state: \.alert, action: \.alert))
+    }
+
+    private var introContent: some View {
         VStack(spacing: Spacing.m) {
-            ScreenTitle("울음 분석") {
-                Image(systemName: "list.bullet")
-                    .font(.title3)
-                    .foregroundColor(.primary)
-            }
+            ScreenTitle("울음 분석")
 
             SectionCard(spacing: Spacing.xl) {
                 Image(Asset.Analysis.processing)
@@ -39,15 +45,11 @@ public struct VoiceView: View {
                 .frame(maxWidth: .infinity)
             }
 
-            Button("분석 시작") {}
+            Button("분석 시작") { store.send(.startTapped) }
                 .buttonStyle(.primary)
         }
         .padding(Spacing.m)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
     }
-}
-
-#Preview {
-    VoiceView(baby: nil)
 }
