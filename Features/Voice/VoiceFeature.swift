@@ -1,0 +1,78 @@
+import ComposableArchitecture
+import Domain
+import Foundation
+
+@Reducer
+public struct VoiceFeature {
+    @ObservableState
+    public struct State: Equatable {
+        public var baby: Baby
+        public var path = StackState<CryAnalysisFeature.State>()
+        @Presents public var alert: AlertState<Action.Alert>?
+
+        public init(baby: Baby) {
+            self.baby = baby
+        }
+    }
+
+    public enum Action {
+        case startTapped
+        case permissionResolved(Bool)
+        case path(StackActionOf<CryAnalysisFeature>)
+        case alert(PresentationAction<Alert>)
+
+        public enum Alert: Equatable {
+            case openSettingsTapped
+        }
+    }
+
+    @Dependency(\.audioRecorderClient) var audioRecorderClient
+    @Dependency(\.openURL)             var openURL
+
+    public init() {}
+
+    public var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .startTapped:
+                return .run { [audioRecorderClient] send in
+                    let granted = await audioRecorderClient.requestPermission()
+                    await send(.permissionResolved(granted))
+                }
+
+            case .permissionResolved(true):
+                state.path.append(CryAnalysisFeature.State(baby: state.baby))
+                return .none
+
+            case .permissionResolved(false):
+                state.alert = AlertState {
+                    TextState("마이크 권한이 필요합니다")
+                } actions: {
+                    ButtonState(action: .openSettingsTapped) {
+                        TextState("설정 열기")
+                    }
+                    ButtonState(role: .cancel) {
+                        TextState("취소")
+                    }
+                } message: {
+                    TextState("울음 분석을 시작하려면 설정 앱에서 마이크 권한을 켜주세요.")
+                }
+                return .none
+
+            case .alert(.presented(.openSettingsTapped)):
+                return .run { [openURL] _ in
+                    guard let url = URL(string: "app-settings:") else { return }
+
+                    _ = await openURL(url)
+                }
+
+            case .alert, .path:
+                return .none
+            }
+        }
+        .ifLet(\.$alert, action: \.alert)
+        .forEach(\.path, action: \.path) {
+            CryAnalysisFeature()
+        }
+    }
+}
