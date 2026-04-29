@@ -1,21 +1,20 @@
-import DesignSystem
 import SwiftUI
 
 public struct CalendarGrid: View {
     public let month: Date
     public let selected: Date
-    public let datesWithNotes: Set<Date>
+    public let datesWithIndicator: Set<Date>
     public let onSelect: (Date) -> Void
 
     public init(
         month: Date,
         selected: Date,
-        datesWithNotes: Set<Date> = [],
+        datesWithIndicator: Set<Date> = [],
         onSelect: @escaping (Date) -> Void
     ) {
         self.month = month
         self.selected = selected
-        self.datesWithNotes = datesWithNotes
+        self.datesWithIndicator = datesWithIndicator
         self.onSelect = onSelect
     }
 
@@ -45,7 +44,7 @@ public struct CalendarGrid: View {
                 CalendarDayCell(
                     day: day,
                     isSelected: Calendar.current.isDate(day.date, inSameDayAs: selected),
-                    hasNotes: hasNotes(on: day.date)
+                    hasIndicator: hasIndicator(on: day.date)
                 )
                 .contentShape(Rectangle())
                 .onTapGesture { onSelect(day.date) }
@@ -87,10 +86,10 @@ public struct CalendarGrid: View {
         }
     }
 
-    private func hasNotes(on date: Date) -> Bool {
+    private func hasIndicator(on date: Date) -> Bool {
         let calendar = Calendar.current
         let target = calendar.startOfDay(for: date)
-        return datesWithNotes.contains { calendar.isDate($0, inSameDayAs: target) }
+        return datesWithIndicator.contains { calendar.isDate($0, inSameDayAs: target) }
     }
 }
 
@@ -100,7 +99,7 @@ public struct CalendarGrid: View {
             CalendarGrid(
                 month: Date(),
                 selected: selected,
-                datesWithNotes: [
+                datesWithIndicator: [
                     Calendar.current.date(byAdding: .day, value: -3, to: Date())!,
                     Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
                     Calendar.current.date(byAdding: .day, value: 5, to: Date())!,

@@ -1,11 +1,15 @@
-import DesignSystem
 import SwiftUI
 
-struct ConfidenceRing: View {
+public struct ConfidenceRing: View {
     let iconAsset: DesignSystemImages
     let confidence: Double
 
-    var body: some View {
+    public init(iconAsset: DesignSystemImages, confidence: Double) {
+        self.iconAsset = iconAsset
+        self.confidence = confidence
+    }
+
+    public var body: some View {
         GeometryReader { proxy in
             let available = min(proxy.size.width, proxy.size.height)
             let stroke = available * ConfidenceRingLayout.strokeRatio

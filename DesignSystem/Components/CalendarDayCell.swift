@@ -1,12 +1,17 @@
-import DesignSystem
 import SwiftUI
 
-struct CalendarDayCell: View {
+public struct CalendarDayCell: View {
     let day: CalendarDay
     let isSelected: Bool
-    let hasNotes: Bool
+    let hasIndicator: Bool
 
-    var body: some View {
+    public init(day: CalendarDay, isSelected: Bool, hasIndicator: Bool) {
+        self.day = day
+        self.isSelected = isSelected
+        self.hasIndicator = hasIndicator
+    }
+
+    public var body: some View {
         VStack(spacing: Spacing.s) {
             Text("00")
                 .font(.body.monospacedDigit())
@@ -20,8 +25,8 @@ struct CalendarDayCell: View {
                 .background(Circle().fill(backgroundFill))
 
             Circle()
-                .fill(hasNotes ? Color.Semantic.primaryAction : .clear)
-                .frame(width: CalendarLayout.noteIndicatorSize, height: CalendarLayout.noteIndicatorSize)
+                .fill(hasIndicator ? Color.Semantic.primaryAction : .clear)
+                .frame(width: CalendarLayout.indicatorSize, height: CalendarLayout.indicatorSize)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .aspectRatio(1, contentMode: .fit)
@@ -53,27 +58,27 @@ struct CalendarDayCell: View {
         CalendarDayCell(
             day: CalendarDay(date: today, isCurrentMonth: true),
             isSelected: false,
-            hasNotes: false
+            hasIndicator: false
         )
         CalendarDayCell(
             day: CalendarDay(date: today, isCurrentMonth: true),
             isSelected: true,
-            hasNotes: true
+            hasIndicator: true
         )
         CalendarDayCell(
             day: CalendarDay(date: sunday, isCurrentMonth: true),
             isSelected: false,
-            hasNotes: true
+            hasIndicator: true
         )
         CalendarDayCell(
             day: CalendarDay(date: saturday, isCurrentMonth: true),
             isSelected: false,
-            hasNotes: false
+            hasIndicator: false
         )
         CalendarDayCell(
             day: CalendarDay(date: previousMonth, isCurrentMonth: false),
             isSelected: false,
-            hasNotes: false
+            hasIndicator: false
         )
     }
     .padding()

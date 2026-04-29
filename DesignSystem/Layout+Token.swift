@@ -74,7 +74,7 @@ public enum ConfidenceRingLayout {
 }
 
 public enum CalendarLayout {
-    public static let noteIndicatorSize: CGFloat = 4
+    public static let indicatorSize: CGFloat = 4
     public static let outOfMonthOpacity: Double = 0.35
     public static let todayBackgroundOpacity: Double = 0.15
 }

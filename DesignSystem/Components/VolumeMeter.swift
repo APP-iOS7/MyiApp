@@ -1,15 +1,18 @@
-import DesignSystem
 import Foundation
 import SwiftUI
 
-struct VolumeMeter: View {
+public struct VolumeMeter: View {
     let level: Float // 0...1
+
+    public init(level: Float) {
+        self.level = level
+    }
 
     private var amplified: CGFloat {
         CGFloat(cbrt(max(0, min(1, level))))
     }
 
-    var body: some View {
+    public var body: some View {
         GeometryReader { proxy in
             let available = min(proxy.size.width, proxy.size.height)
             let base = available * VolumeMeterLayout.baseRatio
