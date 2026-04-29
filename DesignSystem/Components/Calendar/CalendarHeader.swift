@@ -27,7 +27,7 @@ public struct CalendarHeader: View {
                     Image(systemName: "calendar")
                         .font(.system(size: IconSize.s))
                         .foregroundColor(.primary)
-                    Text(monthTitle)
+                    Text(month, format: .dateTime.year().month())
                         .font(.title3.weight(.semibold))
                         .foregroundColor(.primary)
                 }
@@ -48,13 +48,6 @@ public struct CalendarHeader: View {
             }
             .buttonStyle(NoHighlightButtonStyle())
         }
-    }
-
-    private var monthTitle: String {
-        let formatter = DateFormatter()
-        formatter.locale = .current
-        formatter.setLocalizedDateFormatFromTemplate("yMMMM")
-        return formatter.string(from: month)
     }
 
     private func previousMonth() {
