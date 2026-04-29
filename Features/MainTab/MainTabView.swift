@@ -24,11 +24,9 @@ public struct MainTabView: View {
             .tabItem { Label("육아 수첩", systemImage: "book.fill") }
             .tag(MainTabFeature.Tab.note)
 
-            NavigationStack {
-                VoiceView(baby: store.selectedBaby)
-            }
-            .tabItem { Label("울음 분석", systemImage: "waveform") }
-            .tag(MainTabFeature.Tab.voice)
+            VoiceView(store: store.scope(state: \.voice, action: \.voice))
+                .tabItem { Label("울음 분석", systemImage: "waveform") }
+                .tag(MainTabFeature.Tab.voice)
 
             NavigationStack {
                 StatisticView(store: store.scope(state: \.statistic, action: \.statistic))
