@@ -2,20 +2,17 @@ import SwiftUI
 
 public struct CalendarGrid: View {
     public let month: Date
-    public let selected: Date
+    @Binding public var selected: Date
     public let datesWithIndicator: Set<Date>
-    public let onSelect: (Date) -> Void
 
     public init(
         month: Date,
-        selected: Date,
-        datesWithIndicator: Set<Date> = [],
-        onSelect: @escaping (Date) -> Void
+        selected: Binding<Date>,
+        datesWithIndicator: Set<Date> = []
     ) {
         self.month = month
-        self.selected = selected
+        self._selected = selected
         self.datesWithIndicator = datesWithIndicator
-        self.onSelect = onSelect
     }
 
     public var body: some View {
@@ -47,7 +44,7 @@ public struct CalendarGrid: View {
                     hasIndicator: hasIndicator(on: day.date)
                 )
                 .contentShape(Rectangle())
-                .onTapGesture { onSelect(day.date) }
+                .onTapGesture { selected = day.date }
             }
         }
     }
@@ -98,13 +95,12 @@ public struct CalendarGrid: View {
     VStack {
         CalendarGrid(
             month: Date(),
-            selected: selected,
+            selected: $selected,
             datesWithIndicator: [
                 Calendar.current.date(byAdding: .day, value: -3, to: Date())!,
                 Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
                 Calendar.current.date(byAdding: .day, value: 5, to: Date())!,
-            ],
-            onSelect: { selected = $0 }
+            ]
         )
         .padding(Spacing.m)
         Spacer()

@@ -5,12 +5,14 @@ import SwiftUI
 public struct NoteView: View {
     public let baby: Baby?
 
-    @State private var month: Date = Date()
-    @State private var selected: Date = Date()
+    @State private var month: Date = .init()
+    @State private var selected: Date = .init()
 
     public init(baby: Baby?) {
         self.baby = baby
     }
+
+    fileprivate var sampleNotes: [PreviewNote] = PreviewNote.sampleNotes
 
     public var body: some View {
         ScrollView {
@@ -21,9 +23,8 @@ public struct NoteView: View {
                     CalendarHeader(month: $month, selected: $selected)
                     CalendarGrid(
                         month: month,
-                        selected: selected,
-                        datesWithIndicator: Set(sampleNotes.map { Calendar.current.startOfDay(for: $0.date) }),
-                        onSelect: { selected = $0 }
+                        selected: $selected,
+                        datesWithIndicator: Set(sampleNotes.map { Calendar.current.startOfDay(for: $0.date) })
                     )
                 }
 
@@ -36,12 +37,11 @@ public struct NoteView: View {
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
     }
 
-    @ViewBuilder
-    private var eventSection: some View {
-        let notesOfDay = sampleNotes.filter {
-            Calendar.current.isDate($0.date, inSameDayAs: selected)
-        }
+    private var notesOfDay: [PreviewNote] {
+        sampleNotes.filter { Calendar.current.isDate($0.date, inSameDayAs: selected) }
+    }
 
+    private var eventSection: some View {
         SectionCard(spacing: Spacing.m) {
             HStack {
                 Text(selected, format: .dateTime.month(.wide).day().weekday(.wide))
@@ -58,20 +58,22 @@ public struct NoteView: View {
             if notesOfDay.isEmpty {
                 emptyState
             } else {
-                VStack(spacing: Spacing.s) {
-                    ForEach(notesOfDay) { note in
-                        NoteEventRow(
-                            title: note.title,
-                            description: note.description,
-                            date: note.date,
-                            hasImage: note.hasImage,
-                            hasReminder: note.hasReminder
-                        )
-                        if note.id != notesOfDay.last?.id {
-                            Divider()
-                        }
-                    }
-                }
+                noteList(notesOfDay)
+            }
+        }
+    }
+
+    private func noteList(_ notes: [PreviewNote]) -> some View {
+        LazyVStack(spacing: Spacing.s) {
+            ForEach(notes) { note in
+                NoteEventRow(
+                    title: note.title,
+                    description: note.description,
+                    date: note.date,
+                    hasImage: note.hasImage,
+                    hasReminder: note.hasReminder
+                )
+                if note.id != notes.last?.id { Divider() }
             }
         }
     }
@@ -88,8 +90,17 @@ public struct NoteView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, Spacing.l)
     }
+}
 
-    private var sampleNotes: [PreviewNote] {
+private struct PreviewNote: Identifiable {
+    let id = UUID()
+    let date: Date
+    let title: String
+    let description: String
+    let hasImage: Bool
+    let hasReminder: Bool
+
+    static var sampleNotes: [PreviewNote] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         let yesterday = calendar.date(byAdding: .day, value: -1, to: today)!
@@ -134,18 +145,9 @@ public struct NoteView: View {
                 description: "6개월 차 4종",
                 hasImage: false,
                 hasReminder: true
-            )
+            ),
         ]
     }
-}
-
-private struct PreviewNote: Identifiable {
-    let id = UUID()
-    let date: Date
-    let title: String
-    let description: String
-    let hasImage: Bool
-    let hasReminder: Bool
 }
 
 #Preview {
