@@ -1,16 +1,14 @@
 import DesignSystem
+import Domain
 import SwiftUI
 
 struct NoteEventRow: View {
-    let title: String
-    let description: String
-    let date: Date
-    let hasImage: Bool
-    let hasReminder: Bool
+    let note: Note
 
     var body: some View {
         HStack(alignment: .top, spacing: Spacing.m) {
-            if hasImage {
+            if !note.imageURLs.isEmpty {
+                // TODO: imageURLs 실제 이미지 렌더링으로 교체 (현재는 placeholder)
                 RoundedRectangle(cornerRadius: Radius.s)
                     .fill(Color.gray.opacity(Opacity.track))
                     .frame(width: 72, height: 72)
@@ -21,24 +19,26 @@ struct NoteEventRow: View {
             }
 
             VStack(alignment: .leading, spacing: Spacing.xs) {
-                HStack(spacing: Spacing.xs) {
-                    if hasReminder {
-                        Image(systemName: "bell.fill")
+                if note.kind == .schedule {
+                    HStack(spacing: Spacing.xs) {
+                        if note.reminder != nil {
+                            Image(systemName: "bell.fill")
+                                .font(.caption)
+                                .foregroundColor(.Semantic.primaryAction)
+                        }
+                        Text(note.date, format: .dateTime.hour().minute())
                             .font(.caption)
-                            .foregroundColor(.Semantic.primaryAction)
+                            .foregroundColor(.Semantic.secondaryText)
+                            .monospacedDigit()
                     }
-                    Text(date, format: .dateTime.hour().minute())
-                        .font(.caption)
-                        .foregroundColor(.Semantic.secondaryText)
-                        .monospacedDigit()
                 }
 
-                Text(title)
+                Text(note.title)
                     .font(.body.weight(.medium))
                     .lineLimit(1)
 
-                if !description.isEmpty {
-                    Text(description)
+                if !note.description.isEmpty {
+                    Text(note.description)
                         .font(.subheadline)
                         .foregroundColor(.Semantic.secondaryText)
                         .lineLimit(2)
@@ -53,83 +53,57 @@ struct NoteEventRow: View {
 #Preview {
     ScrollView {
         VStack(spacing: Spacing.m) {
-            // 1. 사진 ✓ / 알림 ✗ / 설명 ✓ — 기본 추억
+            // 일지 — 사진 + 설명
             NoteEventRow(
-                title: "처음 뒤집기 성공! 🎉",
-                description: "오후 낮잠 후에 갑자기 뒤집어서 깜짝 놀랐다. 이렇게 조금 더 글을 쓰면 길어지겠진ㅇㄹ마ㅣ눌ㄹㄴㅇㄹ나",
-                date: Date(),
-                hasImage: true,
-                hasReminder: false
+                note: Note(
+                    kind: .diary,
+                    title: "처음 뒤집기 성공! 🎉",
+                    description: "오후 낮잠 후에 갑자기 뒤집어서 깜짝 놀랐다.",
+                    date: Date(),
+                    imageURLs: [URL(string: "https://example.com/photo.jpg")].compactMap { $0 }
+                )
             )
             Divider()
 
-            // 2. 사진 ✗ / 알림 ✓ / 설명 ✓ — 기본 일정
+            // 일지 — 제목만
             NoteEventRow(
-                title: "소아과 예약",
-                description: "예방접종 + 정기 검진",
-                date: Date(),
-                hasImage: false,
-                hasReminder: true
+                note: Note(kind: .diary, title: "오전 산책", date: Date())
             )
             Divider()
 
-            // 3. 사진 ✗ / 알림 ✗ / 설명 ✓ — 단순 기록
+            // 일정 — 알림 없음
             NoteEventRow(
-                title: "수면 일지",
-                description: "8시간 푹 잠. 새벽에 한 번만 깸.",
-                date: Date(),
-                hasImage: false,
-                hasReminder: false
+                note: Note(
+                    kind: .schedule,
+                    title: "조부모님 방문",
+                    description: "오후에 오신다고 함",
+                    date: Date()
+                )
             )
             Divider()
 
-            // 4. 사진 ✓ / 알림 ✓ / 설명 ✓ — 사진 있는 일정
+            // 일정 — 알림 있음
             NoteEventRow(
-                title: "100일 사진 예약",
-                description: "스튜디오 14시",
-                date: Date(),
-                hasImage: true,
-                hasReminder: true
+                note: Note(
+                    kind: .schedule,
+                    title: "소아과 예약",
+                    description: "예방접종 + 정기 검진",
+                    date: Date(),
+                    reminder: Reminder(scheduledAt: Date())
+                )
             )
             Divider()
 
-            // 5. 사진 ✓ / 알림 ✗ / 설명 ✗ — 사진 + 제목
+            // 일정 — 사진 + 알림
             NoteEventRow(
-                title: "낮잠 자는 모습",
-                description: "",
-                date: Date(),
-                hasImage: true,
-                hasReminder: false
-            )
-            Divider()
-
-            // 6. 사진 ✗ / 알림 ✓ / 설명 ✗ — 알림 + 제목
-            NoteEventRow(
-                title: "분유 시간",
-                description: "",
-                date: Date(),
-                hasImage: false,
-                hasReminder: true
-            )
-            Divider()
-
-            // 7. 사진 ✗ / 알림 ✗ / 설명 ✗ — 제목만
-            NoteEventRow(
-                title: "오전 산책",
-                description: "",
-                date: Date(),
-                hasImage: false,
-                hasReminder: false
-            )
-            Divider()
-
-            // 8. 사진 ✓ / 알림 ✓ / 설명 ✗ — 사진 + 알림 + 제목
-            NoteEventRow(
-                title: "돌잔치 D-day",
-                description: "",
-                date: Date(),
-                hasImage: true,
-                hasReminder: true
+                note: Note(
+                    kind: .schedule,
+                    title: "100일 사진 예약",
+                    description: "스튜디오 14시",
+                    date: Date(),
+                    imageURLs: [URL(string: "https://example.com/photo.jpg")].compactMap { $0 },
+                    reminder: Reminder(scheduledAt: Date())
+                )
             )
         }
         .padding()
