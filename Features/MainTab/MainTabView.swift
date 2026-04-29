@@ -24,9 +24,9 @@ public struct MainTabView: View {
             .tabItem { Label("육아 수첩", systemImage: "book.fill") }
             .tag(MainTabFeature.Tab.note)
 
-            VoiceView(store: store.scope(state: \.voice, action: \.voice))
+            CryAnalysisHomeView(store: store.scope(state: \.cryAnalysis, action: \.cryAnalysis))
                 .tabItem { Label("울음 분석", systemImage: "waveform") }
-                .tag(MainTabFeature.Tab.voice)
+                .tag(MainTabFeature.Tab.cryAnalysis)
 
             NavigationStack {
                 StatisticView(store: store.scope(state: \.statistic, action: \.statistic))

@@ -3,7 +3,7 @@ import Domain
 import Foundation
 
 @Reducer
-public struct VoiceFeature {
+public struct CryAnalysisHomeFeature {
     @ObservableState
     public struct State: Equatable {
         public var baby: Baby

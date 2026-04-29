@@ -3,10 +3,10 @@ import DesignSystem
 import Domain
 import SwiftUI
 
-public struct VoiceView: View {
-    @Bindable var store: StoreOf<VoiceFeature>
+public struct CryAnalysisHomeView: View {
+    @Bindable var store: StoreOf<CryAnalysisHomeFeature>
 
-    public init(store: StoreOf<VoiceFeature>) {
+    public init(store: StoreOf<CryAnalysisHomeFeature>) {
         self.store = store
     }
 
