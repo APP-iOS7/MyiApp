@@ -2,11 +2,14 @@ import SwiftUI
 
 public struct YearMonthPicker: View {
     @Binding var month: Date
-    let yearRange: ClosedRange<Int>
 
-    public init(month: Binding<Date>, yearRange: ClosedRange<Int>) {
+    public init(month: Binding<Date>) {
         self._month = month
-        self.yearRange = yearRange
+    }
+
+    private var yearRange: ClosedRange<Int> {
+        let currentYear = Calendar.current.component(.year, from: Date())
+        return (currentYear - 3) ... (currentYear + 3)
     }
 
     public var body: some View {
@@ -60,6 +63,5 @@ public struct YearMonthPicker: View {
 
 #Preview {
     @Previewable @State var month = Date()
-    let currentYear = Calendar.current.component(.year, from: Date())
-    YearMonthPicker(month: $month, yearRange: (currentYear - 10) ... (currentYear + 10))
+    YearMonthPicker(month: $month)
 }
