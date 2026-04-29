@@ -15,3 +15,18 @@ public struct CryAnalysisRecord: Identifiable, Hashable, Sendable, Codable {
         self.windows = windows
     }
 }
+
+extension CryAnalysisRecord {
+    public var aggregatedScores: [EmotionScore] {
+        guard !windows.isEmpty else { return [] }
+
+        let sumByEmotion = Dictionary(
+            windows.flatMap(\.self).map { ($0.emotion, $0.confidence) },
+            uniquingKeysWith: +
+        )
+        let windowCount = Double(windows.count)
+        return sumByEmotion
+            .map { EmotionScore(emotion: $0.key, confidence: $0.value / windowCount) }
+            .sorted { $0.confidence > $1.confidence }
+    }
+}
