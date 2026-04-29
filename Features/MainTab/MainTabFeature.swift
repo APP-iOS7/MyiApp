@@ -11,6 +11,7 @@ public struct MainTabFeature {
         public var babies: IdentifiedArrayOf<Baby>
         public var selectedBabyID: Baby.ID
         public var home: HomeFeature.State
+        public var voice: VoiceFeature.State
         public var statistic: StatisticFeature.State
         public var settings: SettingsFeature.State
 
@@ -21,6 +22,7 @@ public struct MainTabFeature {
             self.selectedBabyID = firstBaby.id
             self.selectedTab = selectedTab
             self.home = HomeFeature.State(baby: firstBaby)
+            self.voice = VoiceFeature.State(baby: firstBaby)
             self.statistic = StatisticFeature.State(baby: firstBaby)
             self.settings = SettingsFeature.State(
                 session: session,
@@ -36,6 +38,7 @@ public struct MainTabFeature {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case home(HomeFeature.Action)
+        case voice(VoiceFeature.Action)
         case statistic(StatisticFeature.Action)
         case settings(SettingsFeature.Action)
     }
@@ -46,6 +49,9 @@ public struct MainTabFeature {
         BindingReducer()
         Scope(state: \.home, action: \.home) {
             HomeFeature()
+        }
+        Scope(state: \.voice, action: \.voice) {
+            VoiceFeature()
         }
         Scope(state: \.statistic, action: \.statistic) {
             StatisticFeature()
@@ -58,11 +64,12 @@ public struct MainTabFeature {
             case .binding(\.selectedBabyID):
                 if let baby = state.selectedBaby {
                     state.home.baby = baby
+                    state.voice.baby = baby
                     state.statistic.baby = baby
                 }
                 return .none
 
-            case .binding, .home, .statistic, .settings:
+            case .binding, .home, .voice, .statistic, .settings:
                 return .none
             }
         }
