@@ -3,17 +3,11 @@ import SwiftUI
 public struct CalendarHeader: View {
     @Binding var month: Date
     @Binding var selected: Date
-    let yearRange: ClosedRange<Int>
     @State private var showMonthPicker = false
 
-    public init(
-        month: Binding<Date>,
-        selected: Binding<Date>,
-        yearRange: ClosedRange<Int>
-    ) {
+    public init(month: Binding<Date>, selected: Binding<Date>) {
         _month = month
         _selected = selected
-        self.yearRange = yearRange
     }
 
     public var body: some View {
@@ -38,7 +32,7 @@ public struct CalendarHeader: View {
                 }
             }
             .popover(isPresented: $showMonthPicker) {
-                YearMonthPicker(month: $month, yearRange: yearRange)
+                YearMonthPicker(month: $month)
                     .presentationCompactAdaptation(.popover)
             }
 
@@ -91,11 +85,6 @@ public struct CalendarHeader: View {
 #Preview {
     @Previewable @State var month = Date()
     @Previewable @State var selected = Date()
-    let currentYear = Calendar.current.component(.year, from: Date())
-    CalendarHeader(
-        month: $month,
-        selected: $selected,
-        yearRange: (currentYear - 10) ... (currentYear + 10)
-    )
-    .padding(Spacing.m)
+    CalendarHeader(month: $month, selected: $selected)
+        .padding(Spacing.m)
 }
