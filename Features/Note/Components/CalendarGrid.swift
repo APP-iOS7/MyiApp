@@ -1,0 +1,129 @@
+import DesignSystem
+import SwiftUI
+
+public struct CalendarGrid: View {
+    public let month: Date
+    public let selected: Date
+    public let datesWithNotes: Set<Date>
+    public let onSelect: (Date) -> Void
+
+    public init(
+        month: Date,
+        selected: Date,
+        datesWithNotes: Set<Date> = [],
+        onSelect: @escaping (Date) -> Void
+    ) {
+        self.month = month
+        self.selected = selected
+        self.datesWithNotes = datesWithNotes
+        self.onSelect = onSelect
+    }
+
+    public var body: some View {
+        VStack(spacing: Spacing.s) {
+            weekdayHeader
+            daysGrid
+        }
+    }
+
+    private var weekdayHeader: some View {
+        HStack(spacing: 0) {
+            ForEach(makeOrderedWeekdays(), id: \.weekday) { item in
+                Text(item.symbol)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(item.color)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .aspectRatio(1, contentMode: .fit)
+            }
+        }
+    }
+
+    private var daysGrid: some View {
+        let columns = Array(repeating: GridItem(.flexible(), spacing: 0), count: 7)
+        return LazyVGrid(columns: columns, spacing: Spacing.xs) {
+            ForEach(makeDays(for: month)) { day in
+                CalendarDayCell(
+                    day: day,
+                    isSelected: Calendar.current.isDate(day.date, inSameDayAs: selected),
+                    hasNotes: hasNotes(on: day.date)
+                )
+                .contentShape(Rectangle())
+                .onTapGesture { onSelect(day.date) }
+            }
+        }
+    }
+
+    private func makeDays(for month: Date) -> [CalendarDay] {
+        let calendar = Calendar.current
+        let monthComponents = calendar.dateComponents([.year, .month], from: month)
+        guard let firstOfMonth = calendar.date(from: monthComponents) else { return [] }
+
+        let weekdayOfFirst = calendar.component(.weekday, from: firstOfMonth)
+        var leadingOffset = weekdayOfFirst - calendar.firstWeekday
+        if leadingOffset < 0 { leadingOffset += 7 }
+        guard let gridStart = calendar.date(byAdding: .day, value: -leadingOffset, to: firstOfMonth) else { return [] }
+
+        return (0 ..< 42).map { offset in
+            let date = calendar.date(byAdding: .day, value: offset, to: gridStart)
+                ?? gridStart
+            return CalendarDay(
+                date: calendar.startOfDay(for: date),
+                isCurrentMonth: calendar.isDate(date, equalTo: month, toGranularity: .month)
+            )
+        }
+    }
+
+    private func makeOrderedWeekdays() -> [(weekday: Int, symbol: String, color: Color)] {
+        let calendar = Calendar.current
+        let symbols = calendar.veryShortWeekdaySymbols
+        return (0 ..< 7).map { offset in
+            let weekday = ((calendar.firstWeekday - 1 + offset) % 7) + 1
+            let color: Color = switch weekday {
+            case 1: .red
+            case 7: .blue
+            default: .primary
+            }
+            return (weekday: weekday, symbol: symbols[weekday - 1], color: color)
+        }
+    }
+
+    private func hasNotes(on date: Date) -> Bool {
+        let calendar = Calendar.current
+        let target = calendar.startOfDay(for: date)
+        return datesWithNotes.contains { calendar.isDate($0, inSameDayAs: target) }
+    }
+}
+
+#Preview("Calendar") {
+    StatefulPreviewWrapper(initialDate: Date()) { selected, setSelected in
+        VStack {
+            CalendarGrid(
+                month: Date(),
+                selected: selected,
+                datesWithNotes: [
+                    Calendar.current.date(byAdding: .day, value: -3, to: Date())!,
+                    Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
+                    Calendar.current.date(byAdding: .day, value: 5, to: Date())!,
+                ],
+                onSelect: setSelected
+            )
+            .padding(Spacing.m)
+            Spacer()
+        }
+        .background(Color.Semantic.screenBackground)
+    }
+}
+
+private struct StatefulPreviewWrapper<Content: View>: View {
+    @State private var selected: Date
+    let content: (Date, @escaping (Date) -> Void) -> Content
+
+    init(initialDate: Date, @ViewBuilder content: @escaping (Date, @escaping (Date) -> Void) -> Content) {
+        _selected = State(initialValue: initialDate)
+        self.content = content
+    }
+
+    var body: some View {
+        content(selected) { selected = $0 }
+    }
+}
