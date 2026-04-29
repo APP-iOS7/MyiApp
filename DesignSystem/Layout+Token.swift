@@ -73,6 +73,12 @@ public enum ConfidenceRingLayout {
     public static let percentTextRatio: CGFloat = 0.1
 }
 
+public enum CalendarLayout {
+    public static let noteIndicatorSize: CGFloat = 4
+    public static let outOfMonthOpacity: Double = 0.35
+    public static let todayBackgroundOpacity: Double = 0.15
+}
+
 public enum VolumeMeterLayout {
     /// 기본 외곽 ring 지름 — 사용 가능 공간 대비 비율 (rest 상태)
     public static let baseRatio: CGFloat = 0.5
