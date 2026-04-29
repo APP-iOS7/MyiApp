@@ -17,7 +17,8 @@ public struct NoteView: View {
             VStack(alignment: .leading, spacing: Spacing.m) {
                 ScreenTitle("육아 수첩")
 
-                SectionCard(spacing: 0) {
+                SectionCard(spacing: Spacing.s) {
+                    CalendarHeader(month: $month)
                     CalendarGrid(
                         month: month,
                         selected: selected,
