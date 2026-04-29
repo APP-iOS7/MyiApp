@@ -40,7 +40,7 @@ private struct CategoryIcon: View {
                 .padding(Spacing.xs)
                 .background(
                     RoundedRectangle(cornerRadius: Radius.m)
-                        .fill(isSelected ? tintColor.opacity(0.15) : Color.gray.opacity(0.08))
+                        .fill(isSelected ? tintColor.opacity(Opacity.highlight) : Color.gray.opacity(Opacity.track))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: Radius.m)

@@ -19,12 +19,12 @@ public struct VolumeMeter: View {
 
             ZStack {
                 Circle()
-                    .fill(Color.Semantic.primaryAction.opacity(VolumeMeterLayout.outerOpacity))
+                    .fill(Color.Semantic.primaryAction.opacity(Opacity.track))
                     .frame(width: base, height: base)
                     .scaleEffect(1 + amplified * VolumeMeterLayout.outerPulseBoost)
 
                 Circle()
-                    .fill(Color.Semantic.primaryAction.opacity(VolumeMeterLayout.midOpacity))
+                    .fill(Color.Semantic.primaryAction.opacity(Opacity.soft))
                     .frame(
                         width: base * VolumeMeterLayout.midRingRatio,
                         height: base * VolumeMeterLayout.midRingRatio

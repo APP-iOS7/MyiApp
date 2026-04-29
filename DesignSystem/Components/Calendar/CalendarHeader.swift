@@ -2,11 +2,17 @@ import SwiftUI
 
 public struct CalendarHeader: View {
     @Binding var month: Date
+    @Binding var selected: Date
     let yearRange: ClosedRange<Int>
     @State private var showMonthPicker = false
 
-    public init(month: Binding<Date>, yearRange: ClosedRange<Int>) {
-        self._month = month
+    public init(
+        month: Binding<Date>,
+        selected: Binding<Date>,
+        yearRange: ClosedRange<Int>
+    ) {
+        _month = month
+        _selected = selected
         self.yearRange = yearRange
     }
 
@@ -18,7 +24,6 @@ public struct CalendarHeader: View {
                     .foregroundColor(.primary)
                     .frame(width: IconSize.xl, height: IconSize.xl)
             }
-            .buttonStyle(NoHighlightButtonStyle())
 
             Spacer()
 
@@ -32,7 +37,6 @@ public struct CalendarHeader: View {
                         .foregroundColor(.primary)
                 }
             }
-            .buttonStyle(NoHighlightButtonStyle())
             .popover(isPresented: $showMonthPicker) {
                 YearMonthPicker(month: $month, yearRange: yearRange)
                     .presentationCompactAdaptation(.popover)
@@ -46,8 +50,29 @@ public struct CalendarHeader: View {
                     .foregroundColor(.primary)
                     .frame(width: IconSize.xl, height: IconSize.xl)
             }
-            .buttonStyle(NoHighlightButtonStyle())
+
+            Spacer()
+
+            Button(action: {
+                let today = Date()
+                month = today
+                selected = today
+            }) {
+                Text("오늘")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.primary)
+                    .padding(.vertical, Spacing.s)
+                    .padding(.horizontal, Spacing.m)
+                    .overlay(Capsule().stroke(Color.primary, lineWidth: 1))
+            }
+            .disabled(isSelectedToday)
+            .opacity(isSelectedToday ? Opacity.disabled : 1)
         }
+        .buttonStyle(NoHighlightButtonStyle())
+    }
+
+    private var isSelectedToday: Bool {
+        Calendar.current.isDateInToday(selected)
     }
 
     private func previousMonth() {
@@ -65,7 +90,12 @@ public struct CalendarHeader: View {
 
 #Preview {
     @Previewable @State var month = Date()
+    @Previewable @State var selected = Date()
     let currentYear = Calendar.current.component(.year, from: Date())
-    CalendarHeader(month: $month, yearRange: (currentYear - 10) ... (currentYear + 10))
-        .padding(Spacing.m)
+    CalendarHeader(
+        month: $month,
+        selected: $selected,
+        yearRange: (currentYear - 10) ... (currentYear + 10)
+    )
+    .padding(Spacing.m)
 }

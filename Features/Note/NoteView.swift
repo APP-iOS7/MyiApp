@@ -24,7 +24,11 @@ public struct NoteView: View {
                 ScreenTitle("육아 수첩")
 
                 SectionCard(spacing: Spacing.s) {
-                    CalendarHeader(month: $month, yearRange: yearRange)
+                    CalendarHeader(
+                        month: $month,
+                        selected: $selected,
+                        yearRange: yearRange
+                    )
                     CalendarGrid(
                         month: month,
                         selected: selected,

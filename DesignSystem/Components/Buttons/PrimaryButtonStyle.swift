@@ -19,7 +19,7 @@ public struct PrimaryButtonStyle: ButtonStyle {
                 .frame(height: ButtonSize.height)
                 .background(isEnabled ? Color.Semantic.primaryAction : .gray)
                 .clipShape(RoundedRectangle(cornerRadius: Radius.m))
-                .opacity(configuration.isPressed ? 0.7 : 1)
+                .opacity(configuration.isPressed ? Opacity.pressed : 1)
         }
     }
 }

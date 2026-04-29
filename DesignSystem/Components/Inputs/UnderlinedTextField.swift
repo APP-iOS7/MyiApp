@@ -58,7 +58,7 @@ public struct UnderlinedTextField<Trailing: View>: View {
             keyboardType: .decimalPad
         ) {
             Text("cm")
-                .foregroundColor(.primary.opacity(0.6))
+                .foregroundColor(.Semantic.secondaryText)
                 .font(.title2)
         }
     }

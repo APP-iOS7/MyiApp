@@ -25,7 +25,7 @@ struct DailyChartView: View {
             // 배경 링
             context.stroke(
                 Circle().path(in: ringRect),
-                with: .color(.gray.opacity(DailyChartLayout.backgroundRingOpacity)),
+                with: .color(.gray.opacity(Opacity.guide)),
                 lineWidth: lineWidth
             )
 
