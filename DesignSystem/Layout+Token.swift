@@ -31,8 +31,6 @@ public enum DailyChartLayout {
     public static let ringThicknessRatio: CGFloat = 0.4
     /// 시간 마커가 링 바깥쪽에서 떨어지는 거리
     public static let markerOuterPadding: CGFloat = 10
-    /// 배경 링 투명도
-    public static let backgroundRingOpacity: Double = 0.2
     /// 점 이벤트(수면 외)를 호로 표현할 길이 (분)
     public static let pointEventDurationMinutes: Int = 30
 }
@@ -40,8 +38,6 @@ public enum DailyChartLayout {
 public enum WeeklyChartLayout {
     /// 일별 컬럼 너비 대비 이벤트 막대 너비 비율
     public static let barWidthRatio: CGFloat = 0.6
-    /// 그리드 선 투명도
-    public static let gridLineOpacity: Double = 0.2
     /// 그리드 선 두께
     public static let gridLineWidth: CGFloat = 0.5
     /// 시간 라벨 표시 간격 (3 = 매 3시간마다)
@@ -57,6 +53,25 @@ public enum IconSize {
     public static let m: CGFloat = 24
     public static let l: CGFloat = 32
     public static let xl: CGFloat = 44
+}
+
+public enum Opacity {
+    /// 배경 트랙/외곽 링 등 가장 옅은 표시
+    public static let track: Double = 0.1
+    /// 가벼운 하이라이트 (오늘 셀 배경, 선택 칩 배경)
+    public static let highlight: Double = 0.15
+    /// 가이드 라인, 차트 배경 링
+    public static let guide: Double = 0.2
+    /// 중간 강조 (VolumeMeter 중간 링 등)
+    public static let soft: Double = 0.25
+    /// 비활성 액션
+    public static let disabled: Double = 0.3
+    /// 약한 흐림 (out-of-month 등 보조 콘텐츠)
+    public static let dimmed: Double = 0.35
+    /// 모달 backdrop
+    public static let scrim: Double = 0.5
+    /// 버튼 눌림 dim
+    public static let pressed: Double = 0.7
 }
 
 public enum ProgressBarLayout {
@@ -76,8 +91,6 @@ public enum ConfidenceRingLayout {
 
 public enum CalendarLayout {
     public static let indicatorSize: CGFloat = 4
-    public static let outOfMonthOpacity: Double = 0.35
-    public static let todayBackgroundOpacity: Double = 0.15
 }
 
 public enum VolumeMeterLayout {
@@ -89,11 +102,6 @@ public enum VolumeMeterLayout {
     public static let coreRatio: CGFloat = 0.6
     /// 마이크 아이콘 폰트 크기 — base 대비
     public static let iconRatio: CGFloat = 0.25
-
-    /// 외곽 ring 투명도
-    public static let outerOpacity: Double = 0.1
-    /// 중간 ring 투명도
-    public static let midOpacity: Double = 0.25
 
     /// 외곽 ring 펄스 — amp=1일 때 추가 scale 배수 (1 + boost)
     public static let outerPulseBoost: CGFloat = 1.0

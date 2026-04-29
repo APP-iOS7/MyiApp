@@ -5,7 +5,7 @@ public struct LoadingOverlay: View {
 
     public var body: some View {
         ZStack {
-            Color.black.opacity(0.5).ignoresSafeArea()
+            Color.black.opacity(Opacity.scrim).ignoresSafeArea()
             ProgressView()
                 .progressViewStyle(.circular)
                 .tint(.white)

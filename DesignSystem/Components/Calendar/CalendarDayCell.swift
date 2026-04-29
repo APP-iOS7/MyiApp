@@ -30,7 +30,7 @@ public struct CalendarDayCell: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .aspectRatio(1, contentMode: .fit)
-        .opacity(day.isCurrentMonth ? 1 : CalendarLayout.outOfMonthOpacity)
+        .opacity(day.isCurrentMonth ? 1 : Opacity.dimmed)
     }
 
     private var textColor: Color {
@@ -42,7 +42,7 @@ public struct CalendarDayCell: View {
 
     private var backgroundFill: Color {
         if isSelected { return Color.Semantic.primaryAction }
-        if day.isToday { return Color.Semantic.primaryAction.opacity(CalendarLayout.todayBackgroundOpacity) }
+        if day.isToday { return Color.Semantic.primaryAction.opacity(Opacity.highlight) }
         return .clear
     }
 }

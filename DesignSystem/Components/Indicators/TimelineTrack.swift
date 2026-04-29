@@ -8,7 +8,6 @@ public struct TimelineTrack: View {
 
     private let dotSize: CGFloat = 10
     private let lineWidth: CGFloat = 2
-    private let lineOpacity: CGFloat = 0.3
 
     public init(
         tintColor: Color,
@@ -32,7 +31,7 @@ public struct TimelineTrack: View {
 
     private func line(visible: Bool) -> some View {
         Rectangle()
-            .fill(visible ? Color.Semantic.secondaryText.opacity(lineOpacity) : Color.clear)
+            .fill(visible ? Color.Semantic.secondaryText.opacity(Opacity.disabled) : Color.clear)
             .frame(width: lineWidth)
             .frame(maxHeight: .infinity)
     }

@@ -43,7 +43,7 @@ struct WeeklyChartView: View {
         }
         context.stroke(
             path,
-            with: .color(.gray.opacity(WeeklyChartLayout.gridLineOpacity)),
+            with: .color(.gray.opacity(Opacity.guide)),
             lineWidth: WeeklyChartLayout.gridLineWidth
         )
     }
