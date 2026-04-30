@@ -31,7 +31,7 @@ public struct ScheduleEditorView: View {
                             "알림 시각",
                             selection: Binding(
                                 get: { value },
-                                set: { store.send(.customReminderChanged($0)) }
+                                set: { store.send(.view(.customReminderChanged($0))) }
                             )
                         )
                     }
@@ -41,15 +41,16 @@ public struct ScheduleEditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("취소") { store.send(.cancelButtonTapped) }
+                    Button("취소") { store.send(.view(.cancelButtonTapped)) }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("저장") { store.send(.saveButtonTapped) }
+                    Button("저장") { store.send(.view(.saveButtonTapped)) }
                         .disabled(!store.canSave)
                 }
             }
         }
         .presentationDetents([.medium, .large])
+        .alert($store.scope(state: \.alert, action: \.alert))
     }
 
     private var reminderPresetChips: some View {
@@ -60,14 +61,14 @@ public struct ScheduleEditorView: View {
                         label: preset.label,
                         isSelected: store.reminderMode == preset.mode
                     ) {
-                        store.send(.reminderPresetSelected(preset.mode))
+                        store.send(.view(.reminderPresetSelected(preset.mode)))
                     }
                 }
                 SelectableChip(
                     label: "직접 설정",
                     isSelected: store.isCustomReminder
                 ) {
-                    store.send(.customReminderSelected)
+                    store.send(.view(.customReminderSelected))
                 }
             }
         }
@@ -76,7 +77,7 @@ public struct ScheduleEditorView: View {
 
 #Preview {
     ScheduleEditorView(
-        store: Store(initialState: ScheduleEditorFeature.State(date: Date())) {
+        store: Store(initialState: ScheduleEditorFeature.State(babyID: UUID(), date: Date())) {
             ScheduleEditorFeature()
         }
     )

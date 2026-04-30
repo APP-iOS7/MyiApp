@@ -59,7 +59,6 @@ public struct NoteHomeFeature {
     private enum CancelID { case notesStream }
 
     @Dependency(\.noteClient) var noteClient
-    @Dependency(\.localNotificationClient) var localNotificationClient
 
     public init() {}
 
@@ -77,7 +76,10 @@ public struct NoteHomeFeature {
                 return .none
 
             case .diaryButtonTapped:
-                state.destination = .diary(DiaryEditorFeature.State(date: state.selected))
+                state.destination = .diary(DiaryEditorFeature.State(
+                    babyID: state.baby.id,
+                    date: state.selected
+                ))
                 return .none
 
             case .scheduleButtonTapped:
@@ -87,31 +89,15 @@ public struct NoteHomeFeature {
                     second: 0,
                     of: state.selected
                 ) ?? state.selected
-                state.destination = .schedule(ScheduleEditorFeature.State(date: defaultTime))
+                state.destination = .schedule(ScheduleEditorFeature.State(
+                    babyID: state.baby.id,
+                    date: defaultTime
+                ))
                 return .none
 
-            case let .destination(.presented(.diary(.delegate(.saved(note))))),
-                 let .destination(.presented(.schedule(.delegate(.saved(note))))):
-                state.destination = nil
-                return .run { [noteClient, localNotificationClient, babyID = state.baby.id] send in
-                    do {
-                        try await noteClient.addNote(babyID, note)
-                    } catch {
-                        return
-                    }
-                    if let reminder = note.reminder {
-                        try? await localNotificationClient.schedule(
-                            LocalNotificationRequest(
-                                id: note.id,
-                                title: note.title,
-                                body: note.description.isEmpty ? nil : note.description,
-                                scheduledAt: reminder.scheduledAt
-                            )
-                        )
-                    }
-                }
-
-            case .destination(.presented(.diary(.delegate(.cancelled)))),
+            case .destination(.presented(.diary(.delegate(.saved)))),
+                 .destination(.presented(.schedule(.delegate(.saved)))),
+                 .destination(.presented(.diary(.delegate(.cancelled)))),
                  .destination(.presented(.schedule(.delegate(.cancelled)))):
                 state.destination = nil
                 return .none
