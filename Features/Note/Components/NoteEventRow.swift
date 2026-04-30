@@ -66,6 +66,7 @@ struct NoteEventRow: View {
             // 일지 — 사진 + 설명
             NoteEventRow(
                 note: Note(
+                    creatorID: "preview",
                     kind: .diary,
                     title: "처음 뒤집기 성공! 🎉",
                     description: "오후 낮잠 후에 갑자기 뒤집어서 깜짝 놀랐다.",
@@ -77,13 +78,14 @@ struct NoteEventRow: View {
 
             // 일지 — 제목만
             NoteEventRow(
-                note: Note(kind: .diary, title: "오전 산책", date: Date())
+                note: Note(creatorID: "preview", kind: .diary, title: "오전 산책", date: Date())
             )
             Divider()
 
             // 일정 — 알림 없음
             NoteEventRow(
                 note: Note(
+                    creatorID: "preview",
                     kind: .schedule,
                     title: "조부모님 방문",
                     description: "오후에 오신다고 함",
@@ -95,6 +97,7 @@ struct NoteEventRow: View {
             // 일정 — 알림 있음
             NoteEventRow(
                 note: Note(
+                    creatorID: "preview",
                     kind: .schedule,
                     title: "소아과 예약",
                     description: "예방접종 + 정기 검진",
@@ -107,6 +110,7 @@ struct NoteEventRow: View {
             // 일정 — 사진 + 알림
             NoteEventRow(
                 note: Note(
+                    creatorID: "preview",
                     kind: .schedule,
                     title: "100일 사진 예약",
                     description: "스튜디오 14시",
