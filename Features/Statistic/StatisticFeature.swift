@@ -22,7 +22,7 @@ public struct StatisticFeature {
             self.records = records
             self.selectedDate = selectedDate
             self.mode = mode
-            self.selectedCategories = Set(CareEvent.Category.statisticFilterCases)
+            selectedCategories = Set(CareEvent.Category.statisticFilterCases)
         }
 
         // MARK: - 집계 (Derived State)
@@ -79,7 +79,7 @@ public struct StatisticFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .task, .binding(\.selectedDate), .binding(\.mode):
+            case .binding(\.mode), .binding(\.selectedDate), .task:
                 return loadRecords(for: state)
 
             case let .recordsLoaded(records):
@@ -115,6 +115,7 @@ public struct StatisticFeature {
     }
 }
 
+// TODO: -  코드 더럽다
 extension CareEvent.Category {
     /// 통계 화면 필터 그리드에 노출할 카테고리 (vital/medical/growth은 제외)
     static let statisticFilterCases: [CareEvent.Category] = [.feeding, .potty, .sleep, .bath, .snack]
@@ -127,7 +128,7 @@ public enum StatisticMode: String, CaseIterable, Hashable, Sendable {
 
     public var stepDays: Int {
         switch self {
-        case .daily:  1
+        case .daily: 1
         case .weekly: 7
         }
     }
