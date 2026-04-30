@@ -31,17 +31,15 @@ public struct NoteView: View {
         .scrollIndicators(.hidden)
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
         .task { await store.send(.task).finish() }
-        .sheet(item: $store.sheet) { sheet in
-            switch sheet {
-            case let .diary(date):
-                DiaryEditorView(initialDate: date) { note in
-                    store.send(.noteSaved(note))
-                }
-            case let .schedule(date):
-                ScheduleEditorView(initialDate: date) { note in
-                    store.send(.noteSaved(note))
-                }
-            }
+        .sheet(
+            item: $store.scope(state: \.destination?.diary, action: \.destination.diary)
+        ) { diaryStore in
+            DiaryEditorView(store: diaryStore)
+        }
+        .sheet(
+            item: $store.scope(state: \.destination?.schedule, action: \.destination.schedule)
+        ) { scheduleStore in
+            ScheduleEditorView(store: scheduleStore)
         }
     }
 
