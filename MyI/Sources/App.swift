@@ -1,18 +1,13 @@
-import Clients
 import ComposableArchitecture
-import DesignSystem
 import Features
 import SwiftUI
 
 @main
 struct MyIApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     private let store = Store(initialState: AppFeature.State()) {
         AppFeature()
-    }
-
-    init() {
-        AppBootstrap.configure()
-        DesignSystemFontFamily.registerAllCustomFonts()
     }
 
     var body: some Scene {
@@ -33,7 +28,6 @@ struct MyIApp: App {
                 }
             }
             .onAppear { store.send(.onAppear) }
-            .onOpenURL { _ = AppBootstrap.handle(url: $0) }
         }
     }
 }
