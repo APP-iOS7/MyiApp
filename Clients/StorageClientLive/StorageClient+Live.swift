@@ -23,6 +23,22 @@ extension StorageClient: @retroactive DependencyKey {
                 throw mapStorageError(error)
             }
         },
+        uploadDiaryPhotoFile: { @Sendable babyID, noteID, fileURL async throws(Domain.StorageError) -> URL in
+            guard Auth.auth().currentUser?.uid != nil else {
+                throw .unauthorized
+            }
+            let photoID = UUID()
+            let path = diaryPhotoPath(babyID: babyID, noteID: noteID, photoID: photoID)
+            let reference = Storage.storage().reference().child(path)
+            let metadata = StorageMetadata()
+            metadata.contentType = inferImageContentTypeFromFile(at: fileURL)
+            do {
+                _ = try await reference.putFileAsync(from: fileURL, metadata: metadata)
+                return try await reference.downloadURL()
+            } catch {
+                throw mapStorageError(error)
+            }
+        },
         deleteDiaryPhoto: { @Sendable downloadURL async throws(Domain.StorageError) -> Void in
             guard Auth.auth().currentUser?.uid != nil else {
                 throw .unauthorized
@@ -64,6 +80,15 @@ private func mapStorageError(_ error: Error) -> Domain.StorageError {
     default:
         return .unexpected
     }
+}
+
+private func inferImageContentTypeFromFile(at url: URL) -> String {
+    guard let handle = try? FileHandle(forReadingFrom: url) else {
+        return "application/octet-stream"
+    }
+    defer { try? handle.close() }
+    let prefix = (try? handle.read(upToCount: 12)) ?? Data()
+    return inferImageContentType(data: prefix)
 }
 
 private func inferImageContentType(data: Data) -> String {
