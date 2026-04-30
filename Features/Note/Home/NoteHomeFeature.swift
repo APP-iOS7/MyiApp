@@ -43,12 +43,6 @@ public struct NoteHomeFeature {
         }
     }
 
-    @Reducer
-    public enum Destination {
-        case diary(DiaryEditorFeature)
-        case schedule(ScheduleEditorFeature)
-    }
-
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case task
@@ -129,6 +123,14 @@ public struct NoteHomeFeature {
                 await send(._internal(.notesLoaded(notes)))
             }
         }
+    }
+}
+
+extension NoteHomeFeature {
+    @Reducer
+    public enum Destination {
+        case diary(DiaryEditorFeature)
+        case schedule(ScheduleEditorFeature)
     }
 }
 
