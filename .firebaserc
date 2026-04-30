@@ -1,5 +1,7 @@
 {
-  "projects": {},
+  "projects": {
+    "default": "my-i-1ad3e"
+  },
   "targets": {},
   "etags": {}
 }
