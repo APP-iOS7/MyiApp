@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import DesignSystem
 import Domain
+import PhotosUI
 import SwiftUI
 
 public struct DiaryEditorView: View {
@@ -41,9 +42,19 @@ public struct DiaryEditorView: View {
     private var photoStrip: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Spacing.s) {
-                AddPhotoButton { store.send(.addPhotoButtonTapped) }
-                ForEach(0 ..< store.photoCount, id: \.self) { _ in
-                    PhotoThumbnail { store.send(.removePhotoButtonTapped) }
+                PhotosPicker(
+                    selection: $store.pickerItems,
+                    maxSelectionCount: DiaryEditorFeature.maxPhotos,
+                    matching: .images
+                ) {
+                    AddPhotoLabel()
+                }
+                .buttonStyle(NoHighlightButtonStyle())
+
+                ForEach(store.photos) { photo in
+                    PhotoThumbnail(data: photo.data) {
+                        store.send(.removePhotoButtonTapped(photo.id))
+                    }
                 }
             }
         }
