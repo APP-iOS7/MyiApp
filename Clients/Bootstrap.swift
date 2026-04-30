@@ -49,6 +49,79 @@ public enum AppBootstrap {
             AppLogger.error("FCM token save failed: \(error)")
         }
     }
+
+    public static func handleRemoteNotification(payload: [String: String]) async {
+        guard let type = payload["type"],
+              let noteIDString = payload["noteID"],
+              let noteID = UUID(uuidString: noteIDString)
+        else {
+            AppLogger.error("invalid push payload: \(payload)")
+            return
+        }
+
+        switch type {
+        case "note_created":
+            guard let title = payload["title"],
+                  let scheduledAtString = payload["reminderScheduledAt"],
+                  !scheduledAtString.isEmpty,
+                  let scheduledAtMillis = Double(scheduledAtString)
+            else {
+                AppLogger.info("note_created without reminder, skip schedule")
+                return
+            }
+            let scheduledAt = Date(timeIntervalSince1970: scheduledAtMillis / 1000)
+            guard scheduledAt > Date() else {
+                AppLogger.debug("scheduledAt in past, skip schedule")
+                return
+            }
+            let body = payload["body"] ?? ""
+            await scheduleLocalReminder(
+                id: noteID,
+                title: title,
+                body: body.isEmpty ? nil : body,
+                scheduledAt: scheduledAt
+            )
+
+        case "note_deleted":
+            cancelLocalReminder(id: noteID)
+
+        default:
+            AppLogger.error("unknown push type: \(type)")
+        }
+    }
+
+    private static func scheduleLocalReminder(id: UUID, title: String, body: String?, scheduledAt: Date) async {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        if let body, !body.isEmpty {
+            content.body = body
+        }
+        content.sound = .default
+
+        let components = Calendar.current.dateComponents(
+            [.year, .month, .day, .hour, .minute, .second],
+            from: scheduledAt
+        )
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+        let request = UNNotificationRequest(
+            identifier: id.uuidString,
+            content: content,
+            trigger: trigger
+        )
+
+        do {
+            try await UNUserNotificationCenter.current().add(request)
+            AppLogger.info("push-driven schedule id=\(id) at=\(scheduledAt)")
+        } catch {
+            AppLogger.error("push-driven schedule failed: \(error) id=\(id)")
+        }
+    }
+
+    private static func cancelLocalReminder(id: UUID) {
+        UNUserNotificationCenter.current()
+            .removePendingNotificationRequests(withIdentifiers: [id.uuidString])
+        AppLogger.info("push-driven cancel id=\(id)")
+    }
 }
 
 private final class NotificationCoordinator: NSObject, @unchecked Sendable {}
