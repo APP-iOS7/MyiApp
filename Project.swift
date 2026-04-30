@@ -32,6 +32,7 @@ let project = Project(
                 .external(name: "FirebaseAuth"),
                 .external(name: "FirebaseFirestore"),
                 .external(name: "FirebaseStorage"),
+                .external(name: "FirebaseMessaging"),
                 .external(name: "GoogleSignIn"),
                 .external(name: "GoogleSignInSwift")
             ]
@@ -85,7 +86,8 @@ let project = Project(
                 "MyI/Resources"
             ],
             entitlements: .dictionary([
-                "com.apple.developer.applesignin": .array(["Default"])
+                "com.apple.developer.applesignin": .array(["Default"]),
+                "aps-environment": .string("development")
             ]),
             dependencies: [
                 .target(name: "Features")
