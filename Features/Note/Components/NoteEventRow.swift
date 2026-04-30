@@ -7,15 +7,25 @@ struct NoteEventRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: Spacing.m) {
-            if !note.imageURLs.isEmpty {
-                // TODO: imageURLs 실제 이미지 렌더링으로 교체 (현재는 placeholder)
-                RoundedRectangle(cornerRadius: Radius.s)
-                    .fill(Color.gray.opacity(Opacity.track))
-                    .frame(width: 72, height: 72)
-                    .overlay(
+            if let firstURL = note.imageURLs.first {
+                AsyncImage(url: firstURL) { phase in
+                    switch phase {
+                    case let .success(image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .failure:
                         Image(systemName: "photo")
                             .foregroundColor(.Semantic.secondaryText)
-                    )
+                    case .empty:
+                        ProgressView()
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+                .frame(width: 72, height: 72)
+                .background(Color.gray.opacity(Opacity.track))
+                .clipShape(RoundedRectangle(cornerRadius: Radius.s))
             }
 
             VStack(alignment: .leading, spacing: Spacing.xs) {
