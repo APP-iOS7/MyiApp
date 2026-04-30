@@ -97,6 +97,7 @@ public struct ScheduleEditorFeature {
                 return .none
 
             case let ._internal(.reminderAuthorizationResolved(authorization, mode)):
+                AppLogger.info("reminder authorization resolved: \(authorization)")
                 switch authorization {
                 case .authorized:
                     state.reminderMode = mode
@@ -186,10 +187,12 @@ public struct ScheduleEditorFeature {
     private func checkReminderAuthorization(pendingMode: ReminderMode) -> Effect<Action> {
         .run { [localNotificationClient] send in
             let status = await localNotificationClient.authorizationStatus()
+            AppLogger.debug("authorization status checked: \(status)")
             let resolved: LocalNotificationAuthorization
             switch status {
             case .notDetermined:
                 let granted = await localNotificationClient.requestPermission()
+                AppLogger.info("permission requested, granted=\(granted)")
                 resolved = granted ? .authorized : .denied
             case .authorized, .denied:
                 resolved = status
