@@ -1,5 +1,7 @@
 import Domain
+@preconcurrency import FirebaseAuth
 import FirebaseCore
+@preconcurrency import FirebaseFirestore
 @preconcurrency import FirebaseMessaging
 import GoogleSignIn
 @preconcurrency import UserNotifications
@@ -31,6 +33,22 @@ public enum AppBootstrap {
     public static func handleAPNsFailure(_ error: Error) {
         AppLogger.error("APNs registration failed: \(error)")
     }
+
+    public static func saveFCMToken(_ token: String) async {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            AppLogger.debug("FCM token save skipped: not authenticated")
+            return
+        }
+        do {
+            try await Firestore.firestore()
+                .collection("users")
+                .document(uid)
+                .setData(["fcmToken": token], merge: true)
+            AppLogger.info("FCM token saved for \(uid)")
+        } catch {
+            AppLogger.error("FCM token save failed: \(error)")
+        }
+    }
 }
 
 private final class NotificationCoordinator: NSObject, @unchecked Sendable {}
@@ -38,6 +56,8 @@ private final class NotificationCoordinator: NSObject, @unchecked Sendable {}
 extension NotificationCoordinator: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         AppLogger.info("FCM token received: \(fcmToken ?? "nil")")
+        guard let fcmToken else { return }
+        Task { await AppBootstrap.saveFCMToken(fcmToken) }
     }
 }
 
