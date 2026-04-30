@@ -15,6 +15,7 @@ public struct MainTabFeature {
         public var cryAnalysis: CryAnalysisHomeFeature.State
         public var statistic: StatisticFeature.State
         public var settings: SettingsFeature.State
+        public var notificationSync: NotificationSyncFeature.State
 
         public init?(session: Session, babies: [Baby], selectedTab: Tab = .home) {
             guard let firstBaby = babies.first else { return nil }
@@ -30,6 +31,7 @@ public struct MainTabFeature {
                 session: session,
                 babies: IdentifiedArray(uniqueElements: babies)
             )
+            self.notificationSync = NotificationSyncFeature.State(babyID: firstBaby.id)
         }
 
         public var selectedBaby: Baby? {
@@ -44,6 +46,7 @@ public struct MainTabFeature {
         case cryAnalysis(CryAnalysisHomeFeature.Action)
         case statistic(StatisticFeature.Action)
         case settings(SettingsFeature.Action)
+        case notificationSync(NotificationSyncFeature.Action)
     }
 
     public init() {}
@@ -65,6 +68,9 @@ public struct MainTabFeature {
         Scope(state: \.settings, action: \.settings) {
             SettingsFeature()
         }
+        Scope(state: \.notificationSync, action: \.notificationSync) {
+            NotificationSyncFeature()
+        }
         Reduce { state, action in
             switch action {
             case .binding(\.selectedBabyID):
@@ -74,9 +80,9 @@ public struct MainTabFeature {
                     state.cryAnalysis.baby = baby
                     state.statistic.baby = baby
                 }
-                return .none
+                return .send(.notificationSync(.babyChanged(state.selectedBabyID)))
 
-            case .binding, .home, .note, .cryAnalysis, .statistic, .settings:
+            case .binding, .home, .note, .cryAnalysis, .statistic, .settings, .notificationSync:
                 return .none
             }
         }
