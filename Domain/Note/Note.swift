@@ -2,6 +2,7 @@ import Foundation
 
 public struct Note: Identifiable, Hashable, Sendable, Codable {
     public let id: UUID
+    public let creatorID: String
     public var kind: NoteKind
     public var title: String
     public var description: String
@@ -12,6 +13,7 @@ public struct Note: Identifiable, Hashable, Sendable, Codable {
 
     public init(
         id: UUID = UUID(),
+        creatorID: String,
         kind: NoteKind,
         title: String,
         description: String = "",
@@ -21,6 +23,7 @@ public struct Note: Identifiable, Hashable, Sendable, Codable {
         createdAt: Date = Date()
     ) {
         self.id = id
+        self.creatorID = creatorID
         self.kind = kind
         self.title = title
         self.description = description

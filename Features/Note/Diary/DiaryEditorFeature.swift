@@ -71,6 +71,7 @@ public struct DiaryEditorFeature {
 
     @Dependency(\.noteClient) var noteClient
     @Dependency(\.storageClient) var storageClient
+    @Dependency(\.authClient) var authClient
 
     public init() {}
 
@@ -116,13 +117,19 @@ public struct DiaryEditorFeature {
 
             case .view(.saveButtonTapped):
                 guard !state.isSaving else { return .none }
+                guard let session = authClient.current() else {
+                    AppLogger.error("save aborted: not authenticated")
+                    state.isSaving = false
+                    return .send(._internal(.saveFailed(.unauthorized)))
+                }
                 state.isSaving = true
                 let noteID = UUID()
+                let creatorID = session.uid
                 let title = state.title
                 let description = state.description
                 let date = state.date
                 let photoDatas = state.photos.map(\.data)
-                AppLogger.info("save start noteID=\(noteID) photos=\(photoDatas.count)")
+                AppLogger.info("save start noteID=\(noteID) creatorID=\(creatorID) photos=\(photoDatas.count)")
                 return .run { [storageClient, noteClient, babyID = state.babyID] send in
                     let imageURLs: [URL]
                     do throws(StorageError) {
@@ -140,6 +147,7 @@ public struct DiaryEditorFeature {
 
                     let note = Note(
                         id: noteID,
+                        creatorID: creatorID,
                         kind: .diary,
                         title: title,
                         description: description,

@@ -74,6 +74,7 @@ public struct ScheduleEditorFeature {
     @Dependency(\.noteClient) var noteClient
     @Dependency(\.localNotificationClient) var localNotificationClient
     @Dependency(\.openURL) var openURL
+    @Dependency(\.authClient) var authClient
 
     public init() {}
 
@@ -125,6 +126,11 @@ public struct ScheduleEditorFeature {
 
             case .view(.saveButtonTapped):
                 guard !state.isSaving else { return .none }
+                guard let session = authClient.current() else {
+                    AppLogger.error("save aborted: not authenticated")
+                    state.isSaving = false
+                    return .send(._internal(.saveFailed(.unauthorized)))
+                }
                 state.isSaving = true
                 let reminder: Reminder? = switch state.reminderMode {
                 case .none:
@@ -135,6 +141,7 @@ public struct ScheduleEditorFeature {
                     Reminder(scheduledAt: alertDate)
                 }
                 let note = Note(
+                    creatorID: session.uid,
                     kind: .schedule,
                     title: state.title,
                     description: state.description,

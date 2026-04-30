@@ -51,8 +51,10 @@
 
             let dummyImage = URL(string: "https://picsum.photos/200")!
 
+            let creatorID = "preview"
             return [
                 Note(
+                    creatorID: creatorID,
                     kind: .diary,
                     title: "처음 뒤집기 성공! 🎉",
                     description: "오후 낮잠 후에 갑자기 뒤집어서 깜짝 놀랐다.",
@@ -60,6 +62,7 @@
                     imageURLs: [dummyImage]
                 ),
                 Note(
+                    creatorID: creatorID,
                     kind: .schedule,
                     title: "소아과 예약",
                     description: "예방접종 + 정기 검진",
@@ -67,6 +70,7 @@
                     reminder: Reminder(scheduledAt: at(today, hour: 17, minute: 50))
                 ),
                 Note(
+                    creatorID: creatorID,
                     kind: .diary,
                     title: "이유식 시작",
                     description: "쌀미음 5g — 잘 받아먹음",
@@ -74,6 +78,7 @@
                     imageURLs: [dummyImage]
                 ),
                 Note(
+                    creatorID: creatorID,
                     kind: .schedule,
                     title: "예방접종 D-day",
                     description: "6개월 차 4종",
