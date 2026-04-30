@@ -140,27 +140,12 @@ public struct ScheduleEditorFeature {
                     date: state.date,
                     reminder: reminder
                 )
-                return .run { [noteClient, localNotificationClient, babyID = state.babyID] send in
+                return .run { [noteClient, babyID = state.babyID] send in
                     do throws(NoteError) {
                         try await noteClient.addNote(babyID, note)
                     } catch {
                         await send(._internal(.saveFailed(error)))
                         return
-                    }
-                    if let reminder = note.reminder {
-                        do {
-                            try await localNotificationClient.schedule(
-                                LocalNotificationRequest(
-                                    id: note.id,
-                                    title: note.title,
-                                    body: note.description.isEmpty ? nil : note.description,
-                                    scheduledAt: reminder.scheduledAt
-                                )
-                            )
-                        } catch {
-                            // TODO: 알림 등록 실패 시 사용자 안내 정책 결정
-                            print("[ScheduleEditor] notification schedule failed: \(error)")
-                        }
                     }
                     await send(._internal(.saveCompleted))
                 }
