@@ -34,4 +34,19 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> Bool {
         AppBootstrap.handle(url: url)
     }
+
+    func application(
+        _ application: UIApplication,
+        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
+    ) {
+        let payload: [String: String] = Dictionary(uniqueKeysWithValues: userInfo.compactMap { key, value in
+            guard let key = key as? String, let value = value as? String else { return nil }
+            return (key, value)
+        })
+        Task {
+            await AppBootstrap.handleRemoteNotification(payload: payload)
+            completionHandler(.newData)
+        }
+    }
 }
