@@ -29,10 +29,10 @@ public struct DiaryEditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("취소") { store.send(.cancelButtonTapped) }
+                    Button("취소") { store.send(.view(.cancelButtonTapped)) }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("저장") { store.send(.saveButtonTapped) }
+                    Button("저장") { store.send(.view(.saveButtonTapped)) }
                         .disabled(!store.canSave)
                 }
             }
@@ -42,28 +42,33 @@ public struct DiaryEditorView: View {
     private var photoStrip: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: Spacing.s) {
-                PhotosPicker(
-                    selection: $store.pickerItems,
-                    maxSelectionCount: DiaryEditorFeature.maxPhotos,
-                    matching: .images
-                ) {
+                Button {
+                    store.isPickerPresented = true
+                } label: {
                     AddPhotoLabel()
                 }
                 .buttonStyle(NoHighlightButtonStyle())
 
                 ForEach(store.photos) { photo in
                     PhotoThumbnail(data: photo.data) {
-                        store.send(.removePhotoButtonTapped(photo.id))
+                        store.send(.view(.removePhotoButtonTapped(photo.id)))
                     }
                 }
             }
         }
+        .photosPicker(
+            isPresented: $store.isPickerPresented,
+            selection: $store.pickerItems,
+            maxSelectionCount: DiaryEditorFeature.maxPhotos,
+            matching: .images,
+            photoLibrary: .shared()
+        )
     }
 }
 
 #Preview {
     DiaryEditorView(
-        store: Store(initialState: DiaryEditorFeature.State(date: Date())) {
+        store: Store(initialState: DiaryEditorFeature.State(babyID: UUID(), date: Date())) {
             DiaryEditorFeature()
         }
     )
