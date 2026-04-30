@@ -91,10 +91,7 @@ let project = Project(
                 "aps-environment": .string("development")
             ]),
             dependencies: [
-                .target(name: "Features"),
-                .target(name: "Clients"),
-                .target(name: "DesignSystem"),
-                .external(name: "ComposableArchitecture")
+                .target(name: "Features")
             ],
             settings: .settings(
                 base: [
