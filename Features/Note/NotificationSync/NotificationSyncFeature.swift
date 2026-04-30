@@ -37,8 +37,10 @@ public struct NotificationSyncFeature {
             switch action {
             case .task:
                 guard let babyID = state.babyID else {
+                    AppLogger.info("babyID nil — listener stop")
                     return .cancel(id: CancelID.stream)
                 }
+                AppLogger.info("listener start for baby=\(babyID)")
                 return .run { [noteClient] send in
                     for await notes in noteClient.streamFutureScheduleNotes(babyID) {
                         await send(._internal(.notesReceived(notes)))
@@ -48,6 +50,7 @@ public struct NotificationSyncFeature {
 
             case let .babyChanged(newID):
                 let previousIDs = state.scheduledIDs
+                AppLogger.info("baby changed: \(state.babyID?.uuidString ?? "nil") → \(newID?.uuidString ?? "nil"), cancel \(previousIDs.count) prior")
                 state.scheduledIDs = []
                 state.babyID = newID
                 return .merge(
@@ -66,7 +69,9 @@ public struct NotificationSyncFeature {
                     return reminder.scheduledAt > now
                 }
                 let targetIDs = Set(target.map(\.id))
+                let added = targetIDs.subtracting(state.scheduledIDs)
                 let removed = state.scheduledIDs.subtracting(targetIDs)
+                AppLogger.info("notes=\(notes.count) target=\(target.count) added=\(added.count) removed=\(removed.count)")
                 state.scheduledIDs = targetIDs
                 return .run { [localNotificationClient] _ in
                     for note in target {
@@ -80,12 +85,14 @@ public struct NotificationSyncFeature {
                                     scheduledAt: reminder.scheduledAt
                                 )
                             )
+                            AppLogger.debug("scheduled \(note.id) at \(reminder.scheduledAt)")
                         } catch {
-                            print("[NotificationSync] schedule failed: \(error) for \(note.id)")
+                            AppLogger.error("schedule failed: \(error) for \(note.id)")
                         }
                     }
                     for id in removed {
                         await localNotificationClient.cancel(id)
+                        AppLogger.debug("cancelled \(id)")
                     }
                 }
             }
