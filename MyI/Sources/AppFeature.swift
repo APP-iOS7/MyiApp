@@ -25,6 +25,7 @@ public struct AppFeature {
 
     @Dependency(\.authClient) var authClient
     @Dependency(\.babyClient) var babyClient
+    @Dependency(\.localNotificationClient) var localNotificationClient
 
     public init() {}
 
@@ -35,11 +36,16 @@ public struct AppFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                return .run { [authClient] send in
-                    for await session in authClient.stateStream() {
-                        await send(.sessionUpdated(session))
+                return .merge(
+                    .run { [authClient] send in
+                        for await session in authClient.stateStream() {
+                            await send(.sessionUpdated(session))
+                        }
+                    },
+                    .run { [localNotificationClient] _ in
+                        _ = await localNotificationClient.requestPermission()
                     }
-                }
+                )
 
             case let .sessionUpdated(session):
                 state.session = session
