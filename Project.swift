@@ -71,6 +71,7 @@ let project = Project(
             infoPlist: .extendingDefault(with: [
                 "UILaunchStoryboardName": "LaunchScreen",
                 "NSMicrophoneUsageDescription": "아이의 울음소리를 분석하기 위해 마이크 권한이 필요합니다.",
+                "UIBackgroundModes": ["remote-notification"],
                 "CFBundleURLTypes": [
                     [
                         "CFBundleTypeRole": "Editor",
