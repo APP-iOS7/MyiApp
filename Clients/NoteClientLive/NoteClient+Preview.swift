@@ -13,6 +13,14 @@
                         continuation.finish()
                     }
                 },
+                streamFutureScheduleNotes: { @Sendable _ in
+                    AsyncStream { continuation in
+                        let now = Date()
+                        let notes = store.value.filter { $0.kind == .schedule && $0.date >= now }
+                        continuation.yield(notes)
+                        continuation.finish()
+                    }
+                },
                 addNote: { @Sendable _, note async throws(NoteError) in
                     store.withValue { $0.insert(note, at: 0) }
                 },
