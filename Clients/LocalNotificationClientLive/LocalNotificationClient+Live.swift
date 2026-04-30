@@ -6,6 +6,19 @@ import UserNotifications
 extension LocalNotificationClient: @retroactive TestDependencyKey {}
 extension LocalNotificationClient: @retroactive DependencyKey {
     public static let liveValue = Self(
+        authorizationStatus: { @Sendable in
+            let settings = await UNUserNotificationCenter.current().notificationSettings()
+            switch settings.authorizationStatus {
+            case .notDetermined:
+                return .notDetermined
+            case .denied:
+                return .denied
+            case .authorized, .provisional, .ephemeral:
+                return .authorized
+            @unknown default:
+                return .denied
+            }
+        },
         requestPermission: { @Sendable in
             let center = UNUserNotificationCenter.current()
             let granted = (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
