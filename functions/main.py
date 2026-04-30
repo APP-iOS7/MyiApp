@@ -54,13 +54,32 @@ def _send_multicast(tokens: list[str], title: str, body: str, data: dict[str, st
     if not tokens:
         print("no tokens to send")
         return
+    # banner + silent (content-available) 통합 push: foreground 에 banner,
+    # background 에 didReceiveRemoteNotification 호출되어 클라가 schedule/cancel.
     message = messaging.MulticastMessage(
         tokens=tokens,
         notification=messaging.Notification(title=title, body=body),
         data=data,
+        apns=messaging.APNSConfig(
+            payload=messaging.APNSPayload(
+                aps=messaging.Aps(content_available=True),
+            ),
+        ),
     )
     response = messaging.send_each_for_multicast(message)
     print(f"sent={response.success_count} failed={response.failure_count}")
+
+
+def _reminder_scheduled_at_millis(note: dict) -> str:
+    reminder = note.get("reminder")
+    if not reminder:
+        return ""
+    scheduled_at = reminder.get("scheduledAt")
+    if scheduled_at is None:
+        return ""
+    if hasattr(scheduled_at, "timestamp"):
+        return str(int(scheduled_at.timestamp() * 1000))
+    return ""
 
 
 @firestore_fn.on_document_created(document="babies/{babyId}/notes/{noteId}")
@@ -80,6 +99,7 @@ def on_note_created(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | No
     tokens = _user_fcm_tokens(receivers)
     creator_name = _creator_name(creator)
 
+    description_text = note.get("description", "") or ""
     _send_multicast(
         tokens=tokens,
         title="새 일정",
@@ -88,6 +108,9 @@ def on_note_created(event: firestore_fn.Event[firestore_fn.DocumentSnapshot | No
             "type": "note_created",
             "noteID": note_id,
             "babyID": baby_id,
+            "title": title_text,
+            "body": description_text,
+            "reminderScheduledAt": _reminder_scheduled_at_millis(note),
         },
     )
 
