@@ -80,6 +80,7 @@ public struct DiaryEditorFeature {
             switch action {
             case .binding(\.pickerItems):
                 let selectedIDs = state.pickerItems.compactMap(\.itemIdentifier)
+                let nilIdentifierCount = state.pickerItems.count - selectedIDs.count
                 let selectedIDSet = Set(selectedIDs)
                 state.photos.removeAll { !selectedIDSet.contains($0.id) }
                 let existingIDs = Set(state.photos.map(\.id))
@@ -87,6 +88,7 @@ public struct DiaryEditorFeature {
                     guard let id = item.itemIdentifier else { return false }
                     return !existingIDs.contains(id)
                 }
+                AppLogger.info("pickerItems changed: total=\(state.pickerItems.count) nilID=\(nilIdentifierCount) selected=\(selectedIDs.count) existing=\(existingIDs.count) new=\(newItems.count)")
                 return .run { send in
                     for item in newItems {
                         if let photo = await DiaryPhoto.load(from: item) {
@@ -96,7 +98,11 @@ public struct DiaryEditorFeature {
                 }
 
             case let ._internal(.photoLoaded(photo)):
-                guard !state.photos.contains(where: { $0.id == photo.id }) else { return .none }
+                guard !state.photos.contains(where: { $0.id == photo.id }) else {
+                    AppLogger.debug("photoLoaded skipped (duplicate): \(photo.id)")
+                    return .none
+                }
+                AppLogger.info("photoLoaded id=\(photo.id) bytes=\(photo.data.count)")
                 state.photos.append(photo)
                 return .none
 
@@ -116,6 +122,7 @@ public struct DiaryEditorFeature {
                 let description = state.description
                 let date = state.date
                 let photoDatas = state.photos.map(\.data)
+                AppLogger.info("save start noteID=\(noteID) photos=\(photoDatas.count)")
                 return .run { [storageClient, noteClient, babyID = state.babyID] send in
                     let imageURLs: [URL]
                     do throws(StorageError) {
@@ -126,6 +133,7 @@ public struct DiaryEditorFeature {
                             photos: photoDatas
                         )
                     } catch {
+                        AppLogger.error("upload failed: \(error)")
                         await send(._internal(.uploadFailed(error)))
                         return
                     }
@@ -141,17 +149,19 @@ public struct DiaryEditorFeature {
                     do throws(NoteError) {
                         try await noteClient.addNote(babyID, note)
                     } catch {
+                        AppLogger.error("addNote failed: \(error), rollback \(imageURLs.count) photos")
                         // TODO: rollback 정책 결정 (best-effort silent / logger 도입 / 제거) — Todo.md
                         for url in imageURLs {
                             do throws(StorageError) {
                                 try await storageClient.deleteDiaryPhoto(url)
                             } catch {
-                                print("rollback delete failed: \(error) for \(url)")
+                                AppLogger.error("rollback delete failed: \(error) for \(url)")
                             }
                         }
                         await send(._internal(.saveFailed(error)))
                         return
                     }
+                    AppLogger.info("save completed noteID=\(noteID)")
                     await send(._internal(.saveCompleted))
                 }
 
@@ -190,17 +200,18 @@ public extension DiaryEditorFeature {
 
         static func load(from item: PhotosPickerItem) async -> DiaryPhoto? {
             guard let id = item.itemIdentifier else {
-                print("[DiaryPhoto.load] itemIdentifier is nil")
+                AppLogger.error("itemIdentifier is nil")
                 return nil
             }
             do {
                 guard let data = try await item.loadTransferable(type: Data.self) else {
-                    print("[DiaryPhoto.load] loadTransferable returned nil for \(id)")
+                    AppLogger.error("loadTransferable returned nil for \(id)")
                     return nil
                 }
+                AppLogger.debug("loaded id=\(id) bytes=\(data.count)")
                 return DiaryPhoto(id: id, data: data)
             } catch {
-                print("[DiaryPhoto.load] loadTransferable failed: \(error) for \(id)")
+                AppLogger.error("loadTransferable failed: \(error) for \(id)")
                 return nil
             }
         }
@@ -213,22 +224,26 @@ private func uploadDiaryPhotos(
     noteID: UUID,
     photos: [Data]
 ) async throws(StorageError) -> [URL] {
+    AppLogger.info("uploadDiaryPhotos count=\(photos.count) babyID=\(babyID) noteID=\(noteID)")
     var uploaded: [URL] = []
     do throws(StorageError) {
-        for data in photos {
+        for (index, data) in photos.enumerated() {
+            AppLogger.debug("upload \(index + 1)/\(photos.count) bytes=\(data.count)")
             let url = try await storageClient.uploadDiaryPhoto(babyID, noteID, data)
             uploaded.append(url)
         }
     } catch {
+        AppLogger.error("uploadDiaryPhotos failed at index=\(uploaded.count): \(error), rollback \(uploaded.count) uploaded")
         // TODO: rollback 정책 결정 (best-effort silent / logger 도입 / 제거) — Todo.md
         for url in uploaded {
             do throws(StorageError) {
                 try await storageClient.deleteDiaryPhoto(url)
             } catch {
-                print("rollback delete failed: \(error) for \(url)")
+                AppLogger.error("rollback delete failed: \(error) for \(url)")
             }
         }
         throw error
     }
+    AppLogger.info("uploadDiaryPhotos done count=\(uploaded.count)")
     return uploaded
 }

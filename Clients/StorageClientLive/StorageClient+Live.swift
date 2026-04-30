@@ -9,45 +9,63 @@ extension StorageClient: @retroactive DependencyKey {
     public static let liveValue = Self(
         uploadDiaryPhoto: { @Sendable babyID, noteID, data async throws(Domain.StorageError) -> URL in
             guard Auth.auth().currentUser?.uid != nil else {
+                AppLogger.error("uploadDiaryPhoto unauthorized babyID=\(babyID) noteID=\(noteID)")
                 throw .unauthorized
             }
             let photoID = UUID()
             let path = diaryPhotoPath(babyID: babyID, noteID: noteID, photoID: photoID)
+            let contentType = inferImageContentType(data: data)
+            AppLogger.info("uploadDiaryPhoto start path=\(path) bytes=\(data.count) contentType=\(contentType)")
             let reference = Storage.storage().reference().child(path)
             let metadata = StorageMetadata()
-            metadata.contentType = inferImageContentType(data: data)
+            metadata.contentType = contentType
             do {
                 _ = try await reference.putDataAsync(data, metadata: metadata)
-                return try await reference.downloadURL()
+                let url = try await reference.downloadURL()
+                AppLogger.info("uploadDiaryPhoto done photoID=\(photoID)")
+                return url
             } catch {
-                throw mapStorageError(error)
+                let mapped = mapStorageError(error)
+                AppLogger.error("uploadDiaryPhoto failed: \(error) → \(mapped)")
+                throw mapped
             }
         },
         uploadDiaryPhotoFile: { @Sendable babyID, noteID, fileURL async throws(Domain.StorageError) -> URL in
             guard Auth.auth().currentUser?.uid != nil else {
+                AppLogger.error("uploadDiaryPhotoFile unauthorized babyID=\(babyID) noteID=\(noteID)")
                 throw .unauthorized
             }
             let photoID = UUID()
             let path = diaryPhotoPath(babyID: babyID, noteID: noteID, photoID: photoID)
+            let contentType = inferImageContentTypeFromFile(at: fileURL)
+            AppLogger.info("uploadDiaryPhotoFile start path=\(path) file=\(fileURL.lastPathComponent) contentType=\(contentType)")
             let reference = Storage.storage().reference().child(path)
             let metadata = StorageMetadata()
-            metadata.contentType = inferImageContentTypeFromFile(at: fileURL)
+            metadata.contentType = contentType
             do {
                 _ = try await reference.putFileAsync(from: fileURL, metadata: metadata)
-                return try await reference.downloadURL()
+                let url = try await reference.downloadURL()
+                AppLogger.info("uploadDiaryPhotoFile done photoID=\(photoID)")
+                return url
             } catch {
-                throw mapStorageError(error)
+                let mapped = mapStorageError(error)
+                AppLogger.error("uploadDiaryPhotoFile failed: \(error) → \(mapped)")
+                throw mapped
             }
         },
         deleteDiaryPhoto: { @Sendable downloadURL async throws(Domain.StorageError) -> Void in
             guard Auth.auth().currentUser?.uid != nil else {
+                AppLogger.error("deleteDiaryPhoto unauthorized url=\(downloadURL)")
                 throw .unauthorized
             }
             do {
                 let reference = Storage.storage().reference(forURL: downloadURL.absoluteString)
                 try await reference.delete()
+                AppLogger.info("deleteDiaryPhoto done url=\(downloadURL)")
             } catch {
-                throw mapStorageError(error)
+                let mapped = mapStorageError(error)
+                AppLogger.error("deleteDiaryPhoto failed: \(error) → \(mapped)")
+                throw mapped
             }
         }
     )
