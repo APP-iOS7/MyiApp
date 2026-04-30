@@ -8,27 +8,36 @@ import SwiftUI
 public struct DiaryEditorFeature {
     @ObservableState
     public struct State: Equatable {
+        public var babyID: UUID
         public var title: String
         public var description: String
         public var date: Date
+        public var isPickerPresented: Bool
         public var pickerItems: [PhotosPickerItem]
         public var photos: [DiaryPhoto]
+        public var isSaving: Bool
 
         public init(
+            babyID: UUID,
             date: Date = Date(),
             title: String = "",
             description: String = "",
+            isPickerPresented: Bool = false,
             pickerItems: [PhotosPickerItem] = [],
-            photos: [DiaryPhoto] = []
+            photos: [DiaryPhoto] = [],
+            isSaving: Bool = false
         ) {
+            self.babyID = babyID
             self.date = date
             self.title = title
             self.description = description
+            self.isPickerPresented = isPickerPresented
             self.pickerItems = pickerItems
             self.photos = photos
+            self.isSaving = isSaving
         }
 
-        public var canSave: Bool { !title.isEmpty }
+        public var canSave: Bool { !title.isEmpty && !isSaving }
 
         public var navigationTitle: String {
             Calendar.current.isDateInToday(date) ? "오늘의 일지" : "지난 일지"
@@ -36,22 +45,32 @@ public struct DiaryEditorFeature {
     }
 
     public enum Action: BindableAction {
-        case binding(BindingAction<State>)
-        case removePhotoButtonTapped(DiaryPhoto.ID)
-        case cancelButtonTapped
-        case saveButtonTapped
-        case _internal(Internal)
-        case delegate(Delegate)
+        public enum ViewAction: Equatable {
+            case removePhotoButtonTapped(DiaryPhoto.ID)
+            case cancelButtonTapped
+            case saveButtonTapped
+        }
 
         public enum Internal {
-            case photosLoaded([DiaryPhoto])
+            case photoLoaded(DiaryPhoto)
+            case saveCompleted
+            case saveFailed(NoteError)
+            case uploadFailed(StorageError)
         }
 
         public enum Delegate: Equatable {
-            case saved(Note)
+            case saved
             case cancelled
         }
+
+        case binding(BindingAction<State>)
+        case view(ViewAction)
+        case _internal(Internal)
+        case delegate(Delegate)
     }
+
+    @Dependency(\.noteClient) var noteClient
+    @Dependency(\.storageClient) var storageClient
 
     public init() {}
 
@@ -60,52 +79,95 @@ public struct DiaryEditorFeature {
         Reduce { state, action in
             switch action {
             case .binding(\.pickerItems):
-                let currentIDs = state.pickerItems.compactMap(\.itemIdentifier)
-                let existingByID = Dictionary(
-                    uniqueKeysWithValues: state.photos.map { ($0.id, $0) }
-                )
-                state.photos = currentIDs.compactMap { existingByID[$0] }
-
+                let selectedIDs = state.pickerItems.compactMap(\.itemIdentifier)
+                let selectedIDSet = Set(selectedIDs)
+                state.photos.removeAll { !selectedIDSet.contains($0.id) }
+                let existingIDs = Set(state.photos.map(\.id))
                 let newItems = state.pickerItems.filter { item in
                     guard let id = item.itemIdentifier else { return false }
-                    return existingByID[id] == nil
+                    return !existingIDs.contains(id)
                 }
                 return .run { send in
-                    var loaded: [DiaryPhoto] = []
                     for item in newItems {
-                        guard let id = item.itemIdentifier else { continue }
-                        if let data = try? await item.loadTransferable(type: Data.self) {
-                            loaded.append(DiaryPhoto(id: id, data: data))
+                        if let photo = await DiaryPhoto.load(from: item) {
+                            await send(._internal(.photoLoaded(photo)))
                         }
                     }
-                    await send(._internal(.photosLoaded(loaded)))
                 }
 
-            case let ._internal(.photosLoaded(loaded)):
-                let existingIDs = Set(state.photos.map(\.id))
-                state.photos.append(contentsOf: loaded.filter { !existingIDs.contains($0.id) })
+            case let ._internal(.photoLoaded(photo)):
+                guard !state.photos.contains(where: { $0.id == photo.id }) else { return .none }
+                state.photos.append(photo)
                 return .none
 
-            case let .removePhotoButtonTapped(id):
+            case let .view(.removePhotoButtonTapped(id)):
                 state.photos.removeAll { $0.id == id }
                 state.pickerItems.removeAll { $0.itemIdentifier == id }
                 return .none
 
-            case .cancelButtonTapped:
+            case .view(.cancelButtonTapped):
                 return .send(.delegate(.cancelled))
 
-            case .saveButtonTapped:
-                // TODO: photos data → Firebase Storage 업로드 후 URL로 변환 (현재는 placeholder)
-                let placeholder = URL(string: "https://picsum.photos/200")
-                let imageURLs = placeholder.map { Array(repeating: $0, count: state.photos.count) } ?? []
-                let note = Note(
-                    kind: .diary,
-                    title: state.title,
-                    description: state.description,
-                    date: state.date,
-                    imageURLs: imageURLs
-                )
-                return .send(.delegate(.saved(note)))
+            case .view(.saveButtonTapped):
+                guard !state.isSaving else { return .none }
+                state.isSaving = true
+                let noteID = UUID()
+                let title = state.title
+                let description = state.description
+                let date = state.date
+                let photoDatas = state.photos.map(\.data)
+                return .run { [storageClient, noteClient, babyID = state.babyID] send in
+                    let imageURLs: [URL]
+                    do throws(StorageError) {
+                        imageURLs = try await uploadDiaryPhotos(
+                            storageClient: storageClient,
+                            babyID: babyID,
+                            noteID: noteID,
+                            photos: photoDatas
+                        )
+                    } catch {
+                        await send(._internal(.uploadFailed(error)))
+                        return
+                    }
+
+                    let note = Note(
+                        id: noteID,
+                        kind: .diary,
+                        title: title,
+                        description: description,
+                        date: date,
+                        imageURLs: imageURLs
+                    )
+                    do throws(NoteError) {
+                        try await noteClient.addNote(babyID, note)
+                    } catch {
+                        // TODO: rollback 정책 결정 (best-effort silent / logger 도입 / 제거) — Todo.md
+                        for url in imageURLs {
+                            do throws(StorageError) {
+                                try await storageClient.deleteDiaryPhoto(url)
+                            } catch {
+                                print("rollback delete failed: \(error) for \(url)")
+                            }
+                        }
+                        await send(._internal(.saveFailed(error)))
+                        return
+                    }
+                    await send(._internal(.saveCompleted))
+                }
+
+            case ._internal(.saveCompleted):
+                state.isSaving = false
+                return .send(.delegate(.saved))
+
+            case ._internal(.saveFailed):
+                state.isSaving = false
+                // TODO: alert 등 사용자 안내 (후속 작업)
+                return .none
+
+            case ._internal(.uploadFailed):
+                state.isSaving = false
+                // TODO: alert 등 사용자 안내 (후속 작업)
+                return .none
 
             case .binding, .delegate:
                 return .none
@@ -114,11 +176,59 @@ public struct DiaryEditorFeature {
     }
 }
 
-extension DiaryEditorFeature {
-    public static let maxPhotos = 10
+public extension DiaryEditorFeature {
+    static let maxPhotos = 10
 
-    public struct DiaryPhoto: Equatable, Identifiable, Sendable {
+    struct DiaryPhoto: Equatable, Identifiable, Sendable {
         public let id: String
         public let data: Data
+
+        public init(id: String, data: Data) {
+            self.id = id
+            self.data = data
+        }
+
+        static func load(from item: PhotosPickerItem) async -> DiaryPhoto? {
+            guard let id = item.itemIdentifier else {
+                print("[DiaryPhoto.load] itemIdentifier is nil")
+                return nil
+            }
+            do {
+                guard let data = try await item.loadTransferable(type: Data.self) else {
+                    print("[DiaryPhoto.load] loadTransferable returned nil for \(id)")
+                    return nil
+                }
+                return DiaryPhoto(id: id, data: data)
+            } catch {
+                print("[DiaryPhoto.load] loadTransferable failed: \(error) for \(id)")
+                return nil
+            }
+        }
     }
+}
+
+private func uploadDiaryPhotos(
+    storageClient: StorageClient,
+    babyID: UUID,
+    noteID: UUID,
+    photos: [Data]
+) async throws(StorageError) -> [URL] {
+    var uploaded: [URL] = []
+    do throws(StorageError) {
+        for data in photos {
+            let url = try await storageClient.uploadDiaryPhoto(babyID, noteID, data)
+            uploaded.append(url)
+        }
+    } catch {
+        // TODO: rollback 정책 결정 (best-effort silent / logger 도입 / 제거) — Todo.md
+        for url in uploaded {
+            do throws(StorageError) {
+                try await storageClient.deleteDiaryPhoto(url)
+            } catch {
+                print("rollback delete failed: \(error) for \(url)")
+            }
+        }
+        throw error
+    }
+    return uploaded
 }
