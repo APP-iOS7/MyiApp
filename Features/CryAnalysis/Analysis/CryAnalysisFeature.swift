@@ -16,22 +16,6 @@ public struct CryAnalysisFeature {
         }
     }
 
-    public enum Stage: Equatable {
-        case recording
-        case result(ResultDisplay)
-        case failure(Failure)
-    }
-
-    public struct ResultDisplay: Equatable {
-        public let primary: EmotionScore
-        public let others: [EmotionScore]
-    }
-
-    public enum Failure: Equatable {
-        case recordingFailed
-        case analysisFailed
-    }
-
     public enum Action {
         case view(ViewAction)
         case _internal(Internal)
@@ -170,5 +154,22 @@ public struct CryAnalysisFeature {
             }
         }
     }
+}
 
+extension CryAnalysisFeature {
+    public enum Stage: Equatable {
+        case recording
+        case result(ResultDisplay)
+        case failure(Failure)
+    }
+
+    public struct ResultDisplay: Equatable {
+        public let primary: EmotionScore
+        public let others: [EmotionScore]
+    }
+
+    public enum Failure: Equatable {
+        case recordingFailed
+        case analysisFailed
+    }
 }

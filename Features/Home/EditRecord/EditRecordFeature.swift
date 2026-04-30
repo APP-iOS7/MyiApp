@@ -149,24 +149,6 @@ public struct EditRecordFeature {
         }
     }
 
-    public enum PottyKind: Hashable, Sendable, CaseIterable {
-        case pee
-        case poop
-        case both
-    }
-
-    public enum MedicalKind: Hashable, Sendable, CaseIterable {
-        case medicine
-        case clinic
-    }
-
-    public enum FeedingKind: Hashable, Sendable, CaseIterable {
-        case formula
-        case babyFood
-        case pumpedMilk
-        case breastfeeding
-    }
-
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case saveTapped
@@ -261,5 +243,25 @@ public struct EditRecordFeature {
                 return .none
             }
         }
+    }
+}
+
+extension EditRecordFeature {
+    public enum PottyKind: Hashable, Sendable, CaseIterable {
+        case pee
+        case poop
+        case both
+    }
+
+    public enum MedicalKind: Hashable, Sendable, CaseIterable {
+        case medicine
+        case clinic
+    }
+
+    public enum FeedingKind: Hashable, Sendable, CaseIterable {
+        case formula
+        case babyFood
+        case pumpedMilk
+        case breastfeeding
     }
 }

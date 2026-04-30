@@ -6,8 +6,6 @@ import SwiftUI
 
 @Reducer
 public struct DiaryEditorFeature {
-    public static let maxPhotos = 10
-
     @ObservableState
     public struct State: Equatable {
         public var title: String
@@ -35,11 +33,6 @@ public struct DiaryEditorFeature {
         public var navigationTitle: String {
             Calendar.current.isDateInToday(date) ? "오늘의 일지" : "지난 일지"
         }
-    }
-
-    public struct DiaryPhoto: Equatable, Identifiable, Sendable {
-        public let id: String
-        public let data: Data
     }
 
     public enum Action: BindableAction {
@@ -118,5 +111,14 @@ public struct DiaryEditorFeature {
                 return .none
             }
         }
+    }
+}
+
+extension DiaryEditorFeature {
+    public static let maxPhotos = 10
+
+    public struct DiaryPhoto: Equatable, Identifiable, Sendable {
+        public let id: String
+        public let data: Data
     }
 }
