@@ -19,7 +19,7 @@ public struct MainTabView: View {
             .tag(MainTabFeature.Tab.home)
 
             NavigationStack {
-                NoteView(baby: store.selectedBaby)
+                NoteView(store: store.scope(state: \.note, action: \.note))
             }
             .tabItem { Label("육아 수첩", systemImage: "book.fill") }
             .tag(MainTabFeature.Tab.note)

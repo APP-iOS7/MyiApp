@@ -10,33 +10,43 @@ public struct NoteHomeFeature {
         public var month: Date
         public var selected: Date
         public var notes: [Note]
-        public var sheet: Sheet?
+        @Presents public var destination: Destination.State?
 
         public init(
             baby: Baby,
             month: Date = Date(),
             selected: Date = Date(),
             notes: [Note] = [],
-            sheet: Sheet? = nil
+            destination: Destination.State? = nil
         ) {
             self.baby = baby
             self.month = month
             self.selected = selected
             self.notes = notes
-            self.sheet = sheet
+            self.destination = destination
+        }
+
+        public var isPastDay: Bool {
+            Calendar.current.startOfDay(for: selected) < Calendar.current.startOfDay(for: Date())
+        }
+
+        public var isFutureDay: Bool {
+            Calendar.current.startOfDay(for: selected) > Calendar.current.startOfDay(for: Date())
+        }
+
+        public var notesOfDay: [Note] {
+            notes.filter { Calendar.current.isDate($0.date, inSameDayAs: selected) }
+        }
+
+        public var datesWithIndicator: Set<Date> {
+            Set(notes.map { Calendar.current.startOfDay(for: $0.date) })
         }
     }
 
-    public enum Sheet: Equatable, Identifiable {
-        case diary(Date)
-        case schedule(Date)
-
-        public var id: String {
-            switch self {
-            case let .diary(date): "diary-\(date.timeIntervalSince1970)"
-            case let .schedule(date): "schedule-\(date.timeIntervalSince1970)"
-            }
-        }
+    @Reducer
+    public enum Destination {
+        case diary(DiaryEditorFeature)
+        case schedule(ScheduleEditorFeature)
     }
 
     public enum Action: BindableAction {
@@ -44,7 +54,7 @@ public struct NoteHomeFeature {
         case task
         case diaryButtonTapped
         case scheduleButtonTapped
-        case noteSaved(Note)
+        case destination(PresentationAction<Destination.Action>)
         case _internal(Internal)
 
         public enum Internal {
@@ -71,19 +81,34 @@ public struct NoteHomeFeature {
                 return .none
 
             case .diaryButtonTapped:
-                state.sheet = .diary(state.selected)
+                state.destination = .diary(DiaryEditorFeature.State(date: state.selected))
                 return .none
 
             case .scheduleButtonTapped:
-                state.sheet = .schedule(state.selected)
+                let defaultTime = Calendar.current.date(
+                    bySettingHour: 12,
+                    minute: 0,
+                    second: 0,
+                    of: state.selected
+                ) ?? state.selected
+                state.destination = .schedule(ScheduleEditorFeature.State(date: defaultTime))
                 return .none
 
-            case let .noteSaved(note):
-                state.sheet = nil
+            case let .destination(.presented(.diary(.delegate(.saved(note))))),
+                 let .destination(.presented(.schedule(.delegate(.saved(note))))):
+                state.destination = nil
                 return .run { [noteClient, babyID = state.baby.id] send in
                     try? await noteClient.addNote(babyID, note)
                     await send(._internal(.reload))
                 }
+
+            case .destination(.presented(.diary(.delegate(.cancelled)))),
+                 .destination(.presented(.schedule(.delegate(.cancelled)))):
+                state.destination = nil
+                return .none
+
+            case .destination:
+                return .none
 
             case ._internal(.reload):
                 return loadEffect(state: state)
@@ -93,6 +118,7 @@ public struct NoteHomeFeature {
                 return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
 
     private func loadEffect(state: State) -> Effect<Action> {
@@ -105,3 +131,5 @@ public struct NoteHomeFeature {
         }
     }
 }
+
+extension NoteHomeFeature.Destination.State: Equatable {}

@@ -11,6 +11,7 @@ public struct MainTabFeature {
         public var babies: IdentifiedArrayOf<Baby>
         public var selectedBabyID: Baby.ID
         public var home: HomeFeature.State
+        public var note: NoteHomeFeature.State
         public var cryAnalysis: CryAnalysisHomeFeature.State
         public var statistic: StatisticFeature.State
         public var settings: SettingsFeature.State
@@ -22,6 +23,7 @@ public struct MainTabFeature {
             self.selectedBabyID = firstBaby.id
             self.selectedTab = selectedTab
             self.home = HomeFeature.State(baby: firstBaby)
+            self.note = NoteHomeFeature.State(baby: firstBaby)
             self.cryAnalysis = CryAnalysisHomeFeature.State(baby: firstBaby)
             self.statistic = StatisticFeature.State(baby: firstBaby)
             self.settings = SettingsFeature.State(
@@ -38,6 +40,7 @@ public struct MainTabFeature {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case home(HomeFeature.Action)
+        case note(NoteHomeFeature.Action)
         case cryAnalysis(CryAnalysisHomeFeature.Action)
         case statistic(StatisticFeature.Action)
         case settings(SettingsFeature.Action)
@@ -49,6 +52,9 @@ public struct MainTabFeature {
         BindingReducer()
         Scope(state: \.home, action: \.home) {
             HomeFeature()
+        }
+        Scope(state: \.note, action: \.note) {
+            NoteHomeFeature()
         }
         Scope(state: \.cryAnalysis, action: \.cryAnalysis) {
             CryAnalysisHomeFeature()
@@ -64,12 +70,13 @@ public struct MainTabFeature {
             case .binding(\.selectedBabyID):
                 if let baby = state.selectedBaby {
                     state.home.baby = baby
+                    state.note.baby = baby
                     state.cryAnalysis.baby = baby
                     state.statistic.baby = baby
                 }
                 return .none
 
-            case .binding, .home, .cryAnalysis, .statistic, .settings:
+            case .binding, .home, .note, .cryAnalysis, .statistic, .settings:
                 return .none
             }
         }
