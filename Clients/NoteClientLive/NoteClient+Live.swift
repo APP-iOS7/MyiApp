@@ -7,22 +7,27 @@ import Foundation
 extension NoteClient: @retroactive TestDependencyKey {}
 extension NoteClient: @retroactive DependencyKey {
     public static let liveValue = Self(
-        loadNotes: { @Sendable babyID, range async throws(NoteError) -> [Note] in
-            guard Auth.auth().currentUser?.uid != nil else {
-                throw .unauthorized
-            }
-            do {
-                let snapshot = try await notesCollection(babyID: babyID)
+        streamNotes: { @Sendable babyID, range in
+            AsyncStream { continuation in
+                guard Auth.auth().currentUser?.uid != nil else {
+                    continuation.finish()
+                    return
+                }
+                let listener = notesCollection(babyID: babyID)
                     .whereField("date", isGreaterThanOrEqualTo: range.lowerBound)
                     .whereField("date", isLessThan: range.upperBound)
                     .order(by: "date", descending: true)
-                    .getDocuments()
-                let decoder = Firestore.Decoder()
-                return try snapshot.documents.map { doc in
-                    try decoder.decode(Note.self, from: doc.data())
+                    .addSnapshotListener { snapshot, _ in
+                        guard let snapshot else { return }
+                        let decoder = Firestore.Decoder()
+                        let notes = snapshot.documents.compactMap { doc -> Note? in
+                            try? decoder.decode(Note.self, from: doc.data())
+                        }
+                        continuation.yield(notes)
+                    }
+                continuation.onTermination = { _ in
+                    listener.remove()
                 }
-            } catch {
-                throw .unexpected
             }
         },
         addNote: { @Sendable babyID, note async throws(NoteError) -> Void in

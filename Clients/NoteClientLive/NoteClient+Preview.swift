@@ -7,8 +7,11 @@
         public static var previewValue: Self {
             let store = LockIsolated<[Note]>(Note.previewSamples)
             return Self(
-                loadNotes: { @Sendable _, range async throws(NoteError) -> [Note] in
-                    store.value.filter { range.contains($0.date) }
+                streamNotes: { @Sendable _, range in
+                    AsyncStream { continuation in
+                        continuation.yield(store.value.filter { range.contains($0.date) })
+                        continuation.finish()
+                    }
                 },
                 addNote: { @Sendable _, note async throws(NoteError) in
                     store.withValue { $0.insert(note, at: 0) }

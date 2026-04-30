@@ -52,12 +52,14 @@ public struct NoteHomeFeature {
         case _internal(Internal)
 
         public enum Internal {
-            case reload
             case notesLoaded([Note])
         }
     }
 
+    private enum CancelID { case notesStream }
+
     @Dependency(\.noteClient) var noteClient
+    @Dependency(\.localNotificationClient) var localNotificationClient
 
     public init() {}
 
@@ -66,10 +68,10 @@ public struct NoteHomeFeature {
         Reduce { state, action in
             switch action {
             case .task:
-                return loadEffect(state: state)
+                return streamEffect(state: state)
 
             case .binding(\.month):
-                return loadEffect(state: state)
+                return streamEffect(state: state)
 
             case .binding:
                 return .none
@@ -91,9 +93,22 @@ public struct NoteHomeFeature {
             case let .destination(.presented(.diary(.delegate(.saved(note))))),
                  let .destination(.presented(.schedule(.delegate(.saved(note))))):
                 state.destination = nil
-                return .run { [noteClient, babyID = state.baby.id] send in
-                    try? await noteClient.addNote(babyID, note)
-                    await send(._internal(.reload))
+                return .run { [noteClient, localNotificationClient, babyID = state.baby.id] send in
+                    do {
+                        try await noteClient.addNote(babyID, note)
+                    } catch {
+                        return
+                    }
+                    if let reminder = note.reminder {
+                        try? await localNotificationClient.schedule(
+                            LocalNotificationRequest(
+                                id: note.id,
+                                title: note.title,
+                                body: note.description.isEmpty ? nil : note.description,
+                                scheduledAt: reminder.scheduledAt
+                            )
+                        )
+                    }
                 }
 
             case .destination(.presented(.diary(.delegate(.cancelled)))),
@@ -104,9 +119,6 @@ public struct NoteHomeFeature {
             case .destination:
                 return .none
 
-            case ._internal(.reload):
-                return loadEffect(state: state)
-
             case let ._internal(.notesLoaded(notes)):
                 state.notes = notes
                 return .none
@@ -115,14 +127,15 @@ public struct NoteHomeFeature {
         .ifLet(\.$destination, action: \.destination)
     }
 
-    private func loadEffect(state: State) -> Effect<Action> {
+    private func streamEffect(state: State) -> Effect<Action> {
         guard let interval = Calendar.current.dateInterval(of: .month, for: state.month) else { return .none }
 
         return .run { [noteClient, babyID = state.baby.id] send in
-            if let notes = try? await noteClient.loadNotes(babyID, interval.start ..< interval.end) {
+            for await notes in noteClient.streamNotes(babyID, interval.start ..< interval.end) {
                 await send(._internal(.notesLoaded(notes)))
             }
         }
+        .cancellable(id: CancelID.notesStream, cancelInFlight: true)
     }
 }
 
