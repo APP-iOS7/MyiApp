@@ -54,6 +54,7 @@ public struct MainTabView: View {
                 uid: "preview",
                 providerIDs: []
             ),
+            caregiver: Caregiver(id: "preview", createdAt: .now),
             babies: [
                 Baby(
                     name: "아기",

@@ -10,6 +10,8 @@ public struct AppFeature {
         public var phase: Phase = .launching
         public var auth: LoginFeature.State = .init()
         public var session: Session?
+        public var pendingCaregiver: Caregiver?
+        public var pendingBabies: [Baby]?
         @Presents public var destination: Destination.State?
 
         public init() {}
@@ -18,6 +20,7 @@ public struct AppFeature {
     public enum Action {
         case onAppear
         case sessionUpdated(Session?)
+        case caregiverFetched(Caregiver?)
         case babiesFetched([Baby])
         case babiesFetchFailed(BabyError)
         case auth(LoginFeature.Action)
@@ -53,12 +56,18 @@ public struct AppFeature {
                 state.session = session
                 guard session != nil else {
                     state.phase = .running
+                    state.pendingCaregiver = nil
+                    state.pendingBabies = nil
                     state.destination = nil
                     return .none
                 }
+                state.pendingCaregiver = nil
+                state.pendingBabies = nil
                 return .merge(
-                    .run { [caregiverClient] _ in
+                    .run { [caregiverClient] send in
                         try? await caregiverClient.provisionCaregiver()
+                        let caregiver = try? await caregiverClient.currentCaregiver()
+                        await send(.caregiverFetched(caregiver))
                     },
                     .run { [babyClient] send in
                         do throws(BabyError) {
@@ -70,20 +79,13 @@ public struct AppFeature {
                     }
                 )
 
+            case let .caregiverFetched(caregiver):
+                state.pendingCaregiver = caregiver
+                return tryEnterMainTab(&state)
+
             case let .babiesFetched(babies):
-                guard let session = state.session else { return .none }
-                state.phase = .running
-                guard let tabState = MainTabFeature.State(session: session, babies: babies) else {
-                    state.destination = .babyRegister(BabyRegisterFeature.State())
-                    return .none
-                }
-                if case var .mainTab(existing) = state.destination {
-                    existing.babies = tabState.babies
-                    state.destination = .mainTab(existing)
-                } else {
-                    state.destination = .mainTab(tabState)
-                }
-                return .none
+                state.pendingBabies = babies
+                return tryEnterMainTab(&state)
 
             case .babiesFetchFailed:
                 guard state.session != nil else { return .none }
@@ -109,6 +111,27 @@ public struct AppFeature {
             }
         }
         .ifLet(\.$destination, action: \.destination)
+    }
+
+    private func tryEnterMainTab(_ state: inout State) -> Effect<Action> {
+        guard let session = state.session,
+              let caregiver = state.pendingCaregiver,
+              let babies = state.pendingBabies else {
+            return .none
+        }
+        state.phase = .running
+        guard let tabState = MainTabFeature.State(session: session, caregiver: caregiver, babies: babies) else {
+            state.destination = .babyRegister(BabyRegisterFeature.State())
+            return .none
+        }
+        if case var .mainTab(existing) = state.destination {
+            existing.babies = tabState.babies
+            existing.caregiver = tabState.caregiver
+            state.destination = .mainTab(existing)
+        } else {
+            state.destination = .mainTab(tabState)
+        }
+        return .none
     }
 }
 
