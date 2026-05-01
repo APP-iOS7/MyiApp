@@ -5,7 +5,7 @@ public struct Caregiver: Identifiable, Equatable, Hashable, Sendable, Codable {
     public var displayName: String?
     public var photoURL: URL?
     public var fcmToken: String?
-    public var createdAt: Date
+    public let createdAt: Date
 
     public init(
         id: String,
