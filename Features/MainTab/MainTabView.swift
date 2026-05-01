@@ -39,6 +39,9 @@ public struct MainTabView: View {
                 .tag(MainTabFeature.Tab.settings)
         }
         .task {
+            await store.send(.task).finish()
+        }
+        .task {
             await store.send(.notificationSync(.task)).finish()
         }
     }
