@@ -11,6 +11,14 @@ let project = Project(
     ),
     targets: [
         .target(
+            name: "Shared",
+            destinations: .iOS,
+            product: .staticFramework,
+            bundleId: "kr.co.codegrove.Shared",
+            deploymentTargets: .iOS("17.0"),
+            buildableFolders: ["Shared"]
+        ),
+        .target(
             name: "Domain",
             destinations: .iOS,
             product: .staticFramework,
@@ -26,6 +34,7 @@ let project = Project(
             deploymentTargets: .iOS("17.0"),
             buildableFolders: ["Clients"],
             dependencies: [
+                .target(name: "Shared"),
                 .target(name: "Domain"),
                 .external(name: "ComposableArchitecture"),
                 .external(name: "FirebaseCore"),
@@ -43,7 +52,10 @@ let project = Project(
             product: .staticFramework,
             bundleId: "kr.co.codegrove.DesignSystem",
             deploymentTargets: .iOS("17.0"),
-            buildableFolders: ["DesignSystem"]
+            buildableFolders: ["DesignSystem"],
+            dependencies: [
+                .target(name: "Shared")
+            ]
         ),
         .target(
             name: "Features",
@@ -53,6 +65,7 @@ let project = Project(
             deploymentTargets: .iOS("17.0"),
             buildableFolders: ["Features"],
             dependencies: [
+                .target(name: "Shared"),
                 .target(name: "Domain"),
                 .target(name: "Clients"),
                 .target(name: "DesignSystem"),

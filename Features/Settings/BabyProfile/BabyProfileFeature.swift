@@ -2,6 +2,7 @@ import ComposableArchitecture
 import Domain
 import Foundation
 import PhotosUI
+import Shared
 import SwiftUI
 
 @Reducer

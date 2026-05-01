@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import Domain
 import Foundation
+import Shared
 import UserNotifications
 
 extension LocalNotificationClient: @retroactive TestDependencyKey {}

@@ -3,6 +3,7 @@ import Domain
 @preconcurrency import FirebaseAuth
 @preconcurrency import FirebaseStorage
 import Foundation
+import Shared
 
 extension StorageClient: @retroactive TestDependencyKey {}
 extension StorageClient: @retroactive DependencyKey {

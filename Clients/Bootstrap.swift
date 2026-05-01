@@ -4,6 +4,7 @@ import FirebaseCore
 @preconcurrency import FirebaseFirestore
 @preconcurrency import FirebaseMessaging
 import GoogleSignIn
+import Shared
 @preconcurrency import UserNotifications
 
 public enum AppBootstrap {
