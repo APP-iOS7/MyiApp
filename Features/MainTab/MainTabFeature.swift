@@ -40,14 +40,27 @@ public struct MainTabFeature {
     }
 
     public enum Action: BindableAction {
+        public enum InternalAction {
+            case babiesLoaded([Baby])
+        }
+
         case binding(BindingAction<State>)
+
         case home(HomeFeature.Action)
         case note(NoteHomeFeature.Action)
         case cryAnalysis(CryAnalysisHomeFeature.Action)
         case statistic(StatisticFeature.Action)
         case settings(SettingsFeature.Action)
         case notificationSync(NotificationSyncFeature.Action)
+
+        case task
+
+        case _internal(InternalAction)
     }
+
+    @Dependency(\.babyClient) var babyClient
+
+    private enum CancelID { case babiesStream }
 
     public init() {}
 
@@ -82,6 +95,9 @@ public struct MainTabFeature {
                 }
                 return .send(.notificationSync(.babyChanged(state.selectedBabyID)))
 
+            case .binding:
+                return .none
+
             case let .settings(.delegate(.babyUpdated(baby))):
                 state.babies[id: baby.id] = baby
                 if state.selectedBabyID == baby.id {
@@ -93,7 +109,26 @@ public struct MainTabFeature {
                 state.settings.babies = state.babies
                 return .none
 
-            case .binding, .home, .note, .cryAnalysis, .statistic, .settings, .notificationSync:
+            case .home, .note, .cryAnalysis, .statistic, .settings, .notificationSync:
+                return .none
+
+            case .task:
+                return .run { [babyClient] send in
+                    for await babies in babyClient.streamBabies() {
+                        await send(._internal(.babiesLoaded(babies)))
+                    }
+                }
+                .cancellable(id: CancelID.babiesStream, cancelInFlight: true)
+
+            case let ._internal(.babiesLoaded(babies)):
+                state.babies = IdentifiedArray(uniqueElements: babies)
+                state.settings.babies = state.babies
+                if let selected = state.selectedBaby {
+                    state.home.baby = selected
+                    state.note.baby = selected
+                    state.cryAnalysis.baby = selected
+                    state.statistic.baby = selected
+                }
                 return .none
             }
         }
