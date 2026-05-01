@@ -23,23 +23,22 @@ public struct BabyNameEditFeature {
     }
 
     public enum Action: BindableAction {
-        public enum Internal {
+        public enum InternalAction {
             case saveCompleted(Baby)
             case saveFailed(BabyError)
         }
 
-        public enum Delegate: Equatable {
+        public enum DelegateAction: Equatable {
             case saved(Baby)
         }
 
         public enum Alert: Equatable {}
 
         case binding(BindingAction<State>)
-        case alert(PresentationAction<Alert>)
-        case _internal(Internal)
-        case delegate(Delegate)
-
         case saveButtonTapped
+        case _internal(InternalAction)
+        case delegate(DelegateAction)
+        case alert(PresentationAction<Alert>)
     }
 
     @Dependency(\.babyClient) var babyClient
@@ -50,6 +49,9 @@ public struct BabyNameEditFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
+            case .binding:
+                return .none
+
             case .saveButtonTapped:
                 guard state.canSave else { return .none }
 
@@ -78,7 +80,10 @@ public struct BabyNameEditFeature {
                 }
                 return .none
 
-            case .binding, .alert, .delegate:
+            case .delegate:
+                return .none
+
+            case .alert:
                 return .none
             }
         }
