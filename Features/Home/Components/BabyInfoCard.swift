@@ -40,7 +40,7 @@ struct BabyInfoCard: View {
             HStack(spacing: Spacing.m) {
                 infoItem(title: "생년월일", value: birthDateText)
                 Spacer()
-                infoItem(title: "성별", value: genderText)
+                infoItem(title: "성별", value: baby.gender.displayName)
                 Spacer()
                 infoItem(title: "혈액형", value: "\(baby.bloodType.rawValue) 형")
             }
@@ -93,13 +93,6 @@ struct BabyInfoCard: View {
 
     private var birthDateText: String {
         baby.birthDate.formatted(.dateTime.year().month().day().locale(.init(identifier: "ko_KR")))
-    }
-
-    private var genderText: String {
-        switch baby.gender {
-        case .male: "남자"
-        case .female: "여자"
-        }
     }
 
     private var daysOldText: String {
