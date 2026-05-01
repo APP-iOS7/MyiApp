@@ -117,7 +117,7 @@ private extension SettingsView {
 
     var accountActionsSection: some View {
         VStack(spacing: Spacing.s) {
-            Button(role: .destructive) { store.send(.signOutTapped) } label: {
+            Button(role: .destructive) { store.send(.view(.signOutTapped)) } label: {
                 Text("로그아웃")
                     .frame(maxWidth: .infinity)
             }
@@ -127,7 +127,7 @@ private extension SettingsView {
                     .fill(Color(uiColor: .tertiarySystemBackground))
             )
 
-            Button { store.send(.deleteAccountTapped) } label: {
+            Button { store.send(.view(.deleteAccountTapped)) } label: {
                 Text("계정 삭제")
                     .font(.caption2)
                     .foregroundColor(.Semantic.secondaryText)

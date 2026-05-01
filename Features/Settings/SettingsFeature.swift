@@ -23,6 +23,7 @@ public struct SettingsFeature {
 
         public var providerText: String {
             guard let provider = session.providerIDs.first else { return "" }
+
             switch provider {
             case "apple.com": return "Apple로 로그인"
             case "google.com": return "Google로 로그인"
@@ -36,27 +37,35 @@ public struct SettingsFeature {
     }
 
     public enum Action: BindableAction {
-        case binding(BindingAction<State>)
-        case signOutTapped
-        case deleteAccountTapped
-        case signOutConfirmed
-        case deleteAccountConfirmed
-        case signOutCompleted
-        case signOutFailed(AuthError)
-        case deleteAccountCompleted
-        case deleteAccountFailed(AuthError)
-        case alert(PresentationAction<Alert>)
-        case path(StackActionOf<Path>)
-        case delegate(Delegate)
+        public enum ViewAction {
+            case signOutTapped
+            case deleteAccountTapped
+            case signOutConfirmed
+            case deleteAccountConfirmed
+        }
+
+        public enum InternalAction {
+            case signOutCompleted
+            case signOutFailed(AuthError)
+            case deleteAccountCompleted
+            case deleteAccountFailed(AuthError)
+        }
+
+        public enum DelegateAction: Equatable {
+            case babyUpdated(Baby)
+        }
 
         public enum Alert: Equatable {
             case confirmSignOut
             case confirmDeleteAccount
         }
 
-        public enum Delegate: Equatable {
-            case babyUpdated(Baby)
-        }
+        case binding(BindingAction<State>)
+        case view(ViewAction)
+        case _internal(InternalAction)
+        case delegate(DelegateAction)
+        case alert(PresentationAction<Alert>)
+        case path(StackActionOf<Path>)
     }
 
     @Dependency(\.authClient) var authClient
@@ -70,7 +79,7 @@ public struct SettingsFeature {
             case .binding:
                 return .none
 
-            case .signOutTapped:
+            case .view(.signOutTapped):
                 state.alert = AlertState {
                     TextState("로그아웃")
                 } actions: {
@@ -85,7 +94,7 @@ public struct SettingsFeature {
                 }
                 return .none
 
-            case .deleteAccountTapped:
+            case .view(.deleteAccountTapped):
                 state.alert = AlertState {
                     TextState("계정 삭제")
                 } actions: {
@@ -100,33 +109,33 @@ public struct SettingsFeature {
                 }
                 return .none
 
-            case .signOutConfirmed:
+            case .view(.signOutConfirmed):
                 state.isLoading = true
                 return .run { [authClient] send in
                     do throws(AuthError) {
                         try await authClient.signOut()
-                        await send(.signOutCompleted)
+                        await send(._internal(.signOutCompleted))
                     } catch {
-                        await send(.signOutFailed(error))
+                        await send(._internal(.signOutFailed(error)))
                     }
                 }
 
-            case .deleteAccountConfirmed:
+            case .view(.deleteAccountConfirmed):
                 state.isLoading = true
                 return .run { [authClient] send in
                     do throws(AuthError) {
                         try await authClient.deleteAccount()
-                        await send(.deleteAccountCompleted)
+                        await send(._internal(.deleteAccountCompleted))
                     } catch {
-                        await send(.deleteAccountFailed(error))
+                        await send(._internal(.deleteAccountFailed(error)))
                     }
                 }
 
-            case .signOutCompleted:
+            case ._internal(.signOutCompleted):
                 state.isLoading = false
                 return .none
 
-            case let .signOutFailed(error):
+            case let ._internal(.signOutFailed(error)):
                 state.isLoading = false
                 state.alert = AlertState {
                     TextState("오류")
@@ -135,11 +144,11 @@ public struct SettingsFeature {
                 }
                 return .none
 
-            case .deleteAccountCompleted:
+            case ._internal(.deleteAccountCompleted):
                 state.isLoading = false
                 return .none
 
-            case let .deleteAccountFailed(error):
+            case let ._internal(.deleteAccountFailed(error)):
                 state.isLoading = false
                 state.alert = AlertState {
                     TextState("오류")
@@ -148,11 +157,14 @@ public struct SettingsFeature {
                 }
                 return .none
 
+            case .delegate:
+                return .none
+
             case .alert(.presented(.confirmSignOut)):
-                return .send(.signOutConfirmed)
+                return .send(.view(.signOutConfirmed))
 
             case .alert(.presented(.confirmDeleteAccount)):
-                return .send(.deleteAccountConfirmed)
+                return .send(.view(.deleteAccountConfirmed))
 
             case .alert:
                 return .none
@@ -169,9 +181,8 @@ public struct SettingsFeature {
                 }
                 return .send(.delegate(.babyUpdated(baby)))
 
-            case .path, .delegate:
+            case .path:
                 return .none
-
             }
         }
         .ifLet(\.$alert, action: \.alert)
