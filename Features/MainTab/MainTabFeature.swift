@@ -98,17 +98,6 @@ public struct MainTabFeature {
             case .binding:
                 return .none
 
-            case let .settings(.delegate(.babyUpdated(baby))):
-                state.babies[id: baby.id] = baby
-                if state.selectedBabyID == baby.id {
-                    state.home.baby = baby
-                    state.note.baby = baby
-                    state.cryAnalysis.baby = baby
-                    state.statistic.baby = baby
-                }
-                state.settings.babies = state.babies
-                return .none
-
             case .home, .note, .cryAnalysis, .statistic, .settings, .notificationSync:
                 return .none
 

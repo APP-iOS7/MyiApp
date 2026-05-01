@@ -21,6 +21,9 @@ public struct BabyProfileView: View {
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
         .navigationTitle("아이 정보")
         .navigationBarTitleDisplayMode(.inline)
+        .task {
+            await store.send(.task).finish()
+        }
     }
 }
 

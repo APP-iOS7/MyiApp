@@ -14,16 +14,25 @@ public struct BabyProfileFeature {
     }
 
     public enum Action: BindableAction {
+        public enum InternalAction {
+            case babyUpdated(Baby)
+        }
         public enum DelegateAction: Equatable {
             case editNameTapped(Baby)
             case editBirthDateTapped(Baby)
         }
 
         case binding(BindingAction<State>)
+        case task
         case nameRowTapped
         case birthDateRowTapped
+        case _internal(InternalAction)
         case delegate(DelegateAction)
     }
+
+    @Dependency(\.babyClient) var babyClient
+
+    private enum CancelID { case babyStream }
 
     public init() {}
 
@@ -32,16 +41,28 @@ public struct BabyProfileFeature {
         Reduce { state, action in
             switch action {
             case .binding:
-                .none
+                return .none
+
+            case .task:
+                return .run { [babyClient, id = state.baby.id] send in
+                    for await baby in babyClient.streamBaby(id) {
+                        await send(._internal(.babyUpdated(baby)))
+                    }
+                }
+                .cancellable(id: CancelID.babyStream, cancelInFlight: true)
 
             case .nameRowTapped:
-                .send(.delegate(.editNameTapped(state.baby)))
+                return .send(.delegate(.editNameTapped(state.baby)))
 
             case .birthDateRowTapped:
-                .send(.delegate(.editBirthDateTapped(state.baby)))
+                return .send(.delegate(.editBirthDateTapped(state.baby)))
+
+            case let ._internal(.babyUpdated(baby)):
+                state.baby = baby
+                return .none
 
             case .delegate:
-                .none
+                return .none
             }
         }
     }
