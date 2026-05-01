@@ -51,10 +51,6 @@ public struct SettingsFeature {
             case deleteAccountFailed(AuthError)
         }
 
-        public enum DelegateAction: Equatable {
-            case babyUpdated(Baby)
-        }
-
         public enum Alert: Equatable {
             case confirmSignOut
             case confirmDeleteAccount
@@ -63,7 +59,6 @@ public struct SettingsFeature {
         case binding(BindingAction<State>)
         case view(ViewAction)
         case _internal(InternalAction)
-        case delegate(DelegateAction)
         case alert(PresentationAction<Alert>)
         case path(StackActionOf<Path>)
     }
@@ -157,9 +152,6 @@ public struct SettingsFeature {
                 }
                 return .none
 
-            case .delegate:
-                return .none
-
             case .alert(.presented(.confirmSignOut)):
                 return .send(.view(.signOutConfirmed))
 
@@ -177,12 +169,6 @@ public struct SettingsFeature {
                 state.path.append(.birthDateEdit(BabyBirthDateEditFeature.State(baby: baby)))
                 return .none
 
-            case let .path(.element(id: _, action: .nameEdit(.delegate(.saved(baby))))):
-                return handleBabySaved(state: &state, baby: baby)
-
-            case let .path(.element(id: _, action: .birthDateEdit(.delegate(.saved(baby))))):
-                return handleBabySaved(state: &state, baby: baby)
-
             case .path:
                 return .none
             }
@@ -198,15 +184,6 @@ public struct SettingsFeature {
         case .unexpected:
             "문제가 발생했습니다. 잠시 후 다시 시도해주세요."
         }
-    }
-
-    private func handleBabySaved(state: inout State, baby: Baby) -> Effect<Action> {
-        state.babies[id: baby.id] = baby
-        state.path.removeLast()
-        if let topID = state.path.ids.last {
-            state.path[id: topID] = .babyProfile(BabyProfileFeature.State(baby: baby))
-        }
-        return .send(.delegate(.babyUpdated(baby)))
     }
 }
 

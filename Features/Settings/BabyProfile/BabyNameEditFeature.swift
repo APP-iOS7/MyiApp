@@ -24,12 +24,8 @@ public struct BabyNameEditFeature {
 
     public enum Action: BindableAction {
         public enum InternalAction {
-            case saveCompleted(Baby)
+            case saveCompleted
             case saveFailed(BabyError)
-        }
-
-        public enum DelegateAction: Equatable {
-            case saved(Baby)
         }
 
         public enum Alert: Equatable {}
@@ -37,11 +33,11 @@ public struct BabyNameEditFeature {
         case binding(BindingAction<State>)
         case saveButtonTapped
         case _internal(InternalAction)
-        case delegate(DelegateAction)
         case alert(PresentationAction<Alert>)
     }
 
     @Dependency(\.babyClient) var babyClient
+    @Dependency(\.dismiss) var dismiss
 
     public init() {}
 
@@ -61,15 +57,15 @@ public struct BabyNameEditFeature {
                 return .run { [babyClient, updated] send in
                     do throws(BabyError) {
                         try await babyClient.updateBaby(updated)
-                        await send(._internal(.saveCompleted(updated)))
+                        await send(._internal(.saveCompleted))
                     } catch {
                         await send(._internal(.saveFailed(error)))
                     }
                 }
 
-            case let ._internal(.saveCompleted(baby)):
+            case ._internal(.saveCompleted):
                 state.isSaving = false
-                return .send(.delegate(.saved(baby)))
+                return .run { [dismiss] _ in await dismiss() }
 
             case ._internal(.saveFailed):
                 state.isSaving = false
@@ -78,9 +74,6 @@ public struct BabyNameEditFeature {
                 } message: {
                     TextState("이름을 저장하는 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.")
                 }
-                return .none
-
-            case .delegate:
                 return .none
 
             case .alert:
