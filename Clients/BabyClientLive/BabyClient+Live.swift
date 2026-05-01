@@ -75,6 +75,22 @@ extension BabyClient: @retroactive DependencyKey {
             } catch {
                 throw BabyError.unexpected
             }
+        },
+        updateBaby: { @Sendable baby async throws(BabyError) -> Void in
+            guard Auth.auth().currentUser != nil else {
+                throw BabyError.unauthorized
+            }
+
+            do {
+                let encoder = Firestore.Encoder()
+                let data = try encoder.encode(baby)
+                try await Firestore.firestore()
+                    .collection("babies")
+                    .document(baby.id.uuidString)
+                    .setData(data, merge: true)
+            } catch {
+                throw BabyError.unexpected
+            }
         }
     )
 }
