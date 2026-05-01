@@ -169,6 +169,14 @@ public struct SettingsFeature {
                 state.path.append(.birthDateEdit(BabyBirthDateEditFeature.State(baby: baby)))
                 return .none
 
+            case let .path(.element(id: _, action: .babyProfile(.delegate(.editGenderTapped(baby))))):
+                state.path.append(.genderEdit(BabyGenderEditFeature.State(baby: baby)))
+                return .none
+
+            case let .path(.element(id: _, action: .babyProfile(.delegate(.editBloodTypeTapped(baby))))):
+                state.path.append(.bloodTypeEdit(BabyBloodTypeEditFeature.State(baby: baby)))
+                return .none
+
             case .path:
                 return .none
             }
@@ -193,6 +201,8 @@ extension SettingsFeature {
         case babyProfile(BabyProfileFeature)
         case nameEdit(BabyNameEditFeature)
         case birthDateEdit(BabyBirthDateEditFeature)
+        case genderEdit(BabyGenderEditFeature)
+        case bloodTypeEdit(BabyBloodTypeEditFeature)
     }
 }
 
