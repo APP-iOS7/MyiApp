@@ -11,21 +11,30 @@ public struct SettingsView: View {
     }
 
     public var body: some View {
-        ScrollView {
-            VStack(spacing: Spacing.m) {
-                accountSection
-                personalSettingsSection
-                legalSection
-                miscSection
-                accountActionsSection
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+            ScrollView {
+                VStack(spacing: Spacing.m) {
+                    accountSection
+                    personalSettingsSection
+                    legalSection
+                    miscSection
+                    accountActionsSection
+                }
+                .padding(Spacing.m)
+                .labelStyle(IconLabelStyle())
+                .labeledContentStyle(RowLabeledContentStyle())
             }
-            .padding(Spacing.m)
-            .labelStyle(IconLabelStyle())
-            .labeledContentStyle(RowLabeledContentStyle())
+            .background(Color.Semantic.screenBackground.ignoresSafeArea())
+            .loadingOverlay(isPresented: store.isLoading)
+            .alert($store.scope(state: \.alert, action: \.alert))
+        } destination: { store in
+            switch store.case {
+            case let .babyProfile(store):
+                BabyProfileView(store: store)
+            case let .nameEdit(store):
+                BabyNameEditView(store: store)
+            }
         }
-        .background(Color.Semantic.screenBackground.ignoresSafeArea())
-        .loadingOverlay(isPresented: store.isLoading)
-        .alert($store.scope(state: \.alert, action: \.alert))
     }
 }
 
@@ -56,12 +65,15 @@ private extension SettingsView {
         SectionCard(title: "개인 설정", spacing: 0) {
             DisclosureGroup {
                 ForEach(store.babies) { baby in
-                    LabeledContent {
-                        RowChevron()
-                    } label: {
-                        Label(baby.name, systemImage: "arrow.turn.down.right")
-                            .foregroundColor(.Semantic.secondaryText)
+                    NavigationLink(state: SettingsFeature.Path.State.babyProfile(BabyProfileFeature.State(baby: baby))) {
+                        LabeledContent {
+                            RowChevron()
+                        } label: {
+                            Label(baby.name, systemImage: "arrow.turn.down.right")
+                                .foregroundColor(.Semantic.secondaryText)
+                        }
                     }
+                    .buttonStyle(NoHighlightButtonStyle())
                 }
             } label: {
                 Label("아이 정보", icon: Image(Asset.Settings.babyInfo))
