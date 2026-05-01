@@ -39,6 +39,23 @@ extension CaregiverClient: @retroactive DependencyKey {
                 }
             }
         },
+        provisionCaregiver: { @Sendable initial async throws(CaregiverError) -> Void in
+            guard Auth.auth().currentUser?.uid == initial.id else {
+                throw CaregiverError.unauthorized
+            }
+            do {
+                let ref = Firestore.firestore().collection("users").document(initial.id)
+                let snapshot = try await ref.getDocument()
+                if snapshot.exists, snapshot.data()?["createdAt"] != nil {
+                    return
+                }
+                let encoder = Firestore.Encoder()
+                let data = try encoder.encode(initial)
+                try await ref.setData(data, merge: true)
+            } catch {
+                throw CaregiverError.unexpected
+            }
+        },
         updateDisplayName: { @Sendable name async throws(CaregiverError) -> Void in
             guard let uid = Auth.auth().currentUser?.uid else {
                 throw CaregiverError.unauthorized
