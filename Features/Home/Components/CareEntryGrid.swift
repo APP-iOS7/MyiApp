@@ -10,7 +10,7 @@ struct CareEntryGrid: View {
         LazyVGrid(columns: columns, spacing: Spacing.m) {
             ForEach(HomeCareEntry.allCases, id: \.self) { entry in
                 Button { onSelect(entry) } label: { EntryIcon(entry: entry) }
-                    .buttonStyle(.plain)
+                    .buttonStyle(NoHighlightButtonStyle())
             }
         }
     }
