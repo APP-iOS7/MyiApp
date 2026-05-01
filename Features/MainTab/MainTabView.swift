@@ -52,8 +52,7 @@ public struct MainTabView: View {
         if let state = MainTabFeature.State(
             session: Session(
                 uid: "preview",
-                providerIDs: [],
-                createdAt: .now
+                providerIDs: []
             ),
             babies: [
                 Baby(

@@ -51,20 +51,14 @@ public struct AppFeature {
 
             case let .sessionUpdated(session):
                 state.session = session
-                guard let session else {
+                guard session != nil else {
                     state.phase = .running
                     state.destination = nil
                     return .none
                 }
-                let initialCaregiver = Caregiver(
-                    id: session.uid,
-                    displayName: session.displayName,
-                    photoURL: session.photoURL,
-                    createdAt: Date()
-                )
                 return .merge(
                     .run { [caregiverClient] _ in
-                        try? await caregiverClient.provisionCaregiver(initialCaregiver)
+                        try? await caregiverClient.provisionCaregiver()
                     },
                     .run { [babyClient] send in
                         do throws(BabyError) {
