@@ -14,14 +14,13 @@ public struct BabyProfileFeature {
     }
 
     public enum Action: BindableAction {
-        public enum Delegate: Equatable {
+        public enum DelegateAction: Equatable {
             case editNameTapped(Baby)
         }
 
         case binding(BindingAction<State>)
-        case delegate(Delegate)
-
         case nameRowTapped
+        case delegate(DelegateAction)
     }
 
     public init() {}
@@ -30,10 +29,13 @@ public struct BabyProfileFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
+            case .binding:
+                .none
+
             case .nameRowTapped:
                 .send(.delegate(.editNameTapped(state.baby)))
 
-            case .binding, .delegate:
+            case .delegate:
                 .none
             }
         }
