@@ -29,6 +29,8 @@ public struct SettingsView: View {
             .alert($store.scope(state: \.alert, action: \.alert))
         } destination: { store in
             switch store.case {
+            case let .accountEdit(store):
+                AccountEditView(store: store)
             case let .babyProfile(store):
                 BabyProfileView(store: store)
             case let .nameEdit(store):
@@ -46,25 +48,32 @@ public struct SettingsView: View {
 
 private extension SettingsView {
     var accountSection: some View {
-        SectionCard(spacing: 0) {
-            HStack(spacing: Spacing.m) {
-                Image(systemName: "person.circle.fill")
-                    .resizable()
-                    .frame(width: 50, height: 50)
-                    .foregroundColor(.Semantic.secondaryText)
-
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text(store.displayName)
-                        .font(.headline)
-                        .foregroundColor(.Semantic.sectionHeading)
-                    Text(store.providerText)
-                        .font(.subheadline)
+        NavigationLink(state: SettingsFeature.Path.State.accountEdit(
+            AccountEditFeature.State(originalName: store.caregiver.displayName)
+        )) {
+            SectionCard(spacing: 0) {
+                HStack(spacing: Spacing.m) {
+                    Image(systemName: "person.circle.fill")
+                        .resizable()
+                        .frame(width: 50, height: 50)
                         .foregroundColor(.Semantic.secondaryText)
-                }
 
-                Spacer()
+                    VStack(alignment: .leading, spacing: Spacing.xs) {
+                        Text(store.displayName)
+                            .font(.headline)
+                            .foregroundColor(.Semantic.sectionHeading)
+                        Text(store.providerText)
+                            .font(.subheadline)
+                            .foregroundColor(.Semantic.secondaryText)
+                    }
+
+                    Spacer()
+
+                    RowChevron()
+                }
             }
         }
+        .buttonStyle(NoHighlightButtonStyle())
     }
 
     var personalSettingsSection: some View {
