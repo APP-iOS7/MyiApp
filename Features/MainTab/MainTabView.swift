@@ -34,11 +34,9 @@ public struct MainTabView: View {
             .tabItem { Label("기록 분석", systemImage: "chart.bar.fill") }
             .tag(MainTabFeature.Tab.statistic)
 
-            NavigationStack {
-                SettingsView(store: store.scope(state: \.settings, action: \.settings))
-            }
-            .tabItem { Label("더 보기", systemImage: "line.3.horizontal") }
-            .tag(MainTabFeature.Tab.settings)
+            SettingsView(store: store.scope(state: \.settings, action: \.settings))
+                .tabItem { Label("더 보기", systemImage: "line.3.horizontal") }
+                .tag(MainTabFeature.Tab.settings)
         }
         .task {
             await store.send(.notificationSync(.task)).finish()

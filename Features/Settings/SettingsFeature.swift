@@ -9,6 +9,7 @@ public struct SettingsFeature {
         public var session: Session
         public var babies: IdentifiedArrayOf<Baby>
         public var isLoading: Bool = false
+        public var path = StackState<Path.State>()
         @Presents public var alert: AlertState<Action.Alert>?
 
         public init(session: Session, babies: IdentifiedArrayOf<Baby>) {
@@ -45,10 +46,16 @@ public struct SettingsFeature {
         case deleteAccountCompleted
         case deleteAccountFailed(AuthError)
         case alert(PresentationAction<Alert>)
+        case path(StackActionOf<Path>)
+        case delegate(Delegate)
 
         public enum Alert: Equatable {
             case confirmSignOut
             case confirmDeleteAccount
+        }
+
+        public enum Delegate: Equatable {
+            case babyUpdated(Baby)
         }
     }
 
@@ -150,9 +157,25 @@ public struct SettingsFeature {
             case .alert:
                 return .none
 
+            case let .path(.element(id: _, action: .babyProfile(.delegate(.editNameTapped(baby))))):
+                state.path.append(.nameEdit(BabyNameEditFeature.State(baby: baby)))
+                return .none
+
+            case let .path(.element(id: _, action: .nameEdit(.delegate(.saved(baby))))):
+                state.babies[id: baby.id] = baby
+                state.path.removeLast()
+                if let topID = state.path.ids.last {
+                    state.path[id: topID] = .babyProfile(BabyProfileFeature.State(baby: baby))
+                }
+                return .send(.delegate(.babyUpdated(baby)))
+
+            case .path, .delegate:
+                return .none
+
             }
         }
         .ifLet(\.$alert, action: \.alert)
+        .forEach(\.path, action: \.path)
     }
 
     private func message(for error: AuthError) -> String {
@@ -164,3 +187,13 @@ public struct SettingsFeature {
         }
     }
 }
+
+extension SettingsFeature {
+    @Reducer
+    public enum Path {
+        case babyProfile(BabyProfileFeature)
+        case nameEdit(BabyNameEditFeature)
+    }
+}
+
+extension SettingsFeature.Path.State: Equatable {}
