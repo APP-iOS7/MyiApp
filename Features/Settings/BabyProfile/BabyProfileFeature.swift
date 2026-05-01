@@ -16,10 +16,12 @@ public struct BabyProfileFeature {
     public enum Action: BindableAction {
         public enum DelegateAction: Equatable {
             case editNameTapped(Baby)
+            case editBirthDateTapped(Baby)
         }
 
         case binding(BindingAction<State>)
         case nameRowTapped
+        case birthDateRowTapped
         case delegate(DelegateAction)
     }
 
@@ -34,6 +36,9 @@ public struct BabyProfileFeature {
 
             case .nameRowTapped:
                 .send(.delegate(.editNameTapped(state.baby)))
+
+            case .birthDateRowTapped:
+                .send(.delegate(.editBirthDateTapped(state.baby)))
 
             case .delegate:
                 .none
