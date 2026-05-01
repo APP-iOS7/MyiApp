@@ -10,6 +10,9 @@ extension StorageClient {
         uploadDiaryPhotoFile: { _, _, _ in
             URL(string: "https://picsum.photos/200") ?? URL(filePath: "/")
         },
+        uploadBabyProfilePhoto: { _, _ in
+            URL(string: "https://picsum.photos/200") ?? URL(filePath: "/")
+        },
         deletePhoto: { _ in }
     )
 }

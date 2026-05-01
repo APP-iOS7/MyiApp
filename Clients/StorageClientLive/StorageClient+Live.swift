@@ -53,6 +53,29 @@ extension StorageClient: @retroactive DependencyKey {
                 throw mapped
             }
         },
+        uploadBabyProfilePhoto: { @Sendable babyID, data async throws(Domain.StorageError) -> URL in
+            guard Auth.auth().currentUser?.uid != nil else {
+                AppLogger.error("uploadBabyProfilePhoto unauthorized babyID=\(babyID)")
+                throw .unauthorized
+            }
+            let photoID = UUID()
+            let path = babyProfilePhotoPath(babyID: babyID, photoID: photoID)
+            let contentType = inferImageContentType(data: data)
+            AppLogger.info("uploadBabyProfilePhoto start path=\(path) bytes=\(data.count) contentType=\(contentType)")
+            let reference = Storage.storage().reference().child(path)
+            let metadata = StorageMetadata()
+            metadata.contentType = contentType
+            do {
+                _ = try await reference.putDataAsync(data, metadata: metadata)
+                let url = try await reference.downloadURL()
+                AppLogger.info("uploadBabyProfilePhoto done photoID=\(photoID)")
+                return url
+            } catch {
+                let mapped = mapStorageError(error)
+                AppLogger.error("uploadBabyProfilePhoto failed: \(error) → \(mapped)")
+                throw mapped
+            }
+        },
         deletePhoto: { @Sendable downloadURL async throws(Domain.StorageError) -> Void in
             guard Auth.auth().currentUser?.uid != nil else {
                 AppLogger.error("deletePhoto unauthorized url=\(downloadURL)")
@@ -80,6 +103,10 @@ public extension DependencyValues {
 
 private func diaryPhotoPath(babyID: UUID, noteID: UUID, photoID: UUID) -> String {
     "babies/\(babyID.uuidString)/notes/\(noteID.uuidString)/photos/\(photoID.uuidString)"
+}
+
+private func babyProfilePhotoPath(babyID: UUID, photoID: UUID) -> String {
+    "babies/\(babyID.uuidString)/profile/\(photoID.uuidString)"
 }
 
 private func mapStorageError(_ error: Error) -> Domain.StorageError {
