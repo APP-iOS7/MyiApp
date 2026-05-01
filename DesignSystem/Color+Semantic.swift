@@ -14,7 +14,7 @@ public extension Color {
 
         // 통계 카테고리 (레거시 RecordColors 매핑)
         public static let feeding = Color(light: Color(Asset.Tokens.pink450), dark: Color(Asset.Tokens.pink450))
-        public static let potty = Color(light: Color(Asset.Tokens.brown700), dark: Color(Asset.Tokens.brown700))
+        public static let potty = Color(light: Color(Asset.Tokens.brown400), dark: Color(Asset.Tokens.brown400))
         public static let sleep = Color(light: Color(Asset.Tokens.yellow450), dark: Color(Asset.Tokens.yellow450))
         public static let bath = Color(light: Color(Asset.Tokens.blue300), dark: Color(Asset.Tokens.blue300))
         public static let snack = Color(light: Color(Asset.Tokens.purple350), dark: Color(Asset.Tokens.purple350))
