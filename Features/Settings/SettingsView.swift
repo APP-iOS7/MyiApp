@@ -41,9 +41,6 @@ public struct SettingsView: View {
                 BabyBloodTypeEditView(store: store)
             }
         }
-        .task {
-            await store.send(.task).finish()
-        }
     }
 }
 
@@ -156,6 +153,11 @@ private extension SettingsView {
                         uid: "user-123",
                         email: "parent@example.com",
                         providerIDs: ["apple.com"]
+                    ),
+                    caregiver: Caregiver(
+                        id: "user-123",
+                        displayName: "행복한 엄마",
+                        createdAt: Date()
                     ),
                     babies: [
                         Baby(

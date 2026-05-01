@@ -8,6 +8,7 @@ public struct MainTabFeature {
     public struct State: Equatable {
         public var selectedTab: Tab = .home
         public var session: Session
+        public var caregiver: Caregiver
         public var babies: IdentifiedArrayOf<Baby>
         public var selectedBabyID: Baby.ID
         public var home: HomeFeature.State
@@ -17,9 +18,10 @@ public struct MainTabFeature {
         public var settings: SettingsFeature.State
         public var notificationSync: NotificationSyncFeature.State
 
-        public init?(session: Session, babies: [Baby], selectedTab: Tab = .home) {
+        public init?(session: Session, caregiver: Caregiver, babies: [Baby], selectedTab: Tab = .home) {
             guard let firstBaby = babies.first else { return nil }
             self.session = session
+            self.caregiver = caregiver
             self.babies = IdentifiedArray(uniqueElements: babies)
             self.selectedBabyID = firstBaby.id
             self.selectedTab = selectedTab
@@ -29,6 +31,7 @@ public struct MainTabFeature {
             self.statistic = StatisticFeature.State(baby: firstBaby)
             self.settings = SettingsFeature.State(
                 session: session,
+                caregiver: caregiver,
                 babies: IdentifiedArray(uniqueElements: babies)
             )
             self.notificationSync = NotificationSyncFeature.State(babyID: firstBaby.id)
@@ -42,6 +45,7 @@ public struct MainTabFeature {
     public enum Action: BindableAction {
         public enum InternalAction {
             case babiesLoaded([Baby])
+            case caregiverLoaded(Caregiver?)
         }
 
         case binding(BindingAction<State>)
@@ -59,8 +63,12 @@ public struct MainTabFeature {
     }
 
     @Dependency(\.babyClient) var babyClient
+    @Dependency(\.caregiverClient) var caregiverClient
 
-    private enum CancelID { case babiesStream }
+    private enum CancelID {
+        case babiesStream
+        case caregiverStream
+    }
 
     public init() {}
 
@@ -102,12 +110,20 @@ public struct MainTabFeature {
                 return .none
 
             case .task:
-                return .run { [babyClient] send in
-                    for await babies in babyClient.streamBabies() {
-                        await send(._internal(.babiesLoaded(babies)))
+                return .merge(
+                    .run { [babyClient] send in
+                        for await babies in babyClient.streamBabies() {
+                            await send(._internal(.babiesLoaded(babies)))
+                        }
                     }
-                }
-                .cancellable(id: CancelID.babiesStream, cancelInFlight: true)
+                    .cancellable(id: CancelID.babiesStream, cancelInFlight: true),
+                    .run { [caregiverClient] send in
+                        for await caregiver in caregiverClient.streamCaregiver() {
+                            await send(._internal(.caregiverLoaded(caregiver)))
+                        }
+                    }
+                    .cancellable(id: CancelID.caregiverStream, cancelInFlight: true)
+                )
 
             case let ._internal(.babiesLoaded(babies)):
                 state.babies = IdentifiedArray(uniqueElements: babies)
@@ -118,6 +134,12 @@ public struct MainTabFeature {
                     state.cryAnalysis.baby = selected
                     state.statistic.baby = selected
                 }
+                return .none
+
+            case let ._internal(.caregiverLoaded(caregiver)):
+                guard let caregiver else { return .none }
+                state.caregiver = caregiver
+                state.settings.caregiver = caregiver
                 return .none
             }
         }
