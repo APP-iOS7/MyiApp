@@ -161,7 +161,7 @@ public struct DiaryEditorFeature {
                         // TODO: rollback 정책 결정 (best-effort silent / logger 도입 / 제거) — Todo.md
                         for url in imageURLs {
                             do throws(StorageError) {
-                                try await storageClient.deleteDiaryPhoto(url)
+                                try await storageClient.deletePhoto(url)
                             } catch {
                                 AppLogger.error("rollback delete failed: \(error) for \(url)")
                             }
@@ -245,7 +245,7 @@ private func uploadDiaryPhotos(
         // TODO: rollback 정책 결정 (best-effort silent / logger 도입 / 제거) — Todo.md
         for url in uploaded {
             do throws(StorageError) {
-                try await storageClient.deleteDiaryPhoto(url)
+                try await storageClient.deletePhoto(url)
             } catch {
                 AppLogger.error("rollback delete failed: \(error) for \(url)")
             }
