@@ -200,6 +200,7 @@ public struct SettingsFeature {
 extension SettingsFeature {
     @Reducer
     public enum Path {
+        case accountEdit(AccountEditFeature)
         case babyProfile(BabyProfileFeature)
         case nameEdit(BabyNameEditFeature)
         case birthDateEdit(BabyBirthDateEditFeature)
