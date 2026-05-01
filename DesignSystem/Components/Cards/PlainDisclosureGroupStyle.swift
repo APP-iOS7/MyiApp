@@ -8,15 +8,12 @@ public struct PlainDisclosureGroupStyle: DisclosureGroupStyle {
             Button {
                 withAnimation { configuration.isExpanded.toggle() }
             } label: {
-                HStack {
+                LabeledContent {
+                    RowChevron(isExpanded: configuration.isExpanded)
+                } label: {
                     configuration.label
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.Semantic.secondaryText)
-                        .rotationEffect(.degrees(configuration.isExpanded ? 90 : 0))
                 }
-                .contentShape(Rectangle())
+                .labeledContentStyle(RowLabeledContentStyle())
             }
             .buttonStyle(NoHighlightButtonStyle())
 

@@ -57,9 +57,7 @@ private extension SettingsView {
             DisclosureGroup {
                 ForEach(store.babies) { baby in
                     LabeledContent {
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundColor(.Semantic.secondaryText)
+                        RowChevron()
                     } label: {
                         Label(baby.name, systemImage: "arrow.turn.down.right")
                             .foregroundColor(.Semantic.secondaryText)
@@ -67,7 +65,6 @@ private extension SettingsView {
                 }
             } label: {
                 Label("아이 정보", icon: Image(Asset.Settings.babyInfo))
-                    .padding(.vertical, Spacing.s)
             }
             .disclosureGroupStyle(PlainDisclosureGroupStyle())
         }
@@ -77,9 +74,7 @@ private extension SettingsView {
         SectionCard(title: "개인 정보", spacing: 0) {
             NavigationLink { PrivacyPolicyView() } label: {
                 LabeledContent {
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundColor(.Semantic.secondaryText)
+                    RowChevron()
                 } label: {
                     Label("개인 정보 처리 방침", icon: Image(Asset.Settings.privacy))
                 }
@@ -88,9 +83,7 @@ private extension SettingsView {
 
             NavigationLink { TermsOfServiceView() } label: {
                 LabeledContent {
-                    Image(systemName: "chevron.right")
-                        .font(.caption)
-                        .foregroundColor(.Semantic.secondaryText)
+                    RowChevron()
                 } label: {
                     Label("이용 약관", icon: Image(Asset.Settings.agreement))
                 }
