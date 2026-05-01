@@ -8,6 +8,7 @@ public struct SettingsFeature {
     public struct State: Equatable {
         public var session: Session
         public var babies: IdentifiedArrayOf<Baby>
+        public var caregiver: Caregiver?
         public var isLoading: Bool = false
         public var path = StackState<Path.State>()
         @Presents public var alert: AlertState<Action.Alert>?
@@ -18,7 +19,7 @@ public struct SettingsFeature {
         }
 
         public var displayName: String {
-            session.displayName ?? session.email ?? "이름을 설정해주세요"
+            caregiver?.displayName ?? session.email ?? "이름을 설정해주세요"
         }
 
         public var providerText: String {
@@ -45,6 +46,7 @@ public struct SettingsFeature {
         }
 
         public enum InternalAction {
+            case caregiverUpdated(Caregiver?)
             case signOutCompleted
             case signOutFailed(AuthError)
             case deleteAccountCompleted
@@ -57,6 +59,7 @@ public struct SettingsFeature {
         }
 
         case binding(BindingAction<State>)
+        case task
         case view(ViewAction)
         case _internal(InternalAction)
         case alert(PresentationAction<Alert>)
@@ -64,6 +67,9 @@ public struct SettingsFeature {
     }
 
     @Dependency(\.authClient) var authClient
+    @Dependency(\.caregiverClient) var caregiverClient
+
+    private enum CancelID { case caregiverStream }
 
     public init() {}
 
@@ -73,6 +79,14 @@ public struct SettingsFeature {
             switch action {
             case .binding:
                 return .none
+
+            case .task:
+                return .run { [caregiverClient] send in
+                    for await caregiver in caregiverClient.streamCaregiver() {
+                        await send(._internal(.caregiverUpdated(caregiver)))
+                    }
+                }
+                .cancellable(id: CancelID.caregiverStream, cancelInFlight: true)
 
             case .view(.signOutTapped):
                 state.alert = AlertState {
@@ -125,6 +139,10 @@ public struct SettingsFeature {
                         await send(._internal(.deleteAccountFailed(error)))
                     }
                 }
+
+            case let ._internal(.caregiverUpdated(caregiver)):
+                state.caregiver = caregiver
+                return .none
 
             case ._internal(.signOutCompleted):
                 state.isLoading = false

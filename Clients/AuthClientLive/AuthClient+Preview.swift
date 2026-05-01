@@ -20,9 +20,6 @@ extension Session {
     fileprivate static let preview = Session(
         uid: "preview-uid",
         email: "preview@example.com",
-        displayName: "Preview User",
-        photoURL: nil,
-        providerIDs: ["apple.com"],
-        createdAt: .distantPast
+        providerIDs: ["apple.com"]
     )
 }

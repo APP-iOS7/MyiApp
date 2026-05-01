@@ -95,10 +95,7 @@ private extension Session {
         self.init(
             uid: user.uid,
             email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-            providerIDs: user.providerData.map(\.providerID),
-            createdAt: user.metadata.creationDate ?? Date()
+            providerIDs: user.providerData.map(\.providerID)
         )
     }
 }

@@ -41,6 +41,9 @@ public struct SettingsView: View {
                 BabyBloodTypeEditView(store: store)
             }
         }
+        .task {
+            await store.send(.task).finish()
+        }
     }
 }
 
@@ -152,10 +155,7 @@ private extension SettingsView {
                     session: Session(
                         uid: "user-123",
                         email: "parent@example.com",
-                        displayName: "행복한 엄마",
-                        photoURL: nil,
-                        providerIDs: ["apple.com"],
-                        createdAt: Date()
+                        providerIDs: ["apple.com"]
                     ),
                     babies: [
                         Baby(
