@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import DesignSystem
 import Domain
+import PhotosUI
 import SwiftUI
 
 public struct BabyProfileView: View {
@@ -21,6 +22,23 @@ public struct BabyProfileView: View {
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
         .navigationTitle("아이 정보")
         .navigationBarTitleDisplayMode(.inline)
+        .photosPicker(
+            isPresented: $store.isPickerPresented,
+            selection: $store.pickerItem,
+            matching: .images,
+            photoLibrary: .shared()
+        )
+        .confirmationDialog(
+            "프로필 사진",
+            isPresented: $store.isPhotoActionDialogPresented,
+            titleVisibility: .visible
+        ) {
+            Button("라이브러리에서 선택") { store.send(.pickFromLibraryTapped) }
+            Button("삭제", role: .destructive) { store.send(.deletePhotoTapped) }
+            Button("취소", role: .cancel) {}
+        }
+        .loadingOverlay(isPresented: store.isUploading)
+        .alert($store.scope(state: \.alert, action: \.alert))
         .task {
             await store.send(.task).finish()
         }
@@ -29,10 +47,34 @@ public struct BabyProfileView: View {
 
 private extension BabyProfileView {
     var avatar: some View {
-        Image(systemName: "person.circle.fill")
-            .resizable()
+        Button { store.send(.photoTapped) } label: {
+            avatarImage
+        }
+        .buttonStyle(NoHighlightButtonStyle())
+    }
+
+    @ViewBuilder
+    var avatarImage: some View {
+        if let url = store.baby.profileImageURL {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case let .success(image):
+                    image.resizable().scaledToFill()
+                default:
+                    Image(systemName: "person.circle.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundColor(.Semantic.secondaryText)
+                }
+            }
             .frame(width: 100, height: 100)
-            .foregroundColor(.Semantic.secondaryText)
+            .clipShape(Circle())
+        } else {
+            Image(systemName: "person.circle.fill")
+                .resizable()
+                .frame(width: 100, height: 100)
+                .foregroundColor(.Semantic.secondaryText)
+        }
     }
 
     var infoCard: some View {
