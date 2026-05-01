@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import DesignSystem
 import Domain
+import Shared
 import SwiftUI
 
 public struct StatisticView: View {

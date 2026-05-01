@@ -1,3 +1,4 @@
+import Shared
 import SwiftUI
 
 public struct DateNavigator: View {

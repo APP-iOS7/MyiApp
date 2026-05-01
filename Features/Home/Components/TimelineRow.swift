@@ -1,5 +1,6 @@
 import DesignSystem
 import Domain
+import Shared
 import SwiftUI
 
 struct TimelineRow: View {

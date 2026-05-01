@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import Domain
 import Foundation
+import Shared
 
 @Reducer
 public struct NotificationSyncFeature {
