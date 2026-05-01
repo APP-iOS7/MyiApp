@@ -48,13 +48,19 @@ private extension BabyProfileView {
             }
             .buttonStyle(NoHighlightButtonStyle())
 
-            LabeledContent {
-                Text(store.baby.birthDate.formatted(date: .long, time: .omitted))
-                    .foregroundColor(.Semantic.secondaryText)
-            } label: {
-                Text("출생일")
-                    .foregroundColor(.Semantic.sectionHeading)
+            Button { store.send(.birthDateRowTapped) } label: {
+                LabeledContent {
+                    HStack(spacing: Spacing.s) {
+                        Text(store.baby.birthDate.formatted(date: .long, time: .omitted))
+                            .foregroundColor(.Semantic.secondaryText)
+                        RowChevron()
+                    }
+                } label: {
+                    Text("출생일")
+                        .foregroundColor(.Semantic.sectionHeading)
+                }
             }
+            .buttonStyle(NoHighlightButtonStyle())
 
             LabeledContent {
                 Text(store.baby.gender.displayName)

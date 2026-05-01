@@ -33,6 +33,8 @@ public struct SettingsView: View {
                 BabyProfileView(store: store)
             case let .nameEdit(store):
                 BabyNameEditView(store: store)
+            case let .birthDateEdit(store):
+                BabyBirthDateEditView(store: store)
             }
         }
     }
