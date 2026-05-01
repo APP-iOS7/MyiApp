@@ -23,18 +23,18 @@ public struct MainTabFeature {
             self.session = session
             self.caregiver = caregiver
             self.babies = IdentifiedArray(uniqueElements: babies)
-            self.selectedBabyID = firstBaby.id
+            selectedBabyID = firstBaby.id
             self.selectedTab = selectedTab
-            self.home = HomeFeature.State(baby: firstBaby)
-            self.note = NoteHomeFeature.State(baby: firstBaby)
-            self.cryAnalysis = CryAnalysisHomeFeature.State(baby: firstBaby)
-            self.statistic = StatisticFeature.State(baby: firstBaby)
-            self.settings = SettingsFeature.State(
+            home = HomeFeature.State(baby: firstBaby)
+            note = NoteHomeFeature.State(baby: firstBaby)
+            cryAnalysis = CryAnalysisHomeFeature.State(baby: firstBaby)
+            statistic = StatisticFeature.State(baby: firstBaby)
+            settings = SettingsFeature.State(
                 session: session,
                 caregiver: caregiver,
                 babies: IdentifiedArray(uniqueElements: babies)
             )
-            self.notificationSync = NotificationSyncFeature.State(babyID: firstBaby.id)
+            notificationSync = NotificationSyncFeature.State(babyID: firstBaby.id)
         }
 
         public var selectedBaby: Baby? {
@@ -48,8 +48,6 @@ public struct MainTabFeature {
             case caregiverLoaded(Caregiver?)
         }
 
-        case binding(BindingAction<State>)
-
         case home(HomeFeature.Action)
         case note(NoteHomeFeature.Action)
         case cryAnalysis(CryAnalysisHomeFeature.Action)
@@ -57,9 +55,10 @@ public struct MainTabFeature {
         case settings(SettingsFeature.Action)
         case notificationSync(NotificationSyncFeature.Action)
 
-        case task
-
+        case binding(BindingAction<State>)
         case _internal(InternalAction)
+
+        case task
     }
 
     @Dependency(\.babyClient) var babyClient
@@ -106,11 +105,12 @@ public struct MainTabFeature {
             case .binding:
                 return .none
 
-            case .home, .note, .cryAnalysis, .statistic, .settings, .notificationSync:
+            case .cryAnalysis, .home, .note, .notificationSync, .settings, .statistic:
                 return .none
 
             case .task:
                 return .merge(
+                    .send(.notificationSync(.task)),
                     .run { [babyClient] send in
                         for await babies in babyClient.streamBabies() {
                             await send(._internal(.babiesLoaded(babies)))
@@ -146,8 +146,8 @@ public struct MainTabFeature {
     }
 }
 
-extension MainTabFeature {
-    public enum Tab: Hashable, Sendable {
+public extension MainTabFeature {
+    enum Tab: Hashable, Sendable {
         case home
         case note
         case cryAnalysis
