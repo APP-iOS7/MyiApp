@@ -53,18 +53,18 @@ extension StorageClient: @retroactive DependencyKey {
                 throw mapped
             }
         },
-        deleteDiaryPhoto: { @Sendable downloadURL async throws(Domain.StorageError) -> Void in
+        deletePhoto: { @Sendable downloadURL async throws(Domain.StorageError) -> Void in
             guard Auth.auth().currentUser?.uid != nil else {
-                AppLogger.error("deleteDiaryPhoto unauthorized url=\(downloadURL)")
+                AppLogger.error("deletePhoto unauthorized url=\(downloadURL)")
                 throw .unauthorized
             }
             do {
                 let reference = Storage.storage().reference(forURL: downloadURL.absoluteString)
                 try await reference.delete()
-                AppLogger.info("deleteDiaryPhoto done url=\(downloadURL)")
+                AppLogger.info("deletePhoto done url=\(downloadURL)")
             } catch {
                 let mapped = mapStorageError(error)
-                AppLogger.error("deleteDiaryPhoto failed: \(error) → \(mapped)")
+                AppLogger.error("deletePhoto failed: \(error) → \(mapped)")
                 throw mapped
             }
         }
