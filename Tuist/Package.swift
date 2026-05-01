@@ -49,7 +49,13 @@ private func makeTargetSettings() -> [String: Settings] {
 
 let packageSettings = PackageSettings(
     productTypes: [
-        "ComposableArchitecture": .staticFramework
+        "ComposableArchitecture": .staticFramework,
+        "Dependencies": .staticFramework,
+        "Clocks": .staticFramework,
+        "ConcurrencyExtras": .staticFramework,
+        "CombineSchedulers": .staticFramework,
+        "IdentifiedCollections": .staticFramework,
+        "OrderedCollections": .staticFramework
     ],
     targetSettings: makeTargetSettings()
 )

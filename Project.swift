@@ -37,6 +37,7 @@ let project = Project(
                 .target(name: "Shared"),
                 .target(name: "Domain"),
                 .external(name: "ComposableArchitecture"),
+                .external(name: "ConcurrencyExtras"),
                 .external(name: "FirebaseCore"),
                 .external(name: "FirebaseAuth"),
                 .external(name: "FirebaseFirestore"),
@@ -60,7 +61,7 @@ let project = Project(
         .target(
             name: "Features",
             destinations: .iOS,
-            product: .framework,
+            product: .staticFramework,
             bundleId: "kr.co.codegrove.Features",
             deploymentTargets: .iOS("17.0"),
             buildableFolders: ["Features"],
@@ -70,10 +71,7 @@ let project = Project(
                 .target(name: "Clients"),
                 .target(name: "DesignSystem"),
                 .external(name: "ComposableArchitecture")
-            ],
-            settings: .settings(base: [
-                "OTHER_LDFLAGS": ["$(inherited)", "-ObjC"]
-            ])
+            ]
         ),
         .target(
             name: "MyI",
@@ -104,7 +102,11 @@ let project = Project(
                 "aps-environment": .string("development")
             ]),
             dependencies: [
-                .target(name: "Features")
+                .target(name: "Domain"),
+                .target(name: "Clients"),
+                .target(name: "DesignSystem"),
+                .target(name: "Features"),
+                .external(name: "ComposableArchitecture")
             ],
             settings: .settings(
                 base: [
