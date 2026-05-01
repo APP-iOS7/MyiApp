@@ -21,7 +21,7 @@ struct CategoryFilterGrid: View {
                         isSelected: isSelected
                     )
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(NoHighlightButtonStyle())
             }
         }
     }
