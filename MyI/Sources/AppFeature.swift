@@ -1,6 +1,7 @@
 import ComposableArchitecture
 import Domain
 import Features
+import Foundation
 
 @Reducer
 public struct AppFeature {
@@ -25,6 +26,7 @@ public struct AppFeature {
 
     @Dependency(\.authClient) var authClient
     @Dependency(\.babyClient) var babyClient
+    @Dependency(\.caregiverClient) var caregiverClient
     @Dependency(\.localNotificationClient) var localNotificationClient
 
     public init() {}
@@ -49,19 +51,30 @@ public struct AppFeature {
 
             case let .sessionUpdated(session):
                 state.session = session
-                guard session != nil else {
+                guard let session else {
                     state.phase = .running
                     state.destination = nil
                     return .none
                 }
-                return .run { [babyClient] send in
-                    do throws(BabyError) {
-                        let babies = try await babyClient.currentBabies()
-                        await send(.babiesFetched(babies))
-                    } catch {
-                        await send(.babiesFetchFailed(error))
+                let initialCaregiver = Caregiver(
+                    id: session.uid,
+                    displayName: session.displayName,
+                    photoURL: session.photoURL,
+                    createdAt: Date()
+                )
+                return .merge(
+                    .run { [caregiverClient] _ in
+                        try? await caregiverClient.provisionCaregiver(initialCaregiver)
+                    },
+                    .run { [babyClient] send in
+                        do throws(BabyError) {
+                            let babies = try await babyClient.currentBabies()
+                            await send(.babiesFetched(babies))
+                        } catch {
+                            await send(.babiesFetchFailed(error))
+                        }
                     }
-                }
+                )
 
             case let .babiesFetched(babies):
                 guard let session = state.session else { return .none }
