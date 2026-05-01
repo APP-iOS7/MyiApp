@@ -23,6 +23,28 @@ extension BabyClient: @retroactive DependencyKey {
                 throw BabyError.unexpected
             }
         },
+        streamBabies: { @Sendable () -> AsyncStream<[Baby]> in
+            AsyncStream { continuation in
+                guard let uid = Auth.auth().currentUser?.uid else {
+                    continuation.finish()
+                    return
+                }
+                let listener = Firestore.firestore()
+                    .collection("babies")
+                    .whereField("caregiverIDs", arrayContains: uid)
+                    .addSnapshotListener { snapshot, _ in
+                        guard let snapshot else { return }
+                        let decoder = Firestore.Decoder()
+                        let babies = snapshot.documents.compactMap { doc -> Baby? in
+                            try? decoder.decode(Baby.self, from: doc.data())
+                        }
+                        continuation.yield(babies)
+                    }
+                continuation.onTermination = { _ in
+                    listener.remove()
+                }
+            }
+        },
         registerNewBaby: { @Sendable baby async throws(BabyError) -> Void in
             guard let uid = Auth.auth().currentUser?.uid else {
                 throw BabyError.unauthorized
