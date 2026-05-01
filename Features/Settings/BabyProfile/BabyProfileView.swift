@@ -65,21 +65,33 @@ private extension BabyProfileView {
             }
             .buttonStyle(NoHighlightButtonStyle())
 
-            LabeledContent {
-                Text(store.baby.gender.displayName)
-                    .foregroundColor(.Semantic.secondaryText)
-            } label: {
-                Text("성별")
-                    .foregroundColor(.Semantic.sectionHeading)
+            Button { store.send(.genderRowTapped) } label: {
+                LabeledContent {
+                    HStack(spacing: Spacing.s) {
+                        Text(store.baby.gender.displayName)
+                            .foregroundColor(.Semantic.secondaryText)
+                        RowChevron()
+                    }
+                } label: {
+                    Text("성별")
+                        .foregroundColor(.Semantic.sectionHeading)
+                }
             }
+            .buttonStyle(NoHighlightButtonStyle())
 
-            LabeledContent {
-                Text(store.baby.bloodType.rawValue)
-                    .foregroundColor(.Semantic.secondaryText)
-            } label: {
-                Text("혈액형")
-                    .foregroundColor(.Semantic.sectionHeading)
+            Button { store.send(.bloodTypeRowTapped) } label: {
+                LabeledContent {
+                    HStack(spacing: Spacing.s) {
+                        Text(store.baby.bloodType.rawValue)
+                            .foregroundColor(.Semantic.secondaryText)
+                        RowChevron()
+                    }
+                } label: {
+                    Text("혈액형")
+                        .foregroundColor(.Semantic.sectionHeading)
+                }
             }
+            .buttonStyle(NoHighlightButtonStyle())
         }
     }
 }

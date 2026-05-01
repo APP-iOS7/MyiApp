@@ -20,12 +20,16 @@ public struct BabyProfileFeature {
         public enum DelegateAction: Equatable {
             case editNameTapped(Baby)
             case editBirthDateTapped(Baby)
+            case editGenderTapped(Baby)
+            case editBloodTypeTapped(Baby)
         }
 
         case binding(BindingAction<State>)
         case task
         case nameRowTapped
         case birthDateRowTapped
+        case genderRowTapped
+        case bloodTypeRowTapped
         case _internal(InternalAction)
         case delegate(DelegateAction)
     }
@@ -56,6 +60,12 @@ public struct BabyProfileFeature {
 
             case .birthDateRowTapped:
                 return .send(.delegate(.editBirthDateTapped(state.baby)))
+
+            case .genderRowTapped:
+                return .send(.delegate(.editGenderTapped(state.baby)))
+
+            case .bloodTypeRowTapped:
+                return .send(.delegate(.editBloodTypeTapped(state.baby)))
 
             case let ._internal(.babyUpdated(baby)):
                 state.baby = baby

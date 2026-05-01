@@ -35,6 +35,10 @@ public struct SettingsView: View {
                 BabyNameEditView(store: store)
             case let .birthDateEdit(store):
                 BabyBirthDateEditView(store: store)
+            case let .genderEdit(store):
+                BabyGenderEditView(store: store)
+            case let .bloodTypeEdit(store):
+                BabyBloodTypeEditView(store: store)
             }
         }
     }
