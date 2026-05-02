@@ -26,15 +26,6 @@ public enum AppBootstrap {
         GIDSignIn.sharedInstance.handle(url)
     }
 
-    public static func handleAPNsToken(_ token: Data) {
-        Messaging.messaging().apnsToken = token
-        AppLogger.info("APNs token registered, bytes=\(token.count)")
-    }
-
-    public static func handleAPNsFailure(_ error: Error) {
-        AppLogger.error("APNs registration failed: \(error)")
-    }
-
     public static func saveFCMToken(_ token: String) async {
         guard let uid = Auth.auth().currentUser?.uid else {
             AppLogger.debug("FCM token save skipped: not authenticated")
