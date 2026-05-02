@@ -27,7 +27,7 @@ public struct NewBabyRegisterView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
-        .navigationTitle("새로운 아기 정보 등록")
+        .navigationTitle("새로운 아기 프로필 등록")
         .navigationBarTitleDisplayMode(.inline)
         .tint(Color.Semantic.primaryAction)
         .alert($store.scope(state: \.alert, action: \.alert))
