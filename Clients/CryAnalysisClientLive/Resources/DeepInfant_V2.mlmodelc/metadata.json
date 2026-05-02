@@ -1,0 +1,94 @@
+[
+  {
+    "metadataOutputVersion" : "3.0",
+    "shortDescription" : "DeepInfant® is a neural network model designed to predict the reason behind your baby's crying and provide insights into the possible causes.",
+    "outputSchema" : [
+      {
+        "isOptional" : "0",
+        "formattedType" : "String",
+        "type" : "String",
+        "name" : "target",
+        "shortDescription" : ""
+      },
+      {
+        "isOptional" : "0",
+        "keyType" : "String",
+        "formattedType" : "Dictionary (String → Double)",
+        "type" : "Dictionary",
+        "name" : "targetProbability",
+        "shortDescription" : ""
+      }
+    ],
+    "storagePrecision" : "Int8",
+    "modelParameters" : [
+
+    ],
+    "author" : "Skytells AI Research, Inc.",
+    "specificationVersion" : 4,
+    "license" : "MIT",
+    "computePrecision" : "Float16",
+    "stateSchema" : [
+
+    ],
+    "isUpdatable" : "0",
+    "availability" : {
+      "macOS" : "10.15",
+      "tvOS" : "13.0",
+      "visionOS" : "1.0",
+      "watchOS" : "6.0",
+      "iOS" : "13.0",
+      "macCatalyst" : "13.0"
+    },
+    "modelType" : {
+      "name" : "MLModelType_pipelineClassifier",
+      "structure" : [
+        {
+          "name" : "MLModelType_soundAnalysisPreprocessing"
+        },
+        {
+          "name" : "MLModelType_neuralNetwork"
+        },
+        {
+          "name" : "MLModelType_glmClassifier"
+        }
+      ]
+    },
+    "inputSchema" : [
+      {
+        "hasShapeFlexibility" : "0",
+        "isOptional" : "0",
+        "dataType" : "Float32",
+        "formattedType" : "MultiArray (Float32 15600)",
+        "shortDescription" : "Input audio samples to be classified",
+        "shape" : "[15600]",
+        "name" : "audioSamples",
+        "type" : "MultiArray"
+      }
+    ],
+    "classLabels" : [
+      "belly_pain",
+      "burping",
+      "cold_hot",
+      "discomfort",
+      "hungry",
+      "lonely",
+      "scared",
+      "tired",
+      "unknown"
+    ],
+    "generatedClassName" : "DeepInfant_V2",
+    "userDefinedMetadata" : {
+      "com.apple.createml.version" : "15.1.1",
+      "com.apple.createml.app.tag" : "150",
+      "com.apple.createml.app.version" : "6.0 Beta",
+      "com.apple.coreml.model.preview.type" : "soundClassifier"
+    },
+    "neuralNetworkLayerTypeHistogram" : {
+      "Convolution" : 6,
+      "PoolingINVALID" : 4,
+      "ActivationReLU" : 6,
+      "Flatten" : 1
+    },
+    "method" : "predict"
+  }
+]

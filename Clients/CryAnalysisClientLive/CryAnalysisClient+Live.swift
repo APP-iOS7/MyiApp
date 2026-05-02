@@ -24,7 +24,7 @@ public extension DependencyValues {
 // MARK: - Analysis
 
 private func analyzeFile(url: URL) async throws(CryAnalysisError) -> [[EmotionScore]] {
-    guard let modelURL = Bundle.main.url(forResource: "DeepInfant_V2", withExtension: "mlmodelc") else {
+    guard let modelURL = Bundle.module.url(forResource: "DeepInfant_V2", withExtension: "mlmodelc") else {
         throw .modelInferenceFailed
     }
 
