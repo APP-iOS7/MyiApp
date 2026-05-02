@@ -32,7 +32,8 @@ let project = Project(
             product: .staticFramework,
             bundleId: "kr.co.codegrove.Clients",
             deploymentTargets: .iOS("17.0"),
-            buildableFolders: ["Clients"],
+            sources: ["Clients/**/*.swift"],
+            resources: ["Clients/CryAnalysisClientLive/Resources/**"],
             dependencies: [
                 .target(name: "Shared"),
                 .target(name: "Domain"),
@@ -92,7 +93,6 @@ let project = Project(
                     ]
                 ]
             ]),
-            sources: ["MyI/Models/**"],
             buildableFolders: [
                 "MyI/Sources",
                 "MyI/Resources"
