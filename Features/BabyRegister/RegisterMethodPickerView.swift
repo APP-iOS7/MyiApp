@@ -18,11 +18,11 @@ public struct RegisterMethodPickerView: View {
                         .foregroundColor(.Semantic.sectionHeading)
 
                     CheckmarkRow(
-                        title: "새로운 아기 정보 등록",
+                        title: "새로운 아기 프로필 등록",
                         isSelected: store.selectedMethod == .newBaby
                     ) { store.send(.methodSelected(.newBaby)) }
                     CheckmarkRow(
-                        title: "초대받은 아기 등록",
+                        title: "초대받은 아기 프로필 연결",
                         isSelected: store.selectedMethod == .existingBaby
                     ) { store.send(.methodSelected(.existingBaby)) }
                 }
@@ -34,7 +34,7 @@ public struct RegisterMethodPickerView: View {
             }
             .padding(Spacing.m)
             .background(Color.Semantic.screenBackground.ignoresSafeArea())
-            .navigationTitle("아기 등록")
+            .navigationTitle("아기 프로필")
             .navigationBarTitleDisplayMode(.inline)
         } destination: { destinationStore in
             switch destinationStore.case {

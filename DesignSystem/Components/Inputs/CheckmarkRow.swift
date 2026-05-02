@@ -34,8 +34,8 @@ public struct CheckmarkRow: View {
 
 #Preview {
     VStack(spacing: 0) {
-        CheckmarkRow(title: "새로운 아기 정보 등록", isSelected: true) {}
-        CheckmarkRow(title: "초대받은 아기 등록", isSelected: false) {}
+        CheckmarkRow(title: "새로운 아기 프로필 등록", isSelected: true) {}
+        CheckmarkRow(title: "초대받은 아기 프로필 연결", isSelected: false) {}
     }
     .padding()
 }
