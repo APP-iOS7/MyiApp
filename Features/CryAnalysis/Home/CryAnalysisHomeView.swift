@@ -30,7 +30,7 @@ public struct CryAnalysisHomeView: View {
 
                 VStack(spacing: Spacing.s) {
                     Text("시작 버튼을 누른 후")
-                    Text("아이의 울음소리를 들려주세요")
+                    Text("아기의 울음소리를 들려주세요")
                 }
                 .font(.title2.weight(.semibold))
                 .frame(maxWidth: .infinity)

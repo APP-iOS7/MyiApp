@@ -82,7 +82,7 @@ let project = Project(
             deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(with: [
                 "UILaunchStoryboardName": "LaunchScreen",
-                "NSMicrophoneUsageDescription": "아이의 울음소리를 분석하기 위해 마이크 권한이 필요합니다.",
+                "NSMicrophoneUsageDescription": "아기의 울음소리를 분석하기 위해 마이크 권한이 필요합니다.",
                 "UIBackgroundModes": ["remote-notification"],
                 "CFBundleURLTypes": [
                     [

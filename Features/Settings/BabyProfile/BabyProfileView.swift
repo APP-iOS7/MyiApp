@@ -20,7 +20,7 @@ public struct BabyProfileView: View {
         .padding(Spacing.m)
         .labeledContentStyle(RowLabeledContentStyle())
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
-        .navigationTitle("아이 정보")
+        .navigationTitle("아기 정보")
         .navigationBarTitleDisplayMode(.inline)
         .photosPicker(
             isPresented: $store.isPickerPresented,
