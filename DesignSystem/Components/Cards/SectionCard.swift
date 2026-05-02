@@ -39,7 +39,7 @@ public struct SectionCard<Content: View>: View {
 #Preview {
     VStack(spacing: Spacing.m) {
         SectionCard(title: "개인 설정", spacing: 0) {
-            Text("아이 정보")
+            Text("아기 정보")
             Text("프로필")
         }
         SectionCard(spacing: Spacing.l) {

@@ -27,7 +27,7 @@ public struct NewBabyRegisterView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
-        .navigationTitle("새로운 아이 정보 등록")
+        .navigationTitle("새로운 아기 정보 등록")
         .navigationBarTitleDisplayMode(.inline)
         .tint(Color.Semantic.primaryAction)
         .alert($store.scope(state: \.alert, action: \.alert))
@@ -37,12 +37,12 @@ public struct NewBabyRegisterView: View {
         SectionCard(spacing: Spacing.l) {
             sectionHeader("성별")
             CheckmarkRow(
-                title: "남자 아이",
+                title: "남자 아기",
                 font: .body,
                 isSelected: store.gender == .male
             ) { store.gender = .male }
             CheckmarkRow(
-                title: "여자 아이",
+                title: "여자 아기",
                 font: .body,
                 isSelected: store.gender == .female
             ) { store.gender = .female }

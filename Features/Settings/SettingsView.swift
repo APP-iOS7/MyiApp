@@ -91,7 +91,7 @@ private extension SettingsView {
                     .buttonStyle(NoHighlightButtonStyle())
                 }
             } label: {
-                Label("아이 정보", icon: Image(Asset.Settings.babyInfo))
+                Label("아기 정보", icon: Image(Asset.Settings.babyInfo))
             }
             .disclosureGroupStyle(PlainDisclosureGroupStyle())
         }
