@@ -12,6 +12,7 @@ public struct BabyRegisterFlowFeature {
     }
 
     public enum Action {
+        case cancelTapped
         case picker(BabyRegisterFeature.Action)
         case path(StackActionOf<Path>)
         case delegate(Delegate)
@@ -21,6 +22,8 @@ public struct BabyRegisterFlowFeature {
         }
     }
 
+    @Dependency(\.dismiss) var dismiss
+
     public init() {}
 
     public var body: some ReducerOf<Self> {
@@ -29,6 +32,9 @@ public struct BabyRegisterFlowFeature {
         }
         Reduce { state, action in
             switch action {
+            case .cancelTapped:
+                return .run { [dismiss] _ in await dismiss() }
+
             case .picker(.delegate(.proceedToNewBaby)):
                 state.path.append(.newBaby(NewBabyRegisterFeature.State()))
                 return .none

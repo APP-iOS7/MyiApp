@@ -12,6 +12,11 @@ public struct BabyRegisterFlowView: View {
     public var body: some View {
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             RegisterMethodPickerView(store: store.scope(state: \.picker, action: \.picker))
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("닫기") { store.send(.cancelTapped) }
+                    }
+                }
         } destination: { destinationStore in
             switch destinationStore.case {
             case let .newBaby(newBabyStore):

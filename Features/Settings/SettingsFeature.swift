@@ -12,6 +12,7 @@ public struct SettingsFeature {
         public var isLoading: Bool = false
         public var path = StackState<Path.State>()
         @Presents public var alert: AlertState<Action.Alert>?
+        @Presents public var babyRegister: BabyRegisterFlowFeature.State?
 
         public init(session: Session, caregiver: Caregiver, babies: IdentifiedArrayOf<Baby>) {
             self.session = session
@@ -44,6 +45,7 @@ public struct SettingsFeature {
             case deleteAccountTapped
             case signOutConfirmed
             case deleteAccountConfirmed
+            case addBabyTapped
         }
 
         public enum InternalAction {
@@ -62,6 +64,7 @@ public struct SettingsFeature {
         case view(ViewAction)
         case _internal(InternalAction)
         case alert(PresentationAction<Alert>)
+        case babyRegister(PresentationAction<BabyRegisterFlowFeature.Action>)
         case path(StackActionOf<Path>)
     }
 
@@ -104,6 +107,10 @@ public struct SettingsFeature {
                 } message: {
                     TextState("계정 삭제 시, 모든 정보가 삭제됩니다.")
                 }
+                return .none
+
+            case .view(.addBabyTapped):
+                state.babyRegister = BabyRegisterFlowFeature.State()
                 return .none
 
             case .view(.signOutConfirmed):
@@ -163,6 +170,13 @@ public struct SettingsFeature {
             case .alert:
                 return .none
 
+            case .babyRegister(.presented(.delegate(.babyRegistered))):
+                state.babyRegister = nil
+                return .none
+
+            case .babyRegister:
+                return .none
+
             case let .path(.element(id: _, action: .babyProfile(.delegate(.editNameTapped(baby))))):
                 state.path.append(.nameEdit(BabyNameEditFeature.State(baby: baby)))
                 return .none
@@ -179,24 +193,14 @@ public struct SettingsFeature {
                 state.path.append(.bloodTypeEdit(BabyBloodTypeEditFeature.State(baby: baby)))
                 return .none
 
-            case .path(.element(id: _, action: .babyMethodPicker(.delegate(.proceedToNewBaby)))):
-                state.path.append(.newBabyRegister(NewBabyRegisterFeature.State()))
-                return .none
-
-            case .path(.element(id: _, action: .babyMethodPicker(.delegate(.proceedToExistingBaby)))):
-                state.path.append(.existingBabyRegister(ExistingBabyRegisterFeature.State()))
-                return .none
-
-            case .path(.element(id: _, action: .newBabyRegister(.delegate(.completed)))),
-                 .path(.element(id: _, action: .existingBabyRegister(.delegate(.completed)))):
-                state.path.removeAll()
-                return .none
-
             case .path:
                 return .none
             }
         }
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$babyRegister, action: \.babyRegister) {
+            BabyRegisterFlowFeature()
+        }
         .forEach(\.path, action: \.path)
     }
 
@@ -219,9 +223,6 @@ extension SettingsFeature {
         case birthDateEdit(BabyBirthDateEditFeature)
         case genderEdit(BabyGenderEditFeature)
         case bloodTypeEdit(BabyBloodTypeEditFeature)
-        case babyMethodPicker(BabyRegisterFeature)
-        case newBabyRegister(NewBabyRegisterFeature)
-        case existingBabyRegister(ExistingBabyRegisterFeature)
     }
 }
 

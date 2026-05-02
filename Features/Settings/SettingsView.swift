@@ -27,6 +27,11 @@ public struct SettingsView: View {
             .background(Color.Semantic.screenBackground.ignoresSafeArea())
             .loadingOverlay(isPresented: store.isLoading)
             .alert($store.scope(state: \.alert, action: \.alert))
+            .fullScreenCover(
+                item: $store.scope(state: \.babyRegister, action: \.babyRegister)
+            ) { flowStore in
+                BabyRegisterFlowView(store: flowStore)
+            }
         } destination: { store in
             switch store.case {
             case let .accountEdit(store):
@@ -41,15 +46,6 @@ public struct SettingsView: View {
                 BabyGenderEditView(store: store)
             case let .bloodTypeEdit(store):
                 BabyBloodTypeEditView(store: store)
-            case let .babyMethodPicker(store):
-                RegisterMethodPickerView(store: store)
-                    .toolbar(.hidden, for: .tabBar)
-            case let .newBabyRegister(store):
-                NewBabyRegisterView(store: store)
-                    .toolbar(.hidden, for: .tabBar)
-            case let .existingBabyRegister(store):
-                ExistingBabyRegisterView(store: store)
-                    .toolbar(.hidden, for: .tabBar)
             }
         }
     }
@@ -99,7 +95,7 @@ private extension SettingsView {
                     }
                     .buttonStyle(NoHighlightButtonStyle())
                 }
-                NavigationLink(state: SettingsFeature.Path.State.babyMethodPicker(BabyRegisterFeature.State())) {
+                Button { store.send(.view(.addBabyTapped)) } label: {
                     LabeledContent {
                         RowChevron()
                     } label: {
