@@ -41,6 +41,8 @@ public struct SettingsView: View {
                 BabyGenderEditView(store: store)
             case let .bloodTypeEdit(store):
                 BabyBloodTypeEditView(store: store)
+            case let .babyRegister(store):
+                RegisterMethodPickerView(store: store)
             }
         }
     }
@@ -90,6 +92,15 @@ private extension SettingsView {
                     }
                     .buttonStyle(NoHighlightButtonStyle())
                 }
+                NavigationLink(state: SettingsFeature.Path.State.babyRegister(BabyRegisterFeature.State())) {
+                    LabeledContent {
+                        RowChevron()
+                    } label: {
+                        Label("새로운 아기 프로필 등록", systemImage: "plus.circle.fill")
+                            .foregroundColor(.Semantic.secondaryText)
+                    }
+                }
+                .buttonStyle(NoHighlightButtonStyle())
             } label: {
                 Label("아기 정보", icon: Image(Asset.Settings.babyInfo))
             }
