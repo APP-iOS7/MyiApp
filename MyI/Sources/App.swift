@@ -21,7 +21,7 @@ struct MyIApp: App {
                     case let .mainTab(tabStore):
                         MainTabView(store: tabStore)
                     case let .babyRegister(registerStore):
-                        RegisterMethodPickerView(store: registerStore)
+                        BabyRegisterFlowView(store: registerStore)
                     }
                 } else {
                     LoginView(store: store.scope(state: \.auth, action: \.auth))

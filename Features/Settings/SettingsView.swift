@@ -41,8 +41,15 @@ public struct SettingsView: View {
                 BabyGenderEditView(store: store)
             case let .bloodTypeEdit(store):
                 BabyBloodTypeEditView(store: store)
-            case let .babyRegister(store):
+            case let .babyMethodPicker(store):
                 RegisterMethodPickerView(store: store)
+                    .toolbar(.hidden, for: .tabBar)
+            case let .newBabyRegister(store):
+                NewBabyRegisterView(store: store)
+                    .toolbar(.hidden, for: .tabBar)
+            case let .existingBabyRegister(store):
+                ExistingBabyRegisterView(store: store)
+                    .toolbar(.hidden, for: .tabBar)
             }
         }
     }
@@ -92,7 +99,7 @@ private extension SettingsView {
                     }
                     .buttonStyle(NoHighlightButtonStyle())
                 }
-                NavigationLink(state: SettingsFeature.Path.State.babyRegister(BabyRegisterFeature.State())) {
+                NavigationLink(state: SettingsFeature.Path.State.babyMethodPicker(BabyRegisterFeature.State())) {
                     LabeledContent {
                         RowChevron()
                     } label: {
