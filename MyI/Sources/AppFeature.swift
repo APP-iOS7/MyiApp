@@ -91,7 +91,7 @@ public struct AppFeature {
                 guard state.session != nil else { return .none }
                 state.phase = .running
                 if state.destination == nil {
-                    state.destination = .babyRegister(BabyRegisterFeature.State())
+                    state.destination = .babyRegister(BabyRegisterFlowFeature.State())
                 }
                 return .none
 
@@ -121,7 +121,7 @@ public struct AppFeature {
         }
         state.phase = .running
         guard let tabState = MainTabFeature.State(session: session, caregiver: caregiver, babies: babies) else {
-            state.destination = .babyRegister(BabyRegisterFeature.State())
+            state.destination = .babyRegister(BabyRegisterFlowFeature.State())
             return .none
         }
         if case var .mainTab(existing) = state.destination {
@@ -144,7 +144,7 @@ extension AppFeature {
     @Reducer
     public enum Destination {
         case mainTab(MainTabFeature)
-        case babyRegister(BabyRegisterFeature)
+        case babyRegister(BabyRegisterFlowFeature)
     }
 }
 

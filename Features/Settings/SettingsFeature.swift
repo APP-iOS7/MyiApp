@@ -179,8 +179,17 @@ public struct SettingsFeature {
                 state.path.append(.bloodTypeEdit(BabyBloodTypeEditFeature.State(baby: baby)))
                 return .none
 
-            case .path(.element(id: _, action: .babyRegister(.delegate(.babyRegistered)))):
-                state.path.removeLast()
+            case .path(.element(id: _, action: .babyMethodPicker(.delegate(.proceedToNewBaby)))):
+                state.path.append(.newBabyRegister(NewBabyRegisterFeature.State()))
+                return .none
+
+            case .path(.element(id: _, action: .babyMethodPicker(.delegate(.proceedToExistingBaby)))):
+                state.path.append(.existingBabyRegister(ExistingBabyRegisterFeature.State()))
+                return .none
+
+            case .path(.element(id: _, action: .newBabyRegister(.delegate(.completed)))),
+                 .path(.element(id: _, action: .existingBabyRegister(.delegate(.completed)))):
+                state.path.removeAll()
                 return .none
 
             case .path:
@@ -210,7 +219,9 @@ extension SettingsFeature {
         case birthDateEdit(BabyBirthDateEditFeature)
         case genderEdit(BabyGenderEditFeature)
         case bloodTypeEdit(BabyBloodTypeEditFeature)
-        case babyRegister(BabyRegisterFeature)
+        case babyMethodPicker(BabyRegisterFeature)
+        case newBabyRegister(NewBabyRegisterFeature)
+        case existingBabyRegister(ExistingBabyRegisterFeature)
     }
 }
 
