@@ -1,22 +1,6 @@
 // swift-tools-version: 6.0
 import PackageDescription
 
-#if TUIST
-import struct ProjectDescription.PackageSettings
-
-let packageSettings = PackageSettings(
-    productTypes: [
-        "ComposableArchitecture": .staticFramework,
-        "Dependencies": .staticFramework,
-        "Clocks": .staticFramework,
-        "ConcurrencyExtras": .staticFramework,
-        "CombineSchedulers": .staticFramework,
-        "IdentifiedCollections": .staticFramework,
-        "OrderedCollections": .staticFramework
-    ]
-)
-#endif
-
 let package = Package(
     name: "ExternalDependencies",
     dependencies: [
