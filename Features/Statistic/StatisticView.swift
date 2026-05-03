@@ -22,6 +22,18 @@ public struct StatisticView: View {
         }
         .scrollIndicators(.hidden)
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    store.send(.growthChartButtonTapped)
+                } label: {
+                    Image(systemName: "chart.xyaxis.line")
+                }
+            }
+        }
+        .navigationDestination(item: $store.scope(state: \.growthChart, action: \.growthChart)) { growthStore in
+            GrowthChartView(store: growthStore)
+        }
         .task { await store.send(.task).finish() }
     }
 }
@@ -113,7 +125,7 @@ extension StatisticView {
                 tintColor: .Semantic.sleep,
                 metrics: [
                     countMetric(title: "횟수", current: store.sleepCount, previous: store.previousSleepCount),
-                    minutesMetric(title: "시간", current: store.sleepMinutes ?? 0, previous: store.previousSleepMinutes ?? 0),
+                    minutesMetric(title: "시간", current: store.sleepMinutes, previous: store.previousSleepMinutes),
                 ]
             )
 

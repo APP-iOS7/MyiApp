@@ -32,30 +32,126 @@ public struct StatisticFeature {
         }
 
         // 수유
-        var feedingCount: Int { CareRecordAggregator.feedingCount(in: records, on: selectedDate) }
-        var previousFeedingCount: Int { CareRecordAggregator.feedingCount(in: records, on: previousDate) }
-        var totalMl: Int { CareRecordAggregator.totalMl(in: records, on: selectedDate) }
-        var previousTotalMl: Int { CareRecordAggregator.totalMl(in: records, on: previousDate) }
-        var breastfeedingMinutes: Int { CareRecordAggregator.totalBreastfeedingMinutes(in: records, on: selectedDate) }
-        var previousBreastfeedingMinutes: Int { CareRecordAggregator.totalBreastfeedingMinutes(in: records, on: previousDate) }
+        var feedingCount: Int {
+            records.filter { $0.event.category == .feeding && Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }.count
+        }
+        var previousFeedingCount: Int {
+            records.filter { $0.event.category == .feeding && Calendar.current.isDate($0.createdAt, inSameDayAs: previousDate) }.count
+        }
+        var totalMl: Int {
+            records
+                .filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
+                .reduce(0) { total, record in
+                    switch record.event {
+                    case let .formula(ml), let .babyFood(ml), let .pumpedMilk(ml): return total + ml
+                    default: return total
+                    }
+                }
+        }
+        var previousTotalMl: Int {
+            records
+                .filter { Calendar.current.isDate($0.createdAt, inSameDayAs: previousDate) }
+                .reduce(0) { total, record in
+                    switch record.event {
+                    case let .formula(ml), let .babyFood(ml), let .pumpedMilk(ml): return total + ml
+                    default: return total
+                    }
+                }
+        }
+        var breastfeedingMinutes: Int {
+            records
+                .filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
+                .reduce(0) { total, record in
+                    if case let .breastfeeding(left, right) = record.event { return total + left + right }
+                    return total
+                }
+        }
+        var previousBreastfeedingMinutes: Int {
+            records
+                .filter { Calendar.current.isDate($0.createdAt, inSameDayAs: previousDate) }
+                .reduce(0) { total, record in
+                    if case let .breastfeeding(left, right) = record.event { return total + left + right }
+                    return total
+                }
+        }
 
         // 배변
-        var potty: (pee: Int, poop: Int) { CareRecordAggregator.pottyCount(in: records, on: selectedDate) }
-        var previousPotty: (pee: Int, poop: Int) { CareRecordAggregator.pottyCount(in: records, on: previousDate) }
+        var potty: (pee: Int, poop: Int) {
+            var pee = 0, poop = 0
+            for record in records where Calendar.current.isDate(record.createdAt, inSameDayAs: selectedDate) {
+                switch record.event {
+                case .pee: pee += 1
+                case .poop: poop += 1
+                case .pottyAll: pee += 1; poop += 1
+                default: break
+                }
+            }
+            return (pee, poop)
+        }
+        var previousPotty: (pee: Int, poop: Int) {
+            var pee = 0, poop = 0
+            for record in records where Calendar.current.isDate(record.createdAt, inSameDayAs: previousDate) {
+                switch record.event {
+                case .pee: pee += 1
+                case .poop: poop += 1
+                case .pottyAll: pee += 1; poop += 1
+                default: break
+                }
+            }
+            return (pee, poop)
+        }
 
         // 수면
-        var sleepCount: Int { CareRecordAggregator.count(of: .sleep, in: records, on: selectedDate) }
-        var previousSleepCount: Int { CareRecordAggregator.count(of: .sleep, in: records, on: previousDate) }
-        var sleepMinutes: Int? { CareRecordAggregator.totalSleepMinutes(in: records, on: selectedDate) }
-        var previousSleepMinutes: Int? { CareRecordAggregator.totalSleepMinutes(in: records, on: previousDate) }
+        var sleepCount: Int {
+            records.filter { $0.event.category == .sleep && Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }.count
+        }
+        var previousSleepCount: Int {
+            records.filter { $0.event.category == .sleep && Calendar.current.isDate($0.createdAt, inSameDayAs: previousDate) }.count
+        }
+        var sleepMinutes: Int {
+            let calendar = Calendar.current
+            let startOfDay = calendar.startOfDay(for: selectedDate)
+            let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
+            return records.reduce(0) { total, record in
+                guard case let .sleep(start, end) = record.event, let end else { return total }
+                let clipped = max(start, startOfDay)
+                let clippedEnd = min(end, endOfDay)
+                let interval = clippedEnd.timeIntervalSince(clipped)
+                return interval > 0 ? total + Int(interval / 60) : total
+            }
+        }
+        var previousSleepMinutes: Int {
+            let calendar = Calendar.current
+            let startOfDay = calendar.startOfDay(for: previousDate)
+            let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
+            return records.reduce(0) { total, record in
+                guard case let .sleep(start, end) = record.event, let end else { return total }
+                let clipped = max(start, startOfDay)
+                let clippedEnd = min(end, endOfDay)
+                let interval = clippedEnd.timeIntervalSince(clipped)
+                return interval > 0 ? total + Int(interval / 60) : total
+            }
+        }
 
         // 목욕
-        var bathCount: Int { CareRecordAggregator.count(of: .bath, in: records, on: selectedDate) }
-        var previousBathCount: Int { CareRecordAggregator.count(of: .bath, in: records, on: previousDate) }
+        var bathCount: Int {
+            records.filter { $0.event.category == .bath && Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }.count
+        }
+        var previousBathCount: Int {
+            records.filter { $0.event.category == .bath && Calendar.current.isDate($0.createdAt, inSameDayAs: previousDate) }.count
+        }
 
         // 간식
-        var snackCount: Int { CareRecordAggregator.count(of: .snack, in: records, on: selectedDate) }
-        var previousSnackCount: Int { CareRecordAggregator.count(of: .snack, in: records, on: previousDate) }
+        var snackCount: Int {
+            records.filter { $0.event.category == .snack && Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }.count
+        }
+        var previousSnackCount: Int {
+            records.filter { $0.event.category == .snack && Calendar.current.isDate($0.createdAt, inSameDayAs: previousDate) }.count
+        }
+
+        // 성장
+        public var growthRecords: [CareRecord] = []
+        @Presents public var growthChart: GrowthChartFeature.State?
 
         var babySummaryText: String {
             let genderText = baby.gender == .female ? "여" : "남"
@@ -69,6 +165,9 @@ public struct StatisticFeature {
         case task
         case recordsLoaded([CareRecord])
         case recordsLoadFailed(CareRecordError)
+        case growthRecordsLoaded([CareRecord])
+        case growthChartButtonTapped
+        case growthChart(PresentationAction<GrowthChartFeature.Action>)
     }
 
     @Dependency(\.careRecordClient) var careRecordClient
@@ -79,7 +178,13 @@ public struct StatisticFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .binding(\.mode), .binding(\.selectedDate), .task:
+            case .task:
+                return .merge(
+                    loadRecords(for: state),
+                    loadGrowthRecords(for: state)
+                )
+
+            case .binding(\.mode), .binding(\.selectedDate):
                 return loadRecords(for: state)
 
             case let .recordsLoaded(records):
@@ -90,8 +195,38 @@ public struct StatisticFeature {
                 state.records = []
                 return .none
 
+            case let .growthRecordsLoaded(records):
+                state.growthRecords = records.filter { $0.event.category == .growth }
+                return .none
+
+            case .growthChartButtonTapped:
+                state.growthChart = GrowthChartFeature.State(records: state.growthRecords, baby: state.baby)
+                return .none
+
+            case .growthChart:
+                return .none
+
             case .binding:
                 return .none
+            }
+        }
+        .ifLet(\.$growthChart, action: \.growthChart) {
+            GrowthChartFeature()
+        }
+    }
+
+    private func loadGrowthRecords(for state: State) -> Effect<Action> {
+        let babyID = state.baby.id
+        let start = state.baby.birthDate
+        let calendar = Calendar.current
+        guard let end = calendar.date(byAdding: .day, value: 1, to: Date()) else { return .none }
+
+        return .run { [careRecordClient] send in
+            do throws(CareRecordError) {
+                let records = try await careRecordClient.loadRecords(babyID, start ..< end)
+                await send(.growthRecordsLoaded(records))
+            } catch {
+                // 성장 기록은 non-critical — 조용히 무시
             }
         }
     }
