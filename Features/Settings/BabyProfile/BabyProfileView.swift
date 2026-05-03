@@ -57,7 +57,7 @@ private extension BabyProfileView {
     @ViewBuilder
     var avatarImage: some View {
         if let url = store.baby.profileImageURL {
-            AsyncImage(url: url) { phase in
+            CachedAsyncImage(url: url) { phase in
                 switch phase {
                 case let .success(image):
                     image.resizable().scaledToFill()

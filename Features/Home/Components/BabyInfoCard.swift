@@ -82,7 +82,7 @@ struct BabyInfoCard: View {
 
     @ViewBuilder private var profileImage: some View {
         if let url = baby.profileImageURL {
-            AsyncImage(url: url) { phase in
+            CachedAsyncImage(url: url) { phase in
                 switch phase {
                 case let .success(image):
                     image
