@@ -134,6 +134,34 @@ extension BabyClient: @retroactive DependencyKey {
             } catch {
                 throw BabyError.unexpected
             }
+        },
+        removeCaregiver: { @Sendable babyID, caregiverID async throws(BabyError) -> Void in
+            guard let uid = Auth.auth().currentUser?.uid else {
+                throw BabyError.unauthorized
+            }
+
+            let db = Firestore.firestore()
+            let babyRef = db.collection("babies").document(babyID.uuidString)
+
+            do {
+                let snapshot = try await babyRef.getDocument()
+                guard snapshot.exists,
+                      let mainCaregiverID = snapshot.data()?["mainCaregiverID"] as? String,
+                      mainCaregiverID == uid
+                else {
+                    throw BabyError.unauthorized
+                }
+                try await babyRef.setData([
+                    "caregiverIDs": FieldValue.arrayRemove([caregiverID])
+                ], merge: true)
+                try await db.collection("users").document(caregiverID).setData([
+                    "babyIDs": FieldValue.arrayRemove([babyID.uuidString])
+                ], merge: true)
+            } catch let error as BabyError {
+                throw error
+            } catch {
+                throw BabyError.unexpected
+            }
         }
     )
 }
