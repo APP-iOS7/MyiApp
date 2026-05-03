@@ -194,6 +194,10 @@ public struct SettingsFeature {
                 state.path.append(.bloodTypeEdit(BabyBloodTypeEditFeature.State(baby: baby)))
                 return .none
 
+            case let .path(.element(id: _, action: .babyProfile(.delegate(.editCaregiversTapped(baby))))):
+                state.path.append(.caregiverList(CaregiverListFeature.State(baby: baby, currentUserID: state.session.uid)))
+                return .none
+
             case .path:
                 return .none
             }
@@ -224,6 +228,7 @@ extension SettingsFeature {
         case birthDateEdit(BabyBirthDateEditFeature)
         case genderEdit(BabyGenderEditFeature)
         case bloodTypeEdit(BabyBloodTypeEditFeature)
+        case caregiverList(CaregiverListFeature)
     }
 }
 
