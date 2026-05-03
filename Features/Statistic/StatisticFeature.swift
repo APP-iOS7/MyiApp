@@ -49,22 +49,8 @@ public struct StatisticFeature {
         // 수면
         var sleepCount: Int { dailyRecords.count(of: .sleep) }
         var previousSleepCount: Int { previousDailyRecords.count(of: .sleep) }
-        var sleepMinutes: Int { clippedSleepMinutes(for: selectedDate) }
-        var previousSleepMinutes: Int { clippedSleepMinutes(for: previousDate) }
-
-        private func clippedSleepMinutes(for date: Date) -> Int {
-            let calendar = Calendar.current
-            let startOfDay = calendar.startOfDay(for: date)
-            let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
-            return records.reduce(0) { total, record in
-                guard case let .sleep(start, .some(end)) = record.event else { return total }
-                guard start < endOfDay, end > startOfDay else { return total }
-                let clipped = max(start, startOfDay)
-                let clippedEnd = min(end, endOfDay)
-                let interval = clippedEnd.timeIntervalSince(clipped)
-                return interval > 0 ? total + Int(interval / 60) : total
-            }
-        }
+        var sleepMinutes: Int { records.totalSleepMinutes(on: selectedDate) }
+        var previousSleepMinutes: Int { records.totalSleepMinutes(on: previousDate) }
 
         // 목욕
         var bathCount: Int { dailyRecords.count(of: .bath) }
