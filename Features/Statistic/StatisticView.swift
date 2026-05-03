@@ -39,6 +39,8 @@ public struct StatisticView: View {
                 PottyDetailView(store: store)
             case let .sleepDetail(store):
                 SleepDetailView(store: store)
+            case let .foodDetail(store):
+                FoodDetailView(store: store)
             }
         }
     }
@@ -104,20 +106,30 @@ extension StatisticView {
 extension StatisticView {
     private var statisticCards: some View {
         VStack(spacing: Spacing.m) {
-            StatisticCard(
-                title: "수유/이유식 기록 분석",
-                image: Image(Asset.Records.Color.meal),
-                tintColor: .Semantic.feeding,
-                metrics: [
-                    countMetric(title: "횟수", current: store.feedingCount, previous: store.previousFeedingCount),
-                    valueMetric(title: "용량", current: store.totalMl, previous: store.previousTotalMl, unit: "ml"),
-                    minutesMetric(
-                        title: "시간",
-                        current: store.breastfeedingMinutes,
-                        previous: store.previousBreastfeedingMinutes
-                    )
-                ]
-            )
+            NavigationLink(state: StatisticFeature.Path.State.foodDetail(
+                FoodDetailFeature.State(
+                    baby: store.baby,
+                    selectedDate: store.selectedDate,
+                    mode: DetailMode(from: store.mode)
+                )
+            )) {
+                StatisticCard(
+                    title: "수유/이유식 기록 분석",
+                    image: Image(Asset.Records.Color.meal),
+                    tintColor: .Semantic.feeding,
+                    metrics: [
+                        countMetric(title: "횟수", current: store.feedingCount, previous: store.previousFeedingCount),
+                        valueMetric(title: "용량", current: store.totalMl, previous: store.previousTotalMl, unit: "ml"),
+                        minutesMetric(
+                            title: "시간",
+                            current: store.breastfeedingMinutes,
+                            previous: store.previousBreastfeedingMinutes
+                        )
+                    ],
+                    showsChevron: true
+                )
+            }
+            .buttonStyle(NoHighlightButtonStyle())
 
             NavigationLink(state: StatisticFeature.Path.State.pottyDetail(
                 PottyDetailFeature.State(

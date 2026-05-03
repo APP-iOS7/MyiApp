@@ -190,6 +190,7 @@ extension StatisticFeature {
         case bathDetail(BathDetailFeature)
         case pottyDetail(PottyDetailFeature)
         case sleepDetail(SleepDetailFeature)
+        case foodDetail(FoodDetailFeature)
     }
 }
 
