@@ -31,6 +31,35 @@ extension Array where Element == CareRecord {
     public func count(of category: CareEvent.Category) -> Int {
         filter { $0.event.category == category }.count
     }
+
+    public var totalMl: Int {
+        reduce(0) { total, record in
+            switch record.event {
+            case let .formula(ml), let .babyFood(ml), let .pumpedMilk(ml): return total + ml
+            default: return total
+            }
+        }
+    }
+
+    public var totalBreastfeedingMinutes: Int {
+        reduce(0) { total, record in
+            if case let .breastfeeding(left, right) = record.event { return total + left + right }
+            return total
+        }
+    }
+
+    public var pottyCount: (pee: Int, poop: Int) {
+        var pee = 0, poop = 0
+        for record in self {
+            switch record.event {
+            case .pee: pee += 1
+            case .poop: poop += 1
+            case .pottyAll: pee += 1; poop += 1
+            default: break
+            }
+        }
+        return (pee, poop)
+    }
 }
 
 #if DEBUG

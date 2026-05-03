@@ -45,4 +45,12 @@ extension Date {
         let style: Date.FormatStyle = .dateTime.month().day()
         return "\(weekStart.formatted(style)) ~ \(weekEnd.formatted(style))"
     }
+
+    /// birthDate 기준 "X개월 Y일" 경과 텍스트
+    public func ageText(from birthDate: Date, calendar: Calendar = .current) -> String {
+        let months = calendar.dateComponents([.month], from: birthDate, to: self).month ?? 0
+        let monthDate = calendar.date(byAdding: .month, value: months, to: birthDate) ?? self
+        let days = (calendar.dateComponents([.day], from: monthDate, to: self).day ?? 0) + 1
+        return "\(months)개월 \(days)일"
+    }
 }
