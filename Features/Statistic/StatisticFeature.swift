@@ -25,7 +25,7 @@ public struct StatisticFeature {
             selectedCategories = Set(CareEvent.Category.statisticFilterCases)
         }
 
-        @Presents public var growthChart: GrowthChartFeature.State?
+        public var path = StackState<Path.State>()
 
         // MARK: - 집계 (Derived State)
 
@@ -83,7 +83,7 @@ public struct StatisticFeature {
         case task
         case growthChartButtonTapped
         case _internal(InternalAction)
-        case growthChart(PresentationAction<GrowthChartFeature.Action>)
+        case path(StackAction<Path.State, Path.Action>)
     }
 
     @Dependency(\.careRecordClient) var careRecordClient
@@ -116,19 +116,17 @@ public struct StatisticFeature {
                 return .none
 
             case .growthChartButtonTapped:
-                state.growthChart = GrowthChartFeature.State(records: state.growthRecords, baby: state.baby)
+                state.path.append(.growthChart(GrowthChartFeature.State(records: state.growthRecords, baby: state.baby)))
                 return .none
 
-            case .growthChart:
+            case .path:
                 return .none
 
             case .binding:
                 return .none
             }
         }
-        .ifLet(\.$growthChart, action: \.growthChart) {
-            GrowthChartFeature()
-        }
+        .forEach(\.path, action: \.path)
     }
 
     private func loadGrowthRecords(for state: State) -> Effect<Action> {
@@ -183,3 +181,12 @@ public extension StatisticFeature {
         }
     }
 }
+
+extension StatisticFeature {
+    @Reducer
+    public enum Path {
+        case growthChart(GrowthChartFeature)
+    }
+}
+
+extension StatisticFeature.Path.State: Equatable {}

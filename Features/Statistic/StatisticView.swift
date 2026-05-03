@@ -12,23 +12,27 @@ public struct StatisticView: View {
     }
 
     public var body: some View {
-        ScrollView {
-            VStack(spacing: Spacing.m) {
-                ScreenTitle("기록 분석") {
-                    Button("성장 차트", systemImage: "chart.xyaxis.line") { store.send(.growthChartButtonTapped) }
-                        .labelStyle(.iconOnly)
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+            ScrollView {
+                VStack(spacing: Spacing.m) {
+                    ScreenTitle("기록 분석") {
+                        Button("성장 차트", systemImage: "chart.xyaxis.line") { store.send(.growthChartButtonTapped) }
+                            .labelStyle(.iconOnly)
+                    }
+                    overviewCard
+                    statisticCards
                 }
-                overviewCard
-                statisticCards
+                .padding(Spacing.m)
             }
-            .padding(Spacing.m)
+            .scrollIndicators(.hidden)
+            .background(Color.Semantic.screenBackground.ignoresSafeArea())
+            .task { await store.send(.task).finish() }
+        } destination: { store in
+            switch store.case {
+            case let .growthChart(store):
+                GrowthChartView(store: store)
+            }
         }
-        .scrollIndicators(.hidden)
-        .background(Color.Semantic.screenBackground.ignoresSafeArea())
-        .navigationDestination(item: $store.scope(state: \.growthChart, action: \.growthChart)) { growthStore in
-            GrowthChartView(store: growthStore)
-        }
-        .task { await store.send(.task).finish() }
     }
 }
 
@@ -189,31 +193,27 @@ private func previewBaby() -> Baby {
 }
 
 #Preview("기록 있음") {
-    NavigationStack {
-        StatisticView(
-            store: Store(
-                initialState: StatisticFeature.State(
-                    baby: previewBaby(),
-                    records: CareRecord.mocks
-                )
-            ) {
-                StatisticFeature()
-            }
-        )
-    }
+    StatisticView(
+        store: Store(
+            initialState: StatisticFeature.State(
+                baby: previewBaby(),
+                records: CareRecord.mocks
+            )
+        ) {
+            StatisticFeature()
+        }
+    )
 }
 
 #Preview("기록 없음") {
-    NavigationStack {
-        StatisticView(
-            store: Store(
-                initialState: StatisticFeature.State(
-                    baby: previewBaby(),
-                    records: []
-                )
-            ) {
-                StatisticFeature()
-            }
-        )
-    }
+    StatisticView(
+        store: Store(
+            initialState: StatisticFeature.State(
+                baby: previewBaby(),
+                records: []
+            )
+        ) {
+            StatisticFeature()
+        }
+    )
 }
