@@ -15,6 +15,7 @@ public struct BabyProfileView: View {
         VStack(spacing: Spacing.m) {
             avatar
             infoCard
+            caregiversCard
             Spacer()
         }
         .padding(Spacing.m)
@@ -130,6 +131,24 @@ private extension BabyProfileView {
                     }
                 } label: {
                     Text("혈액형")
+                        .foregroundColor(.Semantic.sectionHeading)
+                }
+            }
+            .buttonStyle(NoHighlightButtonStyle())
+        }
+    }
+
+    var caregiversCard: some View {
+        SectionCard(spacing: 0) {
+            Button { store.send(.view(.caregiversRowTapped)) } label: {
+                LabeledContent {
+                    HStack(spacing: Spacing.s) {
+                        Text("\(store.baby.caregiverIDs.count)명")
+                            .foregroundColor(.Semantic.secondaryText)
+                        RowChevron()
+                    }
+                } label: {
+                    Text("연결된 양육자")
                         .foregroundColor(.Semantic.sectionHeading)
                 }
             }
