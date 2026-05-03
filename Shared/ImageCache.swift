@@ -11,6 +11,8 @@ public actor ImageCache {
     }()
 
     private let diskDirectory: URL
+    private let diskSizeLimit: Int = 500 * 1024 * 1024
+    private let diskSizeTarget: Int = 350 * 1024 * 1024
 
     private init() {
         let baseURL = URL.cachesDirectory.appending(path: "ImageCache")
@@ -47,6 +49,40 @@ public actor ImageCache {
 
     private func writeToDisk(_ data: Data, for url: URL) {
         try? data.write(to: diskFileURL(for: url), options: .atomic)
+        enforceDiskLimit()
+    }
+
+    private func enforceDiskLimit() {
+        let resourceKeys: Set<URLResourceKey> = [.fileSizeKey, .contentAccessDateKey]
+        let fileManager = FileManager.default
+        guard let enumerator = fileManager.enumerator(
+            at: diskDirectory,
+            includingPropertiesForKeys: Array(resourceKeys),
+            options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants]
+        ) else {
+            return
+        }
+
+        var entries: [(url: URL, size: Int, accessed: Date)] = []
+        var totalSize = 0
+        for case let fileURL as URL in enumerator {
+            guard let values = try? fileURL.resourceValues(forKeys: resourceKeys),
+                  let size = values.fileSize,
+                  let accessed = values.contentAccessDate
+            else { continue }
+            entries.append((fileURL, size, accessed))
+            totalSize += size
+        }
+
+        guard totalSize > diskSizeLimit else { return }
+
+        entries.sort { $0.accessed < $1.accessed }
+        var bytesToDelete = totalSize - diskSizeTarget
+        for entry in entries {
+            if bytesToDelete <= 0 { break }
+            try? fileManager.removeItem(at: entry.url)
+            bytesToDelete -= entry.size
+        }
     }
 
     private func diskFileURL(for url: URL) -> URL {
