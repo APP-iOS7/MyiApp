@@ -8,7 +8,7 @@ struct NoteEventRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: Spacing.m) {
             if let firstURL = note.imageURLs.first {
-                AsyncImage(url: firstURL) { phase in
+                CachedAsyncImage(url: firstURL) { phase in
                     switch phase {
                     case let .success(image):
                         image
