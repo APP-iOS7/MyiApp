@@ -1,7 +1,6 @@
 import ComposableArchitecture
 import Domain
 import Foundation
-import SwiftUI
 
 @Reducer
 public struct PDFPreviewFeature {
@@ -28,14 +27,9 @@ public struct PDFPreviewFeature {
     }
 
     public enum Action: BindableAction {
-        public enum InternalAction {
-            case pdfGenerated(URL)
-        }
-
         case binding(BindingAction<State>)
-        case shareTapped
+        case shareRequested(URL)
         case dismissTapped
-        case _internal(InternalAction)
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -46,51 +40,17 @@ public struct PDFPreviewFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .shareTapped:
-                guard state.canShare else { return .none }
-                return .run { [state] send in
-                    if let url = await MainActor.run(body: { generatePDF(state: state) }) {
-                        await send(._internal(.pdfGenerated(url)))
-                    }
-                }
-
-            case let ._internal(.pdfGenerated(url)):
+            case let .shareRequested(url):
                 state.sharingURL = ShareableURL(url: url)
                 return .none
 
             case .dismissTapped:
-                return .run { _ in await dismiss() }
+                return .run { [dismiss] _ in await dismiss() }
 
             case .binding:
                 return .none
             }
         }
-    }
-
-    @MainActor
-    private func generatePDF(state: State) -> URL? {
-        let trimmed = state.fileName.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return nil }
-
-        let renderer = ImageRenderer(content: StatisticPDFContent(
-            baby: state.baby,
-            records: state.records,
-            date: state.date
-        ))
-        renderer.scale = UIScreen.main.scale
-
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(trimmed).pdf")
-        var success = false
-        renderer.render { size, draw in
-            var mediaBox = CGRect(origin: .zero, size: size)
-            guard let pdf = CGContext(url as CFURL, mediaBox: &mediaBox, nil) else { return }
-            pdf.beginPDFPage(nil)
-            draw(pdf)
-            pdf.endPDFPage()
-            pdf.closePDF()
-            success = true
-        }
-        return success ? url : nil
     }
 }
 
