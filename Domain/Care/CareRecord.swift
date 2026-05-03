@@ -51,11 +51,15 @@ public extension Array where Element == CareRecord {
     func totalSleepMinutes(on date: Date, calendar: Calendar = .current) -> Int {
         let startOfDay = calendar.startOfDay(for: date)
         let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
-        return reduce(0) { total, record in
+        return totalSleepMinutes(in: startOfDay ..< endOfDay)
+    }
+
+    func totalSleepMinutes(in range: Range<Date>) -> Int {
+        reduce(0) { total, record in
             guard case let .sleep(start, .some(end)) = record.event else { return total }
-            guard start < endOfDay, end > startOfDay else { return total }
-            let clipped = Swift.max(start, startOfDay)
-            let clippedEnd = Swift.min(end, endOfDay)
+            guard start < range.upperBound, end > range.lowerBound else { return total }
+            let clipped = Swift.max(start, range.lowerBound)
+            let clippedEnd = Swift.min(end, range.upperBound)
             let interval = clippedEnd.timeIntervalSince(clipped)
             return interval > 0 ? total + Int(interval / 60) : total
         }
