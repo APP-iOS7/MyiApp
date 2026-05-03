@@ -13,6 +13,11 @@ public struct CachedAsyncImage<Content: View>: View {
     ) {
         self.url = url
         self.content = content
+        if let url,
+           let data = ImageCache.shared.cachedDataSync(for: url),
+           let uiImage = UIImage(data: data) {
+            self._phase = State(initialValue: .success(Image(uiImage: uiImage)))
+        }
     }
 
     public var body: some View {
