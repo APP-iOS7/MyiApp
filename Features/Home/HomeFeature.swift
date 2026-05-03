@@ -7,6 +7,7 @@ public struct HomeFeature {
     @ObservableState
     public struct State: Equatable {
         public var baby: Baby
+        public var babies: IdentifiedArrayOf<Baby> = []
         public var selectedDate: Date
         public var records: [CareRecord]
         @Presents public var editRecord: EditRecordFeature.State?
@@ -22,25 +23,40 @@ public struct HomeFeature {
         }
 
         var filteredRecords: [CareRecord] {
-            let cal = Calendar.current
+            let calendar = Calendar.current
             return records
-                .filter { cal.isDate($0.createdAt, inSameDayAs: selectedDate) }
+                .filter { calendar.isDate($0.createdAt, inSameDayAs: selectedDate) }
                 .sorted { $0.createdAt > $1.createdAt }
         }
     }
 
     public enum Action: BindableAction {
+        public enum ViewAction {
+            case task
+            case careEntryTapped(HomeCareEntry)
+            case timelineRowTapped(CareRecord)
+            case timelineRowDeleted(UUID)
+            case babySelected(Baby.ID)
+        }
+
+        public enum InternalAction {
+            case recordsLoaded([CareRecord])
+            case recordsLoadFailed(CareRecordError)
+            case recordAdded
+            case recordAddFailed(CareRecordError)
+            case recordDeleted
+            case recordDeleteFailed(CareRecordError)
+        }
+
+        public enum Delegate: Equatable {
+            case babyChangeRequested(Baby.ID)
+        }
+
+        case view(ViewAction)
+        case _internal(InternalAction)
+        case delegate(Delegate)
+
         case binding(BindingAction<State>)
-        case task
-        case recordsLoaded([CareRecord])
-        case recordsLoadFailed(CareRecordError)
-        case careEntryTapped(HomeCareEntry)
-        case recordAdded
-        case recordAddFailed(CareRecordError)
-        case timelineRowTapped(CareRecord)
-        case timelineRowDeleted(UUID)
-        case recordDeleted
-        case recordDeleteFailed(CareRecordError)
         case editRecord(PresentationAction<EditRecordFeature.Action>)
     }
 
@@ -52,89 +68,43 @@ public struct HomeFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .task, .binding(\.selectedDate):
+            case .view(.task), .binding(\.selectedDate):
                 return loadRecords(for: state)
 
-            case let .recordsLoaded(records):
-                state.records = records
-                return .none
+            case let .view(.careEntryTapped(entry)):
+                return addEntry(entry, state: state)
 
-            case .recordsLoadFailed:
-                state.records = []
-                return .none
-
-            case let .careEntryTapped(entry):
-                let babyID = state.baby.id
-                let now = Date()
-                let cal = Calendar.current
-                let createdAt = cal.date(
-                    bySettingHour: cal.component(.hour, from: now),
-                    minute: cal.component(.minute, from: now),
-                    second: cal.component(.second, from: now),
-                    of: state.selectedDate
-                ) ?? now
-                return .run { [careRecordClient] send in
-                    do throws(CareRecordError) {
-                        let event: CareEvent?
-                        switch entry {
-                        case .feeding:
-                            event = try await careRecordClient.lastEvent(babyID, .feeding) ?? .formula(ml: 100)
-                        case .potty:
-                            event = .pee
-                        case .sleep:
-                            event = .sleep(start: createdAt, end: nil)
-                        case .heightWeight:
-                            event = try await careRecordClient.lastEvent(babyID, .growth)
-                                ?? .heightWeight(heightCm: nil, weightKg: nil)
-                        case .bath:
-                            event = .bath
-                        case .snack:
-                            event = .snack
-                        case .health:
-                            event = try await careRecordClient.lastEvent(babyID, .vital) ?? .temperature(celsius: 36.5)
-                        case .memo:
-                            event = .clinic
-                        }
-                        guard let event else { return }
-                        try await careRecordClient.addRecord(babyID, CareRecord(createdAt: createdAt, event: event))
-                        await send(.recordAdded)
-                    } catch {
-                        await send(.recordAddFailed(error))
-                    }
-                }
-
-            case .recordAdded:
-                return loadRecords(for: state)
-
-            case .recordAddFailed:
-                return .none
-
-            case let .timelineRowTapped(record):
+            case let .view(.timelineRowTapped(record)):
                 state.editRecord = EditRecordFeature.State(record: record, babyID: state.baby.id)
                 return .none
 
-            case let .timelineRowDeleted(recordID):
-                let babyID = state.baby.id
-                return .run { [careRecordClient] send in
-                    do throws(CareRecordError) {
-                        try await careRecordClient.deleteRecord(babyID, recordID)
-                        await send(.recordDeleted)
-                    } catch {
-                        await send(.recordDeleteFailed(error))
-                    }
-                }
+            case let .view(.timelineRowDeleted(recordID)):
+                return deleteRecord(recordID, babyID: state.baby.id)
 
-            case .recordDeleted:
+            case let .view(.babySelected(id)):
+                guard id != state.baby.id else { return .none }
+
+                return .send(.delegate(.babyChangeRequested(id)))
+
+            case let ._internal(.recordsLoaded(records)):
+                state.records = records
+                return .none
+
+            case ._internal(.recordsLoadFailed):
+                state.records = []
+                return .none
+
+            case ._internal(.recordAdded), ._internal(.recordDeleted):
                 return loadRecords(for: state)
 
-            case .recordDeleteFailed:
+            case ._internal(.recordAddFailed), ._internal(.recordDeleteFailed):
                 return .none
 
             case .editRecord(.presented(.delegate(.saved))),
                  .editRecord(.presented(.delegate(.deleted))):
                 return loadRecords(for: state)
 
-            case .editRecord, .binding:
+            case .delegate, .editRecord, .binding:
                 return .none
             }
         }
@@ -145,16 +115,76 @@ public struct HomeFeature {
 
     private func loadRecords(for state: State) -> Effect<Action> {
         let babyID = state.baby.id
-        let cal = Calendar.current
-        let start = cal.startOfDay(for: state.selectedDate)
-        guard let end = cal.date(byAdding: .day, value: 1, to: start) else { return .none }
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: state.selectedDate)
+        guard let end = calendar.date(byAdding: .day, value: 1, to: start) else { return .none }
 
         return .run { [careRecordClient] send in
             do throws(CareRecordError) {
                 let records = try await careRecordClient.loadRecords(babyID, start ..< end)
-                await send(.recordsLoaded(records))
+                await send(._internal(.recordsLoaded(records)))
             } catch {
-                await send(.recordsLoadFailed(error))
+                await send(._internal(.recordsLoadFailed(error)))
+            }
+        }
+    }
+
+    private func addEntry(_ entry: HomeCareEntry, state: State) -> Effect<Action> {
+        let babyID = state.baby.id
+        let now = Date()
+        let calendar = Calendar.current
+        let createdAt = calendar.date(
+            bySettingHour: calendar.component(.hour, from: now),
+            minute: calendar.component(.minute, from: now),
+            second: calendar.component(.second, from: now),
+            of: state.selectedDate
+        ) ?? now
+
+        return .run { [careRecordClient] send in
+            do throws(CareRecordError) {
+                let event: CareEvent? = switch entry {
+                case .feeding:
+                    try await careRecordClient.lastEvent(babyID, .feeding) ?? .formula(ml: 100)
+
+                case .potty:
+                    .pee
+
+                case .sleep:
+                    .sleep(start: createdAt, end: nil)
+
+                case .heightWeight:
+                    try await careRecordClient.lastEvent(babyID, .growth)
+                        ?? .heightWeight(heightCm: nil, weightKg: nil)
+
+                case .bath:
+                    .bath
+
+                case .snack:
+                    .snack
+
+                case .health:
+                    try await careRecordClient.lastEvent(babyID, .vital) ?? .temperature(celsius: 36.5)
+
+                case .memo:
+                    .clinic
+                }
+                guard let event else { return }
+
+                try await careRecordClient.addRecord(babyID, CareRecord(createdAt: createdAt, event: event))
+                await send(._internal(.recordAdded))
+            } catch {
+                await send(._internal(.recordAddFailed(error)))
+            }
+        }
+    }
+
+    private func deleteRecord(_ recordID: UUID, babyID: UUID) -> Effect<Action> {
+        .run { [careRecordClient] send in
+            do throws(CareRecordError) {
+                try await careRecordClient.deleteRecord(babyID, recordID)
+                await send(._internal(.recordDeleted))
+            } catch {
+                await send(._internal(.recordDeleteFailed(error)))
             }
         }
     }
