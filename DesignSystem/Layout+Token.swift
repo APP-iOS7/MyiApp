@@ -35,6 +35,23 @@ public enum DailyChartLayout {
     public static let pointEventDurationMinutes: Int = 30
 }
 
+public enum GrowthChartLayout {
+    /// 차트 본체 높이
+    public static let chartHeight: CGFloat = 220
+    /// 데이터 부족 안내 영역 최소 높이
+    public static let emptyMinHeight: CGFloat = 200
+    /// 일반 데이터 포인트 심볼 크기
+    public static let pointSize: CGFloat = 48
+    /// 선택된 데이터 포인트 심볼 크기
+    public static let selectedPointSize: CGFloat = 120
+    /// X/Y 축 라벨 개수 힌트
+    public static let axisDesiredCount: Int = 4
+    /// 선택 토글 애니메이션 길이 (초)
+    public static let selectionAnimationDuration: Double = 0.15
+    /// 어노테이션 위치 결정 임계값 (0~1, 초과 시 topLeading)
+    public static let trailingAnnotationThreshold: CGFloat = 0.7
+}
+
 public enum WeeklyChartLayout {
     /// 일별 컬럼 너비 대비 이벤트 막대 너비 비율
     public static let barWidthRatio: CGFloat = 0.6
