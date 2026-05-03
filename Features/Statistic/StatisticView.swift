@@ -21,6 +21,8 @@ public struct StatisticView: View {
                             Button("PDF 공유", systemImage: "square.and.arrow.up") { store.send(.shareButtonTapped) }
                         }
                         .labelStyle(.iconOnly)
+                        .font(.title2)
+                        .foregroundStyle(.primary)
                     }
                     overviewCard
                     statisticCards
