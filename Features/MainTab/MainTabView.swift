@@ -28,11 +28,9 @@ public struct MainTabView: View {
                 .tabItem { Label("울음 분석", systemImage: "waveform") }
                 .tag(MainTabFeature.Tab.cryAnalysis)
 
-            NavigationStack {
-                StatisticView(store: store.scope(state: \.statistic, action: \.statistic))
-            }
-            .tabItem { Label("기록 분석", systemImage: "chart.bar.fill") }
-            .tag(MainTabFeature.Tab.statistic)
+            StatisticView(store: store.scope(state: \.statistic, action: \.statistic))
+                .tabItem { Label("기록 분석", systemImage: "chart.bar.fill") }
+                .tag(MainTabFeature.Tab.statistic)
 
             SettingsView(store: store.scope(state: \.settings, action: \.settings))
                 .tabItem { Label("더 보기", systemImage: "line.3.horizontal") }
