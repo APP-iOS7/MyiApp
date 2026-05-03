@@ -56,27 +56,26 @@ private extension SettingsView {
         NavigationLink(state: SettingsFeature.Path.State.accountEdit(
             AccountEditFeature.State(originalName: store.caregiver.displayName)
         )) {
-            SectionCard(spacing: 0) {
-                HStack(spacing: Spacing.m) {
-                    Image(systemName: "person.circle.fill")
-                        .resizable()
-                        .frame(width: 50, height: 50)
+            HStack(spacing: Spacing.m) {
+                Image(systemName: "person.circle.fill")
+                    .resizable()
+                    .frame(width: 50, height: 50)
+                    .foregroundColor(.Semantic.secondaryText)
+
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text(store.displayName)
+                        .font(.headline)
+                        .foregroundColor(.Semantic.sectionHeading)
+                    Text(store.providerText)
+                        .font(.subheadline)
                         .foregroundColor(.Semantic.secondaryText)
-
-                    VStack(alignment: .leading, spacing: Spacing.xs) {
-                        Text(store.displayName)
-                            .font(.headline)
-                            .foregroundColor(.Semantic.sectionHeading)
-                        Text(store.providerText)
-                            .font(.subheadline)
-                            .foregroundColor(.Semantic.secondaryText)
-                    }
-
-                    Spacer()
-
-                    RowChevron()
                 }
+
+                Spacer()
+
+                RowChevron()
             }
+            .padding(Spacing.m)
         }
         .buttonStyle(NoHighlightButtonStyle())
     }
