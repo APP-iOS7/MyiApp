@@ -14,6 +14,8 @@ public actor ImageCache {
     private let diskSizeLimit: Int = 500 * 1024 * 1024
     private let diskSizeTarget: Int = 350 * 1024 * 1024
 
+    private var inflightFetches: [URL: Task<Data, Error>] = [:]
+
     private init() {
         let baseURL = URL.cachesDirectory.appending(path: "ImageCache")
         try? FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: true)
@@ -30,6 +32,19 @@ public actor ImageCache {
             return diskData
         }
 
+        if let existing = inflightFetches[url] {
+            return try await existing.value
+        }
+
+        let task = Task { [weak self] in
+            try await ImageCache.fetchAndStore(url: url, cache: self)
+        }
+        inflightFetches[url] = task
+        defer { inflightFetches[url] = nil }
+        return try await task.value
+    }
+
+    private static func fetchAndStore(url: URL, cache: ImageCache?) async throws -> Data {
         let (data, response) = try await URLSession.shared.data(from: url)
         guard let httpResponse = response as? HTTPURLResponse,
               httpResponse.statusCode == 200,
@@ -38,9 +53,13 @@ public actor ImageCache {
             throw ImageCacheError.invalidResponse
         }
 
+        await cache?.store(data, for: url)
+        return data
+    }
+
+    private func store(_ data: Data, for url: URL) {
         memoryCache.setObject(data as NSData, forKey: url as NSURL, cost: data.count)
         writeToDisk(data, for: url)
-        return data
     }
 
     private func readFromDisk(for url: URL) -> Data? {
