@@ -65,6 +65,8 @@ public struct StatisticFeature {
         /// 성장
         public var growthRecords: [CareRecord] = []
 
+        public var isShowingPDFPreview: Bool = false
+
         var babySummaryText: String {
             let genderText = baby.gender == .female ? "여" : "남"
             let days = Calendar.current.dateComponents([.day], from: baby.birthDate, to: Date()).day ?? 0
@@ -121,7 +123,7 @@ public struct StatisticFeature {
                 return .none
 
             case .shareButtonTapped:
-                // TODO: PDF 미리보기 진입 — Phase 2 이후 구현
+                state.isShowingPDFPreview = true
                 return .none
 
             case .path:
