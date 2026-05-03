@@ -32,7 +32,7 @@ public struct PDFPreviewView: View {
                     UnderlinedTextField(placeholder: "파일 이름", text: $store.fileName)
                         .focused($isFileNameFocused)
 
-                    Button("PDF로 저장 및 공유") { store.send(.shareTapped) }
+                    Button("PDF로 저장 및 공유", action: shareTapped)
                         .buttonStyle(.primary)
                         .disabled(image == nil || !store.canShare)
                 }
@@ -58,7 +58,6 @@ public struct PDFPreviewView: View {
         }
     }
 
-    @MainActor
     private func renderImage() {
         let renderer = ImageRenderer(content: StatisticPDFContent(
             baby: store.baby,
@@ -67,6 +66,37 @@ public struct PDFPreviewView: View {
         ))
         renderer.scale = UIScreen.main.scale
         image = renderer.uiImage
+    }
+
+    private func shareTapped() {
+        if let url = generatePDF() {
+            store.send(.shareRequested(url))
+        }
+    }
+
+    private func generatePDF() -> URL? {
+        let trimmed = store.fileName.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return nil }
+
+        let renderer = ImageRenderer(content: StatisticPDFContent(
+            baby: store.baby,
+            records: store.records,
+            date: store.date
+        ))
+        renderer.scale = UIScreen.main.scale
+
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(trimmed).pdf")
+        var success = false
+        renderer.render { size, draw in
+            var mediaBox = CGRect(origin: .zero, size: size)
+            guard let pdf = CGContext(url as CFURL, mediaBox: &mediaBox, nil) else { return }
+            pdf.beginPDFPage(nil)
+            draw(pdf)
+            pdf.endPDFPage()
+            pdf.closePDF()
+            success = true
+        }
+        return success ? url : nil
     }
 }
 
