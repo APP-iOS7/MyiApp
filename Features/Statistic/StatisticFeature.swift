@@ -37,82 +37,28 @@ public struct StatisticFeature {
         // 수유
         var feedingCount: Int { dailyRecords.count(of: .feeding) }
         var previousFeedingCount: Int { previousDailyRecords.count(of: .feeding) }
-        var totalMl: Int {
-            dailyRecords.reduce(0) { total, record in
-                switch record.event {
-                case let .formula(ml), let .babyFood(ml), let .pumpedMilk(ml): return total + ml
-                default: return total
-                }
-            }
-        }
-        var previousTotalMl: Int {
-            previousDailyRecords.reduce(0) { total, record in
-                switch record.event {
-                case let .formula(ml), let .babyFood(ml), let .pumpedMilk(ml): return total + ml
-                default: return total
-                }
-            }
-        }
-        var breastfeedingMinutes: Int {
-            dailyRecords.reduce(0) { total, record in
-                if case let .breastfeeding(left, right) = record.event { return total + left + right }
-                return total
-            }
-        }
-        var previousBreastfeedingMinutes: Int {
-            previousDailyRecords.reduce(0) { total, record in
-                if case let .breastfeeding(left, right) = record.event { return total + left + right }
-                return total
-            }
-        }
+        var totalMl: Int { dailyRecords.totalMl }
+        var previousTotalMl: Int { previousDailyRecords.totalMl }
+        var breastfeedingMinutes: Int { dailyRecords.totalBreastfeedingMinutes }
+        var previousBreastfeedingMinutes: Int { previousDailyRecords.totalBreastfeedingMinutes }
 
         // 배변
-        var potty: (pee: Int, poop: Int) {
-            var pee = 0, poop = 0
-            for record in dailyRecords {
-                switch record.event {
-                case .pee: pee += 1
-                case .poop: poop += 1
-                case .pottyAll: pee += 1; poop += 1
-                default: break
-                }
-            }
-            return (pee, poop)
-        }
-        var previousPotty: (pee: Int, poop: Int) {
-            var pee = 0, poop = 0
-            for record in previousDailyRecords {
-                switch record.event {
-                case .pee: pee += 1
-                case .poop: poop += 1
-                case .pottyAll: pee += 1; poop += 1
-                default: break
-                }
-            }
-            return (pee, poop)
-        }
+        var potty: (pee: Int, poop: Int) { dailyRecords.pottyCount }
+        var previousPotty: (pee: Int, poop: Int) { previousDailyRecords.pottyCount }
 
         // 수면
         var sleepCount: Int { dailyRecords.count(of: .sleep) }
         var previousSleepCount: Int { previousDailyRecords.count(of: .sleep) }
-        var sleepMinutes: Int {
+        var sleepMinutes: Int { clippedSleepMinutes(for: selectedDate) }
+        var previousSleepMinutes: Int { clippedSleepMinutes(for: previousDate) }
+
+        private func clippedSleepMinutes(for date: Date) -> Int {
             let calendar = Calendar.current
-            let startOfDay = calendar.startOfDay(for: selectedDate)
+            let startOfDay = calendar.startOfDay(for: date)
             let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
-            return dailyRecords.reduce(0) { total, record in
-                guard case let .sleep(start, end) = record.event, let end else { return total }
-                let clipped = max(start, startOfDay)
-                let clippedEnd = min(end, endOfDay)
-                let interval = clippedEnd.timeIntervalSince(clipped)
-                return interval > 0 ? total + Int(interval / 60) : total
-            }
-        }
-        var previousSleepMinutes: Int {
-            let calendar = Calendar.current
-            let startOfDay = calendar.startOfDay(for: previousDate)
-            let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
-            return previousDailyRecords.reduce(0) { total, record in
-                guard case let .sleep(start, end) = record.event, let end else { return total }
+            return records.reduce(0) { total, record in
+                guard case let .sleep(start, .some(end)) = record.event else { return total }
+                guard start < endOfDay, end > startOfDay else { return total }
                 let clipped = max(start, startOfDay)
                 let clippedEnd = min(end, endOfDay)
                 let interval = clippedEnd.timeIntervalSince(clipped)
