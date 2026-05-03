@@ -35,6 +35,15 @@ public enum DailyChartLayout {
     public static let pointEventDurationMinutes: Int = 30
 }
 
+public enum TrendBarChartLayout {
+    /// 차트 본체 높이
+    public static let chartHeight: CGFloat = 180
+    /// 평균선 두께
+    public static let averageLineWidth: CGFloat = 1
+    /// 평균선 dash pattern
+    public static let averageLineDash: [CGFloat] = [4]
+}
+
 public enum GrowthChartLayout {
     /// 차트 본체 높이
     public static let chartHeight: CGFloat = 220

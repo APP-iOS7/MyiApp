@@ -31,6 +31,8 @@ public struct StatisticView: View {
             switch store.case {
             case let .growthChart(store):
                 GrowthChartView(store: store)
+            case let .snackDetail(store):
+                SnackDetailView(store: store)
             }
         }
     }
@@ -50,7 +52,7 @@ extension StatisticView {
 
             DateNavigator(
                 selectedDate: $store.selectedDate,
-                stepDays: store.mode.stepDays,
+                step: .days(store.mode.stepDays),
                 labelText: dateLabel(for:)
             )
 
@@ -140,14 +142,19 @@ extension StatisticView {
                 ]
             )
 
-            StatisticCard(
-                title: "간식 기록 분석",
-                image: Image(Asset.Records.Color.snack),
-                tintColor: .Semantic.snack,
-                metrics: [
-                    countMetric(title: "횟수", current: store.snackCount, previous: store.previousSnackCount)
-                ]
-            )
+            NavigationLink(state: StatisticFeature.Path.State.snackDetail(
+                SnackDetailFeature.State(baby: store.baby, selectedDate: store.selectedDate, mode: store.mode)
+            )) {
+                StatisticCard(
+                    title: "간식 기록 분석",
+                    image: Image(Asset.Records.Color.snack),
+                    tintColor: .Semantic.snack,
+                    metrics: [
+                        countMetric(title: "횟수", current: store.snackCount, previous: store.previousSnackCount)
+                    ]
+                )
+            }
+            .buttonStyle(NoHighlightButtonStyle())
         }
     }
 

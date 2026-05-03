@@ -186,6 +186,7 @@ extension StatisticFeature {
     @Reducer
     public enum Path {
         case growthChart(GrowthChartFeature)
+        case snackDetail(SnackDetailFeature)
     }
 }
 
