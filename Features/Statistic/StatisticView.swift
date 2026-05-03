@@ -14,7 +14,10 @@ public struct StatisticView: View {
     public var body: some View {
         ScrollView {
             VStack(spacing: Spacing.m) {
-                ScreenTitle("기록 분석")
+                ScreenTitle("기록 분석") {
+                    Button("성장 차트", systemImage: "chart.xyaxis.line") { store.send(.growthChartButtonTapped) }
+                        .labelStyle(.iconOnly)
+                }
                 overviewCard
                 statisticCards
             }
@@ -22,15 +25,6 @@ public struct StatisticView: View {
         }
         .scrollIndicators(.hidden)
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    store.send(.growthChartButtonTapped)
-                } label: {
-                    Image(systemName: "chart.xyaxis.line")
-                }
-            }
-        }
         .navigationDestination(item: $store.scope(state: \.growthChart, action: \.growthChart)) { growthStore in
             GrowthChartView(store: growthStore)
         }
@@ -105,7 +99,11 @@ extension StatisticView {
                 metrics: [
                     countMetric(title: "횟수", current: store.feedingCount, previous: store.previousFeedingCount),
                     valueMetric(title: "용량", current: store.totalMl, previous: store.previousTotalMl, unit: "ml"),
-                    minutesMetric(title: "시간", current: store.breastfeedingMinutes, previous: store.previousBreastfeedingMinutes),
+                    minutesMetric(
+                        title: "시간",
+                        current: store.breastfeedingMinutes,
+                        previous: store.previousBreastfeedingMinutes
+                    )
                 ]
             )
 
@@ -115,7 +113,7 @@ extension StatisticView {
                 tintColor: .Semantic.potty,
                 metrics: [
                     countMetric(title: "소변", current: store.potty.pee, previous: store.previousPotty.pee),
-                    countMetric(title: "대변", current: store.potty.poop, previous: store.previousPotty.poop),
+                    countMetric(title: "대변", current: store.potty.poop, previous: store.previousPotty.poop)
                 ]
             )
 
@@ -125,7 +123,7 @@ extension StatisticView {
                 tintColor: .Semantic.sleep,
                 metrics: [
                     countMetric(title: "횟수", current: store.sleepCount, previous: store.previousSleepCount),
-                    minutesMetric(title: "시간", current: store.sleepMinutes, previous: store.previousSleepMinutes),
+                    minutesMetric(title: "시간", current: store.sleepMinutes, previous: store.previousSleepMinutes)
                 ]
             )
 
@@ -134,7 +132,7 @@ extension StatisticView {
                 image: Image(Asset.Records.Color.bath),
                 tintColor: .Semantic.bath,
                 metrics: [
-                    countMetric(title: "횟수", current: store.bathCount, previous: store.previousBathCount),
+                    countMetric(title: "횟수", current: store.bathCount, previous: store.previousBathCount)
                 ]
             )
 
@@ -143,7 +141,7 @@ extension StatisticView {
                 image: Image(Asset.Records.Color.snack),
                 tintColor: .Semantic.snack,
                 metrics: [
-                    countMetric(title: "횟수", current: store.snackCount, previous: store.previousSnackCount),
+                    countMetric(title: "횟수", current: store.snackCount, previous: store.previousSnackCount)
                 ]
             )
         }
