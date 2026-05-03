@@ -5,6 +5,12 @@ import Foundation
 
 @Reducer
 public struct FoodDetailFeature {
+    public struct FeedingTrend: Identifiable, Equatable {
+        public let type: FeedingType
+        public let entries: [TrendBarChart.Entry]
+        public var id: FeedingType { type }
+    }
+
     public enum FeedingType: String, CaseIterable, Hashable, Sendable {
         case formula = "분유"
         case babyFood = "이유식"
@@ -59,15 +65,18 @@ public struct FoodDetailFeature {
         var breastfeedingMinutes: Int { records.filtered(in: currentRange).totalBreastfeedingMinutes }
         var previousBreastfeedingMinutes: Int { records.filtered(in: previousRange).totalBreastfeedingMinutes }
 
-        func trend(for type: FeedingType) -> [TrendBarChart.Entry] {
-            mode.trailingPeriodStarts(from: selectedDate, count: 7).map { start in
-                let range = mode.currentRange(of: start)
-                let value = type.amount(in: records.filtered(in: range))
-                return TrendBarChart.Entry(
-                    id: start,
-                    label: mode.axisLabel(for: start),
-                    value: Double(value)
-                )
+        var feedingTrends: [FeedingTrend] {
+            FeedingType.allCases.map { type in
+                let entries = mode.trailingPeriodStarts(from: selectedDate, count: 7).map { start in
+                    let range = mode.currentRange(of: start)
+                    let value = type.amount(in: records.filtered(in: range))
+                    return TrendBarChart.Entry(
+                        id: start,
+                        label: mode.axisLabel(for: start),
+                        value: Double(value)
+                    )
+                }
+                return FeedingTrend(type: type, entries: entries)
             }
         }
 
