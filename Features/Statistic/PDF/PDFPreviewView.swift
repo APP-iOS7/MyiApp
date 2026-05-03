@@ -17,15 +17,11 @@ public struct PDFPreviewView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 ScrollView {
-                    if let image {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .padding(Spacing.m)
-                    } else {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, minHeight: 400)
-                    }
+                    StatisticPDFContent(
+                        baby: store.baby,
+                        records: store.records,
+                        date: store.date
+                    )
                 }
 
                 VStack(spacing: Spacing.m) {
@@ -64,6 +60,7 @@ public struct PDFPreviewView: View {
             records: store.records,
             date: store.date
         ))
+        renderer.proposedSize = ProposedViewSize(width: UIScreen.main.bounds.width, height: nil)
         renderer.scale = UIScreen.main.scale
         image = renderer.uiImage
     }
