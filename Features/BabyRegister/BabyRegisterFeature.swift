@@ -11,14 +11,18 @@ public struct BabyRegisterFeature {
     }
 
     public enum Action {
-        case methodSelected(Method)
-        case nextTapped
-        case delegate(Delegate)
+        public enum ViewAction {
+            case methodSelected(Method)
+            case nextTapped
+        }
 
         public enum Delegate: Equatable {
             case proceedToNewBaby
             case proceedToExistingBaby
         }
+
+        case view(ViewAction)
+        case delegate(Delegate)
     }
 
     public init() {}
@@ -26,11 +30,11 @@ public struct BabyRegisterFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case let .methodSelected(method):
+            case let .view(.methodSelected(method)):
                 state.selectedMethod = method
                 return .none
 
-            case .nextTapped:
+            case .view(.nextTapped):
                 switch state.selectedMethod {
                 case .newBaby:
                     return .send(.delegate(.proceedToNewBaby))

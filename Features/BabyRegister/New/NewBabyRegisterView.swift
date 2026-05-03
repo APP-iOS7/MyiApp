@@ -18,7 +18,7 @@ public struct NewBabyRegisterView: View {
                 birthDateSection
                 bloodTypeSection
 
-                Button("완료") { store.send(.submitTapped) }
+                Button("완료") { store.send(.view(.submitTapped)) }
                     .buttonStyle(.primary)
                     .disabled(!store.isSubmitEnabled)
                     .padding(.top, Spacing.s)

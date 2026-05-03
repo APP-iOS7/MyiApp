@@ -17,13 +17,17 @@ public struct NotificationSyncFeature {
     }
 
     public enum Action {
-        case task
-        case babyChanged(UUID?)
-        case _internal(Internal)
+        public enum ViewAction {
+            case task
+            case babyChanged(UUID?)
+        }
 
-        public enum Internal {
+        public enum InternalAction {
             case notesReceived([Note])
         }
+
+        case view(ViewAction)
+        case _internal(InternalAction)
     }
 
     private enum CancelID { case stream }
@@ -36,7 +40,7 @@ public struct NotificationSyncFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .task:
+            case .view(.task):
                 guard let babyID = state.babyID else {
                     AppLogger.info("babyID nil — listener stop")
                     return .cancel(id: CancelID.stream)
@@ -49,7 +53,7 @@ public struct NotificationSyncFeature {
                 }
                 .cancellable(id: CancelID.stream, cancelInFlight: true)
 
-            case let .babyChanged(newID):
+            case let .view(.babyChanged(newID)):
                 let previousIDs = state.scheduledIDs
                 AppLogger.info("baby changed: \(state.babyID?.uuidString ?? "nil") → \(newID?.uuidString ?? "nil"), cancel \(previousIDs.count) prior")
                 state.scheduledIDs = []
@@ -60,7 +64,7 @@ public struct NotificationSyncFeature {
                             await localNotificationClient.cancel(id)
                         }
                     },
-                    .send(.task)
+                    .send(.view(.task))
                 )
 
             case let ._internal(.notesReceived(notes)):

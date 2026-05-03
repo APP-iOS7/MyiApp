@@ -14,13 +14,22 @@ public struct LoginFeature {
     }
 
     public enum Action {
-        case signInWithAppleTapped
-        case signInWithGoogleTapped
-        case signInSucceeded
-        case signInFailed(AuthError)
-        case alert(PresentationAction<Alert>)
+        public enum ViewAction {
+            case signInWithAppleTapped
+            case signInWithGoogleTapped
+        }
+
+        public enum InternalAction {
+            case signInSucceeded
+            case signInFailed(AuthError)
+        }
 
         public enum Alert: Equatable {}
+
+        case view(ViewAction)
+        case _internal(InternalAction)
+
+        case alert(PresentationAction<Alert>)
     }
 
     @Dependency(\.authClient) var authClient
@@ -30,33 +39,33 @@ public struct LoginFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .signInWithAppleTapped:
+            case .view(.signInWithAppleTapped):
                 state.isLoading = true
                 return .run { [authClient] send in
                     do throws(AuthError) {
                         _ = try await authClient.signInWithApple()
-                        await send(.signInSucceeded)
+                        await send(._internal(.signInSucceeded))
                     } catch {
-                        await send(.signInFailed(error))
+                        await send(._internal(.signInFailed(error)))
                     }
                 }
 
-            case .signInWithGoogleTapped:
+            case .view(.signInWithGoogleTapped):
                 state.isLoading = true
                 return .run { [authClient] send in
                     do throws(AuthError) {
                         _ = try await authClient.signInWithGoogle()
-                        await send(.signInSucceeded)
+                        await send(._internal(.signInSucceeded))
                     } catch {
-                        await send(.signInFailed(error))
+                        await send(._internal(.signInFailed(error)))
                     }
                 }
 
-            case .signInSucceeded:
+            case ._internal(.signInSucceeded):
                 state.isLoading = false
                 return .none
 
-            case let .signInFailed(error):
+            case let ._internal(.signInFailed(error)):
                 state.isLoading = false
                 state.alert = AlertState {
                     TextState("로그인 실패")

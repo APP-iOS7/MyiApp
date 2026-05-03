@@ -17,8 +17,8 @@ public struct StatisticView: View {
                 VStack(spacing: Spacing.m) {
                     ScreenTitle("기록 분석") {
                         HStack(spacing: Spacing.m) {
-                            Button("성장 차트", systemImage: "chart.xyaxis.line") { store.send(.growthChartButtonTapped) }
-                            Button("PDF 공유", systemImage: "square.and.arrow.up") { store.send(.shareButtonTapped) }
+                            Button("성장 차트", systemImage: "chart.xyaxis.line") { store.send(.view(.growthChartButtonTapped)) }
+                            Button("PDF 공유", systemImage: "square.and.arrow.up") { store.send(.view(.shareButtonTapped)) }
                         }
                         .labelStyle(.iconOnly)
                         .font(.title2)
@@ -31,7 +31,7 @@ public struct StatisticView: View {
             }
             .scrollIndicators(.hidden)
             .background(Color.Semantic.screenBackground.ignoresSafeArea())
-            .task { await store.send(.task).finish() }
+            .task { await store.send(.view(.task)).finish() }
             .sheet(item: $store.scope(state: \.pdfPreview, action: \.pdfPreview)) { previewStore in
                 PDFPreviewView(store: previewStore)
             }

@@ -81,7 +81,7 @@ public struct FoodDetailView: View {
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
         .navigationTitle("수유/이유식 기록 분석")
         .navigationBarTitleDisplayMode(.inline)
-        .task { await store.send(.task).finish() }
+        .task { await store.send(.view(.task)).finish() }
     }
 
     private var dateNavigatorStep: DateNavigator.Step {

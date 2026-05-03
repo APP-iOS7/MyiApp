@@ -29,7 +29,7 @@ public struct PDFPreviewView: View {
                     UnderlinedTextField(placeholder: "파일 이름", text: $store.fileName)
                         .focused($isFileNameFocused)
 
-                    Button("PDF로 저장 및 공유") { store.send(.shareTapped) }
+                    Button("PDF로 저장 및 공유") { store.send(.view(.shareTapped)) }
                         .buttonStyle(.primary)
                         .disabled(image == nil || !store.canShare)
                 }
@@ -41,7 +41,7 @@ public struct PDFPreviewView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("취소") { store.send(.dismissTapped) }
+                    Button("취소") { store.send(.view(.dismissTapped)) }
                 }
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()

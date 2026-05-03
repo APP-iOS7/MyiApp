@@ -25,18 +25,27 @@ public struct NewBabyRegisterFeature {
     }
 
     public enum Action: BindableAction {
-        case binding(BindingAction<State>)
-        case submitTapped
-        case submitSucceeded
-        case submitFailed(BabyError)
-        case alert(PresentationAction<Alert>)
-        case delegate(Delegate)
+        public enum ViewAction {
+            case submitTapped
+        }
 
-        public enum Alert: Equatable {}
+        public enum InternalAction {
+            case submitSucceeded
+            case submitFailed(BabyError)
+        }
 
         public enum Delegate: Equatable {
             case completed
         }
+
+        public enum Alert: Equatable {}
+
+        case view(ViewAction)
+        case _internal(InternalAction)
+        case delegate(Delegate)
+
+        case binding(BindingAction<State>)
+        case alert(PresentationAction<Alert>)
     }
 
     @Dependency(\.authClient) var authClient
@@ -48,10 +57,7 @@ public struct NewBabyRegisterFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .binding:
-                return .none
-
-            case .submitTapped:
+            case .view(.submitTapped):
                 guard state.isSubmitEnabled,
                       let gender = state.gender,
                       let bloodType = state.bloodType
@@ -76,22 +82,22 @@ public struct NewBabyRegisterFeature {
                 return .run { [babyClient] send in
                     do throws(BabyError) {
                         try await babyClient.registerNewBaby(baby)
-                        await send(.submitSucceeded)
+                        await send(._internal(.submitSucceeded))
                     } catch {
-                        await send(.submitFailed(error))
+                        await send(._internal(.submitFailed(error)))
                     }
                 }
 
-            case .submitSucceeded:
+            case ._internal(.submitSucceeded):
                 state.isSubmitting = false
                 return .send(.delegate(.completed))
 
-            case let .submitFailed(error):
+            case let ._internal(.submitFailed(error)):
                 state.isSubmitting = false
                 state.alert = makeAlert(for: error)
                 return .none
 
-            case .alert, .delegate:
+            case .binding, .alert, .delegate:
                 return .none
             }
         }

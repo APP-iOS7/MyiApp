@@ -27,7 +27,7 @@ public struct CryAnalysisHomeView: View {
     private var introContent: some View {
         VStack(spacing: Spacing.m) {
             ScreenTitle("울음 분석") {
-                Button("기록", systemImage: "list.bullet") { store.send(.recordsButtonTapped) }
+                Button("기록", systemImage: "list.bullet") { store.send(.view(.recordsButtonTapped)) }
                     .labelStyle(.iconOnly)
                     .font(.title2)
                     .foregroundStyle(.primary)
@@ -55,7 +55,7 @@ public struct CryAnalysisHomeView: View {
                 .frame(maxWidth: .infinity)
             }
 
-            Button("분석 시작") { store.send(.startTapped) }
+            Button("분석 시작") { store.send(.view(.startTapped)) }
                 .buttonStyle(.primary)
         }
         .padding(Spacing.m)

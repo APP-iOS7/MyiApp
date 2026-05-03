@@ -33,21 +33,21 @@ public struct BabyProfileView: View {
             isPresented: $store.isPhotoActionDialogPresented,
             titleVisibility: .visible
         ) {
-            Button("라이브러리에서 선택") { store.send(.pickFromLibraryTapped) }
-            Button("삭제", role: .destructive) { store.send(.deletePhotoTapped) }
+            Button("라이브러리에서 선택") { store.send(.view(.pickFromLibraryTapped)) }
+            Button("삭제", role: .destructive) { store.send(.view(.deletePhotoTapped)) }
             Button("취소", role: .cancel) {}
         }
         .loadingOverlay(isPresented: store.isUploading)
         .alert($store.scope(state: \.alert, action: \.alert))
         .task {
-            await store.send(.task).finish()
+            await store.send(.view(.task)).finish()
         }
     }
 }
 
 private extension BabyProfileView {
     var avatar: some View {
-        Button { store.send(.photoTapped) } label: {
+        Button { store.send(.view(.photoTapped)) } label: {
             avatarImage
         }
         .buttonStyle(NoHighlightButtonStyle())
@@ -79,7 +79,7 @@ private extension BabyProfileView {
 
     var infoCard: some View {
         SectionCard(spacing: 0) {
-            Button { store.send(.nameRowTapped) } label: {
+            Button { store.send(.view(.nameRowTapped)) } label: {
                 LabeledContent {
                     HStack(spacing: Spacing.s) {
                         Text(store.baby.name)
@@ -93,7 +93,7 @@ private extension BabyProfileView {
             }
             .buttonStyle(NoHighlightButtonStyle())
 
-            Button { store.send(.birthDateRowTapped) } label: {
+            Button { store.send(.view(.birthDateRowTapped)) } label: {
                 LabeledContent {
                     HStack(spacing: Spacing.s) {
                         Text(store.baby.birthDate.formatted(date: .long, time: .omitted))
@@ -107,7 +107,7 @@ private extension BabyProfileView {
             }
             .buttonStyle(NoHighlightButtonStyle())
 
-            Button { store.send(.genderRowTapped) } label: {
+            Button { store.send(.view(.genderRowTapped)) } label: {
                 LabeledContent {
                     HStack(spacing: Spacing.s) {
                         Text(store.baby.gender.displayName)
@@ -121,7 +121,7 @@ private extension BabyProfileView {
             }
             .buttonStyle(NoHighlightButtonStyle())
 
-            Button { store.send(.bloodTypeRowTapped) } label: {
+            Button { store.send(.view(.bloodTypeRowTapped)) } label: {
                 LabeledContent {
                     HStack(spacing: Spacing.s) {
                         Text(store.baby.bloodType.rawValue)

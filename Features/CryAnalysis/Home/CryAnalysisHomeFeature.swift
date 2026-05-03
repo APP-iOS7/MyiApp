@@ -16,15 +16,24 @@ public struct CryAnalysisHomeFeature {
     }
 
     public enum Action {
-        case startTapped
-        case recordsButtonTapped
-        case permissionResolved(Bool)
-        case path(StackAction<Path.State, Path.Action>)
-        case alert(PresentationAction<Alert>)
+        public enum ViewAction {
+            case startTapped
+            case recordsButtonTapped
+        }
+
+        public enum InternalAction {
+            case permissionResolved(Bool)
+        }
 
         public enum Alert: Equatable {
             case openSettingsTapped
         }
+
+        case view(ViewAction)
+        case _internal(InternalAction)
+
+        case path(StackAction<Path.State, Path.Action>)
+        case alert(PresentationAction<Alert>)
     }
 
     @Dependency(\.audioRecorderClient) var audioRecorderClient
@@ -35,21 +44,21 @@ public struct CryAnalysisHomeFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .startTapped:
+            case .view(.startTapped):
                 return .run { [audioRecorderClient] send in
                     let granted = await audioRecorderClient.requestPermission()
-                    await send(.permissionResolved(granted))
+                    await send(._internal(.permissionResolved(granted)))
                 }
 
-            case .recordsButtonTapped:
+            case .view(.recordsButtonTapped):
                 state.path.append(.recordList(CryRecordListFeature.State(baby: state.baby)))
                 return .none
 
-            case .permissionResolved(true):
+            case ._internal(.permissionResolved(true)):
                 state.path.append(.analysis(CryAnalysisFeature.State(baby: state.baby)))
                 return .none
 
-            case .permissionResolved(false):
+            case ._internal(.permissionResolved(false)):
                 state.alert = AlertState {
                     TextState("마이크 권한이 필요합니다")
                 } actions: {

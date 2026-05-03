@@ -19,16 +19,16 @@ public struct RegisterMethodPickerView: View {
                 CheckmarkRow(
                     title: "새로운 아기 프로필 등록",
                     isSelected: store.selectedMethod == .newBaby
-                ) { store.send(.methodSelected(.newBaby)) }
+                ) { store.send(.view(.methodSelected(.newBaby))) }
                 CheckmarkRow(
                     title: "초대받은 아기 프로필 연결",
                     isSelected: store.selectedMethod == .existingBaby
-                ) { store.send(.methodSelected(.existingBaby)) }
+                ) { store.send(.view(.methodSelected(.existingBaby))) }
             }
 
             Spacer()
 
-            Button("다음") { store.send(.nextTapped) }
+            Button("다음") { store.send(.view(.nextTapped)) }
                 .buttonStyle(.primary)
         }
         .padding(Spacing.m)

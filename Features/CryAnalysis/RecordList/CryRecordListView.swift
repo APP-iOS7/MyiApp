@@ -21,7 +21,7 @@ public struct CryRecordListView: View {
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
         .navigationTitle("분석 결과")
         .navigationBarTitleDisplayMode(.inline)
-        .task { await store.send(.task).finish() }
+        .task { await store.send(.view(.task)).finish() }
     }
 
     private var emptyState: some View {
@@ -40,7 +40,7 @@ public struct CryRecordListView: View {
                 .listRowInsets(EdgeInsets(top: Spacing.xs, leading: Spacing.m, bottom: Spacing.xs, trailing: Spacing.m))
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button("삭제", systemImage: "trash", role: .destructive) {
-                        store.send(.deleteTapped(record.id))
+                        store.send(.view(.deleteTapped(record.id)))
                     }
                 }
         }

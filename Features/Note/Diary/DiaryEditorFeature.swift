@@ -52,7 +52,7 @@ public struct DiaryEditorFeature {
             case saveButtonTapped
         }
 
-        public enum Internal {
+        public enum InternalAction {
             case photoLoaded(DiaryPhoto)
             case saveCompleted
             case saveFailed(NoteError)
@@ -64,10 +64,11 @@ public struct DiaryEditorFeature {
             case cancelled
         }
 
-        case binding(BindingAction<State>)
         case view(ViewAction)
-        case _internal(Internal)
+        case _internal(InternalAction)
         case delegate(Delegate)
+
+        case binding(BindingAction<State>)
     }
 
     @Dependency(\.noteClient) var noteClient

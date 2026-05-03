@@ -27,14 +27,19 @@ public struct PDFPreviewFeature {
     }
 
     public enum Action: BindableAction {
+        public enum ViewAction {
+            case shareTapped
+            case dismissTapped
+        }
+
         public enum InternalAction {
             case pdfGenerated(URL)
         }
 
-        case binding(BindingAction<State>)
-        case shareTapped
-        case dismissTapped
+        case view(ViewAction)
         case _internal(InternalAction)
+
+        case binding(BindingAction<State>)
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -46,7 +51,7 @@ public struct PDFPreviewFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .shareTapped:
+            case .view(.shareTapped):
                 guard state.canShare else { return .none }
                 return .run { [state, pdfExporter] send in
                     if let url = await pdfExporter.renderPDF(state.baby, state.records, state.date, state.fileName) {
@@ -58,7 +63,7 @@ public struct PDFPreviewFeature {
                 state.sharingURL = ShareableURL(url: url)
                 return .none
 
-            case .dismissTapped:
+            case .view(.dismissTapped):
                 return .run { [dismiss] _ in await dismiss() }
 
             case .binding:

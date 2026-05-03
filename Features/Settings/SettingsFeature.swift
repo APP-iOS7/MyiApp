@@ -60,9 +60,10 @@ public struct SettingsFeature {
             case confirmDeleteAccount
         }
 
-        case binding(BindingAction<State>)
         case view(ViewAction)
         case _internal(InternalAction)
+
+        case binding(BindingAction<State>)
         case alert(PresentationAction<Alert>)
         case babyRegister(PresentationAction<BabyRegisterFlowFeature.Action>)
         case path(StackActionOf<Path>)

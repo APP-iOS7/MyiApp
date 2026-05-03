@@ -75,17 +75,22 @@ public struct StatisticFeature {
     }
 
     public enum Action: BindableAction {
+        public enum ViewAction {
+            case task
+            case growthChartButtonTapped
+            case shareButtonTapped
+        }
+
         public enum InternalAction {
             case recordsLoaded([CareRecord])
             case recordsLoadFailed(CareRecordError)
             case growthRecordsLoaded([CareRecord])
         }
 
-        case binding(BindingAction<State>)
-        case task
-        case growthChartButtonTapped
-        case shareButtonTapped
+        case view(ViewAction)
         case _internal(InternalAction)
+
+        case binding(BindingAction<State>)
         case path(StackAction<Path.State, Path.Action>)
         case pdfPreview(PresentationAction<PDFPreviewFeature.Action>)
     }
@@ -98,7 +103,7 @@ public struct StatisticFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .task:
+            case .view(.task):
                 return .merge(
                     loadRecords(for: state),
                     loadGrowthRecords(for: state)
@@ -119,11 +124,11 @@ public struct StatisticFeature {
                 state.growthRecords = records.filter { $0.event.category == .growth }
                 return .none
 
-            case .growthChartButtonTapped:
+            case .view(.growthChartButtonTapped):
                 state.path.append(.growthChart(GrowthChartFeature.State(records: state.growthRecords, baby: state.baby)))
                 return .none
 
-            case .shareButtonTapped:
+            case .view(.shareButtonTapped):
                 state.pdfPreview = PDFPreviewFeature.State(
                     baby: state.baby,
                     records: state.records,
