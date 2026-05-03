@@ -28,6 +28,7 @@ public struct BabyProfileFeature {
             case birthDateRowTapped
             case genderRowTapped
             case bloodTypeRowTapped
+            case caregiversRowTapped
             case photoTapped
             case pickFromLibraryTapped
             case deletePhotoTapped
@@ -45,6 +46,7 @@ public struct BabyProfileFeature {
             case editBirthDateTapped(Baby)
             case editGenderTapped(Baby)
             case editBloodTypeTapped(Baby)
+            case editCaregiversTapped(Baby)
         }
 
         public enum Alert: Equatable {}
@@ -107,6 +109,9 @@ public struct BabyProfileFeature {
 
             case .view(.bloodTypeRowTapped):
                 return .send(.delegate(.editBloodTypeTapped(state.baby)))
+
+            case .view(.caregiversRowTapped):
+                return .send(.delegate(.editCaregiversTapped(state.baby)))
 
             case .view(.photoTapped):
                 if state.baby.profileImageURL != nil {
