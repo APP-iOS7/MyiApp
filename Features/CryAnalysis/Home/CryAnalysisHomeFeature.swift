@@ -7,7 +7,7 @@ public struct CryAnalysisHomeFeature {
     @ObservableState
     public struct State: Equatable {
         public var baby: Baby
-        public var path = StackState<CryAnalysisFeature.State>()
+        public var path = StackState<Path.State>()
         @Presents public var alert: AlertState<Action.Alert>?
 
         public init(baby: Baby) {
@@ -17,8 +17,9 @@ public struct CryAnalysisHomeFeature {
 
     public enum Action {
         case startTapped
+        case recordsButtonTapped
         case permissionResolved(Bool)
-        case path(StackActionOf<CryAnalysisFeature>)
+        case path(StackAction<Path.State, Path.Action>)
         case alert(PresentationAction<Alert>)
 
         public enum Alert: Equatable {
@@ -27,7 +28,7 @@ public struct CryAnalysisHomeFeature {
     }
 
     @Dependency(\.audioRecorderClient) var audioRecorderClient
-    @Dependency(\.openURL)             var openURL
+    @Dependency(\.openURL) var openURL
 
     public init() {}
 
@@ -40,8 +41,12 @@ public struct CryAnalysisHomeFeature {
                     await send(.permissionResolved(granted))
                 }
 
+            case .recordsButtonTapped:
+                state.path.append(.recordList(CryRecordListFeature.State(baby: state.baby)))
+                return .none
+
             case .permissionResolved(true):
-                state.path.append(CryAnalysisFeature.State(baby: state.baby))
+                state.path.append(.analysis(CryAnalysisFeature.State(baby: state.baby)))
                 return .none
 
             case .permissionResolved(false):
@@ -62,7 +67,6 @@ public struct CryAnalysisHomeFeature {
             case .alert(.presented(.openSettingsTapped)):
                 return .run { [openURL] _ in
                     guard let url = URL(string: "app-settings:") else { return }
-
                     _ = await openURL(url)
                 }
 
@@ -71,8 +75,16 @@ public struct CryAnalysisHomeFeature {
             }
         }
         .ifLet(\.$alert, action: \.alert)
-        .forEach(\.path, action: \.path) {
-            CryAnalysisFeature()
-        }
+        .forEach(\.path, action: \.path)
     }
 }
+
+extension CryAnalysisHomeFeature {
+    @Reducer
+    public enum Path {
+        case analysis(CryAnalysisFeature)
+        case recordList(CryRecordListFeature)
+    }
+}
+
+extension CryAnalysisHomeFeature.Path.State: Equatable {}
