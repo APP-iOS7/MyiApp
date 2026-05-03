@@ -9,14 +9,14 @@ public struct StatisticFeature {
         public var baby: Baby
         public var records: [CareRecord]
         public var selectedDate: Date
-        public var mode: StatisticMode
+        public var mode: Mode
         public var selectedCategories: Set<CareEvent.Category>
 
         public init(
             baby: Baby,
             records: [CareRecord] = [],
             selectedDate: Date = Date(),
-            mode: StatisticMode = .daily
+            mode: Mode = .daily
         ) {
             self.baby = baby
             self.records = records
@@ -24,6 +24,8 @@ public struct StatisticFeature {
             self.mode = mode
             selectedCategories = Set(CareEvent.Category.statisticFilterCases)
         }
+
+        @Presents public var growthChart: GrowthChartFeature.State?
 
         // MARK: - 집계 (Derived State)
 
@@ -60,9 +62,8 @@ public struct StatisticFeature {
         var snackCount: Int { dailyRecords.count(of: .snack) }
         var previousSnackCount: Int { previousDailyRecords.count(of: .snack) }
 
-        // 성장
+        /// 성장
         public var growthRecords: [CareRecord] = []
-        @Presents public var growthChart: GrowthChartFeature.State?
 
         var babySummaryText: String {
             let genderText = baby.gender == .female ? "여" : "남"
@@ -165,21 +166,20 @@ public struct StatisticFeature {
     }
 }
 
-// TODO: -  코드 더럽다
 extension CareEvent.Category {
-    /// 통계 화면 필터 그리드에 노출할 카테고리 (vital/medical/growth은 제외)
     static let statisticFilterCases: [CareEvent.Category] = [.feeding, .potty, .sleep, .bath, .snack]
 }
 
-/// 통계 화면 일/주 모드
-public enum StatisticMode: String, CaseIterable, Hashable, Sendable {
-    case daily = "일"
-    case weekly = "주"
+extension StatisticFeature {
+    public enum Mode: String, CaseIterable, Hashable, Sendable {
+        case daily = "일"
+        case weekly = "주"
 
-    public var stepDays: Int {
-        switch self {
-        case .daily: 1
-        case .weekly: 7
+        public var stepDays: Int {
+            switch self {
+            case .daily: 1
+            case .weekly: 7
+            }
         }
     }
 }
