@@ -37,6 +37,8 @@ public struct StatisticView: View {
                 BathDetailView(store: store)
             case let .pottyDetail(store):
                 PottyDetailView(store: store)
+            case let .sleepDetail(store):
+                SleepDetailView(store: store)
             }
         }
     }
@@ -137,15 +139,25 @@ extension StatisticView {
             }
             .buttonStyle(NoHighlightButtonStyle())
 
-            StatisticCard(
-                title: "수면 기록 분석",
-                image: Image(Asset.Records.Color.sleep),
-                tintColor: .Semantic.sleep,
-                metrics: [
-                    countMetric(title: "횟수", current: store.sleepCount, previous: store.previousSleepCount),
-                    minutesMetric(title: "시간", current: store.sleepMinutes, previous: store.previousSleepMinutes)
-                ]
-            )
+            NavigationLink(state: StatisticFeature.Path.State.sleepDetail(
+                SleepDetailFeature.State(
+                    baby: store.baby,
+                    selectedDate: store.selectedDate,
+                    mode: DetailMode(from: store.mode)
+                )
+            )) {
+                StatisticCard(
+                    title: "수면 기록 분석",
+                    image: Image(Asset.Records.Color.sleep),
+                    tintColor: .Semantic.sleep,
+                    metrics: [
+                        countMetric(title: "횟수", current: store.sleepCount, previous: store.previousSleepCount),
+                        minutesMetric(title: "시간", current: store.sleepMinutes, previous: store.previousSleepMinutes)
+                    ],
+                    showsChevron: true
+                )
+            }
+            .buttonStyle(NoHighlightButtonStyle())
 
             NavigationLink(state: StatisticFeature.Path.State.bathDetail(
                 BathDetailFeature.State(
