@@ -27,6 +27,10 @@ extension Array where Element == CareRecord {
     public func filtered(in range: Range<Date>) -> [CareRecord] {
         filter { range.contains($0.createdAt) }
     }
+
+    public func count(of category: CareEvent.Category) -> Int {
+        filter { $0.event.category == category }.count
+    }
 }
 
 #if DEBUG
