@@ -7,6 +7,7 @@ struct StatisticCard: View {
     let image: Image
     let tintColor: Color
     let metrics: [StatisticMetric]
+    var showsChevron: Bool = false
 
     var body: some View {
         SectionCard(spacing: Spacing.s) {
@@ -25,6 +26,9 @@ struct StatisticCard: View {
                 .font(.headline)
                 .foregroundColor(.primary)
             Spacer()
+            if showsChevron {
+                RowChevron()
+            }
         }
     }
 
