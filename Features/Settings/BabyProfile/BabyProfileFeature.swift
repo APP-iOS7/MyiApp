@@ -22,31 +22,38 @@ public struct BabyProfileFeature {
     }
 
     public enum Action: BindableAction {
+        public enum ViewAction {
+            case task
+            case nameRowTapped
+            case birthDateRowTapped
+            case genderRowTapped
+            case bloodTypeRowTapped
+            case photoTapped
+            case pickFromLibraryTapped
+            case deletePhotoTapped
+        }
+
         public enum InternalAction {
             case babyUpdated(Baby)
             case photoUploaded(URL, replacing: URL?)
             case photoDeleted
             case photoActionFailed
         }
+
         public enum DelegateAction: Equatable {
             case editNameTapped(Baby)
             case editBirthDateTapped(Baby)
             case editGenderTapped(Baby)
             case editBloodTypeTapped(Baby)
         }
+
         public enum Alert: Equatable {}
 
-        case binding(BindingAction<State>)
-        case task
-        case nameRowTapped
-        case birthDateRowTapped
-        case genderRowTapped
-        case bloodTypeRowTapped
-        case photoTapped
-        case pickFromLibraryTapped
-        case deletePhotoTapped
+        case view(ViewAction)
         case _internal(InternalAction)
         case delegate(DelegateAction)
+
+        case binding(BindingAction<State>)
         case alert(PresentationAction<Alert>)
     }
 
@@ -81,10 +88,7 @@ public struct BabyProfileFeature {
                     }
                 }
 
-            case .binding:
-                return .none
-
-            case .task:
+            case .view(.task):
                 return .run { [babyClient, id = state.baby.id] send in
                     for await baby in babyClient.streamBaby(id) {
                         await send(._internal(.babyUpdated(baby)))
@@ -92,19 +96,19 @@ public struct BabyProfileFeature {
                 }
                 .cancellable(id: CancelID.babyStream, cancelInFlight: true)
 
-            case .nameRowTapped:
+            case .view(.nameRowTapped):
                 return .send(.delegate(.editNameTapped(state.baby)))
 
-            case .birthDateRowTapped:
+            case .view(.birthDateRowTapped):
                 return .send(.delegate(.editBirthDateTapped(state.baby)))
 
-            case .genderRowTapped:
+            case .view(.genderRowTapped):
                 return .send(.delegate(.editGenderTapped(state.baby)))
 
-            case .bloodTypeRowTapped:
+            case .view(.bloodTypeRowTapped):
                 return .send(.delegate(.editBloodTypeTapped(state.baby)))
 
-            case .photoTapped:
+            case .view(.photoTapped):
                 if state.baby.profileImageURL != nil {
                     state.isPhotoActionDialogPresented = true
                 } else {
@@ -112,12 +116,12 @@ public struct BabyProfileFeature {
                 }
                 return .none
 
-            case .pickFromLibraryTapped:
+            case .view(.pickFromLibraryTapped):
                 state.isPhotoActionDialogPresented = false
                 state.isPickerPresented = true
                 return .none
 
-            case .deletePhotoTapped:
+            case .view(.deletePhotoTapped):
                 state.isPhotoActionDialogPresented = false
                 guard let oldURL = state.baby.profileImageURL else { return .none }
                 state.isUploading = true
@@ -168,10 +172,7 @@ public struct BabyProfileFeature {
                 }
                 return .none
 
-            case .delegate:
-                return .none
-
-            case .alert:
+            case .binding, .delegate, .alert:
                 return .none
             }
         }

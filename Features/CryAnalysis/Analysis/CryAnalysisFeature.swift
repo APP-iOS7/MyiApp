@@ -17,16 +17,13 @@ public struct CryAnalysisFeature {
     }
 
     public enum Action {
-        case view(ViewAction)
-        case _internal(Internal)
-
         public enum ViewAction {
             case task
             case cancelTapped
             case dismissTapped
         }
 
-        public enum Internal {
+        public enum InternalAction {
             case tick(volume: Float, progress: Double)
             case recordingFailed
             case analysisFailed
@@ -34,6 +31,9 @@ public struct CryAnalysisFeature {
             case recordingFinished(URL)
             case analysisSucceeded(CryAnalysisRecord)
         }
+
+        case view(ViewAction)
+        case _internal(InternalAction)
     }
 
     @Dependency(\.audioRecorderClient) var audioRecorderClient

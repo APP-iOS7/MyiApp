@@ -23,15 +23,20 @@ public struct AccountEditFeature {
     }
 
     public enum Action: BindableAction {
+        public enum ViewAction {
+            case saveButtonTapped
+        }
+
         public enum InternalAction {
             case saveCompleted
             case saveFailed(CaregiverError)
         }
         public enum Alert: Equatable {}
 
-        case binding(BindingAction<State>)
-        case saveButtonTapped
+        case view(ViewAction)
         case _internal(InternalAction)
+
+        case binding(BindingAction<State>)
         case alert(PresentationAction<Alert>)
     }
 
@@ -44,10 +49,7 @@ public struct AccountEditFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .binding:
-                return .none
-
-            case .saveButtonTapped:
+            case .view(.saveButtonTapped):
                 guard state.canSave else { return .none }
                 state.isSaving = true
                 let trimmed = state.name.trimmingCharacters(in: .whitespaces)
@@ -73,7 +75,7 @@ public struct AccountEditFeature {
                 }
                 return .none
 
-            case .alert:
+            case .binding, .alert:
                 return .none
             }
         }

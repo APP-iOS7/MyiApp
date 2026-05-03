@@ -27,7 +27,7 @@ public struct EditRecordView: View {
 
                 Section {
                     Button("기록 삭제", role: .destructive) {
-                        store.send(.deleteTapped)
+                        store.send(.view(.deleteTapped))
                     }
                     .disabled(store.isSubmitting)
                 }
@@ -36,10 +36,10 @@ public struct EditRecordView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("취소") { store.send(.cancelTapped) }
+                    Button("취소") { store.send(.view(.cancelTapped)) }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("저장") { store.send(.saveTapped) }
+                    Button("저장") { store.send(.view(.saveTapped)) }
                         .disabled(store.isSubmitting)
                 }
             }
@@ -88,7 +88,7 @@ public struct EditRecordView: View {
                     HStack {
                         Text("종료")
                         Spacer()
-                        Button("현재 시간 기록") { store.send(.markSleepEndNow) }
+                        Button("현재 시간 기록") { store.send(.view(.markSleepEndNow)) }
                             .buttonStyle(.bordered)
                     }
                 }

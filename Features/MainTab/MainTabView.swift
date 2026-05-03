@@ -36,7 +36,7 @@ public struct MainTabView: View {
                 .tabItem { Label("더 보기", systemImage: "line.3.horizontal") }
                 .tag(MainTabFeature.Tab.settings)
         }
-        .task { await store.send(.task).finish() }
+        .task { await store.send(.view(.task)).finish() }
     }
 }
 

@@ -15,14 +15,18 @@ public struct CryRecordListFeature {
     }
 
     public enum Action {
+        public enum ViewAction {
+            case task
+            case deleteTapped(UUID)
+        }
+
         public enum InternalAction {
             case recordsLoaded([CryAnalysisRecord])
             case recordsLoadFailed(CryRecordError)
             case deleteSucceeded(UUID)
         }
 
-        case task
-        case deleteTapped(UUID)
+        case view(ViewAction)
         case _internal(InternalAction)
     }
 
@@ -33,10 +37,10 @@ public struct CryRecordListFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .task:
+            case .view(.task):
                 return loadRecords(for: state)
 
-            case let .deleteTapped(recordID):
+            case let .view(.deleteTapped(recordID)):
                 let babyID = state.baby.id
                 return .run { [cryRecordClient] send in
                     do throws(CryRecordError) {

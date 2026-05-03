@@ -22,6 +22,10 @@ public struct BabyBloodTypeEditFeature {
     }
 
     public enum Action: BindableAction {
+        public enum ViewAction {
+            case saveButtonTapped
+        }
+
         public enum InternalAction {
             case saveCompleted
             case saveFailed(BabyError)
@@ -29,9 +33,10 @@ public struct BabyBloodTypeEditFeature {
 
         public enum Alert: Equatable {}
 
-        case binding(BindingAction<State>)
-        case saveButtonTapped
+        case view(ViewAction)
         case _internal(InternalAction)
+
+        case binding(BindingAction<State>)
         case alert(PresentationAction<Alert>)
     }
 
@@ -44,10 +49,7 @@ public struct BabyBloodTypeEditFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .binding:
-                return .none
-
-            case .saveButtonTapped:
+            case .view(.saveButtonTapped):
                 guard state.canSave else { return .none }
                 state.isSaving = true
                 var updated = state.baby
@@ -74,7 +76,7 @@ public struct BabyBloodTypeEditFeature {
                 }
                 return .none
 
-            case .alert:
+            case .binding, .alert:
                 return .none
             }
         }

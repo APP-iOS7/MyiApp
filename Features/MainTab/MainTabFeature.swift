@@ -45,22 +45,25 @@ public struct MainTabFeature {
     }
 
     public enum Action: BindableAction {
+        public enum ViewAction {
+            case task
+        }
+
         public enum InternalAction {
             case babiesLoaded([Baby])
             case caregiverLoaded(Caregiver?)
         }
 
+        case view(ViewAction)
+        case _internal(InternalAction)
+
+        case binding(BindingAction<State>)
         case home(HomeFeature.Action)
         case note(NoteHomeFeature.Action)
         case cryAnalysis(CryAnalysisHomeFeature.Action)
         case statistic(StatisticFeature.Action)
         case settings(SettingsFeature.Action)
         case notificationSync(NotificationSyncFeature.Action)
-
-        case binding(BindingAction<State>)
-        case _internal(InternalAction)
-
-        case task
     }
 
     @Dependency(\.babyClient) var babyClient
@@ -105,12 +108,12 @@ public struct MainTabFeature {
             switch action {
             case .binding(\.selectedBabyID):
                 propagateSelectedBaby(into: &state)
-                return .send(.notificationSync(.babyChanged(state.selectedBabyID)))
+                return .send(.notificationSync(.view(.babyChanged(state.selectedBabyID))))
 
             case let .home(.delegate(.babyChangeRequested(id))):
                 state.selectedBabyID = id
                 propagateSelectedBaby(into: &state)
-                return .send(.notificationSync(.babyChanged(id)))
+                return .send(.notificationSync(.view(.babyChanged(id))))
 
             case .binding:
                 return .none
@@ -118,9 +121,9 @@ public struct MainTabFeature {
             case .cryAnalysis, .home, .note, .notificationSync, .settings, .statistic:
                 return .none
 
-            case .task:
+            case .view(.task):
                 return .merge(
-                    .send(.notificationSync(.task)),
+                    .send(.notificationSync(.view(.task))),
                     .run { [babyClient] send in
                         for await babies in babyClient.streamBabies() {
                             await send(._internal(.babiesLoaded(babies)))

@@ -58,14 +58,19 @@ public struct PottyDetailFeature {
     }
 
     public enum Action: BindableAction {
+        public enum ViewAction {
+            case task
+        }
+
         public enum InternalAction {
             case recordsLoaded([CareRecord])
             case recordsLoadFailed(CareRecordError)
         }
 
-        case binding(BindingAction<State>)
-        case task
+        case view(ViewAction)
         case _internal(InternalAction)
+
+        case binding(BindingAction<State>)
     }
 
     @Dependency(\.careRecordClient) var careRecordClient
@@ -76,7 +81,7 @@ public struct PottyDetailFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .task:
+            case .view(.task):
                 return loadRecords(for: state)
 
             case .binding(\.mode), .binding(\.selectedDate):

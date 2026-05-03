@@ -71,7 +71,7 @@ public struct GrowthChartFeature {
     }
 
     public enum Action: BindableAction {
-        case binding(BindingAction<State>)
+        case binding(BindingAction<State>)  // 자체 view 액션이 없어 binding 만 처리 — 컨벤션 예외
     }
 
     public init() {}

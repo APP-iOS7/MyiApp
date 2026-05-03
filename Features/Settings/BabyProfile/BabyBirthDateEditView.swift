@@ -27,7 +27,7 @@ public struct BabyBirthDateEditView: View {
 
             Spacer()
 
-            Button("저장") { store.send(.saveButtonTapped) }
+            Button("저장") { store.send(.view(.saveButtonTapped)) }
                 .buttonStyle(.primary)
                 .disabled(!store.canSave)
         }

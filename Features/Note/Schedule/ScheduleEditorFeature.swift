@@ -50,7 +50,7 @@ public struct ScheduleEditorFeature {
             case saveButtonTapped
         }
 
-        public enum Internal {
+        public enum InternalAction {
             case reminderAuthorizationResolved(LocalNotificationAuthorization, pendingMode: ReminderMode)
             case saveCompleted
             case saveFailed(NoteError)
@@ -65,10 +65,11 @@ public struct ScheduleEditorFeature {
             case openSettings
         }
 
-        case binding(BindingAction<State>)
         case view(ViewAction)
-        case _internal(Internal)
+        case _internal(InternalAction)
         case delegate(Delegate)
+
+        case binding(BindingAction<State>)
         case alert(PresentationAction<Alert>)
     }
 

@@ -30,7 +30,7 @@ public struct NoteView: View {
         }
         .scrollIndicators(.hidden)
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
-        .task { await store.send(.task).finish() }
+        .task { await store.send(.view(.task)).finish() }
         .sheet(
             item: $store.scope(state: \.destination?.diary, action: \.destination.diary)
         ) { diaryStore in
@@ -51,12 +51,12 @@ public struct NoteView: View {
                 Spacer()
                 if !store.isFutureDay {
                     ActionChip(label: "일지", systemImage: "doc.text") {
-                        store.send(.diaryButtonTapped)
+                        store.send(.view(.diaryButtonTapped))
                     }
                 }
                 if !store.isPastDay {
                     ActionChip(label: "일정", systemImage: "bell") {
-                        store.send(.scheduleButtonTapped)
+                        store.send(.view(.scheduleButtonTapped))
                     }
                 }
             }

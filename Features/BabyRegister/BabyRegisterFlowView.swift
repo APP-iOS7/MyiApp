@@ -14,7 +14,7 @@ public struct BabyRegisterFlowView: View {
             RegisterMethodPickerView(store: store.scope(state: \.picker, action: \.picker))
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("닫기") { store.send(.cancelTapped) }
+                        Button("닫기") { store.send(.view(.cancelTapped)) }
                     }
                 }
         } destination: { destinationStore in

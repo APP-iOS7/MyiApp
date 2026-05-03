@@ -24,7 +24,7 @@ public struct ExistingBabyRegisterView: View {
 
             Spacer()
 
-            Button("완료") { store.send(.submitTapped) }
+            Button("완료") { store.send(.view(.submitTapped)) }
                 .buttonStyle(.primary)
                 .disabled(!store.isSubmitEnabled)
         }

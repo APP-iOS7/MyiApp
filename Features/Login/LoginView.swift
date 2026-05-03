@@ -29,8 +29,8 @@ public struct LoginView: View {
                 .frame(maxWidth: 360)
 
             VStack(spacing: Spacing.m) {
-                GoogleSignInButton { store.send(.signInWithGoogleTapped) }
-                AppleSignInButton { store.send(.signInWithAppleTapped) }
+                GoogleSignInButton { store.send(.view(.signInWithGoogleTapped)) }
+                AppleSignInButton { store.send(.view(.signInWithAppleTapped)) }
             }
             .padding(.horizontal, Spacing.l)
 

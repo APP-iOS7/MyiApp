@@ -44,16 +44,21 @@ public struct NoteHomeFeature {
     }
 
     public enum Action: BindableAction {
-        case binding(BindingAction<State>)
-        case task
-        case diaryButtonTapped
-        case scheduleButtonTapped
-        case destination(PresentationAction<Destination.Action>)
-        case _internal(Internal)
+        public enum ViewAction {
+            case task
+            case diaryButtonTapped
+            case scheduleButtonTapped
+        }
 
-        public enum Internal {
+        public enum InternalAction {
             case notesLoaded([Note])
         }
+
+        case view(ViewAction)
+        case _internal(InternalAction)
+
+        case binding(BindingAction<State>)
+        case destination(PresentationAction<Destination.Action>)
     }
 
     private enum CancelID { case notesStream }
@@ -66,23 +71,17 @@ public struct NoteHomeFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .task:
+            case .view(.task), .binding(\.month):
                 return streamEffect(state: state)
 
-            case .binding(\.month):
-                return streamEffect(state: state)
-
-            case .binding:
-                return .none
-
-            case .diaryButtonTapped:
+            case .view(.diaryButtonTapped):
                 state.destination = .diary(DiaryEditorFeature.State(
                     babyID: state.baby.id,
                     date: state.selected
                 ))
                 return .none
 
-            case .scheduleButtonTapped:
+            case .view(.scheduleButtonTapped):
                 let defaultTime = Calendar.current.date(
                     bySettingHour: 12,
                     minute: 0,
@@ -95,6 +94,10 @@ public struct NoteHomeFeature {
                 ))
                 return .none
 
+            case let ._internal(.notesLoaded(notes)):
+                state.notes = notes
+                return .none
+
             case .destination(.presented(.diary(.delegate(.saved)))),
                  .destination(.presented(.schedule(.delegate(.saved)))),
                  .destination(.presented(.diary(.delegate(.cancelled)))),
@@ -102,11 +105,7 @@ public struct NoteHomeFeature {
                 state.destination = nil
                 return .none
 
-            case .destination:
-                return .none
-
-            case let ._internal(.notesLoaded(notes)):
-                state.notes = notes
+            case .binding, .destination:
                 return .none
             }
         }

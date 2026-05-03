@@ -150,21 +150,30 @@ public struct EditRecordFeature {
     }
 
     public enum Action: BindableAction {
-        case binding(BindingAction<State>)
-        case saveTapped
-        case deleteTapped
-        case cancelTapped
-        case markSleepEndNow
-        case saveSucceeded
-        case saveFailed(CareRecordError)
-        case deleteSucceeded
-        case deleteFailed(CareRecordError)
-        case delegate(Delegate)
+        public enum ViewAction {
+            case saveTapped
+            case deleteTapped
+            case cancelTapped
+            case markSleepEndNow
+        }
+
+        public enum InternalAction {
+            case saveSucceeded
+            case saveFailed(CareRecordError)
+            case deleteSucceeded
+            case deleteFailed(CareRecordError)
+        }
 
         public enum Delegate: Equatable {
             case saved
             case deleted
         }
+
+        case view(ViewAction)
+        case _internal(InternalAction)
+        case delegate(Delegate)
+
+        case binding(BindingAction<State>)
     }
 
     @Dependency(\.careRecordClient) var careRecordClient
@@ -176,10 +185,7 @@ public struct EditRecordFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .binding:
-                return .none
-
-            case .saveTapped:
+            case .view(.saveTapped):
                 guard !state.isSubmitting else { return .none }
 
                 state.isSubmitting = true
@@ -193,13 +199,13 @@ public struct EditRecordFeature {
                 return .run { [careRecordClient] send in
                     do throws(CareRecordError) {
                         try await careRecordClient.updateRecord(babyID, record)
-                        await send(.saveSucceeded)
+                        await send(._internal(.saveSucceeded))
                     } catch {
-                        await send(.saveFailed(error))
+                        await send(._internal(.saveFailed(error)))
                     }
                 }
 
-            case .deleteTapped:
+            case .view(.deleteTapped):
                 guard !state.isSubmitting else { return .none }
 
                 state.isSubmitting = true
@@ -208,38 +214,38 @@ public struct EditRecordFeature {
                 return .run { [careRecordClient] send in
                     do throws(CareRecordError) {
                         try await careRecordClient.deleteRecord(babyID, recordID)
-                        await send(.deleteSucceeded)
+                        await send(._internal(.deleteSucceeded))
                     } catch {
-                        await send(.deleteFailed(error))
+                        await send(._internal(.deleteFailed(error)))
                     }
                 }
 
-            case .markSleepEndNow:
+            case .view(.markSleepEndNow):
                 state.sleepEnd = Date()
                 return .none
 
-            case .cancelTapped:
+            case .view(.cancelTapped):
                 return .run { [dismiss] _ in await dismiss() }
 
-            case .saveSucceeded:
+            case ._internal(.saveSucceeded):
                 state.isSubmitting = false
                 return .run { [dismiss] send in
                     await send(.delegate(.saved))
                     await dismiss()
                 }
 
-            case .deleteSucceeded:
+            case ._internal(.deleteSucceeded):
                 state.isSubmitting = false
                 return .run { [dismiss] send in
                     await send(.delegate(.deleted))
                     await dismiss()
                 }
 
-            case .saveFailed, .deleteFailed:
+            case ._internal(.saveFailed), ._internal(.deleteFailed):
                 state.isSubmitting = false
                 return .none // TODO: 에러 알림
 
-            case .delegate:
+            case .binding, .delegate:
                 return .none
             }
         }
