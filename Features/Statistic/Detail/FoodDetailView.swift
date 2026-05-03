@@ -35,14 +35,14 @@ public struct FoodDetailView: View {
                         .foregroundStyle(Color.Semantic.secondaryText)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                    ForEach(FoodDetailFeature.FeedingType.allCases, id: \.self) { type in
+                    ForEach(store.feedingTrends) { trend in
                         VStack(alignment: .leading, spacing: Spacing.s) {
-                            Text(type.rawValue)
+                            Text(trend.type.rawValue)
                                 .font(.caption)
                                 .foregroundStyle(Color.Semantic.secondaryText)
                             TrendBarChart(
-                                entries: store.trend(for: type),
-                                unit: type.unit,
+                                entries: trend.entries,
+                                unit: trend.type.unit,
                                 tintColor: .Semantic.feeding
                             )
                         }
