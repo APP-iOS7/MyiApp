@@ -14,14 +14,24 @@ public struct CryAnalysisHomeView: View {
         NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             introContent
         } destination: { childStore in
-            CryAnalysisView(store: childStore)
+            switch childStore.case {
+            case let .analysis(store):
+                CryAnalysisView(store: store)
+            case let .recordList(store):
+                CryRecordListView(store: store)
+            }
         }
         .alert($store.scope(state: \.alert, action: \.alert))
     }
 
     private var introContent: some View {
         VStack(spacing: Spacing.m) {
-            ScreenTitle("울음 분석")
+            ScreenTitle("울음 분석") {
+                Button("기록", systemImage: "list.bullet") { store.send(.recordsButtonTapped) }
+                    .labelStyle(.iconOnly)
+                    .font(.title2)
+                    .foregroundStyle(.primary)
+            }
 
             SectionCard(spacing: Spacing.xl) {
                 Image(Asset.Analysis.processing)
