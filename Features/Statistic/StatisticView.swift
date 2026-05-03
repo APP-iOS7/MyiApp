@@ -35,6 +35,8 @@ public struct StatisticView: View {
                 SnackDetailView(store: store)
             case let .bathDetail(store):
                 BathDetailView(store: store)
+            case let .pottyDetail(store):
+                PottyDetailView(store: store)
             }
         }
     }
@@ -115,15 +117,25 @@ extension StatisticView {
                 ]
             )
 
-            StatisticCard(
-                title: "배변 기록 분석",
-                image: Image(Asset.Records.Color.potty),
-                tintColor: .Semantic.potty,
-                metrics: [
-                    countMetric(title: "소변", current: store.potty.pee, previous: store.previousPotty.pee),
-                    countMetric(title: "대변", current: store.potty.poop, previous: store.previousPotty.poop)
-                ]
-            )
+            NavigationLink(state: StatisticFeature.Path.State.pottyDetail(
+                PottyDetailFeature.State(
+                    baby: store.baby,
+                    selectedDate: store.selectedDate,
+                    mode: DetailMode(from: store.mode)
+                )
+            )) {
+                StatisticCard(
+                    title: "배변 기록 분석",
+                    image: Image(Asset.Records.Color.potty),
+                    tintColor: .Semantic.potty,
+                    metrics: [
+                        countMetric(title: "소변", current: store.potty.pee, previous: store.previousPotty.pee),
+                        countMetric(title: "대변", current: store.potty.poop, previous: store.previousPotty.poop)
+                    ],
+                    showsChevron: true
+                )
+            }
+            .buttonStyle(NoHighlightButtonStyle())
 
             StatisticCard(
                 title: "수면 기록 분석",
