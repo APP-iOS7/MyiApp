@@ -12,6 +12,21 @@ enum GrowthMode: String, CaseIterable, Equatable {
         case .weight: "kg"
         }
     }
+
+    var fractionLength: Int {
+        switch self {
+        case .height: 1
+        case .weight: 2
+        }
+    }
+
+    func format(_ value: Double) -> String {
+        value.formatted(.number.precision(.fractionLength(fractionLength)))
+    }
+
+    func formatWithUnit(_ value: Double) -> String {
+        "\(format(value)) \(unit)"
+    }
 }
 
 @Reducer
@@ -63,5 +78,14 @@ public struct GrowthChartFeature {
 
     public var body: some ReducerOf<Self> {
         BindingReducer()
+        Reduce { state, action in
+            switch action {
+            case .binding(\.mode):
+                state.selectedEntry = nil
+                return .none
+            case .binding:
+                return .none
+            }
+        }
     }
 }
