@@ -25,7 +25,9 @@ public struct MainTabFeature {
             self.babies = IdentifiedArray(uniqueElements: babies)
             selectedBabyID = firstBaby.id
             self.selectedTab = selectedTab
-            home = HomeFeature.State(baby: firstBaby)
+            var initialHome = HomeFeature.State(baby: firstBaby)
+            initialHome.babies = IdentifiedArray(uniqueElements: babies)
+            home = initialHome
             note = NoteHomeFeature.State(baby: firstBaby)
             cryAnalysis = CryAnalysisHomeFeature.State(baby: firstBaby)
             statistic = StatisticFeature.State(baby: firstBaby)
@@ -71,6 +73,14 @@ public struct MainTabFeature {
 
     public init() {}
 
+    private func propagateSelectedBaby(into state: inout State) {
+        guard let baby = state.selectedBaby else { return }
+        state.home.baby = baby
+        state.note.baby = baby
+        state.cryAnalysis.baby = baby
+        state.statistic.baby = baby
+    }
+
     public var body: some ReducerOf<Self> {
         BindingReducer()
         Scope(state: \.home, action: \.home) {
@@ -94,13 +104,13 @@ public struct MainTabFeature {
         Reduce { state, action in
             switch action {
             case .binding(\.selectedBabyID):
-                if let baby = state.selectedBaby {
-                    state.home.baby = baby
-                    state.note.baby = baby
-                    state.cryAnalysis.baby = baby
-                    state.statistic.baby = baby
-                }
+                propagateSelectedBaby(into: &state)
                 return .send(.notificationSync(.babyChanged(state.selectedBabyID)))
+
+            case let .home(.delegate(.babyChangeRequested(id))):
+                state.selectedBabyID = id
+                propagateSelectedBaby(into: &state)
+                return .send(.notificationSync(.babyChanged(id)))
 
             case .binding:
                 return .none
@@ -128,12 +138,8 @@ public struct MainTabFeature {
             case let ._internal(.babiesLoaded(babies)):
                 state.babies = IdentifiedArray(uniqueElements: babies)
                 state.settings.babies = state.babies
-                if let selected = state.selectedBaby {
-                    state.home.baby = selected
-                    state.note.baby = selected
-                    state.cryAnalysis.baby = selected
-                    state.statistic.baby = selected
-                }
+                state.home.babies = state.babies
+                propagateSelectedBaby(into: &state)
                 return .none
 
             case let ._internal(.caregiverLoaded(caregiver)):

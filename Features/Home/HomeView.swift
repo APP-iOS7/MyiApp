@@ -13,7 +13,11 @@ public struct HomeView: View {
     public var body: some View {
         ScrollView {
             VStack(spacing: Spacing.m) {
-                BabyInfoCard(baby: store.baby)
+                BabyInfoCard(
+                    baby: store.baby,
+                    babies: store.babies,
+                    onBabySelected: { store.send(.view(.babySelected($0))) }
+                )
                 recordEntrySection
                 timelineSection
             }
@@ -21,7 +25,7 @@ public struct HomeView: View {
         }
         .scrollIndicators(.hidden)
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
-        .task { await store.send(.task).finish() }
+        .task { await store.send(.view(.task)).finish() }
         .sheet(item: $store.scope(state: \.editRecord, action: \.editRecord)) { editStore in
             EditRecordView(store: editStore)
         }
@@ -31,7 +35,7 @@ public struct HomeView: View {
         SectionCard(spacing: Spacing.m) {
             DateNavigator(selectedDate: $store.selectedDate)
             CareEntryGrid { entry in
-                store.send(.careEntryTapped(entry))
+                store.send(.view(.careEntryTapped(entry)))
             }
         }
     }
@@ -59,10 +63,10 @@ public struct HomeView: View {
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
                 .contentShape(Rectangle())
-                .onTapGesture { store.send(.timelineRowTapped(record)) }
+                .onTapGesture { store.send(.view(.timelineRowTapped(record))) }
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button(role: .destructive) {
-                        store.send(.timelineRowDeleted(record.id))
+                        store.send(.view(.timelineRowDeleted(record.id)))
                     } label: {
                         Label("삭제", systemImage: "trash")
                     }

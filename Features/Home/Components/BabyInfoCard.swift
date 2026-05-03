@@ -1,9 +1,12 @@
 import DesignSystem
 import Domain
+import IdentifiedCollections
 import SwiftUI
 
 struct BabyInfoCard: View {
     let baby: Baby
+    var babies: IdentifiedArrayOf<Baby> = []
+    var onBabySelected: ((Baby.ID) -> Void)? = nil
 
     var body: some View {
         SectionCard(spacing: Spacing.m) {
@@ -11,9 +14,7 @@ struct BabyInfoCard: View {
                 profileImage
 
                 VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text(baby.name)
-                        .font(.Style.sectionTitle)
-                        .foregroundColor(.Semantic.sectionHeading)
+                    nameLabel
 
                     HStack(alignment: .firstTextBaseline) {
                         Text(baby.developmentalStage)
@@ -47,12 +48,43 @@ struct BabyInfoCard: View {
         }
     }
 
-    @ViewBuilder
-    private var profileImage: some View {
+    @ViewBuilder private var nameLabel: some View {
+        if babies.count > 1, let onBabySelected {
+            Menu {
+                ForEach(babies) { listBaby in
+                    Button {
+                        onBabySelected(listBaby.id)
+                    } label: {
+                        HStack {
+                            Text(listBaby.name)
+                            if listBaby.id == baby.id {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                    }
+                }
+            } label: {
+                HStack(spacing: Spacing.xs) {
+                    Text(baby.name)
+                        .font(.Style.sectionTitle)
+                        .foregroundColor(.Semantic.sectionHeading)
+                    Image(systemName: "chevron.down")
+                        .font(.subheadline)
+                        .foregroundColor(.Semantic.sectionHeading)
+                }
+            }
+        } else {
+            Text(baby.name)
+                .font(.Style.sectionTitle)
+                .foregroundColor(.Semantic.sectionHeading)
+        }
+    }
+
+    @ViewBuilder private var profileImage: some View {
         if let url = baby.profileImageURL {
             AsyncImage(url: url) { phase in
                 switch phase {
-                case .success(let image):
+                case let .success(image):
                     image
                         .resizable()
                         .scaledToFill()
