@@ -51,7 +51,7 @@ public struct TrendBarChart: View {
                 }
             }
 
-            if !entries.isEmpty {
+            if average > 0 {
                 RuleMark(y: .value("평균", average))
                     .foregroundStyle(Color.Semantic.secondaryText.opacity(Opacity.disabled))
                     .lineStyle(StrokeStyle(
