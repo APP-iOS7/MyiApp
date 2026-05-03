@@ -16,7 +16,7 @@ public struct SnackDetailView: View {
             VStack(spacing: Spacing.m) {
                 SectionCard(spacing: Spacing.m) {
                     Picker("모드 선택", selection: $store.mode) {
-                        ForEach(StatisticFeature.Mode.allCases, id: \.self) { mode in
+                        ForEach(DetailMode.allCases, id: \.self) { mode in
                             Text(mode.rawValue)
                         }
                     }
@@ -24,18 +24,37 @@ public struct SnackDetailView: View {
 
                     DateNavigator(
                         selectedDate: $store.selectedDate,
-                        step: .days(store.mode.stepDays),
-                        labelText: dateLabel(for:)
+                        step: dateNavigatorStep,
+                        labelText: store.mode.dateLabel(for:)
                     )
                 }
 
-                SectionCard(spacing: 0) {
-                    SummaryRow(
-                        title: "이번 \(store.mode.rawValue)",
-                        value: "\(store.count)회",
-                        detail: "지난 \(store.mode.rawValue) \(store.previousCount)회"
+                SectionCard(spacing: Spacing.m) {
+                    Text(store.comparisonMessage)
+                        .font(.subheadline)
+                        .foregroundStyle(Color.Semantic.secondaryText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    TrendBarChart(
+                        entries: store.trendEntries,
+                        unit: "회",
+                        tintColor: .Semantic.snack
                     )
                 }
+
+                StatisticCard(
+                    title: "간식 기록 분석",
+                    image: Image(Asset.Records.Color.snack),
+                    tintColor: .Semantic.snack,
+                    metrics: [
+                        StatisticMetric(
+                            currentText: "이번 \(store.mode.rawValue) \(store.count)회",
+                            previousText: "\(store.mode.previousLabel) \(store.previousCount)회",
+                            current: store.count,
+                            previous: store.previousCount
+                        )
+                    ]
+                )
             }
             .padding(Spacing.m)
         }
@@ -46,10 +65,11 @@ public struct SnackDetailView: View {
         .task { await store.send(.task).finish() }
     }
 
-    private func dateLabel(for date: Date) -> String {
+    private var dateNavigatorStep: DateNavigator.Step {
         switch store.mode {
-        case .daily: date.shortDateWithDayLabel()
-        case .weekly: date.weekRangeLabel()
+        case .daily: .days(1)
+        case .weekly: .days(7)
+        case .monthly: .month
         }
     }
 }
