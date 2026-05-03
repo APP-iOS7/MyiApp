@@ -82,6 +82,7 @@ public struct StatisticFeature {
         case binding(BindingAction<State>)
         case task
         case growthChartButtonTapped
+        case shareButtonTapped
         case _internal(InternalAction)
         case path(StackAction<Path.State, Path.Action>)
     }
@@ -117,6 +118,10 @@ public struct StatisticFeature {
 
             case .growthChartButtonTapped:
                 state.path.append(.growthChart(GrowthChartFeature.State(records: state.growthRecords, baby: state.baby)))
+                return .none
+
+            case .shareButtonTapped:
+                // TODO: PDF 미리보기 진입 — Phase 2 이후 구현
                 return .none
 
             case .path:

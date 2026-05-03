@@ -16,8 +16,11 @@ public struct StatisticView: View {
             ScrollView {
                 VStack(spacing: Spacing.m) {
                     ScreenTitle("기록 분석") {
-                        Button("성장 차트", systemImage: "chart.xyaxis.line") { store.send(.growthChartButtonTapped) }
-                            .labelStyle(.iconOnly)
+                        HStack(spacing: Spacing.m) {
+                            Button("성장 차트", systemImage: "chart.xyaxis.line") { store.send(.growthChartButtonTapped) }
+                            Button("PDF 공유", systemImage: "square.and.arrow.up") { store.send(.shareButtonTapped) }
+                        }
+                        .labelStyle(.iconOnly)
                     }
                     overviewCard
                     statisticCards
