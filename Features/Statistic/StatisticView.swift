@@ -44,7 +44,7 @@ extension StatisticView {
     private var overviewCard: some View {
         SectionCard(spacing: Spacing.m) {
             Picker("모드 선택", selection: $store.mode) {
-                ForEach(StatisticMode.allCases, id: \.self) { mode in
+                ForEach(StatisticFeature.Mode.allCases, id: \.self) { mode in
                     Text(mode.rawValue)
                 }
             }
