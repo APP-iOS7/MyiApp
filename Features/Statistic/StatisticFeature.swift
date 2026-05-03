@@ -31,54 +31,45 @@ public struct StatisticFeature {
             Calendar.current.date(byAdding: .day, value: -mode.stepDays, to: selectedDate) ?? selectedDate
         }
 
+        private var dailyRecords: [CareRecord] { records.filtered(on: selectedDate) }
+        private var previousDailyRecords: [CareRecord] { records.filtered(on: previousDate) }
+
         // 수유
-        var feedingCount: Int {
-            records.filter { $0.event.category == .feeding && Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }.count
-        }
-        var previousFeedingCount: Int {
-            records.filter { $0.event.category == .feeding && Calendar.current.isDate($0.createdAt, inSameDayAs: previousDate) }.count
-        }
+        var feedingCount: Int { dailyRecords.filter { $0.event.category == .feeding }.count }
+        var previousFeedingCount: Int { previousDailyRecords.filter { $0.event.category == .feeding }.count }
         var totalMl: Int {
-            records
-                .filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
-                .reduce(0) { total, record in
-                    switch record.event {
-                    case let .formula(ml), let .babyFood(ml), let .pumpedMilk(ml): return total + ml
-                    default: return total
-                    }
+            dailyRecords.reduce(0) { total, record in
+                switch record.event {
+                case let .formula(ml), let .babyFood(ml), let .pumpedMilk(ml): return total + ml
+                default: return total
                 }
+            }
         }
         var previousTotalMl: Int {
-            records
-                .filter { Calendar.current.isDate($0.createdAt, inSameDayAs: previousDate) }
-                .reduce(0) { total, record in
-                    switch record.event {
-                    case let .formula(ml), let .babyFood(ml), let .pumpedMilk(ml): return total + ml
-                    default: return total
-                    }
+            previousDailyRecords.reduce(0) { total, record in
+                switch record.event {
+                case let .formula(ml), let .babyFood(ml), let .pumpedMilk(ml): return total + ml
+                default: return total
                 }
+            }
         }
         var breastfeedingMinutes: Int {
-            records
-                .filter { Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }
-                .reduce(0) { total, record in
-                    if case let .breastfeeding(left, right) = record.event { return total + left + right }
-                    return total
-                }
+            dailyRecords.reduce(0) { total, record in
+                if case let .breastfeeding(left, right) = record.event { return total + left + right }
+                return total
+            }
         }
         var previousBreastfeedingMinutes: Int {
-            records
-                .filter { Calendar.current.isDate($0.createdAt, inSameDayAs: previousDate) }
-                .reduce(0) { total, record in
-                    if case let .breastfeeding(left, right) = record.event { return total + left + right }
-                    return total
-                }
+            previousDailyRecords.reduce(0) { total, record in
+                if case let .breastfeeding(left, right) = record.event { return total + left + right }
+                return total
+            }
         }
 
         // 배변
         var potty: (pee: Int, poop: Int) {
             var pee = 0, poop = 0
-            for record in records where Calendar.current.isDate(record.createdAt, inSameDayAs: selectedDate) {
+            for record in dailyRecords {
                 switch record.event {
                 case .pee: pee += 1
                 case .poop: poop += 1
@@ -90,7 +81,7 @@ public struct StatisticFeature {
         }
         var previousPotty: (pee: Int, poop: Int) {
             var pee = 0, poop = 0
-            for record in records where Calendar.current.isDate(record.createdAt, inSameDayAs: previousDate) {
+            for record in previousDailyRecords {
                 switch record.event {
                 case .pee: pee += 1
                 case .poop: poop += 1
@@ -102,17 +93,13 @@ public struct StatisticFeature {
         }
 
         // 수면
-        var sleepCount: Int {
-            records.filter { $0.event.category == .sleep && Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }.count
-        }
-        var previousSleepCount: Int {
-            records.filter { $0.event.category == .sleep && Calendar.current.isDate($0.createdAt, inSameDayAs: previousDate) }.count
-        }
+        var sleepCount: Int { dailyRecords.filter { $0.event.category == .sleep }.count }
+        var previousSleepCount: Int { previousDailyRecords.filter { $0.event.category == .sleep }.count }
         var sleepMinutes: Int {
             let calendar = Calendar.current
             let startOfDay = calendar.startOfDay(for: selectedDate)
             let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
-            return records.reduce(0) { total, record in
+            return dailyRecords.reduce(0) { total, record in
                 guard case let .sleep(start, end) = record.event, let end else { return total }
                 let clipped = max(start, startOfDay)
                 let clippedEnd = min(end, endOfDay)
@@ -124,7 +111,7 @@ public struct StatisticFeature {
             let calendar = Calendar.current
             let startOfDay = calendar.startOfDay(for: previousDate)
             let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
-            return records.reduce(0) { total, record in
+            return previousDailyRecords.reduce(0) { total, record in
                 guard case let .sleep(start, end) = record.event, let end else { return total }
                 let clipped = max(start, startOfDay)
                 let clippedEnd = min(end, endOfDay)
@@ -134,20 +121,12 @@ public struct StatisticFeature {
         }
 
         // 목욕
-        var bathCount: Int {
-            records.filter { $0.event.category == .bath && Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }.count
-        }
-        var previousBathCount: Int {
-            records.filter { $0.event.category == .bath && Calendar.current.isDate($0.createdAt, inSameDayAs: previousDate) }.count
-        }
+        var bathCount: Int { dailyRecords.filter { $0.event.category == .bath }.count }
+        var previousBathCount: Int { previousDailyRecords.filter { $0.event.category == .bath }.count }
 
         // 간식
-        var snackCount: Int {
-            records.filter { $0.event.category == .snack && Calendar.current.isDate($0.createdAt, inSameDayAs: selectedDate) }.count
-        }
-        var previousSnackCount: Int {
-            records.filter { $0.event.category == .snack && Calendar.current.isDate($0.createdAt, inSameDayAs: previousDate) }.count
-        }
+        var snackCount: Int { dailyRecords.filter { $0.event.category == .snack }.count }
+        var previousSnackCount: Int { previousDailyRecords.filter { $0.event.category == .snack }.count }
 
         // 성장
         public var growthRecords: [CareRecord] = []

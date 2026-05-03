@@ -19,6 +19,16 @@ public struct CareRecord: Identifiable, Hashable, Sendable, Codable {
     }
 }
 
+extension Array where Element == CareRecord {
+    public func filtered(on date: Date, calendar: Calendar = .current) -> [CareRecord] {
+        filter { calendar.isDate($0.createdAt, inSameDayAs: date) }
+    }
+
+    public func filtered(in range: Range<Date>) -> [CareRecord] {
+        filter { range.contains($0.createdAt) }
+    }
+}
+
 #if DEBUG
 extension CareRecord {
     public static let mocks: [CareRecord] = {
