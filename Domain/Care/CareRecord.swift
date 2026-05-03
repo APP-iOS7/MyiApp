@@ -48,6 +48,19 @@ extension Array where Element == CareRecord {
         }
     }
 
+    public func totalSleepMinutes(on date: Date, calendar: Calendar = .current) -> Int {
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
+        return reduce(0) { total, record in
+            guard case let .sleep(start, .some(end)) = record.event else { return total }
+            guard start < endOfDay, end > startOfDay else { return total }
+            let clipped = max(start, startOfDay)
+            let clippedEnd = min(end, endOfDay)
+            let interval = clippedEnd.timeIntervalSince(clipped)
+            return interval > 0 ? total + Int(interval / 60) : total
+        }
+    }
+
     public var pottyCount: (pee: Int, poop: Int) {
         var pee = 0, poop = 0
         for record in self {
