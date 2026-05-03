@@ -155,7 +155,8 @@ extension StatisticView {
                     tintColor: .Semantic.snack,
                     metrics: [
                         countMetric(title: "횟수", current: store.snackCount, previous: store.previousSnackCount)
-                    ]
+                    ],
+                    showsChevron: true
                 )
             }
             .buttonStyle(NoHighlightButtonStyle())
