@@ -188,6 +188,7 @@ extension StatisticFeature {
         case growthChart(GrowthChartFeature)
         case snackDetail(SnackDetailFeature)
         case bathDetail(BathDetailFeature)
+        case pottyDetail(PottyDetailFeature)
     }
 }
 
