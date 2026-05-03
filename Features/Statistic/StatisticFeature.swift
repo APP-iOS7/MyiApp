@@ -35,8 +35,8 @@ public struct StatisticFeature {
         private var previousDailyRecords: [CareRecord] { records.filtered(on: previousDate) }
 
         // 수유
-        var feedingCount: Int { dailyRecords.filter { $0.event.category == .feeding }.count }
-        var previousFeedingCount: Int { previousDailyRecords.filter { $0.event.category == .feeding }.count }
+        var feedingCount: Int { dailyRecords.count(of: .feeding) }
+        var previousFeedingCount: Int { previousDailyRecords.count(of: .feeding) }
         var totalMl: Int {
             dailyRecords.reduce(0) { total, record in
                 switch record.event {
@@ -93,8 +93,8 @@ public struct StatisticFeature {
         }
 
         // 수면
-        var sleepCount: Int { dailyRecords.filter { $0.event.category == .sleep }.count }
-        var previousSleepCount: Int { previousDailyRecords.filter { $0.event.category == .sleep }.count }
+        var sleepCount: Int { dailyRecords.count(of: .sleep) }
+        var previousSleepCount: Int { previousDailyRecords.count(of: .sleep) }
         var sleepMinutes: Int {
             let calendar = Calendar.current
             let startOfDay = calendar.startOfDay(for: selectedDate)
@@ -121,12 +121,12 @@ public struct StatisticFeature {
         }
 
         // 목욕
-        var bathCount: Int { dailyRecords.filter { $0.event.category == .bath }.count }
-        var previousBathCount: Int { previousDailyRecords.filter { $0.event.category == .bath }.count }
+        var bathCount: Int { dailyRecords.count(of: .bath) }
+        var previousBathCount: Int { previousDailyRecords.count(of: .bath) }
 
         // 간식
-        var snackCount: Int { dailyRecords.filter { $0.event.category == .snack }.count }
-        var previousSnackCount: Int { previousDailyRecords.filter { $0.event.category == .snack }.count }
+        var snackCount: Int { dailyRecords.count(of: .snack) }
+        var previousSnackCount: Int { previousDailyRecords.count(of: .snack) }
 
         // 성장
         public var growthRecords: [CareRecord] = []
