@@ -73,7 +73,7 @@ public struct StatisticFeature {
     }
 
     public enum Action: BindableAction {
-        enum InternalAction {
+        public enum InternalAction {
             case recordsLoaded([CareRecord])
             case recordsLoadFailed(CareRecordError)
             case growthRecordsLoaded([CareRecord])
@@ -170,8 +170,8 @@ extension CareEvent.Category {
     static let statisticFilterCases: [CareEvent.Category] = [.feeding, .potty, .sleep, .bath, .snack]
 }
 
-extension StatisticFeature {
-    public enum Mode: String, CaseIterable, Hashable, Sendable {
+public extension StatisticFeature {
+    enum Mode: String, CaseIterable, Hashable, Sendable {
         case daily = "일"
         case weekly = "주"
 
