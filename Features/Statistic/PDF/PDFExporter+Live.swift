@@ -1,7 +1,7 @@
 import ComposableArchitecture
 import SwiftUI
 
-extension PDFExporter: @retroactive DependencyKey {
+extension PDFExporter: DependencyKey {
     public static let liveValue = Self(
         renderPDF: { baby, records, date, fileName in
             let trimmed = fileName.trimmingCharacters(in: .whitespaces)
@@ -9,6 +9,7 @@ extension PDFExporter: @retroactive DependencyKey {
 
             return await MainActor.run {
                 let renderer = ImageRenderer(content: StatisticPDFContent(baby: baby, records: records, date: date))
+                renderer.proposedSize = ProposedViewSize(width: UIScreen.main.bounds.width, height: nil)
                 renderer.scale = UIScreen.main.scale
 
                 let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(trimmed).pdf")

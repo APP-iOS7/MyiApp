@@ -5,7 +5,7 @@ import Foundation
 @Reducer
 public struct PDFPreviewFeature {
     @ObservableState
-    public struct State: Equatable {
+    public struct State: Equatable, Sendable {
         public var baby: Baby
         public var records: [CareRecord]
         public var date: Date
@@ -68,7 +68,7 @@ public struct PDFPreviewFeature {
     }
 }
 
-public struct ShareableURL: Identifiable, Equatable {
+public struct ShareableURL: Identifiable, Equatable, Sendable {
     public let url: URL
     public var id: URL { url }
 
