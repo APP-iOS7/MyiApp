@@ -23,6 +23,7 @@ public struct PDFPreviewView: View {
                         date: store.date
                     )
                 }
+                .scrollIndicators(.hidden)
 
                 VStack(spacing: Spacing.m) {
                     UnderlinedTextField(placeholder: "파일 이름", text: $store.fileName)
