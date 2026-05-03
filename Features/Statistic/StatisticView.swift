@@ -33,6 +33,8 @@ public struct StatisticView: View {
                 GrowthChartView(store: store)
             case let .snackDetail(store):
                 SnackDetailView(store: store)
+            case let .bathDetail(store):
+                BathDetailView(store: store)
             }
         }
     }
@@ -133,14 +135,24 @@ extension StatisticView {
                 ]
             )
 
-            StatisticCard(
-                title: "목욕 기록 분석",
-                image: Image(Asset.Records.Color.bath),
-                tintColor: .Semantic.bath,
-                metrics: [
-                    countMetric(title: "횟수", current: store.bathCount, previous: store.previousBathCount)
-                ]
-            )
+            NavigationLink(state: StatisticFeature.Path.State.bathDetail(
+                BathDetailFeature.State(
+                    baby: store.baby,
+                    selectedDate: store.selectedDate,
+                    mode: DetailMode(from: store.mode)
+                )
+            )) {
+                StatisticCard(
+                    title: "목욕 기록 분석",
+                    image: Image(Asset.Records.Color.bath),
+                    tintColor: .Semantic.bath,
+                    metrics: [
+                        countMetric(title: "횟수", current: store.bathCount, previous: store.previousBathCount)
+                    ],
+                    showsChevron: true
+                )
+            }
+            .buttonStyle(NoHighlightButtonStyle())
 
             NavigationLink(state: StatisticFeature.Path.State.snackDetail(
                 SnackDetailFeature.State(
