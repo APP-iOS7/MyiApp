@@ -187,6 +187,7 @@ extension StatisticFeature {
     public enum Path {
         case growthChart(GrowthChartFeature)
         case snackDetail(SnackDetailFeature)
+        case bathDetail(BathDetailFeature)
     }
 }
 
