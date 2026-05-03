@@ -57,7 +57,7 @@ public actor ImageCache {
         return data
     }
 
-    private func store(_ data: Data, for url: URL) {
+    public func store(_ data: Data, for url: URL) {
         memoryCache.setObject(data as NSData, forKey: url as NSURL, cost: data.count)
         writeToDisk(data, for: url)
     }
