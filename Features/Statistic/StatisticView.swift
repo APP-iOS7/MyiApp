@@ -30,6 +30,9 @@ public struct StatisticView: View {
             .scrollIndicators(.hidden)
             .background(Color.Semantic.screenBackground.ignoresSafeArea())
             .task { await store.send(.task).finish() }
+            .sheet(isPresented: $store.isShowingPDFPreview) {
+                pdfPreviewSheet
+            }
         } destination: { store in
             switch store.case {
             case let .growthChart(store):
@@ -241,6 +244,61 @@ extension StatisticView {
             current: current,
             previous: previous
         )
+    }
+}
+
+// MARK: - PDF Preview
+
+extension StatisticView {
+    @ViewBuilder
+    var pdfPreviewSheet: some View {
+        PDFPreviewSheet(
+            baby: store.baby,
+            records: store.records,
+            date: store.selectedDate,
+            onDismiss: { store.isShowingPDFPreview = false }
+        )
+    }
+}
+
+private struct PDFPreviewSheet: View {
+    let baby: Baby
+    let records: [CareRecord]
+    let date: Date
+    let onDismiss: () -> Void
+
+    @State private var image: UIImage?
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                if let image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .padding(Spacing.m)
+                } else {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, minHeight: 400)
+                }
+            }
+            .background(Color.Semantic.screenBackground.ignoresSafeArea())
+            .navigationTitle("PDF 미리보기")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("취소", action: onDismiss)
+                }
+            }
+            .task { renderImage() }
+        }
+    }
+
+    @MainActor
+    private func renderImage() {
+        let renderer = ImageRenderer(content: StatisticPDFContent(baby: baby, records: records, date: date))
+        renderer.scale = UIScreen.main.scale
+        image = renderer.uiImage
     }
 }
 
