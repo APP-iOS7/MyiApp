@@ -39,6 +39,28 @@ extension CaregiverClient: @retroactive DependencyKey {
                 }
             }
         },
+        streamCaregivers: { @Sendable ids -> AsyncStream<[Caregiver]> in
+            AsyncStream { continuation in
+                guard !ids.isEmpty else {
+                    continuation.yield([])
+                    continuation.finish()
+                    return
+                }
+                let listener = Firestore.firestore()
+                    .collection("users")
+                    .whereField(FieldPath.documentID(), in: ids)
+                    .addSnapshotListener { snapshot, _ in
+                        guard let snapshot else { return }
+                        let caregivers = snapshot.documents.compactMap { document in
+                            try? caregiver(from: document)
+                        }
+                        continuation.yield(caregivers)
+                    }
+                continuation.onTermination = { _ in
+                    listener.remove()
+                }
+            }
+        },
         provisionCaregiver: { @Sendable () async throws(CaregiverError) -> Void in
             guard let user = Auth.auth().currentUser else {
                 throw CaregiverError.unauthorized
