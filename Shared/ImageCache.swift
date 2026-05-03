@@ -4,13 +4,7 @@ import Foundation
 public actor ImageCache {
     public static let shared = ImageCache()
 
-    private let memoryCache: NSCache<NSURL, NSData> = {
-        let cache = NSCache<NSURL, NSData>()
-        cache.totalCostLimit = 100 * 1024 * 1024
-        return cache
-    }()
-
-    private let diskDirectory: URL
+    nonisolated private let diskDirectory: URL
     private let diskSizeLimit: Int = 500 * 1024 * 1024
     private let diskSizeTarget: Int = 350 * 1024 * 1024
 
@@ -23,12 +17,12 @@ public actor ImageCache {
     }
 
     public func data(for url: URL) async throws -> Data {
-        if let cached = memoryCache.object(forKey: url as NSURL) {
-            return cached as Data
+        if let cached = ImageMemoryCache.shared.data(for: url) {
+            return cached
         }
 
         if let diskData = readFromDisk(for: url) {
-            memoryCache.setObject(diskData as NSData, forKey: url as NSURL, cost: diskData.count)
+            ImageMemoryCache.shared.store(diskData, for: url)
             return diskData
         }
 
@@ -58,7 +52,7 @@ public actor ImageCache {
     }
 
     public func store(_ data: Data, for url: URL) {
-        memoryCache.setObject(data as NSData, forKey: url as NSURL, cost: data.count)
+        ImageMemoryCache.shared.store(data, for: url)
         writeToDisk(data, for: url)
     }
 
@@ -104,13 +98,21 @@ public actor ImageCache {
         }
     }
 
-    private func diskFileURL(for url: URL) -> URL {
+    nonisolated private func diskFileURL(for url: URL) -> URL {
         diskDirectory.appending(path: cacheKey(for: url))
     }
 
-    private func cacheKey(for url: URL) -> String {
+    nonisolated private func cacheKey(for url: URL) -> String {
         let digest = SHA256.hash(data: Data(url.absoluteString.utf8))
         return digest.map { String(format: "%02x", $0) }.joined()
+    }
+
+    @MainActor
+    public func cachedDataSync(for url: URL) -> Data? {
+        if let cached = ImageMemoryCache.shared.data(for: url) {
+            return cached
+        }
+        return try? Data(contentsOf: diskFileURL(for: url))
     }
 }
 
