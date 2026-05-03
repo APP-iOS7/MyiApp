@@ -72,12 +72,16 @@ public struct StatisticFeature {
     }
 
     public enum Action: BindableAction {
+        enum InternalAction {
+            case recordsLoaded([CareRecord])
+            case recordsLoadFailed(CareRecordError)
+            case growthRecordsLoaded([CareRecord])
+        }
+
         case binding(BindingAction<State>)
         case task
-        case recordsLoaded([CareRecord])
-        case recordsLoadFailed(CareRecordError)
-        case growthRecordsLoaded([CareRecord])
         case growthChartButtonTapped
+        case _internal(InternalAction)
         case growthChart(PresentationAction<GrowthChartFeature.Action>)
     }
 
@@ -98,15 +102,15 @@ public struct StatisticFeature {
             case .binding(\.mode), .binding(\.selectedDate):
                 return loadRecords(for: state)
 
-            case let .recordsLoaded(records):
+            case let ._internal(.recordsLoaded(records)):
                 state.records = records
                 return .none
 
-            case .recordsLoadFailed:
+            case ._internal(.recordsLoadFailed):
                 state.records = []
                 return .none
 
-            case let .growthRecordsLoaded(records):
+            case let ._internal(.growthRecordsLoaded(records)):
                 state.growthRecords = records.filter { $0.event.category == .growth }
                 return .none
 
@@ -135,7 +139,7 @@ public struct StatisticFeature {
         return .run { [careRecordClient] send in
             do throws(CareRecordError) {
                 let records = try await careRecordClient.loadRecords(babyID, start ..< end)
-                await send(.growthRecordsLoaded(records))
+                await send(._internal(.growthRecordsLoaded(records)))
             } catch {
                 // 성장 기록은 non-critical — 조용히 무시
             }
@@ -153,9 +157,9 @@ public struct StatisticFeature {
         return .run { [careRecordClient] send in
             do throws(CareRecordError) {
                 let records = try await careRecordClient.loadRecords(babyID, start ..< end)
-                await send(.recordsLoaded(records))
+                await send(._internal(.recordsLoaded(records)))
             } catch {
-                await send(.recordsLoadFailed(error))
+                await send(._internal(.recordsLoadFailed(error)))
             }
         }
     }
