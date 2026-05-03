@@ -37,6 +37,7 @@ public struct CryRecordListView: View {
             CryRecordRow(record: record)
                 .listRowBackground(Color.Semantic.screenBackground)
                 .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: Spacing.xs, leading: Spacing.m, bottom: Spacing.xs, trailing: Spacing.m))
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button("삭제", systemImage: "trash", role: .destructive) {
                         store.send(.deleteTapped(record.id))
