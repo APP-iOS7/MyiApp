@@ -143,7 +143,11 @@ extension StatisticView {
             )
 
             NavigationLink(state: StatisticFeature.Path.State.snackDetail(
-                SnackDetailFeature.State(baby: store.baby, selectedDate: store.selectedDate, mode: store.mode)
+                SnackDetailFeature.State(
+                    baby: store.baby,
+                    selectedDate: store.selectedDate,
+                    mode: DetailMode(from: store.mode)
+                )
             )) {
                 StatisticCard(
                     title: "간식 기록 분석",

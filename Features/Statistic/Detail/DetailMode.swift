@@ -81,4 +81,11 @@ public enum DetailMode: String, CaseIterable, Hashable, Sendable {
             "\(calendar.component(.month, from: periodStart))월"
         }
     }
+
+    public init(from parentMode: StatisticFeature.Mode) {
+        switch parentMode {
+        case .daily: self = .daily
+        case .weekly: self = .weekly
+        }
+    }
 }
