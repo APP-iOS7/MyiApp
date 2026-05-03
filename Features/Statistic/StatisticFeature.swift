@@ -65,7 +65,7 @@ public struct StatisticFeature {
         /// 성장
         public var growthRecords: [CareRecord] = []
 
-        public var isShowingPDFPreview: Bool = false
+        @Presents public var pdfPreview: PDFPreviewFeature.State?
 
         var babySummaryText: String {
             let genderText = baby.gender == .female ? "여" : "남"
@@ -87,6 +87,7 @@ public struct StatisticFeature {
         case shareButtonTapped
         case _internal(InternalAction)
         case path(StackAction<Path.State, Path.Action>)
+        case pdfPreview(PresentationAction<PDFPreviewFeature.Action>)
     }
 
     @Dependency(\.careRecordClient) var careRecordClient
@@ -123,7 +124,14 @@ public struct StatisticFeature {
                 return .none
 
             case .shareButtonTapped:
-                state.isShowingPDFPreview = true
+                state.pdfPreview = PDFPreviewFeature.State(
+                    baby: state.baby,
+                    records: state.records,
+                    date: state.selectedDate
+                )
+                return .none
+
+            case .pdfPreview:
                 return .none
 
             case .path:
@@ -134,6 +142,9 @@ public struct StatisticFeature {
             }
         }
         .forEach(\.path, action: \.path)
+        .ifLet(\.$pdfPreview, action: \.pdfPreview) {
+            PDFPreviewFeature()
+        }
     }
 
     private func loadGrowthRecords(for state: State) -> Effect<Action> {

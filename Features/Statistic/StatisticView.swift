@@ -30,8 +30,8 @@ public struct StatisticView: View {
             .scrollIndicators(.hidden)
             .background(Color.Semantic.screenBackground.ignoresSafeArea())
             .task { await store.send(.task).finish() }
-            .sheet(isPresented: $store.isShowingPDFPreview) {
-                pdfPreviewSheet
+            .sheet(item: $store.scope(state: \.pdfPreview, action: \.pdfPreview)) { previewStore in
+                PDFPreviewView(store: previewStore)
             }
         } destination: { store in
             switch store.case {
@@ -245,135 +245,6 @@ extension StatisticView {
             previous: previous
         )
     }
-}
-
-// MARK: - PDF Preview
-
-extension StatisticView {
-    @ViewBuilder
-    var pdfPreviewSheet: some View {
-        PDFPreviewSheet(
-            baby: store.baby,
-            records: store.records,
-            date: store.selectedDate,
-            onDismiss: { store.isShowingPDFPreview = false }
-        )
-    }
-}
-
-private struct PDFPreviewSheet: View {
-    let baby: Baby
-    let records: [CareRecord]
-    let date: Date
-    let onDismiss: () -> Void
-
-    @State private var image: UIImage?
-    @State private var fileName: String = ""
-    @State private var sharing: ShareableURL?
-    @FocusState private var isFileNameFocused: Bool
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                ScrollView {
-                    if let image {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .padding(Spacing.m)
-                    } else {
-                        ProgressView()
-                            .frame(maxWidth: .infinity, minHeight: 400)
-                    }
-                }
-
-                VStack(spacing: Spacing.m) {
-                    UnderlinedTextField(placeholder: "파일 이름", text: $fileName)
-                        .focused($isFileNameFocused)
-
-                    Button("PDF로 저장 및 공유", action: shareTapped)
-                        .buttonStyle(.primary)
-                        .disabled(image == nil || fileName.trimmingCharacters(in: .whitespaces).isEmpty)
-                }
-                .padding(Spacing.m)
-                .background(Color.Semantic.screenBackground)
-            }
-            .background(Color.Semantic.screenBackground.ignoresSafeArea())
-            .navigationTitle("PDF 미리보기")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("취소", action: onDismiss)
-                }
-                ToolbarItemGroup(placement: .keyboard) {
-                    Spacer()
-                    Button("완료") { isFileNameFocused = false }
-                }
-            }
-            .task {
-                fileName = defaultFileName()
-                renderImage()
-            }
-            .sheet(item: $sharing) { wrapped in
-                ActivityView(url: wrapped.url)
-            }
-        }
-    }
-
-    private func shareTapped() {
-        guard let url = generatePDF() else { return }
-        sharing = ShareableURL(url: url)
-    }
-
-    @MainActor
-    private func renderImage() {
-        let renderer = ImageRenderer(content: StatisticPDFContent(baby: baby, records: records, date: date))
-        renderer.scale = UIScreen.main.scale
-        image = renderer.uiImage
-    }
-
-    @MainActor
-    private func generatePDF() -> URL? {
-        let trimmed = fileName.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return nil }
-
-        let renderer = ImageRenderer(content: StatisticPDFContent(baby: baby, records: records, date: date))
-        renderer.scale = UIScreen.main.scale
-
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent("\(trimmed).pdf")
-        var success = false
-        renderer.render { size, draw in
-            var mediaBox = CGRect(origin: .zero, size: size)
-            guard let pdf = CGContext(url as CFURL, mediaBox: &mediaBox, nil) else { return }
-            pdf.beginPDFPage(nil)
-            draw(pdf)
-            pdf.endPDFPage()
-            pdf.closePDF()
-            success = true
-        }
-        return success ? url : nil
-    }
-
-    private func defaultFileName() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyyMMdd"
-        return "\(formatter.string(from: date))_기록 분석"
-    }
-}
-
-private struct ShareableURL: Identifiable {
-    let url: URL
-    var id: URL { url }
-}
-
-private struct ActivityView: UIViewControllerRepresentable {
-    let url: URL
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: [url], applicationActivities: nil)
-    }
-
-    func updateUIViewController(_: UIActivityViewController, context _: Context) {}
 }
 
 private func previewBaby() -> Baby {
