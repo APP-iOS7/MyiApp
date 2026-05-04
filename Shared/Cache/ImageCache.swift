@@ -19,10 +19,11 @@ public actor ImageCache {
 
     @MainActor
     public func cachedDataSync(for url: URL) -> Data? {
-        if let cached = ImageMemoryCache.shared.data(for: url) {
-            return cached
-        }
-        return try? Data(contentsOf: diskFileURL(for: url))
+        if let cached = ImageMemoryCache.shared.data(for: url) { return cached }
+        guard let data = try? Data(contentsOf: diskFileURL(for: url), options: .mappedIfSafe) else { return nil }
+
+        ImageMemoryCache.shared.store(data, for: url)
+        return data
     }
 
     public func data(for url: URL) async throws -> Data {
