@@ -97,12 +97,6 @@ extension ImageCache {
         evictOldest(from: entries, until: totalSize - diskSizeTarget)
     }
 
-    private struct DiskEntry {
-        let url: URL
-        let size: Int
-        let accessed: Date
-    }
-
     private func collectDiskEntries() -> [DiskEntry] {
         let resourceKeys: Set<URLResourceKey> = [.fileSizeKey, .contentAccessDateKey]
         guard let enumerator = FileManager.default.enumerator(
