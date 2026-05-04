@@ -23,7 +23,7 @@ extension StorageClient: @retroactive DependencyKey {
             do {
                 _ = try await reference.putDataAsync(data, metadata: metadata)
                 let url = try await reference.downloadURL()
-                await ImageCache.shared.store(data, for: url)
+                await URLDataCache.shared.store(data, for: url)
                 AppLogger.info("uploadDiaryPhoto done photoID=\(photoID)")
                 return url
             } catch {
@@ -48,7 +48,7 @@ extension StorageClient: @retroactive DependencyKey {
                 _ = try await reference.putFileAsync(from: fileURL, metadata: metadata)
                 let url = try await reference.downloadURL()
                 if let data = try? Data(contentsOf: fileURL) {
-                    await ImageCache.shared.store(data, for: url)
+                    await URLDataCache.shared.store(data, for: url)
                 }
                 AppLogger.info("uploadDiaryPhotoFile done photoID=\(photoID)")
                 return url
@@ -73,7 +73,7 @@ extension StorageClient: @retroactive DependencyKey {
             do {
                 _ = try await reference.putDataAsync(data, metadata: metadata)
                 let url = try await reference.downloadURL()
-                await ImageCache.shared.store(data, for: url)
+                await URLDataCache.shared.store(data, for: url)
                 AppLogger.info("uploadBabyProfilePhoto done photoID=\(photoID)")
                 return url
             } catch {

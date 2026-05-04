@@ -1,11 +1,11 @@
 import CryptoKit
 import Foundation
 
-public actor ImageCache {
-    public static let shared = ImageCache()
+public actor URLDataCache {
+    public static let shared = URLDataCache()
 
     nonisolated let diskDirectory: URL = {
-        let url = URL.cachesDirectory.appending(path: "ImageCache")
+        let url = URL.cachesDirectory.appending(path: "URLDataCache")
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }()
@@ -19,20 +19,20 @@ public actor ImageCache {
 
     @MainActor
     public func cachedDataSync(for url: URL) -> Data? {
-        if let cached = ImageMemoryCache.shared.data(for: url) { return cached }
+        if let cached = URLDataMemoryCache.shared.data(for: url) { return cached }
         guard let data = try? Data(contentsOf: diskFileURL(for: url), options: .mappedIfSafe) else { return nil }
 
-        ImageMemoryCache.shared.store(data, for: url)
+        URLDataMemoryCache.shared.store(data, for: url)
         return data
     }
 
     public func data(for url: URL) async throws -> Data {
-        if let cached = ImageMemoryCache.shared.data(for: url) {
+        if let cached = URLDataMemoryCache.shared.data(for: url) {
             return cached
         }
 
         if let diskData = readFromDisk(for: url) {
-            ImageMemoryCache.shared.store(diskData, for: url)
+            URLDataMemoryCache.shared.store(diskData, for: url)
             return diskData
         }
 
@@ -51,21 +51,21 @@ public actor ImageCache {
         guard let httpResponse = response as? HTTPURLResponse,
               (200 ... 299) ~= httpResponse.statusCode,
               !data.isEmpty
-        else { throw ImageCacheError.invalidResponse }
+        else { throw URLDataCacheError.invalidResponse }
 
         store(data, for: url)
         return data
     }
 
     public func store(_ data: Data, for url: URL) {
-        ImageMemoryCache.shared.store(data, for: url)
+        URLDataMemoryCache.shared.store(data, for: url)
         writeToDisk(data, for: url)
     }
 }
 
 // MARK: - Disk IO
 
-extension ImageCache {
+extension URLDataCache {
     func readFromDisk(for url: URL) -> Data? {
         try? Data(contentsOf: diskFileURL(for: url))
     }
@@ -86,7 +86,7 @@ extension ImageCache {
 
 // MARK: - Disk Trim
 
-extension ImageCache {
+extension URLDataCache {
     public func trimDisk() {
         let entries = collectDiskEntries()
         let totalSize = entries.reduce(0) { $0 + $1.size }

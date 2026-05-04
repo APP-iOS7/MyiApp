@@ -1,7 +1,7 @@
 import Foundation
 
-public final class ImageMemoryCache: @unchecked Sendable {
-    public static let shared = ImageMemoryCache()
+public final class URLDataMemoryCache: @unchecked Sendable {
+    public static let shared = URLDataMemoryCache()
 
     private let cache: NSCache<NSURL, NSData> = {
         let cache = NSCache<NSURL, NSData>()

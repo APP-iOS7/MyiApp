@@ -20,7 +20,7 @@ public struct CachedAsyncImage<Content: View>: View {
 
     private func cachedImage(for url: URL?) -> Image? {
         guard let url,
-              let data = ImageCache.shared.cachedDataSync(for: url),
+              let data = URLDataCache.shared.cachedDataSync(for: url),
               let uiImage = UIImage(data: data)
         else { return nil }
 
@@ -41,7 +41,7 @@ public struct CachedAsyncImage<Content: View>: View {
         }
 
         do {
-            let data = try await ImageCache.shared.data(for: url)
+            let data = try await URLDataCache.shared.data(for: url)
             guard let uiImage = UIImage(data: data) else {
                 phase = .failure(ImageDecodingError.invalidData)
                 return

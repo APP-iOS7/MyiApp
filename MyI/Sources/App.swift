@@ -33,7 +33,7 @@ struct MyIApp: App {
         }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .background {
-                Task { await ImageCache.shared.trimDisk() }
+                Task { await URLDataCache.shared.trimDisk() }
             }
         }
     }

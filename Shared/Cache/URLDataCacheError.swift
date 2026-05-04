@@ -1,5 +1,5 @@
 import Foundation
 
-public enum ImageCacheError: Error {
+public enum URLDataCacheError: Error {
     case invalidResponse
 }
