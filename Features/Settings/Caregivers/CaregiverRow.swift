@@ -39,6 +39,7 @@ struct CaregiverRow: View {
         guard let name = caregiver.displayName, !name.isEmpty else {
             return "이름 없음"
         }
+
         return name
     }
 

@@ -68,6 +68,7 @@ public struct CaregiverListFeature {
                       id != state.baby.mainCaregiverID,
                       id != state.currentUserID
                 else { return .none }
+
                 let displayName = state.caregivers[id: id]?.displayName ?? "양육자"
                 state.alert = AlertState {
                     TextState("연결 해제")

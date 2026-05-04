@@ -14,8 +14,8 @@ extension CryAnalysisClient: @retroactive DependencyKey {
     )
 }
 
-public extension DependencyValues {
-    var cryAnalysisClient: CryAnalysisClient {
+extension DependencyValues {
+    public var cryAnalysisClient: CryAnalysisClient {
         get { self[CryAnalysisClient.self] }
         set { self[CryAnalysisClient.self] = newValue }
     }
@@ -65,6 +65,7 @@ private final class ResultsObserver: NSObject, SNResultsObserving, @unchecked Se
 
     func request(_: SNRequest, didProduce result: SNResult) {
         guard let classifyResult = result as? SNClassificationResult else { return }
+
         let scores = classifyResult.classifications.map { classification in
             let emotion = EmotionType(rawValue: classification.identifier) ?? .unknown
             return EmotionScore(emotion: emotion, confidence: classification.confidence)

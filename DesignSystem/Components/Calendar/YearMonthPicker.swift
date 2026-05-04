@@ -4,7 +4,7 @@ public struct YearMonthPicker: View {
     @Binding var month: Date
 
     public init(month: Binding<Date>) {
-        self._month = month
+        _month = month
     }
 
     private var yearRange: ClosedRange<Int> {

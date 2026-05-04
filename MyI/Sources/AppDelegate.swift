@@ -6,7 +6,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
-    ) -> Bool {
+    )
+        -> Bool
+    {
         AppBootstrap.configure()
         DesignSystemFontFamily.registerAllCustomFonts()
         application.registerForRemoteNotifications()
@@ -17,7 +19,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         _ app: UIApplication,
         open url: URL,
         options: [UIApplication.OpenURLOptionsKey: Any] = [:]
-    ) -> Bool {
+    )
+        -> Bool
+    {
         AppBootstrap.handle(url: url)
     }
 
@@ -28,6 +32,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     ) {
         let payload: [String: String] = Dictionary(uniqueKeysWithValues: userInfo.compactMap { key, value in
             guard let key = key as? String, let value = value as? String else { return nil }
+
             return (key, value)
         })
         Task {

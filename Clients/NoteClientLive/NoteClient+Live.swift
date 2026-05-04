@@ -13,12 +13,14 @@ extension NoteClient: @retroactive DependencyKey {
                     continuation.finish()
                     return
                 }
+
                 let listener = notesCollection(babyID: babyID)
                     .whereField("date", isGreaterThanOrEqualTo: range.lowerBound)
                     .whereField("date", isLessThan: range.upperBound)
                     .order(by: "date", descending: true)
                     .addSnapshotListener { snapshot, _ in
                         guard let snapshot else { return }
+
                         let decoder = Firestore.Decoder()
                         let notes = snapshot.documents.compactMap { doc -> Note? in
                             try? decoder.decode(Note.self, from: doc.data())
@@ -36,12 +38,14 @@ extension NoteClient: @retroactive DependencyKey {
                     continuation.finish()
                     return
                 }
+
                 let listener = notesCollection(babyID: babyID)
                     .whereField("kind", isEqualTo: NoteKind.schedule.rawValue)
                     .whereField("date", isGreaterThanOrEqualTo: Date())
                     .order(by: "date", descending: false)
                     .addSnapshotListener { snapshot, _ in
                         guard let snapshot else { return }
+
                         let decoder = Firestore.Decoder()
                         let notes = snapshot.documents.compactMap { doc -> Note? in
                             try? decoder.decode(Note.self, from: doc.data())
@@ -53,10 +57,11 @@ extension NoteClient: @retroactive DependencyKey {
                 }
             }
         },
-        addNote: { @Sendable babyID, note async throws(NoteError) -> Void in
+        addNote: { @Sendable babyID, note async throws(NoteError) in
             guard Auth.auth().currentUser?.uid != nil else {
                 throw .unauthorized
             }
+
             do {
                 let data = try Firestore.Encoder().encode(note)
                 try await notesCollection(babyID: babyID)
@@ -66,10 +71,11 @@ extension NoteClient: @retroactive DependencyKey {
                 throw .unexpected
             }
         },
-        updateNote: { @Sendable babyID, note async throws(NoteError) -> Void in
+        updateNote: { @Sendable babyID, note async throws(NoteError) in
             guard Auth.auth().currentUser?.uid != nil else {
                 throw .unauthorized
             }
+
             do {
                 let data = try Firestore.Encoder().encode(note)
                 try await notesCollection(babyID: babyID)
@@ -79,10 +85,11 @@ extension NoteClient: @retroactive DependencyKey {
                 throw .unexpected
             }
         },
-        deleteNote: { @Sendable babyID, noteID async throws(NoteError) -> Void in
+        deleteNote: { @Sendable babyID, noteID async throws(NoteError) in
             guard Auth.auth().currentUser?.uid != nil else {
                 throw .unauthorized
             }
+
             do {
                 try await notesCollection(babyID: babyID)
                     .document(noteID.uuidString)
@@ -94,8 +101,8 @@ extension NoteClient: @retroactive DependencyKey {
     )
 }
 
-public extension DependencyValues {
-    var noteClient: NoteClient {
+extension DependencyValues {
+    public var noteClient: NoteClient {
         get { self[NoteClient.self] }
         set { self[NoteClient.self] = newValue }
     }

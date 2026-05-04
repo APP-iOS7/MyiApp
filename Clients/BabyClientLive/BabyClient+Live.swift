@@ -10,6 +10,7 @@ extension BabyClient: @retroactive DependencyKey {
             guard let uid = Auth.auth().currentUser?.uid else {
                 throw BabyError.unauthorized
             }
+
             do {
                 let snapshot = try await Firestore.firestore()
                     .collection("babies")
@@ -29,11 +30,13 @@ extension BabyClient: @retroactive DependencyKey {
                     continuation.finish()
                     return
                 }
+
                 let listener = Firestore.firestore()
                     .collection("babies")
                     .whereField("caregiverIDs", arrayContains: uid)
                     .addSnapshotListener { snapshot, _ in
                         guard let snapshot else { return }
+
                         let decoder = Firestore.Decoder()
                         let babies = snapshot.documents.compactMap { doc -> Baby? in
                             try? decoder.decode(Baby.self, from: doc.data())
@@ -51,11 +54,13 @@ extension BabyClient: @retroactive DependencyKey {
                     continuation.finish()
                     return
                 }
+
                 let listener = Firestore.firestore()
                     .collection("babies")
                     .document(id.uuidString)
                     .addSnapshotListener { snapshot, _ in
                         guard let data = snapshot?.data() else { return }
+
                         let decoder = Firestore.Decoder()
                         if let baby = try? decoder.decode(Baby.self, from: data) {
                             continuation.yield(baby)
@@ -66,7 +71,7 @@ extension BabyClient: @retroactive DependencyKey {
                 }
             }
         },
-        registerNewBaby: { @Sendable baby async throws(BabyError) -> Void in
+        registerNewBaby: { @Sendable baby async throws(BabyError) in
             guard let uid = Auth.auth().currentUser?.uid else {
                 throw BabyError.unauthorized
             }
@@ -87,7 +92,7 @@ extension BabyClient: @retroactive DependencyKey {
                 throw BabyError.unexpected
             }
         },
-        registerExistingBaby: { @Sendable inviteCode async throws(BabyError) -> Void in
+        registerExistingBaby: { @Sendable inviteCode async throws(BabyError) in
             guard let uid = Auth.auth().currentUser?.uid else {
                 throw BabyError.unauthorized
             }
@@ -119,7 +124,7 @@ extension BabyClient: @retroactive DependencyKey {
                 throw BabyError.unexpected
             }
         },
-        updateBaby: { @Sendable baby async throws(BabyError) -> Void in
+        updateBaby: { @Sendable baby async throws(BabyError) in
             guard Auth.auth().currentUser != nil else {
                 throw BabyError.unauthorized
             }
@@ -135,7 +140,7 @@ extension BabyClient: @retroactive DependencyKey {
                 throw BabyError.unexpected
             }
         },
-        removeCaregiver: { @Sendable babyID, caregiverID async throws(BabyError) -> Void in
+        removeCaregiver: { @Sendable babyID, caregiverID async throws(BabyError) in
             guard let uid = Auth.auth().currentUser?.uid else {
                 throw BabyError.unauthorized
             }
@@ -151,6 +156,7 @@ extension BabyClient: @retroactive DependencyKey {
                 else {
                     throw BabyError.unauthorized
                 }
+
                 try await babyRef.setData([
                     "caregiverIDs": FieldValue.arrayRemove([caregiverID])
                 ], merge: true)
@@ -166,8 +172,8 @@ extension BabyClient: @retroactive DependencyKey {
     )
 }
 
-public extension DependencyValues {
-    var babyClient: BabyClient {
+extension DependencyValues {
+    public var babyClient: BabyClient {
         get { self[BabyClient.self] }
         set { self[BabyClient.self] = newValue }
     }

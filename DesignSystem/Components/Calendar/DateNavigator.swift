@@ -47,7 +47,9 @@ public struct DateNavigator: View {
     private func advance(direction: Int) {
         switch step {
         case let .days(value):
-            selectedDate = Calendar.current.date(byAdding: .day, value: value * direction, to: selectedDate) ?? selectedDate
+            selectedDate = Calendar.current
+                .date(byAdding: .day, value: value * direction, to: selectedDate) ?? selectedDate
+
         case .month:
             selectedDate = Calendar.current.date(byAdding: .month, value: direction, to: selectedDate) ?? selectedDate
         }

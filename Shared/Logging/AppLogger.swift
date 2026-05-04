@@ -14,7 +14,10 @@ public enum AppLogger {
         line: Int = #line
     ) {
         let body = message()
-        logger.debug("\(prefix(file: file, function: function, line: line), privacy: .public) — \(body, privacy: .public)")
+        logger
+            .debug(
+                "\(prefix(file: file, function: function, line: line), privacy: .public) — \(body, privacy: .public)"
+            )
     }
 
     public static func info(
@@ -24,7 +27,8 @@ public enum AppLogger {
         line: Int = #line
     ) {
         let body = message()
-        logger.info("\(prefix(file: file, function: function, line: line), privacy: .public) — \(body, privacy: .public)")
+        logger
+            .info("\(prefix(file: file, function: function, line: line), privacy: .public) — \(body, privacy: .public)")
     }
 
     public static func notice(
@@ -34,7 +38,10 @@ public enum AppLogger {
         line: Int = #line
     ) {
         let body = message()
-        logger.notice("\(prefix(file: file, function: function, line: line), privacy: .public) — \(body, privacy: .public)")
+        logger
+            .notice(
+                "\(prefix(file: file, function: function, line: line), privacy: .public) — \(body, privacy: .public)"
+            )
     }
 
     public static func error(
@@ -44,7 +51,10 @@ public enum AppLogger {
         line: Int = #line
     ) {
         let body = message()
-        logger.error("\(prefix(file: file, function: function, line: line), privacy: .public) — \(body, privacy: .public)")
+        logger
+            .error(
+                "\(prefix(file: file, function: function, line: line), privacy: .public) — \(body, privacy: .public)"
+            )
     }
 
     public static func fault(
@@ -54,7 +64,10 @@ public enum AppLogger {
         line: Int = #line
     ) {
         let body = message()
-        logger.fault("\(prefix(file: file, function: function, line: line), privacy: .public) — \(body, privacy: .public)")
+        logger
+            .fault(
+                "\(prefix(file: file, function: function, line: line), privacy: .public) — \(body, privacy: .public)"
+            )
     }
 
     private static func prefix(file: String, function: String, line: Int) -> String {

@@ -14,11 +14,14 @@ struct NoteEventRow: View {
                         image
                             .resizable()
                             .scaledToFill()
+
                     case .failure:
                         Image(systemName: "photo")
                             .foregroundColor(.Semantic.secondaryText)
+
                     case .empty:
                         ProgressView()
+
                     @unknown default:
                         EmptyView()
                     }
@@ -71,7 +74,7 @@ struct NoteEventRow: View {
                     title: "처음 뒤집기 성공! 🎉",
                     description: "오후 낮잠 후에 갑자기 뒤집어서 깜짝 놀랐다.",
                     date: Date(),
-                    imageURLs: [URL(string: "https://example.com/photo.jpg")].compactMap { $0 }
+                    imageURLs: [URL(string: "https://example.com/photo.jpg")].compactMap(\.self)
                 )
             )
             Divider()
@@ -115,7 +118,7 @@ struct NoteEventRow: View {
                     title: "100일 사진 예약",
                     description: "스튜디오 14시",
                     date: Date(),
-                    imageURLs: [URL(string: "https://example.com/photo.jpg")].compactMap { $0 },
+                    imageURLs: [URL(string: "https://example.com/photo.jpg")].compactMap(\.self),
                     reminder: Reminder(scheduledAt: Date())
                 )
             )

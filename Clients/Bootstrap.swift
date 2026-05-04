@@ -31,6 +31,7 @@ public enum AppBootstrap {
             AppLogger.debug("FCM token save skipped: not authenticated")
             return
         }
+
         do {
             try await Firestore.firestore()
                 .collection("users")
@@ -61,11 +62,13 @@ public enum AppBootstrap {
                 AppLogger.info("note_created without reminder, skip schedule")
                 return
             }
+
             let scheduledAt = Date(timeIntervalSince1970: scheduledAtMillis / 1000)
             guard scheduledAt > Date() else {
                 AppLogger.debug("scheduledAt in past, skip schedule")
                 return
             }
+
             let body = payload["body"] ?? ""
             await scheduleLocalReminder(
                 id: noteID,
@@ -122,6 +125,7 @@ extension NotificationCoordinator: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         AppLogger.info("FCM token received: \(fcmToken ?? "nil")")
         guard let fcmToken else { return }
+
         Task { await AppBootstrap.saveFCMToken(fcmToken) }
     }
 }

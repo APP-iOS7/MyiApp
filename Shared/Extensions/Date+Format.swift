@@ -5,8 +5,9 @@ extension Date {
     public var relativeDayName: String? {
         let cal = Calendar.current
         guard cal.isDateInToday(self)
-                || cal.isDateInYesterday(self)
-                || cal.isDateInTomorrow(self) else { return nil }
+            || cal.isDateInYesterday(self)
+            || cal.isDateInTomorrow(self)
+        else { return nil }
 
         let formatter = RelativeDateTimeFormatter()
         formatter.dateTimeStyle = .named

@@ -67,8 +67,18 @@ public struct StatisticPDFContent: View {
             image: Image(Asset.Records.Color.meal),
             tintColor: .Semantic.feeding,
             metrics: [
-                StatisticMetric(currentText: "횟수 \(count)회", previousText: "어제 \(prevCount)회", current: count, previous: prevCount),
-                StatisticMetric(currentText: "용량 \(ml)ml", previousText: "어제 \(prevMl)ml", current: ml, previous: prevMl),
+                StatisticMetric(
+                    currentText: "횟수 \(count)회",
+                    previousText: "어제 \(prevCount)회",
+                    current: count,
+                    previous: prevCount
+                ),
+                StatisticMetric(
+                    currentText: "용량 \(ml)ml",
+                    previousText: "어제 \(prevMl)ml",
+                    current: ml,
+                    previous: prevMl
+                ),
                 StatisticMetric(
                     currentText: "시간 \(DurationFormatter.hourMinute(fromMinutes: minutes))",
                     previousText: "어제 \(DurationFormatter.hourMinute(fromMinutes: prevMinutes))",
@@ -113,8 +123,18 @@ public struct StatisticPDFContent: View {
             image: Image(Asset.Records.Color.potty),
             tintColor: .Semantic.potty,
             metrics: [
-                StatisticMetric(currentText: "소변 \(today.pee)회", previousText: "어제 \(yesterday.pee)회", current: today.pee, previous: yesterday.pee),
-                StatisticMetric(currentText: "대변 \(today.poop)회", previousText: "어제 \(yesterday.poop)회", current: today.poop, previous: yesterday.poop)
+                StatisticMetric(
+                    currentText: "소변 \(today.pee)회",
+                    previousText: "어제 \(yesterday.pee)회",
+                    current: today.pee,
+                    previous: yesterday.pee
+                ),
+                StatisticMetric(
+                    currentText: "대변 \(today.poop)회",
+                    previousText: "어제 \(yesterday.poop)회",
+                    current: today.poop,
+                    previous: yesterday.poop
+                )
             ]
         )
     }
@@ -146,7 +166,12 @@ public struct StatisticPDFContent: View {
             image: Image(Asset.Records.Color.sleep),
             tintColor: .Semantic.sleep,
             metrics: [
-                StatisticMetric(currentText: "횟수 \(count)회", previousText: "어제 \(prevCount)회", current: count, previous: prevCount),
+                StatisticMetric(
+                    currentText: "횟수 \(count)회",
+                    previousText: "어제 \(prevCount)회",
+                    current: count,
+                    previous: prevCount
+                ),
                 StatisticMetric(
                     currentText: "시간 \(DurationFormatter.hourMinute(fromMinutes: minutes))",
                     previousText: "어제 \(DurationFormatter.hourMinute(fromMinutes: prevMinutes))",
@@ -178,7 +203,12 @@ public struct StatisticPDFContent: View {
             image: Image(Asset.Records.Color.bath),
             tintColor: .Semantic.bath,
             metrics: [
-                StatisticMetric(currentText: "횟수 \(count)회", previousText: "어제 \(prevCount)회", current: count, previous: prevCount)
+                StatisticMetric(
+                    currentText: "횟수 \(count)회",
+                    previousText: "어제 \(prevCount)회",
+                    current: count,
+                    previous: prevCount
+                )
             ]
         )
     }
@@ -204,20 +234,26 @@ public struct StatisticPDFContent: View {
             image: Image(Asset.Records.Color.snack),
             tintColor: .Semantic.snack,
             metrics: [
-                StatisticMetric(currentText: "횟수 \(count)회", previousText: "어제 \(prevCount)회", current: count, previous: prevCount)
+                StatisticMetric(
+                    currentText: "횟수 \(count)회",
+                    previousText: "어제 \(prevCount)회",
+                    current: count,
+                    previous: prevCount
+                )
             ]
         )
     }
 
     // MARK: - Trend helpers
 
-    @ViewBuilder
     private func trendBlock(
         label: String,
         unit: String,
         tintColor: Color,
         value: (Range<Date>) -> Int
-    ) -> some View {
+    )
+        -> some View
+    {
         VStack(alignment: .leading, spacing: Spacing.s) {
             Text(label)
                 .font(.caption)

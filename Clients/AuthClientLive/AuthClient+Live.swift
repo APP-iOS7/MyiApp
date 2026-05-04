@@ -83,15 +83,15 @@ extension AuthClient: @retroactive DependencyKey {
     )
 }
 
-public extension DependencyValues {
-    var authClient: AuthClient {
+extension DependencyValues {
+    public var authClient: AuthClient {
         get { self[AuthClient.self] }
         set { self[AuthClient.self] = newValue }
     }
 }
 
-private extension Session {
-    init(user: User) {
+extension Session {
+    fileprivate init(user: User) {
         self.init(
             uid: user.uid,
             email: user.email,

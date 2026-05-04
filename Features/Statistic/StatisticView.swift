@@ -17,8 +17,12 @@ public struct StatisticView: View {
                 VStack(spacing: Spacing.m) {
                     ScreenTitle("기록 분석") {
                         HStack(spacing: Spacing.m) {
-                            Button("성장 차트", systemImage: "chart.xyaxis.line") { store.send(.view(.growthChartButtonTapped)) }
-                            Button("PDF 공유", systemImage: "square.and.arrow.up") { store.send(.view(.shareButtonTapped)) }
+                            Button("성장 차트", systemImage: "chart.xyaxis.line") {
+                                store.send(.view(.growthChartButtonTapped))
+                            }
+                            Button("PDF 공유", systemImage: "square.and.arrow.up") {
+                                store.send(.view(.shareButtonTapped))
+                            }
                         }
                         .labelStyle(.iconOnly)
                         .font(.title2)

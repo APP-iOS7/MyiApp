@@ -105,8 +105,10 @@ public struct ScheduleEditorFeature {
                 case .authorized:
                     state.reminderMode = mode
                     return .none
+
                 case .notDetermined:
                     return checkReminderAuthorization(pendingMode: mode)
+
                 case .denied:
                     state.alert = AlertState {
                         TextState("알림이 꺼져있어요")
@@ -133,6 +135,7 @@ public struct ScheduleEditorFeature {
                     state.isSaving = false
                     return .send(._internal(.saveFailed(.unauthorized)))
                 }
+
                 state.isSaving = true
                 let reminder: Reminder? = switch state.reminderMode {
                 case .none:
@@ -180,6 +183,7 @@ public struct ScheduleEditorFeature {
             case .alert(.presented(.openSettings)):
                 return .run { [openURL] _ in
                     guard let url = URL(string: "app-settings:") else { return }
+
                     await openURL(url)
                 }
 
@@ -203,6 +207,7 @@ public struct ScheduleEditorFeature {
                 let granted = await localNotificationClient.requestPermission()
                 AppLogger.info("permission requested, granted=\(granted)")
                 resolved = granted ? .authorized : .denied
+
             case .authorized, .denied:
                 resolved = status
             }

@@ -31,6 +31,7 @@ public struct AccountEditFeature {
             case saveCompleted
             case saveFailed(CaregiverError)
         }
+
         public enum Alert: Equatable {}
 
         case view(ViewAction)
@@ -51,6 +52,7 @@ public struct AccountEditFeature {
             switch action {
             case .view(.saveButtonTapped):
                 guard state.canSave else { return .none }
+
                 state.isSaving = true
                 let trimmed = state.name.trimmingCharacters(in: .whitespaces)
                 return .run { [caregiverClient] send in

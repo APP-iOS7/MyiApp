@@ -13,6 +13,7 @@ extension StorageClient: @retroactive DependencyKey {
                 AppLogger.error("uploadDiaryPhoto unauthorized babyID=\(babyID) noteID=\(noteID)")
                 throw .unauthorized
             }
+
             let photoID = UUID()
             let path = diaryPhotoPath(babyID: babyID, noteID: noteID, photoID: photoID)
             let contentType = inferImageContentType(data: data)
@@ -37,10 +38,14 @@ extension StorageClient: @retroactive DependencyKey {
                 AppLogger.error("uploadDiaryPhotoFile unauthorized babyID=\(babyID) noteID=\(noteID)")
                 throw .unauthorized
             }
+
             let photoID = UUID()
             let path = diaryPhotoPath(babyID: babyID, noteID: noteID, photoID: photoID)
             let contentType = inferImageContentTypeFromFile(at: fileURL)
-            AppLogger.info("uploadDiaryPhotoFile start path=\(path) file=\(fileURL.lastPathComponent) contentType=\(contentType)")
+            AppLogger
+                .info(
+                    "uploadDiaryPhotoFile start path=\(path) file=\(fileURL.lastPathComponent) contentType=\(contentType)"
+                )
             let reference = Storage.storage().reference().child(path)
             let metadata = StorageMetadata()
             metadata.contentType = contentType
@@ -63,6 +68,7 @@ extension StorageClient: @retroactive DependencyKey {
                 AppLogger.error("uploadBabyProfilePhoto unauthorized babyID=\(babyID)")
                 throw .unauthorized
             }
+
             let photoID = UUID()
             let path = babyProfilePhotoPath(babyID: babyID, photoID: photoID)
             let contentType = inferImageContentType(data: data)
@@ -82,11 +88,12 @@ extension StorageClient: @retroactive DependencyKey {
                 throw mapped
             }
         },
-        deletePhoto: { @Sendable downloadURL async throws(Domain.StorageError) -> Void in
+        deletePhoto: { @Sendable downloadURL async throws(Domain.StorageError) in
             guard Auth.auth().currentUser?.uid != nil else {
                 AppLogger.error("deletePhoto unauthorized url=\(downloadURL)")
                 throw .unauthorized
             }
+
             do {
                 let reference = Storage.storage().reference(forURL: downloadURL.absoluteString)
                 try await reference.delete()
@@ -100,8 +107,8 @@ extension StorageClient: @retroactive DependencyKey {
     )
 }
 
-public extension DependencyValues {
-    var storageClient: StorageClient {
+extension DependencyValues {
+    public var storageClient: StorageClient {
         get { self[StorageClient.self] }
         set { self[StorageClient.self] = newValue }
     }
@@ -118,9 +125,11 @@ private func babyProfilePhotoPath(babyID: UUID, photoID: UUID) -> String {
 private func mapStorageError(_ error: Error) -> Domain.StorageError {
     let nsError = error as NSError
     guard nsError.domain == StorageErrorDomain,
-          let code = StorageErrorCode(rawValue: nsError.code) else {
+          let code = StorageErrorCode(rawValue: nsError.code)
+    else {
         return .unexpected
     }
+
     switch code {
     case .unauthorized, .unauthenticated:
         return .unauthorized
@@ -137,6 +146,7 @@ private func inferImageContentTypeFromFile(at url: URL) -> String {
     guard let handle = try? FileHandle(forReadingFrom: url) else {
         return "application/octet-stream"
     }
+
     defer { try? handle.close() }
     let prefix = (try? handle.read(upToCount: 12)) ?? Data()
     return inferImageContentType(data: prefix)
@@ -149,11 +159,13 @@ private func inferImageContentType(data: Data) -> String {
     }
     if prefix.count >= 8,
        prefix[0] == 0x89, prefix[1] == 0x50, prefix[2] == 0x4E, prefix[3] == 0x47,
-       prefix[4] == 0x0D, prefix[5] == 0x0A, prefix[6] == 0x1A, prefix[7] == 0x0A {
+       prefix[4] == 0x0D, prefix[5] == 0x0A, prefix[6] == 0x1A, prefix[7] == 0x0A
+    {
         return "image/png"
     }
     if prefix.count >= 12,
-       prefix[4] == 0x66, prefix[5] == 0x74, prefix[6] == 0x79, prefix[7] == 0x70 {
+       prefix[4] == 0x66, prefix[5] == 0x74, prefix[6] == 0x79, prefix[7] == 0x70
+    {
         let brand = Array(prefix[8 ..< 12])
         let heicBrands: [[UInt8]] = [
             [0x68, 0x65, 0x69, 0x63], // heic
@@ -168,12 +180,14 @@ private func inferImageContentType(data: Data) -> String {
         }
     }
     if prefix.count >= 6,
-       prefix[0] == 0x47, prefix[1] == 0x49, prefix[2] == 0x46, prefix[3] == 0x38 {
+       prefix[0] == 0x47, prefix[1] == 0x49, prefix[2] == 0x46, prefix[3] == 0x38
+    {
         return "image/gif"
     }
     if prefix.count >= 12,
        prefix[0] == 0x52, prefix[1] == 0x49, prefix[2] == 0x46, prefix[3] == 0x46,
-       prefix[8] == 0x57, prefix[9] == 0x45, prefix[10] == 0x42, prefix[11] == 0x50 {
+       prefix[8] == 0x57, prefix[9] == 0x45, prefix[10] == 0x42, prefix[11] == 0x50
+    {
         return "image/webp"
     }
     return "application/octet-stream"

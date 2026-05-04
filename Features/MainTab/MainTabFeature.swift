@@ -20,6 +20,7 @@ public struct MainTabFeature {
 
         public init?(session: Session, caregiver: Caregiver, babies: [Baby], selectedTab: Tab = .home) {
             guard let firstBaby = babies.first else { return nil }
+
             self.session = session
             self.caregiver = caregiver
             self.babies = IdentifiedArray(uniqueElements: babies)
@@ -78,6 +79,7 @@ public struct MainTabFeature {
 
     private func propagateSelectedBaby(into state: inout State) {
         guard let baby = state.selectedBaby else { return }
+
         state.home.baby = baby
         state.note.baby = baby
         state.cryAnalysis.baby = baby
@@ -147,6 +149,7 @@ public struct MainTabFeature {
 
             case let ._internal(.caregiverLoaded(caregiver)):
                 guard let caregiver else { return .none }
+
                 state.caregiver = caregiver
                 state.settings.caregiver = caregiver
                 return .none
@@ -155,8 +158,8 @@ public struct MainTabFeature {
     }
 }
 
-public extension MainTabFeature {
-    enum Tab: Hashable, Sendable {
+extension MainTabFeature {
+    public enum Tab: Hashable, Sendable {
         case home
         case note
         case cryAnalysis

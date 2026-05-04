@@ -72,6 +72,7 @@ public struct BabyProfileFeature {
             switch action {
             case .binding(\.pickerItem):
                 guard let item = state.pickerItem else { return .none }
+
                 state.pickerItem = nil
                 state.isUploading = true
                 let babyID = state.baby.id
@@ -82,6 +83,7 @@ public struct BabyProfileFeature {
                             await send(._internal(.photoActionFailed))
                             return
                         }
+
                         let url = try await storageClient.uploadBabyProfilePhoto(babyID, data)
                         await send(._internal(.photoUploaded(url, replacing: oldURL)))
                     } catch {
@@ -129,6 +131,7 @@ public struct BabyProfileFeature {
             case .view(.deletePhotoTapped):
                 state.isPhotoActionDialogPresented = false
                 guard let oldURL = state.baby.profileImageURL else { return .none }
+
                 state.isUploading = true
                 var updated = state.baby
                 updated.profileImageURL = nil

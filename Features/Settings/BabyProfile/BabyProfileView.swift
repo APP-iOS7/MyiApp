@@ -46,8 +46,8 @@ public struct BabyProfileView: View {
     }
 }
 
-private extension BabyProfileView {
-    var avatar: some View {
+extension BabyProfileView {
+    private var avatar: some View {
         Button { store.send(.view(.photoTapped)) } label: {
             avatarImage
         }
@@ -55,7 +55,7 @@ private extension BabyProfileView {
     }
 
     @ViewBuilder
-    var avatarImage: some View {
+    private var avatarImage: some View {
         if let url = store.baby.profileImageURL {
             CachedAsyncImage(url: url) { phase in
                 switch phase {
@@ -78,7 +78,7 @@ private extension BabyProfileView {
         }
     }
 
-    var infoCard: some View {
+    private var infoCard: some View {
         SectionCard(spacing: 0) {
             Button { store.send(.view(.nameRowTapped)) } label: {
                 LabeledContent {
@@ -138,7 +138,7 @@ private extension BabyProfileView {
         }
     }
 
-    var caregiversCard: some View {
+    private var caregiversCard: some View {
         SectionCard(spacing: 0) {
             Button { store.send(.view(.caregiversRowTapped)) } label: {
                 LabeledContent {

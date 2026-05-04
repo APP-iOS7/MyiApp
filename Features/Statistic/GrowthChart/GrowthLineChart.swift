@@ -62,7 +62,8 @@ struct GrowthLineChart: View {
                 y: .value(mode.unit, entry.value)
             )
             .foregroundStyle(Color.Semantic.primaryAction)
-            .symbolSize(selectedEntry?.date == entry.date ? GrowthChartLayout.selectedPointSize : GrowthChartLayout.pointSize)
+            .symbolSize(selectedEntry?.date == entry.date ? GrowthChartLayout.selectedPointSize : GrowthChartLayout
+                .pointSize)
         }
     }
 

@@ -31,12 +31,14 @@ public enum DetailMode: String, CaseIterable, Hashable, Sendable {
             let start = calendar.startOfDay(for: date)
             let end = calendar.date(byAdding: .day, value: 1, to: start) ?? start
             return start ..< end
+
         case .weekly:
             var weekCalendar = calendar
             weekCalendar.firstWeekday = 2 // 월요일 시작
             let start = weekCalendar.dateInterval(of: .weekOfYear, for: date)?.start ?? date
             let end = weekCalendar.date(byAdding: .day, value: 7, to: start) ?? start
             return start ..< end
+
         case .monthly:
             let start = calendar.date(from: calendar.dateComponents([.year, .month], from: date)) ?? date
             let end = calendar.date(byAdding: .month, value: 1, to: start) ?? start

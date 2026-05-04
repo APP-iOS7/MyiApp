@@ -11,6 +11,7 @@ struct WeeklyChartView: View {
 
     private var weekDates: [Date] {
         guard let start = Calendar.current.dateInterval(of: .weekOfYear, for: selectedDate)?.start else { return [] }
+
         return (0 ..< 7).compactMap { Calendar.current.date(byAdding: .day, value: $0, to: start) }
     }
 
@@ -30,7 +31,12 @@ struct WeeklyChartView: View {
         .aspectRatio(1, contentMode: .fit)
     }
 
-    private func drawGrid(in context: inout GraphicsContext, dayWidth: CGFloat, hourHeight: CGFloat, canvasSize: CGSize) {
+    private func drawGrid(
+        in context: inout GraphicsContext,
+        dayWidth: CGFloat,
+        hourHeight: CGFloat,
+        canvasSize: CGSize
+    ) {
         var path = Path()
         for column in 1 ... 7 {
             let x = CGFloat(column) * dayWidth
@@ -60,7 +66,12 @@ struct WeeklyChartView: View {
         }
     }
 
-    private func drawDateLabels(in context: inout GraphicsContext, dayWidth: CGFloat, hourHeight: CGFloat, canvasHeight: CGFloat) {
+    private func drawDateLabels(
+        in context: inout GraphicsContext,
+        dayWidth: CGFloat,
+        hourHeight: CGFloat,
+        canvasHeight: CGFloat
+    ) {
         for (index, date) in weekDates.enumerated() {
             let day = Calendar.current.component(.day, from: date)
             let columnCenter = CGFloat(index + 1) * dayWidth + dayWidth / 2
@@ -107,7 +118,8 @@ struct WeeklyChartView: View {
             let overlapEnd = min(end, dayEnd)
             guard overlapStart < overlapEnd else { return nil }
 
-            let endHour = calendar.isDate(overlapEnd, equalTo: dayEnd, toGranularity: .minute) ? 24.0 : overlapEnd.hourDecimal
+            let endHour = calendar.isDate(overlapEnd, equalTo: dayEnd, toGranularity: .minute) ? 24.0 : overlapEnd
+                .hourDecimal
 
             return WeeklyTimedRecord(
                 id: UUID(),
@@ -152,7 +164,9 @@ private struct WeeklyTimedRecord: Identifiable {
     private func weeklyChartPreview(
         records: [CareRecord] = CareRecord.mocks,
         categories: Set<CareEvent.Category> = Set(CareEvent.Category.allCases)
-    ) -> some View {
+    )
+        -> some View
+    {
         WeeklyChartView(
             baby: Baby(
                 name: "꼬미",

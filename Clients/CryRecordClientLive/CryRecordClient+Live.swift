@@ -11,6 +11,7 @@ extension CryRecordClient: @retroactive DependencyKey {
             guard Auth.auth().currentUser?.uid != nil else {
                 throw .unauthorized
             }
+
             do {
                 let snapshot = try await recordsCollection(babyID: babyID)
                     .whereField("createdAt", isGreaterThanOrEqualTo: range.lowerBound)
@@ -26,10 +27,11 @@ extension CryRecordClient: @retroactive DependencyKey {
                 throw .unexpected
             }
         },
-        addRecord: { @Sendable babyID, record async throws(CryRecordError) -> Void in
+        addRecord: { @Sendable babyID, record async throws(CryRecordError) in
             guard Auth.auth().currentUser?.uid != nil else {
                 throw .unauthorized
             }
+
             do {
                 let dto = FirestoreCryRecord(from: record)
                 let data = try Firestore.Encoder().encode(dto)
@@ -40,10 +42,11 @@ extension CryRecordClient: @retroactive DependencyKey {
                 throw .unexpected
             }
         },
-        deleteRecord: { @Sendable babyID, recordID async throws(CryRecordError) -> Void in
+        deleteRecord: { @Sendable babyID, recordID async throws(CryRecordError) in
             guard Auth.auth().currentUser?.uid != nil else {
                 throw .unauthorized
             }
+
             do {
                 try await recordsCollection(babyID: babyID)
                     .document(recordID.uuidString)
@@ -55,8 +58,8 @@ extension CryRecordClient: @retroactive DependencyKey {
     )
 }
 
-public extension DependencyValues {
-    var cryRecordClient: CryRecordClient {
+extension DependencyValues {
+    public var cryRecordClient: CryRecordClient {
         get { self[CryRecordClient.self] }
         set { self[CryRecordClient.self] = newValue }
     }
@@ -81,9 +84,9 @@ private struct FirestoreCryRecord: Codable {
     }
 
     init(from record: CryAnalysisRecord) {
-        self.id = record.id
-        self.createdAt = record.createdAt
-        self.windows = record.windows.map { Window(scores: $0) }
+        id = record.id
+        createdAt = record.createdAt
+        windows = record.windows.map { Window(scores: $0) }
     }
 
     func toDomain() -> CryAnalysisRecord {

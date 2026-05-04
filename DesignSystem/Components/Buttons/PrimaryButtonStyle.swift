@@ -24,8 +24,8 @@ public struct PrimaryButtonStyle: ButtonStyle {
     }
 }
 
-public extension ButtonStyle where Self == PrimaryButtonStyle {
-    static var primary: PrimaryButtonStyle { .init() }
+extension ButtonStyle where Self == PrimaryButtonStyle {
+    public static var primary: PrimaryButtonStyle { .init() }
 }
 
 #Preview {

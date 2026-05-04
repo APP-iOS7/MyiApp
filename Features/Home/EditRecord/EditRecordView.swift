@@ -126,15 +126,25 @@ public struct EditRecordView: View {
 
             if store.feedingKind == .breastfeeding {
                 Section("수유 시간") {
-                    Stepper("왼쪽 \(store.breastLeftMinutes)분",
-                            value: $store.breastLeftMinutes, in: 0 ... 60)
-                    Stepper("오른쪽 \(store.breastRightMinutes)분",
-                            value: $store.breastRightMinutes, in: 0 ... 60)
+                    Stepper(
+                        "왼쪽 \(store.breastLeftMinutes)분",
+                        value: $store.breastLeftMinutes,
+                        in: 0 ... 60
+                    )
+                    Stepper(
+                        "오른쪽 \(store.breastRightMinutes)분",
+                        value: $store.breastRightMinutes,
+                        in: 0 ... 60
+                    )
                 }
             } else {
                 Section("용량") {
-                    Stepper("\(store.feedingMl) ml",
-                            value: $store.feedingMl, in: 0 ... 500, step: 10)
+                    Stepper(
+                        "\(store.feedingMl) ml",
+                        value: $store.feedingMl,
+                        in: 0 ... 500,
+                        step: 10
+                    )
                 }
             }
 

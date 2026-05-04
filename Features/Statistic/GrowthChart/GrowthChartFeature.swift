@@ -37,13 +37,13 @@ public struct GrowthChartFeature {
         var baby: Baby
         var mode: GrowthMode = .height
         var startDate: Date
-        var endDate: Date = Date()
+        var endDate: Date = .init()
         var selectedEntry: GrowthEntry?
 
         public init(records: [CareRecord], baby: Baby) {
             self.records = records
             self.baby = baby
-            self.startDate = baby.birthDate
+            startDate = baby.birthDate
         }
 
         var data: [(date: Date, value: Double)] {
@@ -51,14 +51,19 @@ public struct GrowthChartFeature {
             case .height:
                 records.compactMap { record -> (Date, Double)? in
                     guard case let .heightWeight(heightCm, _) = record.event,
-                          let height = heightCm else { return nil }
+                          let height = heightCm
+                    else { return nil }
+
                     return (record.createdAt, height)
                 }
                 .sorted { $0.0 < $1.0 }
+
             case .weight:
                 records.compactMap { record -> (Date, Double)? in
                     guard case let .heightWeight(_, weightKg) = record.event,
-                          let weight = weightKg else { return nil }
+                          let weight = weightKg
+                    else { return nil }
+
                     return (record.createdAt, weight)
                 }
                 .sorted { $0.0 < $1.0 }
@@ -83,6 +88,7 @@ public struct GrowthChartFeature {
             case .binding(\.mode):
                 state.selectedEntry = nil
                 return .none
+
             case .binding:
                 return .none
             }

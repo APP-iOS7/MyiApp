@@ -17,8 +17,8 @@ extension AudioRecorderClient: @retroactive DependencyKey {
     }
 }
 
-public extension DependencyValues {
-    var audioRecorderClient: AudioRecorderClient {
+extension DependencyValues {
+    public var audioRecorderClient: AudioRecorderClient {
         get { self[AudioRecorderClient.self] }
         set { self[AudioRecorderClient.self] = newValue }
     }
@@ -29,14 +29,17 @@ private actor MicrophoneSession {
 
     func currentVolume() -> Float? {
         guard let recorder, recorder.isRecording else { return nil }
+
         recorder.updateMeters()
         let decibels = recorder.averagePower(forChannel: 0)
         guard decibels > -80 else { return 0 }
+
         return min(pow(10, decibels / 20) * 2, 1)
     }
 
     func start(url: URL) throws(AudioRecorderError) {
         guard recorder == nil else { return }
+
         do {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.record, mode: .default)
@@ -49,12 +52,13 @@ private actor MicrophoneSession {
                 AVLinearPCMBitDepthKey: 32,
                 AVLinearPCMIsFloatKey: true,
                 AVLinearPCMIsBigEndianKey: false,
-                AVLinearPCMIsNonInterleaved: false,
+                AVLinearPCMIsNonInterleaved: false
             ])
             recorder.isMeteringEnabled = true
             guard recorder.record() else {
                 throw AudioRecorderError.engineFailed
             }
+
             self.recorder = recorder
         } catch {
             throw .engineFailed

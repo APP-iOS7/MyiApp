@@ -51,6 +51,7 @@ public struct BabyBloodTypeEditFeature {
             switch action {
             case .view(.saveButtonTapped):
                 guard state.canSave else { return .none }
+
                 state.isSaving = true
                 var updated = state.baby
                 updated.bloodType = state.bloodType

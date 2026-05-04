@@ -137,6 +137,7 @@ public struct FoodDetailFeature {
         let babyID = state.baby.id
         let starts = state.mode.trailingPeriodStarts(from: state.selectedDate, count: 7)
         guard let earliest = starts.first else { return .none }
+
         let latestEnd = state.mode.currentRange(of: state.selectedDate).upperBound
 
         return .run { [careRecordClient] send in

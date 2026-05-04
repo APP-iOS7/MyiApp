@@ -14,7 +14,7 @@ public struct UnderlinedTextField<Trailing: View>: View {
         @ViewBuilder trailing: () -> Trailing = { EmptyView() }
     ) {
         self.placeholder = placeholder
-        self._text = text
+        _text = text
         self.keyboardType = keyboardType
         self.trailing = trailing()
     }

@@ -23,6 +23,7 @@ private struct MarkerLabelLayout: Layout {
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         guard let label = subviews.first else { return .zero }
+
         let labelSize = label.sizeThatFits(.unspecified)
         return CGSize(
             width: proposal.width ?? labelSize.width,
@@ -32,6 +33,7 @@ private struct MarkerLabelLayout: Layout {
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
         guard let label = subviews.first else { return }
+
         let labelSize = label.sizeThatFits(.unspecified)
         let leading = min(
             bounds.width * ratio,

@@ -91,17 +91,26 @@ public struct CryAnalysisFeature {
             case let ._internal(internalAction):
                 switch internalAction {
                 case let .tickingStarted(url):
-                    return .run { [audioRecorderClient, clock, recordingDurationSeconds, tickIntervalMilliseconds] send in
+                    return .run { [
+                        audioRecorderClient,
+                        clock,
+                        recordingDurationSeconds,
+                        tickIntervalMilliseconds
+                    ] send in
                         await withTaskCancellationHandler {
                             let totalTicks = Int(recordingDurationSeconds * 1000) / tickIntervalMilliseconds
                             var index = 0
                             for await _ in clock.timer(interval: .milliseconds(tickIntervalMilliseconds)) {
                                 index += 1
                                 let volume = await audioRecorderClient.currentVolume() ?? 0
-                                await send(._internal(.tick(volume: volume, progress: Double(index) / Double(totalTicks))))
+                                await send(._internal(.tick(
+                                    volume: volume,
+                                    progress: Double(index) / Double(totalTicks)
+                                )))
                                 if index >= totalTicks { break }
                             }
                             guard !Task.isCancelled else { return }
+
                             await audioRecorderClient.stopRecording()
                             await send(._internal(.recordingFinished(url)))
                         } onCancel: {

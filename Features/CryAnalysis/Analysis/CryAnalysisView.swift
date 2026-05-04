@@ -19,11 +19,13 @@ public struct CryAnalysisView: View {
                     progress: store.progress,
                     onCancel: { store.send(.view(.cancelTapped)) }
                 )
+
             case let .result(display):
                 ResultSection(
                     display: display,
                     onDismiss: { store.send(.view(.dismissTapped)) }
                 )
+
             case let .failure(failure):
                 FailureSection(
                     failure: failure,

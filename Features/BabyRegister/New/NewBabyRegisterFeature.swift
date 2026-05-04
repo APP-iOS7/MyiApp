@@ -62,7 +62,6 @@ public struct NewBabyRegisterFeature {
                       let gender = state.gender,
                       let bloodType = state.bloodType
                 else { return .none }
-
                 guard let session = authClient.current() else {
                     state.alert = makeAlert(for: .unauthorized)
                     return .none

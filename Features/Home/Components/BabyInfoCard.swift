@@ -6,7 +6,7 @@ import SwiftUI
 struct BabyInfoCard: View {
     let baby: Baby
     var babies: IdentifiedArrayOf<Baby> = []
-    var onBabySelected: ((Baby.ID) -> Void)? = nil
+    var onBabySelected: ((Baby.ID) -> Void)?
 
     var body: some View {
         SectionCard(spacing: Spacing.m) {
@@ -48,7 +48,8 @@ struct BabyInfoCard: View {
         }
     }
 
-    @ViewBuilder private var nameLabel: some View {
+    @ViewBuilder
+    private var nameLabel: some View {
         if babies.count > 1, let onBabySelected {
             Menu {
                 ForEach(babies) { listBaby in
@@ -80,7 +81,8 @@ struct BabyInfoCard: View {
         }
     }
 
-    @ViewBuilder private var profileImage: some View {
+    @ViewBuilder
+    private var profileImage: some View {
         if let url = baby.profileImageURL {
             CachedAsyncImage(url: url) { phase in
                 switch phase {
@@ -88,10 +90,13 @@ struct BabyInfoCard: View {
                     image
                         .resizable()
                         .scaledToFill()
+
                 case .empty:
                     ProgressView()
+
                 case .failure:
                     fallbackImage
+
                 @unknown default:
                     fallbackImage
                 }

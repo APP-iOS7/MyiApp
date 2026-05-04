@@ -33,6 +33,7 @@ public struct TrendBarChart: View {
 
     private var average: Double {
         guard !entries.isEmpty else { return 0 }
+
         return entries.reduce(0) { $0 + $1.value } / Double(entries.count)
     }
 

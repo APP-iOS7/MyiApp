@@ -1,7 +1,7 @@
 import SwiftUI
 
-public extension Color {
-    enum Semantic {
+extension Color {
+    public enum Semantic {
         public static let launchText = Color(light: Color(Asset.Tokens.brown700), dark: .white)
         public static let launchBackground = Color(light: Color(Asset.Tokens.blue50), dark: Color(Asset.Tokens.blue900))
         public static let primaryAction = Color(light: Color(Asset.Tokens.blue500), dark: Color(Asset.Tokens.blue650))

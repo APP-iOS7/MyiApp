@@ -45,6 +45,7 @@ public struct NotificationSyncFeature {
                     AppLogger.info("babyID nil — listener stop")
                     return .cancel(id: CancelID.stream)
                 }
+
                 AppLogger.info("listener start for baby=\(babyID)")
                 return .run { [noteClient] send in
                     for await notes in noteClient.streamFutureScheduleNotes(babyID) {
@@ -55,7 +56,10 @@ public struct NotificationSyncFeature {
 
             case let .view(.babyChanged(newID)):
                 let previousIDs = state.scheduledIDs
-                AppLogger.info("baby changed: \(state.babyID?.uuidString ?? "nil") → \(newID?.uuidString ?? "nil"), cancel \(previousIDs.count) prior")
+                AppLogger
+                    .info(
+                        "baby changed: \(state.babyID?.uuidString ?? "nil") → \(newID?.uuidString ?? "nil"), cancel \(previousIDs.count) prior"
+                    )
                 state.scheduledIDs = []
                 state.babyID = newID
                 return .merge(
@@ -71,16 +75,19 @@ public struct NotificationSyncFeature {
                 let now = Date()
                 let target = notes.filter { note in
                     guard let reminder = note.reminder else { return false }
+
                     return reminder.scheduledAt > now
                 }
                 let targetIDs = Set(target.map(\.id))
                 let added = targetIDs.subtracting(state.scheduledIDs)
                 let removed = state.scheduledIDs.subtracting(targetIDs)
-                AppLogger.info("notes=\(notes.count) target=\(target.count) added=\(added.count) removed=\(removed.count)")
+                AppLogger
+                    .info("notes=\(notes.count) target=\(target.count) added=\(added.count) removed=\(removed.count)")
                 state.scheduledIDs = targetIDs
                 return .run { [localNotificationClient] _ in
                     for note in target {
                         guard let reminder = note.reminder else { continue }
+
                         do throws(LocalNotificationError) {
                             try await localNotificationClient.schedule(
                                 LocalNotificationRequest(

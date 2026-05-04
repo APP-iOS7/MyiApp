@@ -61,6 +61,7 @@ public struct AppFeature {
                     state.destination = nil
                     return .none
                 }
+
                 state.pendingCaregiver = nil
                 state.pendingBabies = nil
                 return .merge(
@@ -89,6 +90,7 @@ public struct AppFeature {
 
             case .babiesFetchFailed:
                 guard state.session != nil else { return .none }
+
                 state.phase = .running
                 if state.destination == nil {
                     state.destination = .babyRegister(BabyRegisterFlowFeature.State())
@@ -97,6 +99,7 @@ public struct AppFeature {
 
             case .destination(.presented(.babyRegister(.delegate(.babyRegistered)))):
                 guard state.session != nil else { return .none }
+
                 return .run { [babyClient] send in
                     do throws(BabyError) {
                         let babies = try await babyClient.currentBabies()
@@ -116,14 +119,17 @@ public struct AppFeature {
     private func tryEnterMainTab(_ state: inout State) -> Effect<Action> {
         guard let session = state.session,
               let caregiver = state.pendingCaregiver,
-              let babies = state.pendingBabies else {
+              let babies = state.pendingBabies
+        else {
             return .none
         }
+
         state.phase = .running
         guard let tabState = MainTabFeature.State(session: session, caregiver: caregiver, babies: babies) else {
             state.destination = .babyRegister(BabyRegisterFlowFeature.State())
             return .none
         }
+
         if case var .mainTab(existing) = state.destination {
             existing.babies = tabState.babies
             existing.caregiver = tabState.caregiver

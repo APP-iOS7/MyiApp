@@ -195,7 +195,10 @@ public struct SettingsFeature {
                 return .none
 
             case let .path(.element(id: _, action: .babyProfile(.delegate(.editCaregiversTapped(baby))))):
-                state.path.append(.caregiverList(CaregiverListFeature.State(baby: baby, currentUserID: state.session.uid)))
+                state.path.append(.caregiverList(CaregiverListFeature.State(
+                    baby: baby,
+                    currentUserID: state.session.uid
+                )))
                 return .none
 
             case .path:

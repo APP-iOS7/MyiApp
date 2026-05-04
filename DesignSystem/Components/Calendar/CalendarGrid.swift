@@ -11,7 +11,7 @@ public struct CalendarGrid: View {
         datesWithIndicator: Set<Date> = []
     ) {
         self.month = month
-        self._selected = selected
+        _selected = selected
         self.datesWithIndicator = datesWithIndicator
     }
 
@@ -99,7 +99,7 @@ public struct CalendarGrid: View {
             datesWithIndicator: [
                 Calendar.current.date(byAdding: .day, value: -3, to: Date())!,
                 Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
-                Calendar.current.date(byAdding: .day, value: 5, to: Date())!,
+                Calendar.current.date(byAdding: .day, value: 5, to: Date())!
             ]
         )
         .padding(Spacing.m)

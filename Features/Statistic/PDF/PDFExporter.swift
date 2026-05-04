@@ -14,8 +14,8 @@ extension PDFExporter: TestDependencyKey {
     public static let testValue = Self(renderPDF: { _, _, _, _ in nil })
 }
 
-public extension DependencyValues {
-    var pdfExporter: PDFExporter {
+extension DependencyValues {
+    public var pdfExporter: PDFExporter {
         get { self[PDFExporter.self] }
         set { self[PDFExporter.self] = newValue }
     }

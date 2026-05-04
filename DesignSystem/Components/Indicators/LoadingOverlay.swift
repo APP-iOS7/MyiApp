@@ -14,8 +14,8 @@ public struct LoadingOverlay: View {
     }
 }
 
-public extension View {
-    func loadingOverlay(isPresented: Bool) -> some View {
+extension View {
+    public func loadingOverlay(isPresented: Bool) -> some View {
         overlay {
             if isPresented {
                 LoadingOverlay()

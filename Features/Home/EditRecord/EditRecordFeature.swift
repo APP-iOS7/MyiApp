@@ -73,21 +73,25 @@ public struct EditRecordFeature {
                 feedingMl = ml
                 breastLeftMinutes = 10
                 breastRightMinutes = 10
+
             case let .babyFood(ml):
                 feedingKind = .babyFood
                 feedingMl = ml
                 breastLeftMinutes = 10
                 breastRightMinutes = 10
+
             case let .pumpedMilk(ml):
                 feedingKind = .pumpedMilk
                 feedingMl = ml
                 breastLeftMinutes = 10
                 breastRightMinutes = 10
+
             case let .breastfeeding(left, right):
                 feedingKind = .breastfeeding
                 feedingMl = 100
                 breastLeftMinutes = left
                 breastRightMinutes = right
+
             default:
                 feedingKind = .formula
                 feedingMl = 100
@@ -104,6 +108,7 @@ public struct EditRecordFeature {
             case let .heightWeight(h, w):
                 heightCm = h
                 weightKg = w
+
             default:
                 heightCm = nil
                 weightKg = nil

@@ -53,6 +53,7 @@ public struct PDFPreviewFeature {
             switch action {
             case .view(.shareTapped):
                 guard state.canShare else { return .none }
+
                 return .run { [state, pdfExporter] send in
                     if let url = await pdfExporter.renderPDF(state.baby, state.records, state.date, state.fileName) {
                         await send(._internal(.pdfGenerated(url)))

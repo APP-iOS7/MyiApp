@@ -10,6 +10,7 @@ extension CareRecordClient: @retroactive DependencyKey {
             guard Auth.auth().currentUser?.uid != nil else {
                 throw CareRecordError.unauthorized
             }
+
             do {
                 let snapshot = try await recordsCollection(babyID: babyID)
                     .whereField("createdAt", isGreaterThanOrEqualTo: range.lowerBound)
@@ -28,6 +29,7 @@ extension CareRecordClient: @retroactive DependencyKey {
             guard Auth.auth().currentUser?.uid != nil else {
                 throw CareRecordError.unauthorized
             }
+
             do {
                 // TODO: 최적화 — 현재 top 50 doc을 가져와 메모리에서 카테고리 매칭.
                 // 데이터 누적 시 비효율. 와이어 포맷에 category 필드를 denormalize 저장하고
@@ -45,10 +47,11 @@ extension CareRecordClient: @retroactive DependencyKey {
                 throw CareRecordError.unexpected
             }
         },
-        addRecord: { @Sendable babyID, record async throws(CareRecordError) -> Void in
+        addRecord: { @Sendable babyID, record async throws(CareRecordError) in
             guard Auth.auth().currentUser?.uid != nil else {
                 throw CareRecordError.unauthorized
             }
+
             do {
                 let data = try Firestore.Encoder().encode(record)
                 try await recordsCollection(babyID: babyID)
@@ -58,10 +61,11 @@ extension CareRecordClient: @retroactive DependencyKey {
                 throw CareRecordError.unexpected
             }
         },
-        updateRecord: { @Sendable babyID, record async throws(CareRecordError) -> Void in
+        updateRecord: { @Sendable babyID, record async throws(CareRecordError) in
             guard Auth.auth().currentUser?.uid != nil else {
                 throw CareRecordError.unauthorized
             }
+
             do {
                 let data = try Firestore.Encoder().encode(record)
                 try await recordsCollection(babyID: babyID)
@@ -71,10 +75,11 @@ extension CareRecordClient: @retroactive DependencyKey {
                 throw CareRecordError.unexpected
             }
         },
-        deleteRecord: { @Sendable babyID, recordID async throws(CareRecordError) -> Void in
+        deleteRecord: { @Sendable babyID, recordID async throws(CareRecordError) in
             guard Auth.auth().currentUser?.uid != nil else {
                 throw CareRecordError.unauthorized
             }
+
             do {
                 try await recordsCollection(babyID: babyID)
                     .document(recordID.uuidString)
@@ -93,8 +98,8 @@ private func recordsCollection(babyID: UUID) -> CollectionReference {
         .collection("records")
 }
 
-public extension DependencyValues {
-    var careRecordClient: CareRecordClient {
+extension DependencyValues {
+    public var careRecordClient: CareRecordClient {
         get { self[CareRecordClient.self] }
         set { self[CareRecordClient.self] = newValue }
     }

@@ -55,7 +55,7 @@ public struct MainTabView: View {
                     gender: .male,
                     bloodType: .a,
                     mainCaregiverID: "preview"
-                ),
+                )
             ]
         ) {
             MainTabView(

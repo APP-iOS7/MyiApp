@@ -76,6 +76,7 @@ public struct CryAnalysisHomeFeature {
             case .alert(.presented(.openSettingsTapped)):
                 return .run { [openURL] _ in
                     guard let url = URL(string: "app-settings:") else { return }
+
                     _ = await openURL(url)
                 }
 

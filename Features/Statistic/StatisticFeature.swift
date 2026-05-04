@@ -125,7 +125,10 @@ public struct StatisticFeature {
                 return .none
 
             case .view(.growthChartButtonTapped):
-                state.path.append(.growthChart(GrowthChartFeature.State(records: state.growthRecords, baby: state.baby)))
+                state.path.append(.growthChart(GrowthChartFeature.State(
+                    records: state.growthRecords,
+                    baby: state.baby
+                )))
                 return .none
 
             case .view(.shareButtonTapped):
@@ -191,8 +194,8 @@ extension CareEvent.Category {
     static let statisticFilterCases: [CareEvent.Category] = [.feeding, .potty, .sleep, .bath, .snack]
 }
 
-public extension StatisticFeature {
-    enum Mode: String, CaseIterable, Hashable, Sendable {
+extension StatisticFeature {
+    public enum Mode: String, CaseIterable, Hashable, Sendable {
         case daily = "일"
         case weekly = "주"
 

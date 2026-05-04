@@ -17,6 +17,7 @@ extension PDFExporter: DependencyKey {
                 renderer.render { size, draw in
                     var mediaBox = CGRect(origin: .zero, size: size)
                     guard let pdf = CGContext(url as CFURL, mediaBox: &mediaBox, nil) else { return }
+
                     pdf.beginPDFPage(nil)
                     draw(pdf)
                     pdf.endPDFPage()

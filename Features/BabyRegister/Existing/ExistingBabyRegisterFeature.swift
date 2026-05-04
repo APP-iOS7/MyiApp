@@ -58,6 +58,7 @@ public struct ExistingBabyRegisterFeature {
                     state.alert = makeAlert(for: .invalidInviteCode)
                     return .none
                 }
+
                 state.isSubmitting = true
 
                 return .run { [babyClient] send in

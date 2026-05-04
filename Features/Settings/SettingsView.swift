@@ -53,8 +53,8 @@ public struct SettingsView: View {
     }
 }
 
-private extension SettingsView {
-    var accountSection: some View {
+extension SettingsView {
+    private var accountSection: some View {
         NavigationLink(state: SettingsFeature.Path.State.accountEdit(
             AccountEditFeature.State(originalName: store.caregiver.displayName)
         )) {
@@ -82,11 +82,13 @@ private extension SettingsView {
         .buttonStyle(NoHighlightButtonStyle())
     }
 
-    var personalSettingsSection: some View {
+    private var personalSettingsSection: some View {
         SectionCard(title: "개인 설정", spacing: 0) {
             DisclosureGroup {
                 ForEach(store.babies) { baby in
-                    NavigationLink(state: SettingsFeature.Path.State.babyProfile(BabyProfileFeature.State(baby: baby))) {
+                    NavigationLink(state: SettingsFeature.Path.State
+                        .babyProfile(BabyProfileFeature.State(baby: baby)))
+                    {
                         LabeledContent {
                             RowChevron()
                         } label: {
@@ -112,7 +114,7 @@ private extension SettingsView {
         }
     }
 
-    var legalSection: some View {
+    private var legalSection: some View {
         SectionCard(title: "개인 정보", spacing: 0) {
             NavigationLink { PrivacyPolicyView() } label: {
                 LabeledContent {
@@ -134,7 +136,7 @@ private extension SettingsView {
         }
     }
 
-    var miscSection: some View {
+    private var miscSection: some View {
         SectionCard(title: "기타", spacing: 0) {
             LabeledContent {
                 Text(store.appVersion)
@@ -145,7 +147,7 @@ private extension SettingsView {
         }
     }
 
-    var accountActionsSection: some View {
+    private var accountActionsSection: some View {
         VStack(spacing: Spacing.s) {
             Button(role: .destructive) { store.send(.view(.signOutTapped)) } label: {
                 Text("로그아웃")
@@ -199,7 +201,7 @@ private extension SettingsView {
                             gender: .male,
                             bloodType: .b,
                             mainCaregiverID: "user-123"
-                        ),
+                        )
                     ]
                 )
             ) {
