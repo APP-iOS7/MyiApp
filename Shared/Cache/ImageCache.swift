@@ -136,7 +136,3 @@ extension ImageCache {
         }
     }
 }
-
-public enum ImageCacheError: Error {
-    case invalidResponse
-}
