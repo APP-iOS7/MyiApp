@@ -4,7 +4,7 @@ import Foundation
 public actor ImageCache {
     public static let shared = ImageCache()
 
-    nonisolated private let diskDirectory: URL
+    nonisolated let diskDirectory: URL
     private let diskSizeLimit: Int = 500 * 1024 * 1024
     private let diskSizeTarget: Int = 350 * 1024 * 1024
 
@@ -13,7 +13,15 @@ public actor ImageCache {
     private init() {
         let baseURL = URL.cachesDirectory.appending(path: "ImageCache")
         try? FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: true)
-        self.diskDirectory = baseURL
+        diskDirectory = baseURL
+    }
+
+    @MainActor
+    public func cachedDataSync(for url: URL) -> Data? {
+        if let cached = ImageMemoryCache.shared.data(for: url) {
+            return cached
+        }
+        return try? Data(contentsOf: diskFileURL(for: url))
     }
 
     public func data(for url: URL) async throws -> Data {
@@ -55,64 +63,77 @@ public actor ImageCache {
         ImageMemoryCache.shared.store(data, for: url)
         writeToDisk(data, for: url)
     }
+}
 
-    private func readFromDisk(for url: URL) -> Data? {
+// MARK: - Disk IO
+
+extension ImageCache {
+    func readFromDisk(for url: URL) -> Data? {
         try? Data(contentsOf: diskFileURL(for: url))
     }
 
-    private func writeToDisk(_ data: Data, for url: URL) {
+    func writeToDisk(_ data: Data, for url: URL) {
         try? data.write(to: diskFileURL(for: url), options: .atomic)
-        enforceDiskLimit()
     }
 
-    private func enforceDiskLimit() {
+    nonisolated func diskFileURL(for url: URL) -> URL {
+        diskDirectory.appending(path: cacheKey(for: url))
+    }
+
+    nonisolated func cacheKey(for url: URL) -> String {
+        let digest = SHA256.hash(data: Data(url.absoluteString.utf8))
+        return digest.map { String(format: "%02x", $0) }.joined()
+    }
+}
+
+// MARK: - Disk Trim
+
+extension ImageCache {
+    public func trimDisk() {
+        let entries = collectDiskEntries()
+        let totalSize = entries.reduce(0) { $0 + $1.size }
+        guard totalSize > diskSizeLimit else { return }
+
+        evictOldest(from: entries, until: totalSize - diskSizeTarget)
+    }
+
+    private struct DiskEntry {
+        let url: URL
+        let size: Int
+        let accessed: Date
+    }
+
+    private func collectDiskEntries() -> [DiskEntry] {
         let resourceKeys: Set<URLResourceKey> = [.fileSizeKey, .contentAccessDateKey]
-        let fileManager = FileManager.default
-        guard let enumerator = fileManager.enumerator(
+        guard let enumerator = FileManager.default.enumerator(
             at: diskDirectory,
             includingPropertiesForKeys: Array(resourceKeys),
             options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants]
-        ) else {
-            return
+        )
+        else {
+            return []
         }
 
-        var entries: [(url: URL, size: Int, accessed: Date)] = []
-        var totalSize = 0
+        var entries: [DiskEntry] = []
         for case let fileURL as URL in enumerator {
             guard let values = try? fileURL.resourceValues(forKeys: resourceKeys),
                   let size = values.fileSize,
                   let accessed = values.contentAccessDate
             else { continue }
-            entries.append((fileURL, size, accessed))
-            totalSize += size
-        }
 
-        guard totalSize > diskSizeLimit else { return }
-
-        entries.sort { $0.accessed < $1.accessed }
-        var bytesToDelete = totalSize - diskSizeTarget
-        for entry in entries {
-            if bytesToDelete <= 0 { break }
-            try? fileManager.removeItem(at: entry.url)
-            bytesToDelete -= entry.size
+            entries.append(DiskEntry(url: fileURL, size: size, accessed: accessed))
         }
+        return entries
     }
 
-    nonisolated private func diskFileURL(for url: URL) -> URL {
-        diskDirectory.appending(path: cacheKey(for: url))
-    }
-
-    nonisolated private func cacheKey(for url: URL) -> String {
-        let digest = SHA256.hash(data: Data(url.absoluteString.utf8))
-        return digest.map { String(format: "%02x", $0) }.joined()
-    }
-
-    @MainActor
-    public func cachedDataSync(for url: URL) -> Data? {
-        if let cached = ImageMemoryCache.shared.data(for: url) {
-            return cached
+    private func evictOldest(from entries: [DiskEntry], until bytesToDelete: Int) {
+        let oldestFirst = entries.sorted { $0.accessed < $1.accessed }
+        var remaining = bytesToDelete
+        for entry in oldestFirst {
+            if remaining <= 0 { break }
+            try? FileManager.default.removeItem(at: entry.url)
+            remaining -= entry.size
         }
-        return try? Data(contentsOf: diskFileURL(for: url))
     }
 }
 

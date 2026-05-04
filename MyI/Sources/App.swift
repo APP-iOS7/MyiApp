@@ -1,10 +1,12 @@
 import ComposableArchitecture
 import Features
+import Shared
 import SwiftUI
 
 @main
 struct MyIApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @Environment(\.scenePhase) private var scenePhase
 
     private let store = Store(initialState: AppFeature.State()) {
         AppFeature()
@@ -28,6 +30,11 @@ struct MyIApp: App {
                 }
             }
             .onAppear { store.send(.onAppear) }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .background {
+                Task { await ImageCache.shared.trimDisk() }
+            }
         }
     }
 }
