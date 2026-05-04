@@ -4,17 +4,18 @@ import Foundation
 public actor ImageCache {
     public static let shared = ImageCache()
 
-    nonisolated let diskDirectory: URL
+    nonisolated let diskDirectory: URL = {
+        let url = URL.cachesDirectory.appending(path: "ImageCache")
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
+    }()
+
     private let diskSizeLimit: Int = 500 * 1024 * 1024
     private let diskSizeTarget: Int = 350 * 1024 * 1024
 
     private var inflightFetches: [URL: Task<Data, Error>] = [:]
 
-    private init() {
-        let baseURL = URL.cachesDirectory.appending(path: "ImageCache")
-        try? FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: true)
-        diskDirectory = baseURL
-    }
+    private init() {}
 
     @MainActor
     public func cachedDataSync(for url: URL) -> Data? {
@@ -38,24 +39,20 @@ public actor ImageCache {
             return try await existing.value
         }
 
-        let task = Task { [weak self] in
-            try await ImageCache.fetchAndStore(url: url, cache: self)
-        }
+        let task = Task { try await self.fetchAndStore(url: url) }
         inflightFetches[url] = task
         defer { inflightFetches[url] = nil }
         return try await task.value
     }
 
-    private static func fetchAndStore(url: URL, cache: ImageCache?) async throws -> Data {
+    private func fetchAndStore(url: URL) async throws -> Data {
         let (data, response) = try await URLSession.shared.data(from: url)
         guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200,
+              (200 ... 299) ~= httpResponse.statusCode,
               !data.isEmpty
-        else {
-            throw ImageCacheError.invalidResponse
-        }
+        else { throw ImageCacheError.invalidResponse }
 
-        await cache?.store(data, for: url)
+        store(data, for: url)
         return data
     }
 
