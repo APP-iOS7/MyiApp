@@ -141,18 +141,3 @@ struct BabyInfoCard: View {
         return "\(days + 1)일"
     }
 }
-
-#Preview {
-    BabyInfoCard(
-        baby: Baby(
-            id: UUID(),
-            name: "꼬미",
-            birthDate: Calendar.current.date(byAdding: .day, value: -100, to: Date())!,
-            gender: .female,
-            bloodType: .a,
-            mainCaregiverID: "user-123"
-        )
-    )
-    .padding()
-    .background(Color.Semantic.screenBackground)
-}

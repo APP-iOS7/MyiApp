@@ -46,16 +46,3 @@ private struct MarkerLabelLayout: Layout {
         )
     }
 }
-
-#Preview {
-    VStack(spacing: 16) {
-        ProgressBarMarkerLabel(ratio: 0.0, text: "0%")
-        ProgressBarMarkerLabel(ratio: 0.25, text: "25%")
-        ProgressBarMarkerLabel(ratio: 0.5, text: "50%")
-        ProgressBarMarkerLabel(ratio: 0.75, text: "75%")
-        ProgressBarMarkerLabel(ratio: 0.9, text: "90%")
-        ProgressBarMarkerLabel(ratio: 0.95, text: "95%")
-        ProgressBarMarkerLabel(ratio: 1.0, text: "100%")
-    }
-    .padding()
-}

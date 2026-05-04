@@ -36,8 +36,3 @@ struct PhotoThumbnail: View {
         }
     }
 }
-
-#Preview {
-    PhotoThumbnail(data: Data()) {}
-        .padding()
-}

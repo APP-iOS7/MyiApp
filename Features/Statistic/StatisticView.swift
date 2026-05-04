@@ -263,29 +263,3 @@ private func previewBaby() -> Baby {
         mainCaregiverID: "user-123"
     )
 }
-
-#Preview("기록 있음") {
-    StatisticView(
-        store: Store(
-            initialState: StatisticFeature.State(
-                baby: previewBaby(),
-                records: CareRecord.mocks
-            )
-        ) {
-            StatisticFeature()
-        }
-    )
-}
-
-#Preview("기록 없음") {
-    StatisticView(
-        store: Store(
-            initialState: StatisticFeature.State(
-                baby: previewBaby(),
-                records: []
-            )
-        ) {
-            StatisticFeature()
-        }
-    )
-}

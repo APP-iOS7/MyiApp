@@ -29,8 +29,3 @@ public struct GoogleSignInButton: View {
         )
     }
 }
-
-#Preview {
-    GoogleSignInButton {}
-        .padding()
-}

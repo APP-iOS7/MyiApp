@@ -159,30 +159,3 @@ private struct WeeklyTimedRecord: Identifiable {
     let endHour: Double
     let color: Color
 }
-
-#if DEBUG
-    private func weeklyChartPreview(
-        records: [CareRecord] = CareRecord.mocks,
-        categories: Set<CareEvent.Category> = Set(CareEvent.Category.allCases)
-    )
-        -> some View
-    {
-        WeeklyChartView(
-            baby: Baby(
-                name: "꼬미",
-                birthDate: Calendar.current.date(byAdding: .day, value: -100, to: Date())!,
-                gender: .female,
-                bloodType: .a,
-                mainCaregiverID: "user-123"
-            ),
-            records: records,
-            selectedDate: Date(),
-            selectedCategories: categories
-        )
-        .padding()
-    }
-
-    #Preview("기록 있음") { weeklyChartPreview() }
-    #Preview("기록 없음") { weeklyChartPreview(records: []) }
-    #Preview("필터 일부") { weeklyChartPreview(categories: [.feeding, .sleep]) }
-#endif

@@ -49,18 +49,3 @@ struct TimelineRow: View {
         .contentShape(Rectangle())
     }
 }
-
-#Preview {
-    let records = Array(CareRecord.mocks.prefix(5))
-    VStack(spacing: 0) {
-        ForEach(records.indices, id: \.self) { index in
-            TimelineRow(
-                record: records[index],
-                index: index,
-                totalCount: records.count
-            )
-        }
-    }
-    .padding()
-    .background(Color.Semantic.screenBackground)
-}

@@ -74,23 +74,3 @@ public struct NoteView: View {
         }
     }
 }
-
-#if DEBUG
-    #Preview {
-        NoteView(
-            store: Store(
-                initialState: NoteHomeFeature.State(
-                    baby: Baby(
-                        name: "아기",
-                        birthDate: Calendar.current.date(byAdding: .month, value: -3, to: Date()) ?? Date(),
-                        gender: .male,
-                        bloodType: .a,
-                        mainCaregiverID: "preview"
-                    )
-                )
-            ) {
-                NoteHomeFeature()
-            }
-        )
-    }
-#endif

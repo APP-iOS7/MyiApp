@@ -64,27 +64,3 @@ public struct CaregiverListView: View {
             && caregiver.id != store.currentUserID
     }
 }
-
-#if DEBUG
-    #Preview {
-        NavigationStack {
-            CaregiverListView(
-                store: Store(
-                    initialState: CaregiverListFeature.State(
-                        baby: Baby(
-                            name: "꼬미",
-                            birthDate: Calendar.current.date(byAdding: .day, value: -100, to: Date()) ?? Date(),
-                            gender: .female,
-                            bloodType: .a,
-                            mainCaregiverID: "user-123",
-                            caregiverIDs: ["user-123", "user-456"]
-                        ),
-                        currentUserID: "user-123"
-                    )
-                ) {
-                    CaregiverListFeature()
-                }
-            )
-        }
-    }
-#endif

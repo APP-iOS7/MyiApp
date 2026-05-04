@@ -24,12 +24,3 @@ struct SelectableChip: View {
         .buttonStyle(NoHighlightButtonStyle())
     }
 }
-
-#Preview {
-    HStack(spacing: Spacing.xs) {
-        SelectableChip(label: "없음", isSelected: false) {}
-        SelectableChip(label: "10분 전", isSelected: true) {}
-        SelectableChip(label: "1시간 전", isSelected: false) {}
-    }
-    .padding()
-}

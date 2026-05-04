@@ -124,30 +124,3 @@ private struct TimedRecord: Identifiable {
     let endHour: Double
     let color: Color
 }
-
-#if DEBUG
-    private func chartPreview(
-        records: [CareRecord] = CareRecord.mocks,
-        categories: Set<CareEvent.Category> = Set(CareEvent.Category.allCases)
-    )
-        -> some View
-    {
-        DailyChartView(
-            baby: Baby(
-                name: "꼬미",
-                birthDate: Calendar.current.date(byAdding: .day, value: -100, to: Date())!,
-                gender: .female,
-                bloodType: .a,
-                mainCaregiverID: "user-123"
-            ),
-            records: records,
-            selectedDate: Date(),
-            selectedCategories: categories
-        )
-        .padding()
-    }
-
-    #Preview("기록 있음") { chartPreview() }
-    #Preview("기록 없음") { chartPreview(records: []) }
-    #Preview("필터 일부") { chartPreview(categories: [.feeding, .sleep]) }
-#endif

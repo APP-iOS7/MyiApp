@@ -24,8 +24,3 @@ extension View {
         .disabled(isPresented)
     }
 }
-
-#Preview {
-    Color.gray
-        .loadingOverlay(isPresented: true)
-}

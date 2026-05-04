@@ -34,9 +34,3 @@ struct RecordingSection: View {
         .padding(Spacing.m)
     }
 }
-
-#Preview("Recording") {
-    RecordingSection(volume: 0.6, progress: 0.4, onCancel: {})
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.Semantic.screenBackground)
-}

@@ -70,20 +70,3 @@ public struct TrendBarChart: View {
         .frame(height: TrendBarChartLayout.chartHeight)
     }
 }
-
-#Preview {
-    VStack(spacing: 24) {
-        TrendBarChart(
-            entries: (0 ..< 7).map { i in
-                TrendBarChart.Entry(
-                    id: Calendar.current.date(byAdding: .day, value: -i, to: Date()) ?? Date(),
-                    label: "\(i + 1)",
-                    value: Double.random(in: 0 ... 5)
-                )
-            }.reversed(),
-            unit: "회",
-            tintColor: .Semantic.snack
-        )
-        .padding()
-    }
-}

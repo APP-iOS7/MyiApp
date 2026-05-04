@@ -17,12 +17,3 @@ public struct ProgressBarMarker: View {
         .frame(height: ProgressBarLayout.markerHeight)
     }
 }
-
-#Preview {
-    VStack(spacing: 20) {
-        ProgressBarMarker(ratio: 0.0)
-        ProgressBarMarker(ratio: 0.5)
-        ProgressBarMarker(ratio: 0.75)
-    }
-    .padding()
-}

@@ -38,23 +38,3 @@ public struct BabyNameEditView: View {
         .alert($store.scope(state: \.alert, action: \.alert))
     }
 }
-
-#Preview {
-    NavigationStack {
-        BabyNameEditView(
-            store: Store(
-                initialState: BabyNameEditFeature.State(
-                    baby: Baby(
-                        name: "꼬미",
-                        birthDate: Date(),
-                        gender: .female,
-                        bloodType: .a,
-                        mainCaregiverID: "preview"
-                    )
-                )
-            ) {
-                BabyNameEditFeature()
-            }
-        )
-    }
-}

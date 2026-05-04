@@ -120,9 +120,3 @@ public struct PrivacyPolicyView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
-
-#Preview {
-    NavigationStack {
-        PrivacyPolicyView()
-    }
-}

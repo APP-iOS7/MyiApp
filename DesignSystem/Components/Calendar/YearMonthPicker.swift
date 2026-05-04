@@ -60,8 +60,3 @@ public struct YearMonthPicker: View {
         }
     }
 }
-
-#Preview {
-    @Previewable @State var month = Date()
-    YearMonthPicker(month: $month)
-}

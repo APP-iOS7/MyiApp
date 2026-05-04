@@ -46,11 +46,3 @@ public struct ConfidenceRing: View {
         .aspectRatio(1, contentMode: .fit)
     }
 }
-
-#Preview {
-    VStack(spacing: 24) {
-        ConfidenceRing(iconAsset: Asset.Analysis.hungry, confidence: 0.82)
-        ConfidenceRing(iconAsset: Asset.Analysis.tired, confidence: 0.45)
-    }
-    .padding()
-}

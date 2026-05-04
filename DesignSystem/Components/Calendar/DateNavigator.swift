@@ -55,16 +55,3 @@ public struct DateNavigator: View {
         }
     }
 }
-
-#Preview {
-    VStack(spacing: 24) {
-        DateNavigator(selectedDate: .constant(Date()))
-        DateNavigator(selectedDate: .constant(Date()), step: .days(7)) {
-            "주 시작 \($0.formatted(.dateTime.month().day()))"
-        }
-        DateNavigator(selectedDate: .constant(Date()), step: .month) {
-            $0.formatted(.dateTime.year().month())
-        }
-    }
-    .padding()
-}

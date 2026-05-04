@@ -23,8 +23,3 @@ public struct AppleSignInButton: View {
         .clipShape(RoundedRectangle(cornerRadius: Radius.xs))
     }
 }
-
-#Preview {
-    AppleSignInButton {}
-        .padding()
-}

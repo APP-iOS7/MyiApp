@@ -162,9 +162,3 @@ public struct TermsOfServiceView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
-
-#Preview {
-    NavigationStack {
-        TermsOfServiceView()
-    }
-}

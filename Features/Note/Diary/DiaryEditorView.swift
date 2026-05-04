@@ -65,11 +65,3 @@ public struct DiaryEditorView: View {
         )
     }
 }
-
-#Preview {
-    DiaryEditorView(
-        store: Store(initialState: DiaryEditorFeature.State(babyID: UUID(), date: Date())) {
-            DiaryEditorFeature()
-        }
-    )
-}

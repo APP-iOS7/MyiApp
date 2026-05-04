@@ -49,13 +49,3 @@ public struct VolumeMeter: View {
         .aspectRatio(1, contentMode: .fit)
     }
 }
-
-#Preview {
-    VStack(spacing: 40) {
-        VolumeMeter(level: 0.0)
-        VolumeMeter(level: 0.3)
-        VolumeMeter(level: 0.7)
-        VolumeMeter(level: 1.0)
-    }
-    .padding()
-}

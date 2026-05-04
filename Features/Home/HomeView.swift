@@ -104,33 +104,3 @@ private func previewBaby() -> Baby {
         mainCaregiverID: "user-123"
     )
 }
-
-#Preview("기록 있음") {
-    NavigationStack {
-        HomeView(
-            store: Store(
-                initialState: HomeFeature.State(
-                    baby: previewBaby(),
-                    records: CareRecord.mocks
-                )
-            ) {
-                HomeFeature()
-            }
-        )
-    }
-}
-
-#Preview("기록 없음") {
-    NavigationStack {
-        HomeView(
-            store: Store(
-                initialState: HomeFeature.State(
-                    baby: previewBaby(),
-                    records: []
-                )
-            ) {
-                HomeFeature()
-            }
-        )
-    }
-}

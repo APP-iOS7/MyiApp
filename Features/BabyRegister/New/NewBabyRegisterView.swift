@@ -100,13 +100,3 @@ public struct NewBabyRegisterView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
-
-#Preview {
-    NavigationStack {
-        NewBabyRegisterView(
-            store: Store(initialState: NewBabyRegisterFeature.State()) {
-                NewBabyRegisterFeature()
-            }
-        )
-    }
-}

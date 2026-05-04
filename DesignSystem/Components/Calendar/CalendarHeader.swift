@@ -81,10 +81,3 @@ public struct CalendarHeader: View {
         }
     }
 }
-
-#Preview {
-    @Previewable @State var month = Date()
-    @Previewable @State var selected = Date()
-    CalendarHeader(month: $month, selected: $selected)
-        .padding(Spacing.m)
-}

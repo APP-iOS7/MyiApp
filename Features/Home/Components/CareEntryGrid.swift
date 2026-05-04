@@ -51,8 +51,3 @@ private struct EntryIcon: View {
         }
     }
 }
-
-#Preview {
-    CareEntryGrid { _ in }
-        .padding()
-}

@@ -27,15 +27,3 @@ public struct PrimaryButtonStyle: ButtonStyle {
 extension ButtonStyle where Self == PrimaryButtonStyle {
     public static var primary: PrimaryButtonStyle { .init() }
 }
-
-#Preview {
-    VStack(spacing: Spacing.m) {
-        Button("다음") {}
-            .buttonStyle(.primary)
-
-        Button("다음") {}
-            .buttonStyle(.primary)
-            .disabled(true)
-    }
-    .padding()
-}

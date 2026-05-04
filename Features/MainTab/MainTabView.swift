@@ -39,30 +39,3 @@ public struct MainTabView: View {
         .task { await store.send(.view(.task)).finish() }
     }
 }
-
-#if DEBUG
-    #Preview {
-        if let state = MainTabFeature.State(
-            session: Session(
-                uid: "preview",
-                providerIDs: []
-            ),
-            caregiver: Caregiver(id: "preview", createdAt: .now),
-            babies: [
-                Baby(
-                    name: "아기",
-                    birthDate: Calendar.current.date(byAdding: .month, value: -3, to: .now) ?? .now,
-                    gender: .male,
-                    bloodType: .a,
-                    mainCaregiverID: "preview"
-                )
-            ]
-        ) {
-            MainTabView(
-                store: Store(initialState: state) {
-                    MainTabFeature()
-                }
-            )
-        }
-    }
-#endif

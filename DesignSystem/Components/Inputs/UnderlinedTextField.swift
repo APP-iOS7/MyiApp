@@ -41,26 +41,3 @@ public struct UnderlinedTextField<Trailing: View>: View {
         }
     }
 }
-
-#Preview {
-    @Previewable @State var name = ""
-    @Previewable @State var height = ""
-
-    VStack(spacing: Spacing.m) {
-        UnderlinedTextField(
-            placeholder: "이름을 입력하세요",
-            text: $name
-        )
-
-        UnderlinedTextField(
-            placeholder: "키를 입력하세요",
-            text: $height,
-            keyboardType: .decimalPad
-        ) {
-            Text("cm")
-                .foregroundColor(.Semantic.secondaryText)
-                .font(.title2)
-        }
-    }
-    .padding()
-}

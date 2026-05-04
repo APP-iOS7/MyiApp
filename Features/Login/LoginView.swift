@@ -41,13 +41,3 @@ public struct LoginView: View {
         .alert($store.scope(state: \.alert, action: \.alert))
     }
 }
-
-#Preview {
-    LoginView(
-        store: Store(initialState: LoginFeature.State()) {
-            LoginFeature()
-        } withDependencies: {
-            $0.authClient = .previewValue
-        }
-    )
-}

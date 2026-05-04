@@ -37,11 +37,3 @@ public struct RegisterMethodPickerView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 }
-
-#Preview {
-    RegisterMethodPickerView(
-        store: Store(initialState: BabyRegisterFeature.State()) {
-            BabyRegisterFeature()
-        }
-    )
-}

@@ -40,19 +40,3 @@ struct ResultSection: View {
         .padding(Spacing.m)
     }
 }
-
-#Preview("Result") {
-    ResultSection(
-        display: .init(
-            primary: EmotionScore(emotion: .hungry, confidence: 0.82),
-            others: [
-                EmotionScore(emotion: .tired, confidence: 0.10),
-                EmotionScore(emotion: .lonely, confidence: 0.05),
-                EmotionScore(emotion: .scared, confidence: 0.03)
-            ]
-        ),
-        onDismiss: {}
-    )
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(Color.Semantic.screenBackground)
-}

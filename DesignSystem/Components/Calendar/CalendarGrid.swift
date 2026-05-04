@@ -89,21 +89,3 @@ public struct CalendarGrid: View {
         return datesWithIndicator.contains { calendar.isDate($0, inSameDayAs: target) }
     }
 }
-
-#Preview("Calendar") {
-    @Previewable @State var selected = Date()
-    VStack {
-        CalendarGrid(
-            month: Date(),
-            selected: $selected,
-            datesWithIndicator: [
-                Calendar.current.date(byAdding: .day, value: -3, to: Date())!,
-                Calendar.current.date(byAdding: .day, value: 1, to: Date())!,
-                Calendar.current.date(byAdding: .day, value: 5, to: Date())!
-            ]
-        )
-        .padding(Spacing.m)
-        Spacer()
-    }
-    .background(Color.Semantic.screenBackground)
-}

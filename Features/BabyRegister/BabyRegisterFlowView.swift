@@ -27,11 +27,3 @@ public struct BabyRegisterFlowView: View {
         }
     }
 }
-
-#Preview {
-    BabyRegisterFlowView(
-        store: Store(initialState: BabyRegisterFlowFeature.State()) {
-            BabyRegisterFlowFeature()
-        }
-    )
-}

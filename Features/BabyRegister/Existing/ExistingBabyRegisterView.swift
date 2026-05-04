@@ -36,13 +36,3 @@ public struct ExistingBabyRegisterView: View {
         .alert($store.scope(state: \.alert, action: \.alert))
     }
 }
-
-#Preview {
-    NavigationStack {
-        ExistingBabyRegisterView(
-            store: Store(initialState: ExistingBabyRegisterFeature.State()) {
-                ExistingBabyRegisterFeature()
-            }
-        )
-    }
-}

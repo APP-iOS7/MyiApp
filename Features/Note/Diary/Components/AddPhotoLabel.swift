@@ -20,8 +20,3 @@ struct AddPhotoLabel: View {
             )
     }
 }
-
-#Preview {
-    AddPhotoLabel()
-        .padding()
-}

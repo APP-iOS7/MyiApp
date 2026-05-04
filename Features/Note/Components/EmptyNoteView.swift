@@ -15,7 +15,3 @@ struct EmptyNoteView: View {
         .padding(.vertical, Spacing.l)
     }
 }
-
-#Preview {
-    EmptyNoteView()
-}

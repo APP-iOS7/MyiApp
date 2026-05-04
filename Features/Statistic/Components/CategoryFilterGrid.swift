@@ -78,8 +78,3 @@ private struct CategoryIcon: View {
         }
     }
 }
-
-#Preview {
-    CategoryFilterGrid(selectedCategories: .constant(Set(CareEvent.Category.statisticFilterCases)))
-        .padding()
-}

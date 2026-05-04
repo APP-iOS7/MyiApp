@@ -277,21 +277,3 @@ public struct StatisticPDFContent: View {
         }
     }
 }
-
-#if DEBUG
-    #Preview {
-        ScrollView {
-            StatisticPDFContent(
-                baby: Baby(
-                    name: "꼬미",
-                    birthDate: Calendar.current.date(byAdding: .day, value: -100, to: Date()) ?? Date(),
-                    gender: .female,
-                    bloodType: .a,
-                    mainCaregiverID: "preview"
-                ),
-                records: CareRecord.mocks,
-                date: Date()
-            )
-        }
-    }
-#endif

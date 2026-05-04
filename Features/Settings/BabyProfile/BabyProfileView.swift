@@ -156,23 +156,3 @@ extension BabyProfileView {
         }
     }
 }
-
-#Preview {
-    NavigationStack {
-        BabyProfileView(
-            store: Store(
-                initialState: BabyProfileFeature.State(
-                    baby: Baby(
-                        name: "꼬미",
-                        birthDate: Calendar.current.date(byAdding: .day, value: -100, to: Date()) ?? Date(),
-                        gender: .female,
-                        bloodType: .a,
-                        mainCaregiverID: "preview"
-                    )
-                )
-            ) {
-                BabyProfileFeature()
-            }
-        )
-    }
-}

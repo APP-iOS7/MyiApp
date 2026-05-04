@@ -74,11 +74,3 @@ public struct ScheduleEditorView: View {
         }
     }
 }
-
-#Preview {
-    ScheduleEditorView(
-        store: Store(initialState: ScheduleEditorFeature.State(babyID: UUID(), date: Date())) {
-            ScheduleEditorFeature()
-        }
-    )
-}

@@ -30,15 +30,3 @@ struct FailureSection: View {
         .padding(Spacing.m)
     }
 }
-
-#Preview("Failure - Recording") {
-    FailureSection(failure: .recordingFailed, onDismiss: {})
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.Semantic.screenBackground)
-}
-
-#Preview("Failure - Analysis") {
-    FailureSection(failure: .analysisFailed, onDismiss: {})
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.Semantic.screenBackground)
-}

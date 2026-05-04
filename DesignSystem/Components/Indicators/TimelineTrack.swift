@@ -36,21 +36,3 @@ public struct TimelineTrack: View {
             .frame(maxHeight: .infinity)
     }
 }
-
-#Preview {
-    VStack(spacing: 0) {
-        ForEach(0 ..< 4) { i in
-            HStack(spacing: Spacing.s) {
-                TimelineTrack(
-                    tintColor: .blue,
-                    showTopLine: i != 0,
-                    showBottomLine: i != 3
-                )
-                Text("Item \(i)")
-                Spacer()
-            }
-            .frame(height: 60)
-        }
-    }
-    .padding()
-}

@@ -24,11 +24,3 @@ struct ActionChip: View {
         .buttonStyle(NoHighlightButtonStyle())
     }
 }
-
-#Preview {
-    HStack(spacing: Spacing.s) {
-        ActionChip(label: "일지", systemImage: "doc.text") {}
-        ActionChip(label: "일정", systemImage: "bell") {}
-    }
-    .padding()
-}

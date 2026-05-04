@@ -19,23 +19,3 @@ public struct ScreenTitle<Trailing: View>: View {
         }
     }
 }
-
-#Preview {
-    VStack(spacing: 24) {
-        ScreenTitle("육아 수첩")
-
-        ScreenTitle("울음 분석") {
-            Image(systemName: "list.bullet")
-                .font(.title2)
-        }
-
-        ScreenTitle("기록 분석") {
-            HStack(spacing: 16) {
-                Image(systemName: "chart.xyaxis.line")
-                Image(systemName: "square.and.arrow.up")
-            }
-            .font(.title2)
-        }
-    }
-    .padding()
-}
