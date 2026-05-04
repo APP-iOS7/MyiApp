@@ -1,5 +1,10 @@
 import ProjectDescription
 
+let marketingVersion = "1.3"
+let buildNumber = "2"
+let appBundleId = "kr.co.codegroove.MyiApp"
+let reversedClientId = "com.googleusercontent.apps.407010597429-3bmimc7cfigpbrqbsplf6vrtarauaqki"
+
 let project = Project(
     name: "MyI",
     organizationName: "codegrove",
@@ -78,7 +83,7 @@ let project = Project(
             name: "MyI",
             destinations: .iOS,
             product: .app,
-            bundleId: "kr.co.codegrove.MyI",
+            bundleId: appBundleId,
             deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(with: [
                 "UILaunchStoryboardName": "LaunchScreen",
@@ -88,7 +93,7 @@ let project = Project(
                     [
                         "CFBundleTypeRole": "Editor",
                         "CFBundleURLSchemes": [
-                            "com.googleusercontent.apps.407010597429-1tmg5nqub6tgiohmgd0q5sofkpd3kp99"
+                            .string(reversedClientId)
                         ]
                     ]
                 ]
@@ -110,8 +115,8 @@ let project = Project(
             ],
             settings: .settings(
                 base: [
-                    "MARKETING_VERSION": "1.1",
-                    "CURRENT_PROJECT_VERSION": "2",
+                    "MARKETING_VERSION": .string(marketingVersion),
+                    "CURRENT_PROJECT_VERSION": .string(buildNumber),
                     "CODE_SIGN_STYLE": "Automatic",
                     "CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION": "YES",
                     "OTHER_LDFLAGS": ["$(inherited)", "-ObjC"]
