@@ -99,7 +99,7 @@ let project = Project(
             ],
             entitlements: .dictionary([
                 "com.apple.developer.applesignin": .array(["Default"]),
-                "aps-environment": .string("development")
+                "aps-environment": .string("production")
             ]),
             dependencies: [
                 .target(name: "Domain"),
@@ -110,8 +110,8 @@ let project = Project(
             ],
             settings: .settings(
                 base: [
-                    "MARKETING_VERSION": "1.0",
-                    "CURRENT_PROJECT_VERSION": "1",
+                    "MARKETING_VERSION": "1.1",
+                    "CURRENT_PROJECT_VERSION": "2",
                     "CODE_SIGN_STYLE": "Automatic",
                     "CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION": "YES",
                     "OTHER_LDFLAGS": ["$(inherited)", "-ObjC"]
