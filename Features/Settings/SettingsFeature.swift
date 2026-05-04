@@ -171,6 +171,10 @@ public struct SettingsFeature {
             case .alert:
                 return .none
 
+            case .babyRegister(.presented(.delegate(.cancelled))):
+                state.babyRegister = nil
+                return .none
+
             case .babyRegister(.presented(.delegate(.babyRegistered))):
                 state.babyRegister = nil
                 return .none

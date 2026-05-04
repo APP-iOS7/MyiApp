@@ -97,6 +97,11 @@ public struct AppFeature {
                 }
                 return .none
 
+            case .destination(.presented(.babyRegister(.delegate(.cancelled)))):
+                return .run { [authClient] _ in
+                    try? await authClient.signOut()
+                }
+
             case .destination(.presented(.babyRegister(.delegate(.babyRegistered)))):
                 guard state.session != nil else { return .none }
 
