@@ -1,24 +1,44 @@
 import Domain
-@preconcurrency import FirebaseAuth
-import FirebaseCore
-@preconcurrency import FirebaseFirestore
-@preconcurrency import FirebaseMessaging
+import Foundation
 import GoogleSignIn
+import os
 import Shared
 @preconcurrency import UserNotifications
 
 public enum AppBootstrap {
+
+    /// Google OAuth client ID. Hardcoded so we don't depend on
+    /// `GoogleService-Info.plist`. Reverse of the `reversedClientId`
+    /// declared in `Project.swift`.
+    private static let googleClientID =
+        "407010597429-3bmimc7cfigpbrqbsplf6vrtarauaqki.apps.googleusercontent.com"
+
     private static let notificationCoordinator = NotificationCoordinator()
+    private static let pendingToken = OSAllocatedUnfairLock<Data?>(initialState: nil)
+    private static let bootstrapped = OSAllocatedUnfairLock<Bool>(initialState: false)
 
     public static func configure() {
-        FirebaseApp.configure()
+        let already = bootstrapped.withLock { current -> Bool in
+            if current { return true }
+            current = true
+            return false
+        }
+        if already { return }
 
-        if let clientID = FirebaseApp.app()?.options.clientID {
-            GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: googleClientID)
+        UNUserNotificationCenter.current().delegate = notificationCoordinator
+
+        // Whenever the session becomes authenticated, retry registering any
+        // cached APNs token (it may have arrived before login completed).
+        Task {
+            for await session in AuthState.shared.stream() {
+                guard session != nil else { continue }
+                if let data = pendingToken.withLock({ $0 }) {
+                    await registerCached(token: data)
+                }
+            }
         }
 
-        Messaging.messaging().delegate = notificationCoordinator
-        UNUserNotificationCenter.current().delegate = notificationCoordinator
         AppLogger.info("AppBootstrap configured")
     }
 
@@ -26,20 +46,31 @@ public enum AppBootstrap {
         GIDSignIn.sharedInstance.handle(url)
     }
 
-    public static func saveFCMToken(_ token: String) async {
-        guard let uid = Auth.auth().currentUser?.uid else {
-            AppLogger.debug("FCM token save skipped: not authenticated")
+    /// Called from `AppDelegate.didRegisterForRemoteNotificationsWithDeviceToken`.
+    public static func registerAPNsToken(_ data: Data) {
+        pendingToken.withLock { $0 = data }
+        Task { await registerCached(token: data) }
+    }
+
+    private static func registerCached(token data: Data) async {
+        guard AuthState.shared.snapshot() != nil else {
+            AppLogger.debug("APNs token registration deferred: not signed in")
             return
         }
-
+        let hex = data.map { String(format: "%02x", $0) }.joined()
+        #if DEBUG
+        let environment = "sandbox"
+        #else
+        let environment = "production"
+        #endif
         do {
-            try await Firestore.firestore()
-                .collection("users")
-                .document(uid)
-                .setData(["fcmToken": token], merge: true)
-            AppLogger.info("FCM token saved for \(uid)")
+            try await APIClient.shared.postNoResponse(
+                "/devices/register",
+                body: RegisterDeviceRequestDTO(token: hex, environment: environment)
+            )
+            AppLogger.info("APNs token registered env=\(environment)")
         } catch {
-            AppLogger.error("FCM token save failed: \(error)")
+            AppLogger.error("APNs token register failed: \(error)")
         }
     }
 
@@ -62,13 +93,11 @@ public enum AppBootstrap {
                 AppLogger.info("note_created without reminder, skip schedule")
                 return
             }
-
             let scheduledAt = Date(timeIntervalSince1970: scheduledAtMillis / 1000)
             guard scheduledAt > Date() else {
                 AppLogger.debug("scheduledAt in past, skip schedule")
                 return
             }
-
             let body = payload["body"] ?? ""
             await scheduleLocalReminder(
                 id: noteID,
@@ -120,15 +149,6 @@ public enum AppBootstrap {
 }
 
 private final class NotificationCoordinator: NSObject, @unchecked Sendable {}
-
-extension NotificationCoordinator: MessagingDelegate {
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        AppLogger.info("FCM token received: \(fcmToken ?? "nil")")
-        guard let fcmToken else { return }
-
-        Task { await AppBootstrap.saveFCMToken(fcmToken) }
-    }
-}
 
 extension NotificationCoordinator: UNUserNotificationCenterDelegate {
     func userNotificationCenter(

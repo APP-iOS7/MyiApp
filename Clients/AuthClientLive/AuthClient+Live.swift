@@ -1,34 +1,35 @@
 import ComposableArchitecture
 import Domain
-@preconcurrency import FirebaseAuth
 import Foundation
 
 extension AuthClient: @retroactive TestDependencyKey {}
 extension AuthClient: @retroactive DependencyKey {
     public static let liveValue = Self(
-        current: { Auth.auth().currentUser.map { Session(user: $0) } },
+        current: {
+            AuthState.shared.snapshot()
+        },
         stateStream: {
-            AsyncStream { continuation in
-                let handle = Auth.auth().addStateDidChangeListener { _, user in
-                    continuation.yield(user.map { Session(user: $0) })
-                }
-                continuation.onTermination = { _ in Auth.auth().removeStateDidChangeListener(handle) }
-            }
+            AuthState.shared.stream()
         },
         signInWithApple: { @Sendable () async throws(AuthError) -> Session? in
             do {
                 let provider = await AppleSignInProvider()
                 let appleResult = try await provider.signIn()
 
-                let credential = OAuthProvider.appleCredential(
-                    withIDToken: appleResult.identityToken,
-                    rawNonce: appleResult.rawNonce,
-                    fullName: appleResult.fullName
+                AppleAuthorizationCodeStore.save(appleResult.authorizationCode)
+
+                let response: LoginResponseDTO = try await APIClient.shared.postJSON(
+                    "/auth/login/apple",
+                    body: LoginRequestDTO(idToken: appleResult.identityToken)
                 )
 
-                let authResult = try await Auth.auth().signIn(with: credential)
-                AppleAuthorizationCodeStore.save(appleResult.authorizationCode)
-                return Session(user: authResult.user)
+                let session = Session(
+                    uid: response.userId,
+                    email: nil,
+                    providerIDs: ["apple.com"]
+                )
+                AuthState.shared.update(session: session, accessToken: response.accessToken)
+                return session
             } catch AppleSignInError.userCancelled {
                 return nil
             } catch {
@@ -39,13 +40,18 @@ extension AuthClient: @retroactive DependencyKey {
             do {
                 let googleResult = try await GoogleSignInProvider.signIn()
 
-                let credential = GoogleAuthProvider.credential(
-                    withIDToken: googleResult.idToken,
-                    accessToken: googleResult.accessToken
+                let response: LoginResponseDTO = try await APIClient.shared.postJSON(
+                    "/auth/login/google",
+                    body: LoginRequestDTO(idToken: googleResult.idToken)
                 )
 
-                let authResult = try await Auth.auth().signIn(with: credential)
-                return Session(user: authResult.user)
+                let session = Session(
+                    uid: response.userId,
+                    email: nil,
+                    providerIDs: ["google.com"]
+                )
+                AuthState.shared.update(session: session, accessToken: response.accessToken)
+                return session
             } catch GoogleSignInError.userCancelled {
                 return nil
             } catch {
@@ -53,32 +59,14 @@ extension AuthClient: @retroactive DependencyKey {
             }
         },
         signOut: { @Sendable () async throws(AuthError) in
-            do {
-                try Auth.auth().signOut()
-            } catch {
-                throw AuthError.unexpected
-            }
+            AuthState.shared.update(session: nil, accessToken: nil)
+            AppleAuthorizationCodeStore.delete()
         },
         deleteAccount: { @Sendable () async throws(AuthError) in
-            guard let user = Auth.auth().currentUser else {
-                return
-            }
-
-            do {
-                let isAppleProvider = user.providerData.contains { $0.providerID == "apple.com" }
-                if isAppleProvider, let authorizationCode = AppleAuthorizationCodeStore.load() {
-                    try await Auth.auth().revokeToken(withAuthorizationCode: authorizationCode)
-                }
-
-                try await user.delete()
-                AppleAuthorizationCodeStore.delete()
-            } catch {
-                let nsError = error as NSError
-                if nsError.code == AuthErrorCode.requiresRecentLogin.rawValue {
-                    throw AuthError.requiresRecentLogin
-                }
-                throw AuthError.unexpected
-            }
+            // TODO: wire to backend `DELETE /me` once that endpoint exists.
+            // For now, behave like sign-out so the UI doesn't loop.
+            AuthState.shared.update(session: nil, accessToken: nil)
+            AppleAuthorizationCodeStore.delete()
         }
     )
 }
@@ -87,15 +75,5 @@ extension DependencyValues {
     public var authClient: AuthClient {
         get { self[AuthClient.self] }
         set { self[AuthClient.self] = newValue }
-    }
-}
-
-extension Session {
-    fileprivate init(user: User) {
-        self.init(
-            uid: user.uid,
-            email: user.email,
-            providerIDs: user.providerData.map(\.providerID)
-        )
     }
 }

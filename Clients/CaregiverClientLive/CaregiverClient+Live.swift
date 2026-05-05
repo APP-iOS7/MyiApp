@@ -1,107 +1,89 @@
 import ComposableArchitecture
 import Domain
-@preconcurrency import FirebaseAuth
-@preconcurrency import FirebaseFirestore
 import Foundation
+import Shared
 
 extension CaregiverClient: @retroactive TestDependencyKey {}
 extension CaregiverClient: @retroactive DependencyKey {
     public static let liveValue = Self(
         currentCaregiver: { @Sendable () async throws(CaregiverError) -> Caregiver? in
-            guard let uid = Auth.auth().currentUser?.uid else {
-                throw CaregiverError.unauthorized
-            }
-
             do {
-                let snapshot = try await Firestore.firestore()
-                    .collection("users")
-                    .document(uid)
-                    .getDocument()
-                return try caregiver(from: snapshot)
+                let me: MeResponseDTO = try await APIClient.shared.get("/me")
+                return Caregiver(
+                    id: me.id,
+                    displayName: me.displayName,
+                    photoURL: nil,
+                    fcmToken: nil,
+                    createdAt: me.createdAt ?? Date()
+                )
+            } catch APIError.unauthorized {
+                throw .unauthorized
+            } catch let api as APIError where api == APIError.notFound {
+                return nil
             } catch {
-                throw CaregiverError.unexpected
+                throw .unexpected
             }
         },
         streamCaregiver: { @Sendable () -> AsyncStream<Caregiver?> in
+            // We don't have a per-user stream endpoint. Emit once and finish;
+            // callers re-call when needed (e.g., after profile edits).
             AsyncStream { continuation in
-                guard let uid = Auth.auth().currentUser?.uid else {
-                    continuation.finish()
-                    return
-                }
-
-                let listener = Firestore.firestore()
-                    .collection("users")
-                    .document(uid)
-                    .addSnapshotListener { snapshot, _ in
-                        guard let snapshot else { return }
-
-                        continuation.yield(try? caregiver(from: snapshot))
+                Task {
+                    let me: MeResponseDTO? = try? await APIClient.shared.get("/me")
+                    if let me {
+                        continuation.yield(Caregiver(
+                            id: me.id,
+                            displayName: me.displayName,
+                            photoURL: nil,
+                            fcmToken: nil,
+                            createdAt: me.createdAt ?? Date()
+                        ))
+                    } else {
+                        continuation.yield(nil)
                     }
-                continuation.onTermination = { _ in
-                    listener.remove()
+                    continuation.finish()
                 }
             }
         },
         streamCaregivers: { @Sendable ids -> AsyncStream<[Caregiver]> in
             AsyncStream { continuation in
-                guard !ids.isEmpty else {
-                    continuation.yield([])
-                    continuation.finish()
-                    return
-                }
-
-                let listener = Firestore.firestore()
-                    .collection("users")
-                    .whereField(FieldPath.documentID(), in: ids)
-                    .addSnapshotListener { snapshot, _ in
-                        guard let snapshot else { return }
-
-                        let caregivers = snapshot.documents.compactMap { document in
-                            try? caregiver(from: document)
+                Task {
+                    var caregivers: [Caregiver] = []
+                    for id in ids {
+                        if let pub: PublicUserResponseDTO = try? await APIClient.shared.get("/users/\(id)") {
+                            caregivers.append(Caregiver(
+                                id: pub.id,
+                                displayName: pub.displayName,
+                                photoURL: nil,
+                                fcmToken: nil,
+                                createdAt: pub.createdAt
+                            ))
                         }
-                        continuation.yield(caregivers)
                     }
-                continuation.onTermination = { _ in
-                    listener.remove()
+                    continuation.yield(caregivers)
+                    continuation.finish()
                 }
             }
         },
         provisionCaregiver: { @Sendable () async throws(CaregiverError) in
-            guard let user = Auth.auth().currentUser else {
-                throw CaregiverError.unauthorized
-            }
-
+            // The /auth/login/* endpoints already upsert a user row, so
+            // provisioning is implicit. Verify reachability with GET /me.
             do {
-                let ref = Firestore.firestore().collection("users").document(user.uid)
-                let snapshot = try await ref.getDocument()
-                if snapshot.exists, snapshot.data()?["createdAt"] != nil {
-                    return
-                }
-                let initial = Caregiver(
-                    id: user.uid,
-                    displayName: user.displayName,
-                    photoURL: user.photoURL,
-                    createdAt: Date()
-                )
-                let encoder = Firestore.Encoder()
-                let data = try encoder.encode(initial)
-                try await ref.setData(data, merge: true)
+                let _: MeResponseDTO = try await APIClient.shared.get("/me")
+            } catch APIError.unauthorized {
+                throw .unauthorized
             } catch {
-                throw CaregiverError.unexpected
+                throw .unexpected
             }
         },
         updateDisplayName: { @Sendable name async throws(CaregiverError) in
-            guard let uid = Auth.auth().currentUser?.uid else {
-                throw CaregiverError.unauthorized
-            }
-
             do {
-                try await Firestore.firestore()
-                    .collection("users")
-                    .document(uid)
-                    .setData(["displayName": name], merge: true)
+                let req = UpdateMeRequestDTO(displayName: name)
+                let _: MeResponseDTO = try await APIClient.shared.patch("/me", body: req)
+            } catch APIError.unauthorized {
+                throw .unauthorized
             } catch {
-                throw CaregiverError.unexpected
+                throw .unexpected
             }
         }
     )
@@ -114,10 +96,14 @@ extension DependencyValues {
     }
 }
 
-private func caregiver(from snapshot: DocumentSnapshot) throws -> Caregiver? {
-    guard snapshot.exists, var data = snapshot.data() else { return nil }
+// MARK: - DTOs (extending the foundation MeResponseDTO with createdAt)
 
-    data["id"] = snapshot.documentID
-    let decoder = Firestore.Decoder()
-    return try decoder.decode(Caregiver.self, from: data)
+struct PublicUserResponseDTO: Decodable, Sendable {
+    let id: String
+    let displayName: String?
+    let createdAt: Date
+}
+
+struct UpdateMeRequestDTO: Encodable, Sendable {
+    let displayName: String?
 }

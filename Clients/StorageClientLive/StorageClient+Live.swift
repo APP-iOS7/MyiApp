@@ -1,108 +1,40 @@
 import ComposableArchitecture
 import Domain
-@preconcurrency import FirebaseAuth
-@preconcurrency import FirebaseStorage
 import Foundation
 import Shared
 
 extension StorageClient: @retroactive TestDependencyKey {}
 extension StorageClient: @retroactive DependencyKey {
     public static let liveValue = Self(
-        uploadDiaryPhoto: { @Sendable babyID, noteID, data async throws(Domain.StorageError) -> URL in
-            guard Auth.auth().currentUser?.uid != nil else {
-                AppLogger.error("uploadDiaryPhoto unauthorized babyID=\(babyID) noteID=\(noteID)")
-                throw .unauthorized
-            }
-
-            let photoID = UUID()
-            let path = diaryPhotoPath(babyID: babyID, noteID: noteID, photoID: photoID)
-            let contentType = inferImageContentType(data: data)
-            AppLogger.info("uploadDiaryPhoto start path=\(path) bytes=\(data.count) contentType=\(contentType)")
-            let reference = Storage.storage().reference().child(path)
-            let metadata = StorageMetadata()
-            metadata.contentType = contentType
-            do {
-                _ = try await reference.putDataAsync(data, metadata: metadata)
-                let url = try await reference.downloadURL()
-                await URLDataCache.shared.store(data, for: url)
-                AppLogger.info("uploadDiaryPhoto done photoID=\(photoID)")
-                return url
-            } catch {
-                let mapped = mapStorageError(error)
-                AppLogger.error("uploadDiaryPhoto failed: \(error) → \(mapped)")
-                throw mapped
-            }
+        uploadDiaryPhoto: { @Sendable babyID, _, data async throws(Domain.StorageError) -> URL in
+            try await uploadImageData(babyID: babyID, data: data, kind: .noteImage, label: "uploadDiaryPhoto")
         },
-        uploadDiaryPhotoFile: { @Sendable babyID, noteID, fileURL async throws(Domain.StorageError) -> URL in
-            guard Auth.auth().currentUser?.uid != nil else {
-                AppLogger.error("uploadDiaryPhotoFile unauthorized babyID=\(babyID) noteID=\(noteID)")
-                throw .unauthorized
-            }
-
-            let photoID = UUID()
-            let path = diaryPhotoPath(babyID: babyID, noteID: noteID, photoID: photoID)
-            let contentType = inferImageContentTypeFromFile(at: fileURL)
-            AppLogger
-                .info(
-                    "uploadDiaryPhotoFile start path=\(path) file=\(fileURL.lastPathComponent) contentType=\(contentType)"
-                )
-            let reference = Storage.storage().reference().child(path)
-            let metadata = StorageMetadata()
-            metadata.contentType = contentType
+        uploadDiaryPhotoFile: { @Sendable babyID, _, fileURL async throws(Domain.StorageError) -> URL in
             do {
-                _ = try await reference.putFileAsync(from: fileURL, metadata: metadata)
-                let url = try await reference.downloadURL()
-                if let data = try? Data(contentsOf: fileURL) {
-                    await URLDataCache.shared.store(data, for: url)
-                }
-                AppLogger.info("uploadDiaryPhotoFile done photoID=\(photoID)")
+                let data = try Data(contentsOf: fileURL)
+                let url = try await uploadImageData(
+                    babyID: babyID,
+                    data: data,
+                    kind: .noteImage,
+                    label: "uploadDiaryPhotoFile"
+                )
+                await URLDataCache.shared.store(data, for: url)
                 return url
+            } catch let storage as Domain.StorageError {
+                throw storage
             } catch {
-                let mapped = mapStorageError(error)
-                AppLogger.error("uploadDiaryPhotoFile failed: \(error) → \(mapped)")
-                throw mapped
+                AppLogger.error("uploadDiaryPhotoFile read failed: \(error)")
+                throw .unexpected
             }
         },
         uploadBabyProfilePhoto: { @Sendable babyID, data async throws(Domain.StorageError) -> URL in
-            guard Auth.auth().currentUser?.uid != nil else {
-                AppLogger.error("uploadBabyProfilePhoto unauthorized babyID=\(babyID)")
-                throw .unauthorized
-            }
-
-            let photoID = UUID()
-            let path = babyProfilePhotoPath(babyID: babyID, photoID: photoID)
-            let contentType = inferImageContentType(data: data)
-            AppLogger.info("uploadBabyProfilePhoto start path=\(path) bytes=\(data.count) contentType=\(contentType)")
-            let reference = Storage.storage().reference().child(path)
-            let metadata = StorageMetadata()
-            metadata.contentType = contentType
-            do {
-                _ = try await reference.putDataAsync(data, metadata: metadata)
-                let url = try await reference.downloadURL()
-                await URLDataCache.shared.store(data, for: url)
-                AppLogger.info("uploadBabyProfilePhoto done photoID=\(photoID)")
-                return url
-            } catch {
-                let mapped = mapStorageError(error)
-                AppLogger.error("uploadBabyProfilePhoto failed: \(error) → \(mapped)")
-                throw mapped
-            }
+            try await uploadImageData(babyID: babyID, data: data, kind: .profile, label: "uploadBabyProfilePhoto")
         },
         deletePhoto: { @Sendable downloadURL async throws(Domain.StorageError) in
-            guard Auth.auth().currentUser?.uid != nil else {
-                AppLogger.error("deletePhoto unauthorized url=\(downloadURL)")
-                throw .unauthorized
-            }
-
-            do {
-                let reference = Storage.storage().reference(forURL: downloadURL.absoluteString)
-                try await reference.delete()
-                AppLogger.info("deletePhoto done url=\(downloadURL)")
-            } catch {
-                let mapped = mapStorageError(error)
-                AppLogger.error("deletePhoto failed: \(error) → \(mapped)")
-                throw mapped
-            }
+            // Backend doesn't expose a direct object delete endpoint yet.
+            // Photos referenced by Note.imageURLs / Baby.profileImageURL are
+            // dereferenced via PATCH; orphaned objects can be GC'd server-side later.
+            AppLogger.info("deletePhoto noop url=\(downloadURL)")
         }
     )
 }
@@ -114,43 +46,70 @@ extension DependencyValues {
     }
 }
 
-private func diaryPhotoPath(babyID: UUID, noteID: UUID, photoID: UUID) -> String {
-    "babies/\(babyID.uuidString)/notes/\(noteID.uuidString)/photos/\(photoID.uuidString)"
-}
+// MARK: - Upload core
 
-private func babyProfilePhotoPath(babyID: UUID, photoID: UUID) -> String {
-    "babies/\(babyID.uuidString)/profile/\(photoID.uuidString)"
-}
-
-private func mapStorageError(_ error: Error) -> Domain.StorageError {
-    let nsError = error as NSError
-    guard nsError.domain == StorageErrorDomain,
-          let code = StorageErrorCode(rawValue: nsError.code)
-    else {
-        return .unexpected
+private func uploadImageData(
+    babyID: UUID,
+    data: Data,
+    kind: UploadKindDTO,
+    label: String
+) async throws(Domain.StorageError) -> URL {
+    guard AuthState.shared.snapshot() != nil else {
+        AppLogger.error("\(label) unauthorized babyID=\(babyID)")
+        throw .unauthorized
     }
+    let contentType = inferImageContentType(data: data)
+    AppLogger.info("\(label) start babyID=\(babyID) bytes=\(data.count) contentType=\(contentType)")
 
-    switch code {
-    case .unauthorized, .unauthenticated:
-        return .unauthorized
-    case .quotaExceeded:
-        return .quotaExceeded
-    case .objectNotFound:
-        return .objectNotFound
-    default:
-        return .unexpected
+    do {
+        let presigned: PresignedUploadResponseDTO = try await APIClient.shared.postJSON(
+            "/babies/\(babyID.uuidString)/uploads",
+            body: PresignedUploadRequestDTO(kind: kind, contentType: contentType)
+        )
+        try await put(data: data, to: presigned.uploadUrl, contentType: contentType)
+
+        let canonical = APIConfig.storageBaseURL
+            .appendingPathComponent(APIConfig.storageBucket)
+            .appendingPathComponent(presigned.key)
+        await URLDataCache.shared.store(data, for: canonical)
+        AppLogger.info("\(label) done key=\(presigned.key)")
+        return canonical
+    } catch let api as APIError {
+        AppLogger.error("\(label) failed: \(api)")
+        throw mapStorageError(api)
+    } catch {
+        AppLogger.error("\(label) unexpected: \(error)")
+        throw .unexpected
     }
 }
 
-private func inferImageContentTypeFromFile(at url: URL) -> String {
-    guard let handle = try? FileHandle(forReadingFrom: url) else {
-        return "application/octet-stream"
+private func put(data: Data, to urlString: String, contentType: String) async throws {
+    guard let url = URL(string: urlString) else {
+        throw APIError.unexpected("bad presigned url")
     }
-
-    defer { try? handle.close() }
-    let prefix = (try? handle.read(upToCount: 12)) ?? Data()
-    return inferImageContentType(data: prefix)
+    var req = URLRequest(url: url)
+    req.httpMethod = "PUT"
+    req.setValue(contentType, forHTTPHeaderField: "Content-Type")
+    req.httpBody = data
+    let (_, response) = try await URLSession.shared.upload(for: req, from: data)
+    guard let http = response as? HTTPURLResponse else {
+        throw APIError.network("upload non-http")
+    }
+    guard (200..<300).contains(http.statusCode) else {
+        throw APIError.unexpected("upload status \(http.statusCode)")
+    }
 }
+
+private func mapStorageError(_ error: APIError) -> Domain.StorageError {
+    switch error {
+    case .unauthorized: return .unauthorized
+    case .forbidden:    return .unauthorized
+    case .notFound:     return .objectNotFound
+    default:            return .unexpected
+    }
+}
+
+// MARK: - Content type inference (kept from previous implementation)
 
 private func inferImageContentType(data: Data) -> String {
     let prefix = Array(data.prefix(12))
@@ -168,21 +127,14 @@ private func inferImageContentType(data: Data) -> String {
     {
         let brand = Array(prefix[8 ..< 12])
         let heicBrands: [[UInt8]] = [
-            [0x68, 0x65, 0x69, 0x63], // heic
-            [0x68, 0x65, 0x69, 0x78], // heix
-            [0x68, 0x65, 0x76, 0x63], // hevc
-            [0x68, 0x65, 0x76, 0x78], // hevx
-            [0x6D, 0x69, 0x66, 0x31], // mif1
-            [0x6D, 0x73, 0x66, 0x31] // msf1
+            [0x68, 0x65, 0x69, 0x63],
+            [0x68, 0x65, 0x69, 0x78],
+            [0x68, 0x65, 0x76, 0x63],
+            [0x68, 0x65, 0x76, 0x78],
+            [0x6D, 0x69, 0x66, 0x31],
+            [0x6D, 0x73, 0x66, 0x31]
         ]
-        if heicBrands.contains(brand) {
-            return "image/heic"
-        }
-    }
-    if prefix.count >= 6,
-       prefix[0] == 0x47, prefix[1] == 0x49, prefix[2] == 0x46, prefix[3] == 0x38
-    {
-        return "image/gif"
+        if heicBrands.contains(brand) { return "image/heic" }
     }
     if prefix.count >= 12,
        prefix[0] == 0x52, prefix[1] == 0x49, prefix[2] == 0x46, prefix[3] == 0x46,
@@ -190,5 +142,6 @@ private func inferImageContentType(data: Data) -> String {
     {
         return "image/webp"
     }
-    return "application/octet-stream"
+    // Backend whitelist allows: jpeg/png/heic/webp. Default to jpeg as safe fallback.
+    return "image/jpeg"
 }

@@ -9,10 +9,6 @@ let package = Package(
             .upToNextMinor(from: "1.25.5")
         ),
         .package(
-            url: "https://github.com/firebase/firebase-ios-sdk",
-            .upToNextMinor(from: "12.12.1")
-        ),
-        .package(
             url: "https://github.com/google/GoogleSignIn-iOS",
             .upToNextMinor(from: "9.1.0")
         )

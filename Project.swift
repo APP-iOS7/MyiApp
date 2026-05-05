@@ -44,11 +44,6 @@ let project = Project(
                 .target(name: "Domain"),
                 .external(name: "ComposableArchitecture"),
                 .external(name: "ConcurrencyExtras"),
-                .external(name: "FirebaseCore"),
-                .external(name: "FirebaseAuth"),
-                .external(name: "FirebaseFirestore"),
-                .external(name: "FirebaseStorage"),
-                .external(name: "FirebaseMessaging"),
                 .external(name: "GoogleSignIn"),
                 .external(name: "GoogleSignInSwift")
             ]
