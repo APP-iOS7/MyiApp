@@ -126,6 +126,28 @@ let project = Project(
                     "TARGETED_DEVICE_FAMILY": "1"
                 ]
             )
+        ),
+        .target(
+            name: "FeaturesTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "kr.co.codegrove.FeaturesTests",
+            deploymentTargets: .iOS("17.0"),
+            sources: ["FeaturesTests/**/*.swift"],
+            dependencies: [
+                .target(name: "Features")
+            ]
+        ),
+        .target(
+            name: "MyITests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "kr.co.codegrove.MyITests",
+            deploymentTargets: .iOS("17.0"),
+            sources: ["MyI/Tests/**/*.swift"],
+            dependencies: [
+                .target(name: "MyI")
+            ]
         )
     ]
 )
