@@ -4,7 +4,7 @@ set -eu
 # Xcode Cloud post-clone hook
 # Tuist 프로젝트라 xcodebuild 호출 전에 xcodeproj/xcworkspace 생성이 필요.
 # - GoogleService-Info.plist 복원 (Environment Variable에서)
-# - Tuist 설치
+# - Tuist 설치 (sudo 없이 user dir에)
 # - SPM 의존성 fetch
 # - xcodeproj/xcworkspace 생성
 
@@ -18,6 +18,10 @@ if [ -n "${GOOGLE_SERVICE_INFO_PLIST_BASE64:-}" ]; then
   echo "$GOOGLE_SERVICE_INFO_PLIST_BASE64" | base64 --decode > MyI/Resources/GoogleService-Info.plist
 fi
 
-brew install tuist
+# Tuist 설치
+# Xcode Cloud는 sudo 막혀서 `brew install tuist` (cask)가 안 됨 → 공식 installer 사용.
+curl -Ls https://uno.tuist.io/install.sh | bash
+export PATH="$HOME/.tuist/bin:$PATH"
+
 tuist install
 tuist generate --no-open
