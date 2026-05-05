@@ -19,9 +19,24 @@ if [ -n "${GOOGLE_SERVICE_INFO_PLIST_BASE64:-}" ]; then
 fi
 
 # Tuist 설치
-# Xcode Cloud는 sudo 막혀서 `brew install tuist` (cask)가 안 됨 → 공식 installer 사용.
-curl -Ls https://uno.tuist.io/install.sh | bash
-export PATH="$HOME/.tuist/bin:$PATH"
+# Xcode Cloud는 sudo 막혀서 `brew install tuist`(cask)도 `mise` 기반 install script도
+# 안 됨. GitHub release binary 직접 다운로드.
+TUIST_VERSION="4.191.6"
+TUIST_INSTALL_DIR="$HOME/.tuist-bin"
+mkdir -p "$TUIST_INSTALL_DIR"
+curl -fL "https://github.com/tuist/tuist/releases/download/${TUIST_VERSION}/tuist.zip" \
+  -o /tmp/tuist.zip
+unzip -q -o /tmp/tuist.zip -d "$TUIST_INSTALL_DIR"
+
+# binary 위치 자동 탐색 (zip 구조 보장 X)
+TUIST_BIN=$(find "$TUIST_INSTALL_DIR" -name 'tuist' -type f | head -1)
+if [ -z "$TUIST_BIN" ]; then
+  echo "::error::tuist binary not found in extracted archive" >&2
+  ls -la "$TUIST_INSTALL_DIR"
+  exit 1
+fi
+chmod +x "$TUIST_BIN"
+export PATH="$(dirname "$TUIST_BIN"):$PATH"
 
 tuist install
 tuist generate --no-open
