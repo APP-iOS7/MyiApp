@@ -1,6 +1,6 @@
 import ProjectDescription
 
-let marketingVersion = "1.3"
+let marketingVersion = "1.3.1"
 let buildNumber = "2"
 let appBundleId = "kr.co.codegroove.MyiApp"
 let reversedClientId = "com.googleusercontent.apps.407010597429-3bmimc7cfigpbrqbsplf6vrtarauaqki"
