@@ -86,7 +86,10 @@ let project = Project(
             bundleId: appBundleId,
             deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(with: [
+                "CFBundleShortVersionString": "$(MARKETING_VERSION)",
+                "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
                 "UILaunchStoryboardName": "LaunchScreen",
+                "ITSAppUsesNonExemptEncryption": false,
                 "NSMicrophoneUsageDescription": "아기의 울음소리를 분석하기 위해 마이크 권한이 필요합니다.",
                 "UIBackgroundModes": ["remote-notification"],
                 "CFBundleURLTypes": [
@@ -119,7 +122,8 @@ let project = Project(
                     "CURRENT_PROJECT_VERSION": .string(buildNumber),
                     "CODE_SIGN_STYLE": "Automatic",
                     "CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION": "YES",
-                    "OTHER_LDFLAGS": ["$(inherited)", "-ObjC"]
+                    "OTHER_LDFLAGS": ["$(inherited)", "-ObjC"],
+                    "TARGETED_DEVICE_FAMILY": "1"
                 ]
             )
         )
