@@ -50,6 +50,7 @@ let project = Project(
                 .external(name: "FirebaseStorage"),
                 .external(name: "FirebaseMessaging"),
                 .external(name: "FirebaseCrashlytics"),
+                .external(name: "FirebaseAnalytics"),
                 .external(name: "GoogleSignIn"),
                 .external(name: "GoogleSignInSwift")
             ]
@@ -163,6 +164,28 @@ let project = Project(
             dependencies: [
                 .target(name: "MyI")
             ]
+        )
+    ],
+    schemes: [
+        .scheme(
+            name: "MyI",
+            shared: true,
+            buildAction: .buildAction(targets: ["MyI"]),
+            testAction: .targets(
+                ["FeaturesTests", "MyITests"],
+                configuration: "Debug"
+            ),
+            runAction: .runAction(
+                configuration: "Debug",
+                arguments: .arguments(
+                    launchArguments: [
+                        .launchArgument(name: "-FIRDebugEnabled", isEnabled: true)
+                    ]
+                )
+            ),
+            archiveAction: .archiveAction(configuration: "Release"),
+            profileAction: .profileAction(configuration: "Release"),
+            analyzeAction: .analyzeAction(configuration: "Debug")
         )
     ]
 )
