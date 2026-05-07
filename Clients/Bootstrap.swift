@@ -1,6 +1,7 @@
 import Domain
 @preconcurrency import FirebaseAuth
 import FirebaseCore
+@preconcurrency import FirebaseCrashlytics
 @preconcurrency import FirebaseFirestore
 @preconcurrency import FirebaseMessaging
 import GoogleSignIn
@@ -13,12 +14,21 @@ public enum AppBootstrap {
     public static func configure() {
         FirebaseApp.configure()
 
+        #if DEBUG
+            Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
+        #endif
+
         if let clientID = FirebaseApp.app()?.options.clientID {
             GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
         }
 
         Messaging.messaging().delegate = notificationCoordinator
         UNUserNotificationCenter.current().delegate = notificationCoordinator
+
+        Auth.auth().addStateDidChangeListener { _, user in
+            Crashlytics.crashlytics().setUserID(user?.uid ?? "")
+        }
+
         AppLogger.info("AppBootstrap configured")
     }
 
