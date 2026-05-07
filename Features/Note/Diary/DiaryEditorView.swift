@@ -36,6 +36,7 @@ public struct DiaryEditorView: View {
                         .disabled(!store.canSave)
                 }
             }
+            .task { store.send(.view(.task)) }
         }
     }
 

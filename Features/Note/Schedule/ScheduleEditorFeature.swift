@@ -73,6 +73,7 @@ public struct ScheduleEditorFeature {
         case alert(PresentationAction<Alert>)
     }
 
+    @Dependency(\.analytics) var analytics
     @Dependency(\.noteClient) var noteClient
     @Dependency(\.localNotificationClient) var localNotificationClient
     @Dependency(\.openURL) var openURL
@@ -153,13 +154,14 @@ public struct ScheduleEditorFeature {
                     date: state.date,
                     reminder: reminder
                 )
-                return .run { [noteClient, babyID = state.babyID] send in
+                return .run { [analytics, noteClient, babyID = state.babyID] send in
                     do throws(NoteError) {
                         try await noteClient.addNote(babyID, note)
                     } catch {
                         await send(._internal(.saveFailed(error)))
                         return
                     }
+                    analytics.track(.noteCreated(noteID: note.id))
                     await send(._internal(.saveCompleted))
                 }
 

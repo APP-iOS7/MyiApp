@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Domain
 import Foundation
 
 @Reducer
@@ -13,6 +14,7 @@ public struct BabyRegisterFlowFeature {
 
     public enum Action {
         public enum ViewAction {
+            case task
             case cancelTapped
         }
 
@@ -28,6 +30,8 @@ public struct BabyRegisterFlowFeature {
         case path(StackActionOf<Path>)
     }
 
+    @Dependency(\.analytics) var analytics
+
     public init() {}
 
     public var body: some ReducerOf<Self> {
@@ -36,6 +40,9 @@ public struct BabyRegisterFlowFeature {
         }
         Reduce { state, action in
             switch action {
+            case .view(.task):
+                return .run { [analytics] _ in analytics.trackScreen(.babyRegister) }
+
             case .view(.cancelTapped):
                 return .send(.delegate(.cancelled))
 

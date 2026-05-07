@@ -42,6 +42,7 @@ public struct ExistingBabyRegisterFeature {
         case alert(PresentationAction<Alert>)
     }
 
+    @Dependency(\.analytics) var analytics
     @Dependency(\.babyClient) var babyClient
 
     public init() {}
@@ -61,7 +62,8 @@ public struct ExistingBabyRegisterFeature {
 
                 state.isSubmitting = true
 
-                return .run { [babyClient] send in
+                return .run { [analytics, babyClient] send in
+                    analytics.track(.caregiverInviteStarted)
                     do throws(BabyError) {
                         try await babyClient.registerExistingBaby(babyID)
                         await send(._internal(.submitSucceeded))
@@ -72,7 +74,10 @@ public struct ExistingBabyRegisterFeature {
 
             case ._internal(.submitSucceeded):
                 state.isSubmitting = false
-                return .send(.delegate(.completed))
+                return .merge(
+                    .run { [analytics] _ in analytics.track(.caregiverInviteCompleted) },
+                    .send(.delegate(.completed))
+                )
 
             case let ._internal(.submitFailed(error)):
                 state.isSubmitting = false

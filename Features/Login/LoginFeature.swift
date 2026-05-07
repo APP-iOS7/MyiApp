@@ -15,6 +15,7 @@ public struct LoginFeature {
 
     public enum Action {
         public enum ViewAction {
+            case task
             case signInWithAppleTapped
             case signInWithGoogleTapped
         }
@@ -32,6 +33,7 @@ public struct LoginFeature {
         case alert(PresentationAction<Alert>)
     }
 
+    @Dependency(\.analytics) var analytics
     @Dependency(\.authClient) var authClient
 
     public init() {}
@@ -39,6 +41,9 @@ public struct LoginFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .view(.task):
+                return .run { [analytics] _ in analytics.trackScreen(.login) }
+
             case .view(.signInWithAppleTapped):
                 state.isLoading = true
                 return .run { [authClient] send in

@@ -60,6 +60,7 @@ public struct HomeFeature {
         case editRecord(PresentationAction<EditRecordFeature.Action>)
     }
 
+    @Dependency(\.analytics) var analytics
     @Dependency(\.careRecordClient) var careRecordClient
 
     public init() {}
@@ -68,7 +69,13 @@ public struct HomeFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .view(.task), .binding(\.selectedDate):
+            case .view(.task):
+                return .merge(
+                    loadRecords(for: state),
+                    .run { [analytics] _ in analytics.trackScreen(.home) }
+                )
+
+            case .binding(\.selectedDate):
                 return loadRecords(for: state)
 
             case let .view(.careEntryTapped(entry)):
@@ -140,7 +147,7 @@ public struct HomeFeature {
             of: state.selectedDate
         ) ?? now
 
-        return .run { [careRecordClient] send in
+        return .run { [analytics, careRecordClient] send in
             do throws(CareRecordError) {
                 let event: CareEvent? = switch entry {
                 case .feeding:
@@ -171,6 +178,7 @@ public struct HomeFeature {
                 guard let event else { return }
 
                 try await careRecordClient.addRecord(babyID, CareRecord(createdAt: createdAt, event: event))
+                analytics.track(.careRecordSaved(category: event.category))
                 await send(._internal(.recordAdded))
             } catch {
                 await send(._internal(.recordAddFailed(error)))

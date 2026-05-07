@@ -25,5 +25,6 @@ public struct BabyRegisterFlowView: View {
                 ExistingBabyRegisterView(store: existingStore)
             }
         }
+        .task { store.send(.view(.task)) }
     }
 }

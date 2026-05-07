@@ -47,6 +47,7 @@ public struct DiaryEditorFeature {
 
     public enum Action: BindableAction {
         public enum ViewAction: Equatable {
+            case task
             case removePhotoButtonTapped(DiaryPhoto.ID)
             case cancelButtonTapped
             case saveButtonTapped
@@ -71,6 +72,7 @@ public struct DiaryEditorFeature {
         case binding(BindingAction<State>)
     }
 
+    @Dependency(\.analytics) var analytics
     @Dependency(\.noteClient) var noteClient
     @Dependency(\.storageClient) var storageClient
     @Dependency(\.authClient) var authClient
@@ -114,6 +116,9 @@ public struct DiaryEditorFeature {
                 state.photos.append(photo)
                 return .none
 
+            case .view(.task):
+                return .run { [analytics] _ in analytics.trackScreen(.noteEditor) }
+
             case let .view(.removePhotoButtonTapped(id)):
                 state.photos.removeAll { $0.id == id }
                 state.pickerItems.removeAll { $0.itemIdentifier == id }
@@ -138,7 +143,7 @@ public struct DiaryEditorFeature {
                 let date = state.date
                 let photoDatas = state.photos.map(\.data)
                 AppLogger.info("save start noteID=\(noteID) creatorID=\(creatorID) photos=\(photoDatas.count)")
-                return .run { [storageClient, noteClient, babyID = state.babyID] send in
+                return .run { [analytics, storageClient, noteClient, babyID = state.babyID] send in
                     let imageURLs: [URL]
                     do throws(StorageError) {
                         imageURLs = try await uploadDiaryPhotos(
@@ -178,6 +183,7 @@ public struct DiaryEditorFeature {
                         return
                     }
                     AppLogger.info("save completed noteID=\(noteID)")
+                    analytics.track(.noteCreated(noteID: noteID))
                     await send(._internal(.saveCompleted))
                 }
 

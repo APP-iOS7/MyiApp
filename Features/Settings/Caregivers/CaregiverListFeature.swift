@@ -43,6 +43,7 @@ public struct CaregiverListFeature {
         case alert(PresentationAction<Alert>)
     }
 
+    @Dependency(\.analytics) var analytics
     @Dependency(\.caregiverClient) var caregiverClient
     @Dependency(\.babyClient) var babyClient
 
@@ -56,12 +57,15 @@ public struct CaregiverListFeature {
             switch action {
             case .view(.task):
                 let ids = state.baby.caregiverIDs
-                return .run { [caregiverClient] send in
-                    for await caregivers in caregiverClient.streamCaregivers(ids) {
-                        await send(._internal(.caregiversLoaded(caregivers)))
+                return .merge(
+                    .run { [caregiverClient] send in
+                        for await caregivers in caregiverClient.streamCaregivers(ids) {
+                            await send(._internal(.caregiversLoaded(caregivers)))
+                        }
                     }
-                }
-                .cancellable(id: CancelID.stream, cancelInFlight: true)
+                    .cancellable(id: CancelID.stream, cancelInFlight: true),
+                    .run { [analytics] _ in analytics.trackScreen(.caregiverInvite) }
+                )
 
             case let .view(.removeTapped(id)):
                 guard state.isMainCaregiver,

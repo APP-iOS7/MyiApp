@@ -22,6 +22,7 @@ public struct CryAnalysisHomeView: View {
             }
         }
         .alert($store.scope(state: \.alert, action: \.alert))
+        .task { store.send(.view(.task)) }
     }
 
     private var introContent: some View {

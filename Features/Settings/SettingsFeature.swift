@@ -41,6 +41,7 @@ public struct SettingsFeature {
 
     public enum Action: BindableAction {
         public enum ViewAction {
+            case task
             case signOutTapped
             case deleteAccountTapped
             case signOutConfirmed
@@ -69,6 +70,7 @@ public struct SettingsFeature {
         case path(StackActionOf<Path>)
     }
 
+    @Dependency(\.analytics) var analytics
     @Dependency(\.authClient) var authClient
 
     public init() {}
@@ -79,6 +81,9 @@ public struct SettingsFeature {
             switch action {
             case .binding:
                 return .none
+
+            case .view(.task):
+                return .run { [analytics] _ in analytics.trackScreen(.settings) }
 
             case .view(.signOutTapped):
                 state.alert = AlertState {
