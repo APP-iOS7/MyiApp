@@ -1,4 +1,5 @@
 import Domain
+@preconcurrency import FirebaseAnalytics
 @preconcurrency import FirebaseAuth
 import FirebaseCore
 @preconcurrency import FirebaseCrashlytics
@@ -27,6 +28,7 @@ public enum AppBootstrap {
 
         Auth.auth().addStateDidChangeListener { _, user in
             Crashlytics.crashlytics().setUserID(user?.uid ?? "")
+            Analytics.setUserID(user?.uid)
         }
 
         AppLogger.info("AppBootstrap configured")

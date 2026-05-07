@@ -67,6 +67,7 @@ public struct MainTabFeature {
         case notificationSync(NotificationSyncFeature.Action)
     }
 
+    @Dependency(\.analytics) var analytics
     @Dependency(\.babyClient) var babyClient
     @Dependency(\.caregiverClient) var caregiverClient
 
@@ -84,6 +85,29 @@ public struct MainTabFeature {
         state.note.baby = baby
         state.cryAnalysis.baby = baby
         state.statistic.baby = baby
+    }
+
+    private func emitUserProperties(state: State) -> Effect<Action> {
+        let babyCount = state.babies.count
+        let hasCaregiver = (state.babies.first?.caregiverIDs.count ?? 0) > 1
+        let bucket: BabyAgeBucket = {
+            guard let baby = state.babies.first else { return .zeroToThree }
+
+            let months = Calendar.current.dateComponents(
+                [.month],
+                from: baby.birthDate,
+                to: Date()
+            ).month ?? 0
+            return BabyAgeBucket(monthsOld: months)
+        }()
+        let provider = AnalyticsAuthProvider(providerIDs: state.session.providerIDs)
+
+        return .run { [analytics] _ in
+            analytics.setUserProperty(.babyCount(babyCount))
+            analytics.setUserProperty(.hasCaregiver(hasCaregiver))
+            analytics.setUserProperty(.babyAgeMonthsBucket(bucket))
+            analytics.setUserProperty(.authProvider(provider))
+        }
     }
 
     public var body: some ReducerOf<Self> {
@@ -126,6 +150,7 @@ public struct MainTabFeature {
             case .view(.task):
                 return .merge(
                     .send(.notificationSync(.view(.task))),
+                    emitUserProperties(state: state),
                     .run { [babyClient] send in
                         for await babies in babyClient.streamBabies() {
                             await send(._internal(.babiesLoaded(babies)))
@@ -145,7 +170,7 @@ public struct MainTabFeature {
                 state.settings.babies = state.babies
                 state.home.babies = state.babies
                 propagateSelectedBaby(into: &state)
-                return .none
+                return emitUserProperties(state: state)
 
             case let ._internal(.caregiverLoaded(caregiver)):
                 guard let caregiver else { return .none }
