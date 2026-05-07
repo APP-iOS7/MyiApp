@@ -39,5 +39,6 @@ public struct LoginView: View {
         .background(Color.Semantic.launchBackground.ignoresSafeArea())
         .loadingOverlay(isPresented: store.isLoading)
         .alert($store.scope(state: \.alert, action: \.alert))
+        .task { store.send(.view(.task)) }
     }
 }

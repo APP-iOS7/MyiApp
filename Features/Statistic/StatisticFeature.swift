@@ -95,6 +95,7 @@ public struct StatisticFeature {
         case pdfPreview(PresentationAction<PDFPreviewFeature.Action>)
     }
 
+    @Dependency(\.analytics) var analytics
     @Dependency(\.careRecordClient) var careRecordClient
 
     public init() {}
@@ -104,12 +105,24 @@ public struct StatisticFeature {
         Reduce { state, action in
             switch action {
             case .view(.task):
+                let currentPeriod = period(for: state.mode)
                 return .merge(
                     loadRecords(for: state),
-                    loadGrowthRecords(for: state)
+                    loadGrowthRecords(for: state),
+                    .run { [analytics] _ in
+                        analytics.trackScreen(.statistic)
+                        analytics.track(.statisticViewed(period: currentPeriod))
+                    }
                 )
 
-            case .binding(\.mode), .binding(\.selectedDate):
+            case .binding(\.mode):
+                let currentPeriod = period(for: state.mode)
+                return .merge(
+                    loadRecords(for: state),
+                    .run { [analytics] _ in analytics.track(.statisticViewed(period: currentPeriod)) }
+                )
+
+            case .binding(\.selectedDate):
                 return loadRecords(for: state)
 
             case let ._internal(.recordsLoaded(records)):
@@ -137,7 +150,7 @@ public struct StatisticFeature {
                     records: state.records,
                     date: state.selectedDate
                 )
-                return .none
+                return .run { [analytics] _ in analytics.track(.statisticPDFExported) }
 
             case .pdfPreview:
                 return .none
@@ -152,6 +165,13 @@ public struct StatisticFeature {
         .forEach(\.path, action: \.path)
         .ifLet(\.$pdfPreview, action: \.pdfPreview) {
             PDFPreviewFeature()
+        }
+    }
+
+    private func period(for mode: Mode) -> StatisticPeriod {
+        switch mode {
+        case .daily: .day
+        case .weekly: .week
         }
     }
 

@@ -17,6 +17,7 @@ public struct CryAnalysisHomeFeature {
 
     public enum Action {
         public enum ViewAction {
+            case task
             case startTapped
             case recordsButtonTapped
         }
@@ -36,6 +37,7 @@ public struct CryAnalysisHomeFeature {
         case alert(PresentationAction<Alert>)
     }
 
+    @Dependency(\.analytics) var analytics
     @Dependency(\.audioRecorderClient) var audioRecorderClient
     @Dependency(\.openURL) var openURL
 
@@ -44,6 +46,9 @@ public struct CryAnalysisHomeFeature {
     public var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .view(.task):
+                return .run { [analytics] _ in analytics.trackScreen(.cryAnalysisHome) }
+
             case .view(.startTapped):
                 return .run { [audioRecorderClient] send in
                     let granted = await audioRecorderClient.requestPermission()

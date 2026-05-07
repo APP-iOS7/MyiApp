@@ -37,6 +37,7 @@ public struct CryAnalysisFeature {
     }
 
     @Dependency(\.audioRecorderClient) var audioRecorderClient
+    @Dependency(\.analytics)           var analytics
     @Dependency(\.cryAnalysisClient)   var cryAnalysisClient
     @Dependency(\.cryRecordClient)     var cryRecordClient
     @Dependency(\.continuousClock)     var clock
@@ -56,24 +57,27 @@ public struct CryAnalysisFeature {
             case let .view(viewAction):
                 switch viewAction {
                 case .task:
-                    return .run { [audioRecorderClient, uuid] send in
-                        let url = FileManager.default.temporaryDirectory
-                            .appendingPathComponent(uuid().uuidString)
-                            .appendingPathExtension("caf")
-                        await withTaskCancellationHandler {
-                            do {
-                                try await audioRecorderClient.startRecording(url)
-                            } catch {
-                                await send(._internal(.recordingFailed))
+                    return .merge(
+                        .run { [analytics] _ in analytics.trackScreen(.cryAnalysisRunning) },
+                        .run { [audioRecorderClient, uuid] send in
+                            let url = FileManager.default.temporaryDirectory
+                                .appendingPathComponent(uuid().uuidString)
+                                .appendingPathExtension("caf")
+                            await withTaskCancellationHandler {
+                                do {
+                                    try await audioRecorderClient.startRecording(url)
+                                } catch {
+                                    await send(._internal(.recordingFailed))
+                                    try? FileManager.default.removeItem(at: url)
+                                    return
+                                }
+                                await send(._internal(.tickingStarted(url)))
+                            } onCancel: {
                                 try? FileManager.default.removeItem(at: url)
-                                return
                             }
-                            await send(._internal(.tickingStarted(url)))
-                        } onCancel: {
-                            try? FileManager.default.removeItem(at: url)
                         }
-                    }
-                    .cancellable(id: CancelID.lifecycle)
+                        .cancellable(id: CancelID.lifecycle)
+                    )
 
                 case .cancelTapped:
                     return .merge(
@@ -120,20 +124,23 @@ public struct CryAnalysisFeature {
                     .cancellable(id: CancelID.lifecycle)
 
                 case let .recordingFinished(url):
-                    return .run { [cryAnalysisClient] send in
-                        await withTaskCancellationHandler {
-                            do {
-                                let record = try await cryAnalysisClient.analyze(url)
-                                await send(._internal(.analysisSucceeded(record)))
-                            } catch {
-                                await send(._internal(.analysisFailed))
+                    return .merge(
+                        .run { [analytics] _ in analytics.track(.cryAnalysisStarted) },
+                        .run { [cryAnalysisClient] send in
+                            await withTaskCancellationHandler {
+                                do {
+                                    let record = try await cryAnalysisClient.analyze(url)
+                                    await send(._internal(.analysisSucceeded(record)))
+                                } catch {
+                                    await send(._internal(.analysisFailed))
+                                }
+                                try? FileManager.default.removeItem(at: url)
+                            } onCancel: {
+                                try? FileManager.default.removeItem(at: url)
                             }
-                            try? FileManager.default.removeItem(at: url)
-                        } onCancel: {
-                            try? FileManager.default.removeItem(at: url)
                         }
-                    }
-                    .cancellable(id: CancelID.lifecycle)
+                        .cancellable(id: CancelID.lifecycle)
+                    )
 
                 case .recordingFailed:
                     state.stage = .failure(.recordingFailed)
@@ -150,15 +157,22 @@ public struct CryAnalysisFeature {
 
                 case let .analysisSucceeded(record):
                     let scores = record.aggregatedScores
+                    let primary = scores.first ?? EmotionScore(emotion: .unknown, confidence: 0)
                     state.stage = .result(
                         ResultDisplay(
-                            primary: scores.first ?? EmotionScore(emotion: .unknown, confidence: 0),
+                            primary: primary,
                             others: Array(scores.dropFirst().prefix(3))
                         )
                     )
-                    return .run { [cryRecordClient, babyID = state.baby.id, record] _ in
-                        try? await cryRecordClient.addRecord(babyID, record)
-                    }
+                    return .merge(
+                        .run { [analytics, emotion = primary.emotion] _ in
+                            analytics.trackScreen(.cryAnalysisResult)
+                            analytics.track(.cryAnalysisResultViewed(emotion: emotion))
+                        },
+                        .run { [cryRecordClient, babyID = state.baby.id, record] _ in
+                            try? await cryRecordClient.addRecord(babyID, record)
+                        }
+                    )
                 }
             }
         }

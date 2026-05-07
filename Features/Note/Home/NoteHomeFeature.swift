@@ -63,6 +63,7 @@ public struct NoteHomeFeature {
 
     private enum CancelID { case notesStream }
 
+    @Dependency(\.analytics) var analytics
     @Dependency(\.noteClient) var noteClient
 
     public init() {}
@@ -71,7 +72,13 @@ public struct NoteHomeFeature {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .view(.task), .binding(\.month):
+            case .view(.task):
+                return .merge(
+                    streamEffect(state: state),
+                    .run { [analytics] _ in analytics.trackScreen(.noteList) }
+                )
+
+            case .binding(\.month):
                 return streamEffect(state: state)
 
             case .view(.diaryButtonTapped):

@@ -50,6 +50,7 @@ public struct SettingsView: View {
                 CaregiverListView(store: store)
             }
         }
+        .task { store.send(.view(.task)) }
     }
 }
 
