@@ -113,7 +113,9 @@ let project = Project(
             scripts: [
                 .post(
                     script: """
-                    "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run"
+                    SCRIPT="${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run"
+                    [ -f "$SCRIPT" ] || SCRIPT="${SRCROOT}/Tuist/.build/checkouts/firebase-ios-sdk/Crashlytics/run"
+                    "$SCRIPT"
                     """,
                     name: "Firebase Crashlytics dSYM Upload",
                     inputPaths: [
