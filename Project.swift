@@ -92,6 +92,7 @@ let project = Project(
                 "CFBundleVersion": "$(CURRENT_PROJECT_VERSION)",
                 "UILaunchStoryboardName": "LaunchScreen",
                 "ITSAppUsesNonExemptEncryption": false,
+                "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"],
                 "NSMicrophoneUsageDescription": "아기의 울음소리를 분석하기 위해 마이크 권한이 필요합니다.",
                 "UIBackgroundModes": ["remote-notification"],
                 "CFBundleURLTypes": [
