@@ -15,13 +15,14 @@ public struct CryAnalysisHomeView: View {
             introContent
         } destination: { childStore in
             switch childStore.case {
-            case let .analysis(store):
-                CryAnalysisView(store: store)
             case let .recordList(store):
                 CryRecordListView(store: store)
             }
         }
         .alert($store.scope(state: \.alert, action: \.alert))
+        .fullScreenCover(item: $store.scope(state: \.analysis, action: \.analysis)) { analysisStore in
+            CryAnalysisView(store: analysisStore)
+        }
         .task { store.send(.view(.task)) }
     }
 
