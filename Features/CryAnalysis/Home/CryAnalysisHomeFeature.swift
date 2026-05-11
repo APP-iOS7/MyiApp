@@ -9,6 +9,7 @@ public struct CryAnalysisHomeFeature {
         public var baby: Baby
         public var path = StackState<Path.State>()
         @Presents public var alert: AlertState<Action.Alert>?
+        @Presents public var analysis: CryAnalysisFeature.State?
 
         public init(baby: Baby) {
             self.baby = baby
@@ -35,6 +36,7 @@ public struct CryAnalysisHomeFeature {
 
         case path(StackAction<Path.State, Path.Action>)
         case alert(PresentationAction<Alert>)
+        case analysis(PresentationAction<CryAnalysisFeature.Action>)
     }
 
     @Dependency(\.analytics) var analytics
@@ -60,7 +62,7 @@ public struct CryAnalysisHomeFeature {
                 return .none
 
             case ._internal(.permissionResolved(true)):
-                state.path.append(.analysis(CryAnalysisFeature.State(baby: state.baby)))
+                state.analysis = CryAnalysisFeature.State(baby: state.baby)
                 return .none
 
             case ._internal(.permissionResolved(false)):
@@ -85,11 +87,14 @@ public struct CryAnalysisHomeFeature {
                     _ = await openURL(url)
                 }
 
-            case .alert, .path:
+            case .alert, .analysis, .path:
                 return .none
             }
         }
         .ifLet(\.$alert, action: \.alert)
+        .ifLet(\.$analysis, action: \.analysis) {
+            CryAnalysisFeature()
+        }
         .forEach(\.path, action: \.path)
     }
 }
@@ -97,7 +102,6 @@ public struct CryAnalysisHomeFeature {
 extension CryAnalysisHomeFeature {
     @Reducer
     public enum Path {
-        case analysis(CryAnalysisFeature)
         case recordList(CryRecordListFeature)
     }
 }

@@ -36,6 +36,5 @@ public struct CryAnalysisView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.Semantic.screenBackground.ignoresSafeArea())
         .task { await store.send(.view(.task)).finish() }
-        .toolbar(.hidden, for: .navigationBar, .tabBar)
     }
 }
