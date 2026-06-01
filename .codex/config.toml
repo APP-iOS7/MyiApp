@@ -1,0 +1,6 @@
+[mcp_servers.axiom]
+command = "npx"
+args = [
+    "-y",
+    "axiom-mcp",
+]

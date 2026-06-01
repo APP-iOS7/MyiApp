@@ -1,0 +1,108 @@
+<svg width="1200" height="720" viewBox="0 0 1200 720" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">My I key features</title>
+  <desc id="desc">My I의 주요 기능인 울음 분석, 홈 타임라인, 육아 기록, 기록 분석, 일정과 알림, 공동 양육자 관리를 6개 카드로 정리한 다이어그램입니다.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#1D2B3A" flood-opacity="0.12"/>
+    </filter>
+    <linearGradient id="headerGradient" x1="80" y1="44" x2="1120" y2="132" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7FBFF"/>
+      <stop offset="1" stop-color="#FFF8F4"/>
+    </linearGradient>
+    <linearGradient id="blueIcon" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5A8DEE"/>
+      <stop offset="1" stop-color="#82D7F7"/>
+    </linearGradient>
+    <style>
+      .title { font: 700 36px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; fill: #152233; }
+      .subtitle { font: 500 18px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; fill: #526274; }
+      .cardTitle { font: 700 25px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; fill: #152233; }
+      .cardBody { font: 600 18px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; fill: #4D5B6C; }
+      .tag { font: 700 15px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; fill: #236483; }
+      .number { font: 700 17px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; fill: #FFFFFF; }
+      .iconStroke { stroke: #FFFFFF; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <rect width="1200" height="720" rx="40" fill="#F5F8FB"/>
+  <rect x="56" y="40" width="1088" height="104" rx="30" fill="url(#headerGradient)" filter="url(#shadow)"/>
+  <text x="92" y="86" class="title">주요 기능</text>
+  <text x="92" y="118" class="subtitle">돌봄 상황에서 반복적으로 필요한 판단, 기록, 공유, 확인 흐름을 하나의 앱 안에 모았습니다.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="70" y="180" width="330" height="210" rx="26" fill="#FFFFFF"/>
+    <circle cx="118" cy="228" r="32" fill="url(#blueIcon)"/>
+    <path d="M103 228H108L113 215L123 242L130 221L135 228H142" class="iconStroke"/>
+    <circle cx="364" cy="216" r="16" fill="#5A8DEE"/>
+    <text x="364" y="222" text-anchor="middle" class="number">1</text>
+    <text x="102" y="294" class="cardTitle">울음 분석</text>
+    <text x="102" y="328" class="cardBody">아기 울음소리를 분석해</text>
+    <text x="102" y="354" class="cardBody">상태 판단을 보조합니다.</text>
+    <rect x="170" y="213" width="112" height="30" rx="15" fill="#DDF4FF"/>
+    <text x="226" y="234" text-anchor="middle" class="tag">AI · Audio</text>
+
+    <rect x="435" y="180" width="330" height="210" rx="26" fill="#FFFFFF"/>
+    <circle cx="483" cy="228" r="32" fill="url(#blueIcon)"/>
+    <path d="M483 208V248" class="iconStroke"/>
+    <path d="M467 218H499M467 238H499" class="iconStroke"/>
+    <circle cx="467" cy="218" r="4" fill="#FFFFFF"/>
+    <circle cx="499" cy="238" r="4" fill="#FFFFFF"/>
+    <circle cx="729" cy="216" r="16" fill="#5A8DEE"/>
+    <text x="729" y="222" text-anchor="middle" class="number">2</text>
+    <text x="467" y="294" class="cardTitle">홈 타임라인</text>
+    <text x="467" y="328" class="cardBody">수유, 수면, 배변 기록을</text>
+    <text x="467" y="354" class="cardBody">하루 흐름으로 보여줍니다.</text>
+    <rect x="535" y="213" width="104" height="30" rx="15" fill="#DDF4FF"/>
+    <text x="587" y="234" text-anchor="middle" class="tag">Daily Log</text>
+
+    <rect x="800" y="180" width="330" height="210" rx="26" fill="#FFFFFF"/>
+    <circle cx="848" cy="228" r="32" fill="url(#blueIcon)"/>
+    <path d="M836 211H860L866 217V245H836V211Z" class="iconStroke"/>
+    <path d="M844 226H858M844 238H858" class="iconStroke"/>
+    <circle cx="1094" cy="216" r="16" fill="#5A8DEE"/>
+    <text x="1094" y="222" text-anchor="middle" class="number">3</text>
+    <text x="832" y="294" class="cardTitle">육아 기록</text>
+    <text x="832" y="328" class="cardBody">아기의 일상과 성장 과정을</text>
+    <text x="832" y="354" class="cardBody">사진과 함께 관리합니다.</text>
+    <rect x="900" y="213" width="92" height="30" rx="15" fill="#DDF4FF"/>
+    <text x="946" y="234" text-anchor="middle" class="tag">Note</text>
+
+    <rect x="70" y="430" width="330" height="210" rx="26" fill="#FFFFFF"/>
+    <circle cx="118" cy="478" r="32" fill="url(#blueIcon)"/>
+    <path d="M105 492V475M118 492V463M131 492V482" class="iconStroke"/>
+    <path d="M102 492H136" class="iconStroke"/>
+    <circle cx="364" cy="466" r="16" fill="#5A8DEE"/>
+    <text x="364" y="472" text-anchor="middle" class="number">4</text>
+    <text x="102" y="544" class="cardTitle">기록 분석</text>
+    <text x="102" y="578" class="cardBody">누적된 기록을 통계로</text>
+    <text x="102" y="604" class="cardBody">시각화해 패턴을 확인합니다.</text>
+    <rect x="170" y="463" width="112" height="30" rx="15" fill="#DDF4FF"/>
+    <text x="226" y="484" text-anchor="middle" class="tag">Insight</text>
+
+    <rect x="435" y="430" width="330" height="210" rx="26" fill="#FFFFFF"/>
+    <circle cx="483" cy="478" r="32" fill="url(#blueIcon)"/>
+    <path d="M483 459C474 459 469 466 469 475V487L462 496H504L497 487V475C497 466 492 459 483 459Z" class="iconStroke"/>
+    <path d="M476 499C478 504 488 504 490 499" class="iconStroke"/>
+    <circle cx="729" cy="466" r="16" fill="#5A8DEE"/>
+    <text x="729" y="472" text-anchor="middle" class="number">5</text>
+    <text x="467" y="544" class="cardTitle">일정과 알림</text>
+    <text x="467" y="578" class="cardBody">리마인더를 등록해</text>
+    <text x="467" y="604" class="cardBody">중요한 일정을 놓치지 않습니다.</text>
+    <rect x="535" y="463" width="106" height="30" rx="15" fill="#DDF4FF"/>
+    <text x="588" y="484" text-anchor="middle" class="tag">Reminder</text>
+
+    <rect x="800" y="430" width="330" height="210" rx="26" fill="#FFFFFF"/>
+    <circle cx="848" cy="478" r="32" fill="url(#blueIcon)"/>
+    <circle cx="839" cy="470" r="8" class="iconStroke"/>
+    <circle cx="858" cy="470" r="8" class="iconStroke"/>
+    <path d="M826 496C829 487 849 487 852 496" class="iconStroke"/>
+    <path d="M846 496C849 487 869 487 872 496" class="iconStroke"/>
+    <circle cx="1094" cy="466" r="16" fill="#5A8DEE"/>
+    <text x="1094" y="472" text-anchor="middle" class="number">6</text>
+    <text x="832" y="544" class="cardTitle">공동 양육자 관리</text>
+    <text x="832" y="578" class="cardBody">여러 보호자가 같은 정보를</text>
+    <text x="832" y="604" class="cardBody">함께 확인하고 관리합니다.</text>
+    <rect x="900" y="463" width="118" height="30" rx="15" fill="#DDF4FF"/>
+    <text x="959" y="484" text-anchor="middle" class="tag">Sync</text>
+  </g>
+</svg>
