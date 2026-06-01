@@ -63,7 +63,6 @@ My I는 울음 분석부터 기록, 통계, 알림, 공동 양육자 관리까�
 ```bash
 tuist install
 tuist generate
-open MyI.xcworkspace
 ```
 
 ## 개발 환경
@@ -79,6 +78,4 @@ open MyI.xcworkspace
 
 ## 문서
 
-- [개인정보처리방침](privacy-policy.md)
-- [이용약관](terms.md)
-- [라이선스](LICENSE)
+- [위키](https://github.com/APP-iOS7/MyiApp/wiki)
